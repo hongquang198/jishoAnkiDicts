@@ -60,7 +60,7 @@ class _DrawScreenState extends State<DrawScreen> {
           ),
           _drawCanvasWidget(),
           SizedBox(
-            height: 10,
+            height: 12,
           ),
           PredictionWidget(
             predictions: _prediction,
