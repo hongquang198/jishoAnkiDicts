@@ -56,11 +56,11 @@ class _DrawScreenState extends State<DrawScreen> {
             ],
           ),
           SizedBox(
-            height: 10,
+            height: 5,
           ),
           _drawCanvasWidget(),
           SizedBox(
-            height: 12,
+            height: 5,
           ),
           PredictionWidget(
             predictions: _prediction,
@@ -68,6 +68,7 @@ class _DrawScreenState extends State<DrawScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.transparent,
         child: Icon(Icons.clear),
         onPressed: () {
           setState(() {
