@@ -12,7 +12,7 @@ class PredictionWidget extends StatelessWidget {
       double confidence = prediction.confidence;
       print('index $index label $label confidence $confidence');
     });
-    return Text(prediction.label + prediction.confidence.toString(),
+    return Text(prediction.label + prediction.confidence.toStringAsFixed(2),
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,

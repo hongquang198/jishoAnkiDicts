@@ -14,16 +14,15 @@ final _whitePaint = Paint()
   ..color = Colors.white
   ..strokeWidth = Constants.strokeWidth;
 
-final _bgPaint = Paint()
-  ..color = Colors.black;
+final _bgPaint = Paint()..color = Colors.black;
 
 class Recognizer {
-  Future loadModel() {
+  Future loadModel({String modelPath, String labelPath}) {
     Tflite.close();
 
     return Tflite.loadModel(
-      model: "assets/mnist.tflite",
-      labels: "assets/mnist.txt",
+      model: modelPath,
+      labels: labelPath,
     );
   }
 
@@ -33,7 +32,8 @@ class Recognizer {
 
   Future<Uint8List> previewImage(List<Offset> points) async {
     final picture = _pointsToPicture(points);
-    final image = await picture.toImage(Constants.mnistImageSize, Constants.mnistImageSize);
+    final image = await picture.toImage(
+        Constants.mnistImageSize, Constants.mnistImageSize);
     var pngBytes = await image.toByteData(format: ImageByteFormat.png);
 
     return pngBytes.buffer.asUint8List();
@@ -41,8 +41,8 @@ class Recognizer {
 
   Future recognize(List<Offset> points) async {
     final picture = _pointsToPicture(points);
-    Uint8List bytes = await _imageToByteListUint8(
-        picture, Constants.mnistImageSize);
+    Uint8List bytes =
+        await _imageToByteListUint8(picture, Constants.mnistImageSize);
     return _predict(bytes);
   }
 

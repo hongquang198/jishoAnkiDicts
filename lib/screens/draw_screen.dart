@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -16,12 +17,18 @@ class _DrawScreenState extends State<DrawScreen> {
   final _points = List<Offset>();
   final _recognizer = Recognizer();
   List<Prediction> _prediction;
+  List<Prediction> _prediction2;
   bool initialize = false;
+  bool firstModelPredictionHasFinished = true;
+  final modelFilePath1 = "assets/mnist.tflite";
+  final labelFilePath1 = "assets/mnist.txt";
+  final modelFilePath2 = "assets/mnist2.tflite";
+  final labelFilePath2 = "assets/label3036.txt";
 
   @override
   void initState() {
     super.initState();
-    _initModel();
+    _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
   }
 
   @override
@@ -62,8 +69,16 @@ class _DrawScreenState extends State<DrawScreen> {
           SizedBox(
             height: 5,
           ),
-          PredictionWidget(
-            predictions: _prediction,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              PredictionWidget(
+                predictions: _prediction,
+              ),
+              PredictionWidget(
+                predictions: _prediction2,
+              ),
+            ],
           ),
         ],
       ),
@@ -74,6 +89,7 @@ class _DrawScreenState extends State<DrawScreen> {
           setState(() {
             _points.clear();
             _prediction.clear();
+            _prediction2.clear();
           });
         },
       ),
@@ -102,9 +118,16 @@ class _DrawScreenState extends State<DrawScreen> {
             });
           }
         },
-        onPanEnd: (DragEndDetails details) {
+        onPanEnd: (DragEndDetails details) async {
           _points.add(null);
-          _recognize();
+          await _recognize();
+          await Future.delayed(Duration(milliseconds: 500));
+          _initModel(
+              modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
+          await _recognize(isForSecondModel: true);
+          await Future.delayed(Duration(milliseconds: 500));
+          _initModel(
+              modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
         },
         child: CustomPaint(
           painter: DrawingPainter(_points),
@@ -136,18 +159,23 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  void _initModel() async {
-    var res = await _recognizer.loadModel();
+  void _initModel({String modelFilePath, String labelFilePath}) async {
+    var res = await _recognizer.loadModel(
+        modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
   Future<Uint8List> _previewImage() async {
     return await _recognizer.previewImage(_points);
   }
 
-  void _recognize() async {
+  Future _recognize({bool isForSecondModel = false}) async {
     List<dynamic> pred = await _recognizer.recognize(_points);
     setState(() {
-      _prediction = pred.map((json) => Prediction.fromJson(json)).toList();
+      if (!isForSecondModel)
+        _prediction = pred.map((json) => Prediction.fromJson(json)).toList();
+      else
+        _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
     });
+    return pred;
   }
 }
