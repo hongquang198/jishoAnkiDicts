@@ -121,12 +121,11 @@ class _DrawScreenState extends State<DrawScreen> {
         onPanEnd: (DragEndDetails details) async {
           _points.add(null);
           await _recognize();
-          await Future.delayed(Duration(milliseconds: 500));
-          _initModel(
+          await _initModel(
               modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
+
           await _recognize(isForSecondModel: true);
-          await Future.delayed(Duration(milliseconds: 500));
-          _initModel(
+          await _initModel(
               modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
         },
         child: CustomPaint(
@@ -159,7 +158,7 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  void _initModel({String modelFilePath, String labelFilePath}) async {
+  Future _initModel({String modelFilePath, String labelFilePath}) async {
     var res = await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
@@ -176,6 +175,5 @@ class _DrawScreenState extends State<DrawScreen> {
       else
         _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
     });
-    return pred;
   }
 }
