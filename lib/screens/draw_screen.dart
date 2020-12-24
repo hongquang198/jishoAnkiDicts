@@ -37,56 +37,73 @@ class _DrawScreenState extends State<DrawScreen> {
       appBar: AppBar(
         title: Text('Japanese Recognizer'),
       ),
-      body: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        'ETL database of handwritten Japanese',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          'ETL database of handwritten Japanese',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'The digits have been size-normalized and centered in a fixed-size images (28 x 28)',
-                      )
-                    ],
+                        Text(
+                          'The digits have been size-normalized and centered in a fixed-size images (28 x 28)',
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _mnistPreviewImage(),
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          _drawCanvasWidget(),
-          SizedBox(
-            height: 5,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // ignore: null_aware_in_condition
-              _prediction?.isNotEmpty ?? false
-                  ? PredictionWidget(
-                      predictions: _prediction,
-                    )
-                  : Container(),
-              // ignore: null_aware_in_condition
-              _prediction2?.isNotEmpty ?? false
-                  ? PredictionWidget(
-                      predictions: _prediction2,
-                    )
-                  : Container(),
-            ],
-          ),
-        ],
+                _mnistPreviewImage(),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            _drawCanvasWidget(),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // ignore: null_aware_in_condition
+                _prediction?.isNotEmpty ?? false
+                    ? Column(
+                        children: [
+                          Text(
+                            "Dataset 879",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          PredictionWidget(
+                            predictions: _prediction,
+                          ),
+                        ],
+                      )
+                    : Container(),
+                // ignore: null_aware_in_condition
+                _prediction2?.isNotEmpty ?? false
+                    ? Column(
+                        children: [
+                          Text("Dataset 3036",
+                              style: TextStyle(color: Colors.blue)),
+                          PredictionWidget(
+                            predictions: _prediction2,
+                          ),
+                        ],
+                      )
+                    : Container(),
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.transparent,
