@@ -72,12 +72,18 @@ class _DrawScreenState extends State<DrawScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              PredictionWidget(
-                predictions: _prediction,
-              ),
-              PredictionWidget(
-                predictions: _prediction2,
-              ),
+              // ignore: null_aware_in_condition
+              _prediction?.isNotEmpty ?? false
+                  ? PredictionWidget(
+                      predictions: _prediction,
+                    )
+                  : Container(),
+              // ignore: null_aware_in_condition
+              _prediction2?.isNotEmpty ?? false
+                  ? PredictionWidget(
+                      predictions: _prediction2,
+                    )
+                  : Container(),
             ],
           ),
         ],
