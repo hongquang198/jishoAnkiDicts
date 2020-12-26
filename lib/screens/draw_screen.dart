@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:mnistdigitrecognizer/models/prediction.dart';
-import 'package:mnistdigitrecognizer/screens/drawing_painter.dart';
-import 'package:mnistdigitrecognizer/screens/prediction_widget.dart';
-import 'package:mnistdigitrecognizer/services/recognizer.dart';
-import 'package:mnistdigitrecognizer/utils/constants.dart';
+import 'package:JapaneseOCR/models/prediction.dart';
+import 'package:JapaneseOCR/screens/drawing_painter.dart';
+import 'package:JapaneseOCR/screens/prediction_widget.dart';
+import 'package:JapaneseOCR/services/recognizer.dart';
+import 'package:JapaneseOCR/utils/constants.dart';
 
 class DrawScreen extends StatefulWidget {
   @override
@@ -121,11 +121,11 @@ class _DrawScreenState extends State<DrawScreen> {
         onPanEnd: (DragEndDetails details) async {
           _points.add(null);
           await _recognize();
-          await Future.delayed(Duration(milliseconds: 500));
+          await Future.delayed(Duration(milliseconds: 700));
           _initModel(
               modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
           await _recognize(isForSecondModel: true);
-          await Future.delayed(Duration(milliseconds: 500));
+          await Future.delayed(Duration(milliseconds: 700));
           _initModel(
               modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
         },

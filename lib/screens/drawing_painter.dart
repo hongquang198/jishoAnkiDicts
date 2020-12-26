@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mnistdigitrecognizer/utils/constants.dart';
+import 'package:JapaneseOCR/utils/constants.dart';
 
 class DrawingPainter extends CustomPainter {
   final List<Offset> points;
@@ -24,5 +24,4 @@ class DrawingPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
-
 }
