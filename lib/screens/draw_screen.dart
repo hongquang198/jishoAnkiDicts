@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:JapaneseOCR/models/prediction.dart';
-import 'package:JapaneseOCR/screens/drawing_painter.dart';
-import 'package:JapaneseOCR/screens/prediction_widget.dart';
-import 'package:JapaneseOCR/services/recognizer.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
+import 'package:mnistdigitrecognizer/models/prediction.dart';
+import 'package:mnistdigitrecognizer/screens/drawing_painter.dart';
+import 'package:mnistdigitrecognizer/screens/prediction_widget.dart';
+import 'package:mnistdigitrecognizer/services/recognizer.dart';
+import 'package:mnistdigitrecognizer/utils/constants.dart';
 
 class DrawScreen extends StatefulWidget {
   @override
@@ -37,50 +37,73 @@ class _DrawScreenState extends State<DrawScreen> {
       appBar: AppBar(
         title: Text('Japanese Recognizer'),
       ),
-      body: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        'ETL database of handwritten Japanese',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          'ETL database of handwritten Japanese',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'The digits have been size-normalized and centered in a fixed-size images (28 x 28)',
-                      )
-                    ],
+                        Text(
+                          'The digits have been size-normalized and centered in a fixed-size images (28 x 28)',
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _mnistPreviewImage(),
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          _drawCanvasWidget(),
-          SizedBox(
-            height: 5,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              PredictionWidget(
-                predictions: _prediction,
-              ),
-              PredictionWidget(
-                predictions: _prediction2,
-              ),
-            ],
-          ),
-        ],
+                _mnistPreviewImage(),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            _drawCanvasWidget(),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // ignore: null_aware_in_condition
+                _prediction?.isNotEmpty ?? false
+                    ? Column(
+                        children: [
+                          Text(
+                            "Dataset 879",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                          PredictionWidget(
+                            predictions: _prediction,
+                          ),
+                        ],
+                      )
+                    : Container(),
+                // ignore: null_aware_in_condition
+                _prediction2?.isNotEmpty ?? false
+                    ? Column(
+                        children: [
+                          Text("Dataset 3036",
+                              style: TextStyle(color: Colors.blue)),
+                          PredictionWidget(
+                            predictions: _prediction2,
+                          ),
+                        ],
+                      )
+                    : Container(),
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.transparent,
@@ -121,12 +144,11 @@ class _DrawScreenState extends State<DrawScreen> {
         onPanEnd: (DragEndDetails details) async {
           _points.add(null);
           await _recognize();
-          await Future.delayed(Duration(milliseconds: 700));
-          _initModel(
+          await _initModel(
               modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
+
           await _recognize(isForSecondModel: true);
-          await Future.delayed(Duration(milliseconds: 700));
-          _initModel(
+          await _initModel(
               modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
         },
         child: CustomPaint(
@@ -159,7 +181,7 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  void _initModel({String modelFilePath, String labelFilePath}) async {
+  Future _initModel({String modelFilePath, String labelFilePath}) async {
     var res = await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
@@ -176,6 +198,5 @@ class _DrawScreenState extends State<DrawScreen> {
       else
         _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
     });
-    return pred;
   }
 }
