@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:mnistdigitrecognizer/models/prediction.dart';
-import 'package:mnistdigitrecognizer/screens/drawing_painter.dart';
-import 'package:mnistdigitrecognizer/screens/prediction_widget.dart';
-import 'package:mnistdigitrecognizer/services/recognizer.dart';
-import 'package:mnistdigitrecognizer/utils/constants.dart';
+import 'package:JapaneseOCR/models/prediction.dart';
+import 'package:JapaneseOCR/screens/drawing_painter.dart';
+import 'package:JapaneseOCR/screens/prediction_widget.dart';
+import 'package:JapaneseOCR/services/recognizer.dart';
+import 'package:JapaneseOCR/utils/constants.dart';
 
 class DrawScreen extends StatefulWidget {
   @override
