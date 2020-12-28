@@ -22,7 +22,7 @@ class PredictionWidget extends StatelessWidget {
       print('index $index label $label confidence $confidence');
     });
     return Tooltip(
-      message: getKanji(prediction.label).hanViet,
+      message: getKanji(prediction.label)?.hanViet ?? "No definition",
       child: Text(prediction.label + prediction.confidence.toStringAsFixed(2),
           style: TextStyle(
             fontSize: 24,
