@@ -1,12 +1,14 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/models/prediction.dart';
 import 'package:JapaneseOCR/screens/drawing_painter.dart';
 import 'package:JapaneseOCR/screens/prediction_widget.dart';
 import 'package:JapaneseOCR/services/recognizer.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
+import 'package:flutter/services.dart';
 
 class DrawScreen extends StatefulWidget {
   @override
@@ -24,11 +26,13 @@ class _DrawScreenState extends State<DrawScreen> {
   final labelFilePath1 = "assets/mnist.txt";
   final modelFilePath2 = "assets/mnist2.tflite";
   final labelFilePath2 = "assets/label3036.txt";
+  List<Kanji> allKanji = [];
 
   @override
   void initState() {
     super.initState();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+    loadAsset();
   }
 
   @override
@@ -198,5 +202,49 @@ class _DrawScreenState extends State<DrawScreen> {
       else
         _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
     });
+  }
+
+  // ignore: missing_return
+  Future<List<Kanji>> loadAsset() async {
+    List<Kanji> kanjiAll = [];
+
+    try {
+      String contents = await rootBundle.loadString('assets/kanji.txt');
+      List<String> lines = contents.split("\n");
+      int i = 0;
+      lines.forEach((line) {
+        List<String> infoByLine = line.split("\t");
+        Kanji kanji = new Kanji(
+          id: infoByLine[0] != null ? infoByLine[0] : null,
+          keyword: infoByLine[1] != null ? infoByLine[1] : null,
+          hanViet: infoByLine[2] != null ? infoByLine[2] : null,
+          kanji: infoByLine[3] != null ? infoByLine[3] : null,
+          constituent: infoByLine[4] != null ? infoByLine[4] : null,
+          strokeCount: infoByLine[5] != null ? infoByLine[5] : null,
+          lessonNo: infoByLine[6] != null ? infoByLine[6] : null,
+          heisigStory: infoByLine[7] != null ? infoByLine[7] : null,
+          heisigComment: infoByLine[8] != null ? infoByLine[8] : null,
+          koohiiStory1: infoByLine[9] != null ? infoByLine[9] : null,
+          koohiiStory2: infoByLine[10] != null ? infoByLine[10] : null,
+          jouYou: infoByLine[11] != null ? infoByLine[11] : null,
+          jlpt: infoByLine[12] != null ? infoByLine[12] : null,
+          onYomi: infoByLine[13] != null ? infoByLine[13] : null,
+          kunYomi: infoByLine[14] != null ? infoByLine[14] : null,
+          readingExamples: infoByLine[15] != null ? infoByLine[15] : null,
+        );
+        try {
+          kanjiAll.add(kanji);
+        } catch (e) {
+          print("number error is $i");
+          print(e);
+        }
+        i++;
+      });
+    } catch (e) {
+      // If encountering an error, return 0.
+      print(e);
+    }
+    allKanji = kanjiAll;
+    print("herrreee ${allKanji.length}");
   }
 }

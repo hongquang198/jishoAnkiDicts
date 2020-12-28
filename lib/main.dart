@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
         ),
       ),
-      // home: DrawScreen(),
-      home: KanjiInfo(),
+      home: DrawScreen(),
+      // home: KanjiInfo(),
     );
   }
 }
