@@ -27,6 +27,8 @@ class _DrawScreenState extends State<DrawScreen> {
   final modelFilePath2 = "assets/mnist2.tflite";
   final labelFilePath2 = "assets/label3036.txt";
   static List<Kanji> allKanji = [];
+  var test1 = [];
+  var test2 = [];
 
   @override
   void initState() {
