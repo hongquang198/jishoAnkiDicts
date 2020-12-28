@@ -56,11 +56,15 @@ class _DrawScreenState extends State<DrawScreen> {
                         Text(
                           'ETL database of handwritten Japanese',
                           style: TextStyle(
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'The digits have been size-normalized and centered in a fixed-size images (28 x 28)',
+                          'Your written text has been size-normalized and centered in a fixed-size images (28 x 28)',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
                         )
                       ],
                     ),
