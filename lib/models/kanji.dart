@@ -1,17 +1,17 @@
 class Kanji {
-  final int id;
+  final String id;
   final String keyword;
   final String hanViet;
   final String kanji;
   final String constituent;
-  final int strokeCount;
-  final int lessonNo;
+  final String strokeCount;
+  final String lessonNo;
   final String heisigStory;
   final String heisigComment;
   final String koohiiStory1;
   final String koohiiStory2;
-  final int jouYou;
-  final int jlpt;
+  final String jouYou;
+  final String jlpt;
   final String onYomi;
   final String kunYomi;
   final String readingExamples;
