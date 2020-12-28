@@ -26,7 +26,7 @@ class _DrawScreenState extends State<DrawScreen> {
   final labelFilePath1 = "assets/mnist.txt";
   final modelFilePath2 = "assets/mnist2.tflite";
   final labelFilePath2 = "assets/label3036.txt";
-  List<Kanji> allKanji = [];
+  static List<Kanji> allKanji = [];
 
   @override
   void initState() {
@@ -88,6 +88,7 @@ class _DrawScreenState extends State<DrawScreen> {
                           ),
                           PredictionWidget(
                             predictions: _prediction,
+                            kanjiAll: allKanji,
                           ),
                         ],
                       )
@@ -100,6 +101,7 @@ class _DrawScreenState extends State<DrawScreen> {
                               style: TextStyle(color: Colors.blue)),
                           PredictionWidget(
                             predictions: _prediction2,
+                            kanjiAll: allKanji,
                           ),
                         ],
                       )

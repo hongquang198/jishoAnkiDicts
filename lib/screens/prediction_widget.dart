@@ -1,9 +1,18 @@
+import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/models/prediction.dart';
 
 class PredictionWidget extends StatelessWidget {
   final List<Prediction> predictions;
-  const PredictionWidget({Key key, this.predictions}) : super(key: key);
+  final List<Kanji> kanjiAll;
+  const PredictionWidget({Key key, this.predictions, this.kanjiAll})
+      : super(key: key);
+
+  Kanji getKanji(String label) {
+    Kanji kanji = kanjiAll.firstWhere((element) => element.kanji == label,
+        orElse: () => null);
+    return kanji;
+  }
 
   Widget getPrediction(Prediction prediction) {
     predictions?.forEach((prediction) {
@@ -12,12 +21,15 @@ class PredictionWidget extends StatelessWidget {
       double confidence = prediction.confidence;
       print('index $index label $label confidence $confidence');
     });
-    return Text(prediction.label + prediction.confidence.toStringAsFixed(2),
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ));
+    return Tooltip(
+      message: getKanji(prediction.label).hanViet,
+      child: Text(prediction.label + prediction.confidence.toStringAsFixed(2),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          )),
+    );
   }
 
   @override
