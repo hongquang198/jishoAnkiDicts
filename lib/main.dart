@@ -1,5 +1,7 @@
+import 'package:JapaneseOCR/screens/kanji_info.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/screens/draw_screen.dart';
+import 'package:JapaneseOCR/models/kanji.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
         ),
       ),
-      home: DrawScreen(),
+      // home: DrawScreen(),
+      home: KanjiInfo(),
     );
   }
 }
