@@ -61,7 +61,7 @@ class _DrawScreenState extends State<DrawScreen> {
                           ),
                         ),
                         Text(
-                          'Your written text has been size-normalized and centered in a fixed-size images (28 x 28)',
+                          'Your written text has been size-normalized and centered in a fixed-size images (64 x 64)',
                           style: TextStyle(
                             color: Colors.black,
                           ),
