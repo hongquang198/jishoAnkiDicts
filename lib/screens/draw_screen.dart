@@ -118,7 +118,6 @@ class _DrawScreenState extends State<DrawScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.transparent,
         child: Icon(Icons.clear),
         onPressed: () {
           setState(() {

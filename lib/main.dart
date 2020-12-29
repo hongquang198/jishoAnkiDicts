@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
           color: Colors.black,
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.teal,
         ),
       ),
       home: DrawScreen(),
