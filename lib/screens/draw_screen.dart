@@ -22,9 +22,9 @@ class _DrawScreenState extends State<DrawScreen> {
   List<Prediction> _prediction2;
   bool initialize = false;
   bool firstModelPredictionHasFinished = true;
-  final modelFilePath1 = "assets/mnist.tflite";
-  final labelFilePath1 = "assets/mnist.txt";
-  final modelFilePath2 = "assets/mnist2.tflite";
+  final modelFilePath1 = "assets/model806.tflite";
+  final labelFilePath1 = "assets/label806.txt";
+  final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
   static List<Kanji> allKanji = [];
   var test1 = [];
