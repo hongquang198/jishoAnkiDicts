@@ -1,0 +1,27 @@
+import 'package:flutter/material.dart';
+
+class DefinitionTags extends StatelessWidget {
+  final List<dynamic> tags;
+  final Color color;
+  DefinitionTags({this.tags, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    if (tags.length > 0) {
+      for (int i = 0; i < tags.length; i++) {
+        return Card(
+          color: color,
+          child: Text(
+            tags[i] == null ? '' : tags[i].toString(),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
+    }
+    return SizedBox();
+  }
+}

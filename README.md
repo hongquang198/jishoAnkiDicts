@@ -5,4 +5,4 @@ Japanese Handwriting Recognizer using Tensorflow Lite and ETL models
 ### Package
 tflite : A Flutter plugin for accessing TensorFlow Lite API
 
-https://pub.dev/packages/tflite
+https://pub.dev/packages/tflite"# jishoAnkiDicts" 
