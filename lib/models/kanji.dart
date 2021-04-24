@@ -33,4 +33,25 @@ class Kanji {
       this.onYomi,
       this.kunYomi,
       this.readingExamples});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'keyword': keyword,
+      'hanViet': hanViet,
+      'kanji': kanji,
+      'constituent': constituent,
+      'strokeCount': strokeCount,
+      'lessonNo': lessonNo,
+      'heisigStory': heisigStory,
+      'heisigComment': heisigComment,
+      'koohiiStory1': koohiiStory1,
+      'koohiiStory2': koohiiStory2,
+      'jouYou': jouYou,
+      'jlpt': jlpt,
+      'onYomi': onYomi,
+      'kunYomi': kunYomi,
+      'readingExamples': readingExamples,
+    };
+  }
 }

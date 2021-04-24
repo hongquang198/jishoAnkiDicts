@@ -3,27 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/models/prediction.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class PredictionWidget extends StatelessWidget {
+class PredictionWidget extends StatefulWidget {
   final List<Prediction> predictions;
   final List<Kanji> kanjiAll;
-  const PredictionWidget({Key key, this.predictions, this.kanjiAll})
+  final TextEditingController textEditingController;
+  const PredictionWidget(
+      {Key key, this.predictions, this.kanjiAll, this.textEditingController})
       : super(key: key);
 
-  Kanji getKanji(String label) {
-    Kanji kanji = kanjiAll.firstWhere((element) => element.kanji == label,
-        orElse: () => null);
-    return kanji;
-  }
+  @override
+  _PredictionWidgetState createState() => _PredictionWidgetState();
+}
 
+class _PredictionWidgetState extends State<PredictionWidget> {
   Widget getPrediction(BuildContext context, Prediction prediction) {
-    predictions?.forEach((prediction) {
+    for (int i = 0; i < widget.predictions.length; i++) {
       int index = prediction.index;
       String label = prediction.label;
       double confidence = prediction.confidence;
-      print('index $index label $label confidence $confidence');
-    });
+      // print('index $index label $label confidence $confidence');
+    }
     return GestureDetector(
       onTap: () {
+        widget.textEditingController.text =
+            widget.textEditingController.text + prediction.label;
         // var kanji = getKanji(prediction.label);
         // return showCupertinoModalBottomSheet(
         //   expand: true,
@@ -201,10 +204,18 @@ class PredictionWidget extends StatelessWidget {
         // );
       },
       child: Container(
-        child: Expanded(
+        width: 35,
+        height: 35,
+        decoration: BoxDecoration(
+          color: widget.predictions[0] == prediction
+              ? Color(0xFFDB8C8A)
+              : Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
           child: Text(prediction.label,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               )),
@@ -214,15 +225,18 @@ class PredictionWidget extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          for (var prediction in predictions)
-            getPrediction(context, prediction),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        for (var prediction in widget.predictions)
+          getPrediction(context, prediction),
+      ],
     );
   }
 }

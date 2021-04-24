@@ -1,17 +1,53 @@
-
-import 'package:JapaneseOCR/models/definition.dart';
+import 'package:JapaneseOCR/models/dictionary.dart';
+import 'package:JapaneseOCR/models/example_sentence.dart';
+import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
+import 'package:JapaneseOCR/services/dbManager.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:JapaneseOCR/services/dbManager.dart';
 
 class LoadDictionary {
-  Future<List<Kanji>> loadAssetKanji() async {
-    List<Kanji> kanjiAll = [];
+  final DbManager dbManager;
+  LoadDictionary({this.dbManager});
 
+  Future<List<ExampleSentence>> loadExampleDictionary() async {
+    List<ExampleSentence> exampleDictionary = [];
+    int i = 0;
+
+    try {
+      String contents = await rootBundle.loadString('assets/sentence_dict.tsv');
+      List<String> lines = contents.split("\n");
+      lines.forEach((line) async {
+        List<String> infoByLine = line.split("\t");
+        ExampleSentence exampleSentence = new ExampleSentence(
+          jpSentenceId: infoByLine[0] != null ? infoByLine[0] : null,
+          jpSentence: infoByLine[1] != null ? infoByLine[1] : null,
+          vnSentenceId: infoByLine[2] != null ? infoByLine[2] : null,
+          vnSentence: infoByLine[3] != null ? infoByLine[3] : null,
+        );
+        exampleDictionary.add(exampleSentence);
+
+        // if (exampleSentence != null)
+        //   try {
+        //     await dbManager.insertExampleDictionary(exampleSentence);
+        //   } catch (e) {
+        //     print("Error converting sentence dictionary to sqlite $e");
+        //   }
+        i++;
+      });
+    } catch (e) {}
+
+    return exampleDictionary;
+  }
+
+  Future<List<Kanji>> loadAssetKanji() async {
+    List<Kanji> kanjiDictionary = [];
     try {
       String contents = await rootBundle.loadString('assets/kanji.txt');
       List<String> lines = contents.split("\n");
       int i = 0;
-      lines.forEach((line) {
+      lines.forEach((line) async {
         List<String> infoByLine = line.split("\t");
         Kanji kanji = new Kanji(
           id: infoByLine[0] != null ? infoByLine[0] : null,
@@ -31,48 +67,47 @@ class LoadDictionary {
           kunYomi: infoByLine[14] != null ? infoByLine[14] : null,
           readingExamples: infoByLine[15] != null ? infoByLine[15] : null,
         );
-        try {
-          kanjiAll.add(kanji);
-        } catch (e) {
-          print("number error is $i");
-          print(e);
-        }
+        kanjiDictionary.add(kanji);
+
+        // if (kanji != null)
+        //   try {
+        //     await dbManager.insertKanjiDictionary(kanji);
+        //   } catch (e) {
+        //     print("Error converting kanji dictionary to sqlite, $e");
+        //   }
         i++;
       });
     } catch (e) {
       // If encountering an error, return 0.
       print(e);
     }
-    return kanjiAll;
+    return kanjiDictionary;
   }
 
   // Load stardict dictionary from text file
-  Future<List<Definition>> loadAssetDictionary() async {
-    List<Definition> dictAll = [];
+  Future<List<VietnameseDefinition>> loadAssetDictionary() async {
+    List<VietnameseDefinition> dictAll = [];
 
     try {
       String contents = await rootBundle.loadString('assets/star_nhatviet.txt');
       List<String> lines = contents.split("\n");
-      lines.forEach((line) {
+      lines.forEach((line) async {
         List<String> infoByLine = line.split("\t");
-        Definition definition = new Definition(
-            word: infoByLine[0] != null ? infoByLine[0] : null,
-            definition: infoByLine[2]
-        );
-
-        try {
-          dictAll.add(definition);
-        } catch (e) {
-          print(e);
-        }
+        VietnameseDefinition definition = VietnameseDefinition(
+            word: infoByLine[0] ?? '', definition: infoByLine[1]);
+        dictAll.add(definition);
+        // if (definition != null)
+        //   try {
+        //     await dbManager.insertJpvnDictionary(definition);
+        //   } catch (e) {
+        //     print('Error while converting to jpvnOffline sqlite $e');
+        //   }
       });
-
-
     } catch (e) {
       // If encountering an error, return 0.
-      print(e);
+      print('Error loading Vietnamese dictionary $e');
     }
+    print(dictAll.length);
     return dictAll;
   }
-
 }

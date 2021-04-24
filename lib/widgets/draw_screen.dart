@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'dart:ui';
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/services/load_dictionary.dart';
@@ -10,16 +10,17 @@ import 'file:///C:/Users/ADMIN/AndroidStudioProjects/JapaneseOCR/lib/widgets/dra
 import 'package:JapaneseOCR/services/recognizer.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:provider/provider.dart';
-
 import 'kanji_screen.dart';
 
 class DrawScreen extends StatefulWidget {
+  final TextEditingController textEditingController;
+  DrawScreen({this.textEditingController});
   @override
   _DrawScreenState createState() => _DrawScreenState();
 }
 
 class _DrawScreenState extends State<DrawScreen> {
-  final _points = List<Offset>();
+  var _points = List<Offset>();
   final _recognizer = Recognizer();
   List<Prediction> _prediction;
   List<Prediction> _prediction2;
@@ -29,39 +30,124 @@ class _DrawScreenState extends State<DrawScreen> {
   final labelFilePath1 = "assets/label806.txt";
   final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
+  var lastStrokes = List<Offset>();
+
+  List<Kanji> kanjiDict = [];
 
   @override
   void initState() {
+    kanjiDict = Provider.of<Dictionary>(context, listen: false).kanjiDictionary;
     super.initState();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
   }
 
+  List<Prediction> allPredictions() {
+    List<Prediction> all = [];
+    if (_prediction != null && _prediction2 != null) {
+      all.addAll(_prediction);
+      all.addAll(_prediction2);
+    }
+    return all;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.yellow,
-      child: Column(
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        inputSelectionBar(),
+        allPredictions()?.isNotEmpty ?? false
+            ? PredictionWidget(
+                textEditingController: widget.textEditingController,
+                predictions: allPredictions(),
+                kanjiAll: kanjiDict,
+              )
+            : SizedBox(),
+        Expanded(
+          child: Row(
             children: <Widget>[
-              _prediction?.isNotEmpty ?? false
-                  ? PredictionWidget(
-                      predictions: _prediction,
-                      kanjiAll:
-                          Provider.of<Dictionary>(context).kanjiDictionary,
-                    )
-                  : Container(height: 36, width: 36, color: Colors.black),
-              _prediction2?.isNotEmpty ?? false
-                  ? PredictionWidget(
-                      predictions: _prediction2,
-                      kanjiAll:
-                          Provider.of<Dictionary>(context).kanjiDictionary,
-                    )
-                  : Container(height: 36, width: 36, color: Colors.black),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: _drawCanvasWidget(),
+              ),
+              canvasOptions(context),
             ],
           ),
-          _drawCanvasWidget(),
+        ),
+      ],
+    );
+  }
+
+  Expanded canvasOptions(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                // Goal is to remove all points between last 2 null values in _points array
+                if (_points.length > 0) {
+                  _points.removeAt(_points.length - 1);
+                  for (int i = _points.length - 1; i > 0; i--) {
+                    if (_points[i] != null)
+                      _points.removeAt(i);
+                    else {
+                      recognizePoints();
+                      return;
+                    }
+                  }
+                }
+              });
+            },
+            child: Icon(
+              Icons.keyboard_backspace,
+              size: 30,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _points.clear();
+                _prediction.clear();
+                _prediction2.clear();
+              });
+            },
+            child: Icon(
+              Icons.cancel,
+              size: 33,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              widget.textEditingController.text =
+                  widget.textEditingController.text + _prediction[0].label;
+            },
+            child: Container(
+              width: 35,
+              height: 35,
+              decoration: BoxDecoration(
+                color: Color(0xFFDB8C8A),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.keyboard_return,
+                  size: 25,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              size: 33,
+            ),
+          ),
         ],
       ),
     );
@@ -87,19 +173,14 @@ class _DrawScreenState extends State<DrawScreen> {
               _localPosition.dy >= 0 &&
               _localPosition.dy <= Constants.canvasSize) {
             setState(() {
+              lastStrokes.add(_localPosition);
               _points.add(_localPosition);
             });
           }
         },
         onPanEnd: (DragEndDetails details) async {
           _points.add(null);
-          await _recognize();
-          await _initModel(
-              modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
-
-          await _recognize(isForSecondModel: true);
-          await _initModel(
-              modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+          recognizePoints();
         },
         child: CustomPaint(
           painter: DrawingPainter(_points),
@@ -126,6 +207,62 @@ class _DrawScreenState extends State<DrawScreen> {
         _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
       }
     });
+  }
+
+  void recognizePoints() async {
+    await _recognize();
+    await _initModel(
+        modelFilePath: modelFilePath2, labelFilePath: labelFilePath2);
+
+    await _recognize(isForSecondModel: true);
+    await _initModel(
+        modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+  }
+}
+
+class inputSelectionBar extends StatelessWidget {
+  const inputSelectionBar({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width / 2,
+            height: 40,
+            color: Color(0xFFDB8C8A),
+            child: Center(
+              child: Icon(
+                Icons.keyboard,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Color(0xFFDB8C8A),
+            border: Border(
+              bottom: BorderSide(color: Colors.white, width: 4.5),
+            ),
+          ),
+          width: MediaQuery.of(context).size.width / 2,
+          height: 40,
+          child: Center(
+            child: Icon(
+              Icons.brush_sharp,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
