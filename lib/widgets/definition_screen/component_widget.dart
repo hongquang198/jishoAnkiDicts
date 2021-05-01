@@ -17,34 +17,31 @@ class _ComponentWidgetState extends State<ComponentWidget> {
       onTap: () {
         showKanjiDetails(kanji);
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'On: ${kanji.onYomi} Kun: ${kanji.kunYomi}',
-            style: TextStyle(color: Colors.grey),
+      child: ListTile(
+        contentPadding: EdgeInsets.only(left: 0),
+        title: Text(
+          kanji.kanji + ' ' + kanji.hanViet,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Constants.definitionTextSize,
           ),
-          Text(
-            kanji.kanji,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: Constants.definitionTextSize,
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'On: ${kanji.onYomi} Kun: ${kanji.kunYomi}',
+              style: TextStyle(color: Colors.grey),
             ),
-          ),
-          Text(
-            kanji.hanViet,
-            style: TextStyle(
-              fontSize: Constants.definitionTextSize,
+            Text(
+              kanji.keyword,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: Constants.definitionTextSize,
+              ),
             ),
-          ),
-          Text(
-            kanji.keyword,
-            style: TextStyle(
-              fontSize: Constants.definitionTextSize,
-            ),
-          ),
-          Divider(),
-        ],
+          ],
+        ),
       ),
     );
   }

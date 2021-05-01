@@ -1,6 +1,7 @@
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/screens/main_screen.dart';
 import 'package:JapaneseOCR/services/load_dictionary.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +34,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<Dictionary> dicts;
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     setState(() {
@@ -72,6 +72,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<Dictionary> initDictionary() async {
+    SharedPref.init();
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();
     final loadDictionary = LoadDictionary(dbManager: dicts.offlineDatabase);
@@ -109,7 +110,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     dicts.history = await dicts.offlineDatabase.retrieve(tableName: 'history');
     dicts.favorite =
         await dicts.offlineDatabase.retrieve(tableName: 'favorite');
+    dicts.review = await dicts.offlineDatabase.retrieve(tableName: 'review');
     dicts.kanjiDictionary = await loadDictionary.loadAssetKanji();
+    dicts.pitchAccentDict = await loadDictionary.loadPitchAccentDictionary();
 
     return dicts;
   }

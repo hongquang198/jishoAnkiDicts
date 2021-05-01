@@ -1,8 +1,10 @@
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/example_sentence.dart';
+import 'package:JapaneseOCR/models/pitchAccent.dart';
 import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
@@ -87,7 +89,6 @@ class LoadDictionary {
   // Load stardict dictionary from text file
   Future<List<VietnameseDefinition>> loadAssetDictionary() async {
     List<VietnameseDefinition> dictAll = [];
-
     try {
       String contents = await rootBundle.loadString('assets/star_nhatviet.txt');
       List<String> lines = contents.split("\n");
@@ -109,5 +110,50 @@ class LoadDictionary {
     }
     print(dictAll.length);
     return dictAll;
+  }
+
+  Future<List<PitchAccent>> loadPitchAccentDictionary() async {
+    // TODO: Shorten this to one single line of code
+    String clean_orth(String orth) {
+      orth = orth.replaceAll("(", "");
+      orth = orth.replaceAll(")", "");
+      orth = orth.replaceAll("△", "");
+      orth = orth.replaceAll("×", "");
+      orth = orth.replaceAll("･", "");
+      orth = orth.replaceAll("〈", "");
+      orth = orth.replaceAll("〉", "");
+      orth = orth.replaceAll("{", "");
+      orth = orth.replaceAll("}", "");
+      orth = orth.replaceAll("…", "〜");
+      return orth;
+    }
+
+    List<PitchAccent> acc_dict = [];
+    int i = 0;
+    try {
+      String contents =
+          await rootBundle.loadString('assets/wadoku_pitchdb.csv');
+      List<String> lines = contents.split("\n");
+      lines.forEach((line) {
+        List<String> infoByLine = line.split('\u241e');
+        List<String> orth_txts = infoByLine[0].split('\u241f');
+        if (clean_orth(orth_txts[0]) != orth_txts[0]) {
+          orth_txts = [clean_orth(orth_txts[0])] + orth_txts;
+        }
+        List<String> patts = infoByLine[4].split(',');
+
+        PitchAccent pitchAccent = PitchAccent(
+            orths_txt: orth_txts,
+            hira: infoByLine[1],
+            hz: infoByLine[2],
+            accs_txt: infoByLine[3],
+            patts_txt: patts[0]);
+        acc_dict.add(pitchAccent);
+        i++;
+      });
+      return acc_dict;
+    } catch (e) {
+      print('Error loading pitch accent dictionary at line $i $e');
+    }
   }
 }

@@ -6,7 +6,7 @@ import 'package:JapaneseOCR/services/load_dictionary.dart';
 import 'package:JapaneseOCR/widgets/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/models/prediction.dart';
-import 'file:///C:/Users/ADMIN/AndroidStudioProjects/JapaneseOCR/lib/widgets/drawing_painter.dart';
+import 'package:JapaneseOCR/widgets/drawing_painter.dart';
 import 'package:JapaneseOCR/services/recognizer.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +101,7 @@ class _DrawScreenState extends State<DrawScreen> {
               });
             },
             child: Icon(
-              Icons.keyboard_backspace,
+              Icons.undo,
               size: 30,
             ),
           ),

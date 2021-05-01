@@ -1,7 +1,13 @@
+import 'dart:convert';
+
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/widgets/bookmark_icon.dart';
+import 'package:JapaneseOCR/models/offlineWordRecord.dart';
+import 'package:JapaneseOCR/models/pitchAccent.dart';
+import 'package:JapaneseOCR/services/dbHelper.dart';
+import 'package:JapaneseOCR/services/kanjiHelper.dart';
+import 'package:JapaneseOCR/utils/offlineListType.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/definition_tags.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
@@ -16,8 +22,6 @@ class DefinitionScreen extends StatefulWidget {
   final JishoDefinition jishoDefinition;
   final String vietnameseDefinition;
   final bool isInFavoriteList;
-  final Function addToOfflineList;
-  final Function removeFromOfflineList;
   final TextEditingController textEditingController;
   final bool isOfflineList;
   final List<String> hanVietReading;
@@ -26,8 +30,6 @@ class DefinitionScreen extends StatefulWidget {
     this.textEditingController,
     this.jishoDefinition,
     this.vietnameseDefinition,
-    this.removeFromOfflineList,
-    this.addToOfflineList,
     this.isInFavoriteList,
     this.isOfflineList,
     this.hanVietReading,
@@ -38,9 +40,10 @@ class DefinitionScreen extends StatefulWidget {
   _DefinitionScreenState createState() => _DefinitionScreenState();
 }
 
-class _DefinitionScreenState extends State<DefinitionScreen>
-    with AutomaticKeepAliveClientMixin<DefinitionScreen> {
+class _DefinitionScreenState extends State<DefinitionScreen> {
+  List<Widget> pitchAccent;
   String clipboard;
+
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.length > 0) {
       for (int i = 0; i < partsOfSpeech.length; i++) {
@@ -68,6 +71,18 @@ class _DefinitionScreenState extends State<DefinitionScreen>
 
   @override
   void initState() {
+    List<PitchAccent> pitchDict =
+        Provider.of<Dictionary>(context, listen: false).pitchAccentDict;
+
+    try {
+      pitchAccent = KanjiHelper.getPitchAccent(
+          word: widget.jishoDefinition.word,
+          slug: widget.jishoDefinition.slug,
+          reading: widget.jishoDefinition.reading,
+          pitchAccentDict: pitchDict);
+    } catch (e) {
+      print('Pitch accent is $pitchAccent $e');
+    }
     getClipboard();
     widget.textEditingController.addListener(() {
       if (mounted) {
@@ -81,11 +96,8 @@ class _DefinitionScreenState extends State<DefinitionScreen>
     super.initState();
   }
 
-  bool get wantKeepAlive => true;
-
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -93,6 +105,24 @@ class _DefinitionScreenState extends State<DefinitionScreen>
         child: ListView(children: <Widget>[
           SizedBox(
             height: 10,
+          ),
+          Hero(
+            tag:
+                'HeroTagHiragana${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
+            child: Material(
+              color: Colors.transparent,
+              child: pitchAccent == null
+                  ? Text(
+                      widget.jishoDefinition.reading ?? '',
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : Row(
+                      children: pitchAccent,
+                    ),
+            ),
           ),
           Row(
             children: <Widget>[
@@ -118,27 +148,65 @@ class _DefinitionScreenState extends State<DefinitionScreen>
               Hero(
                 tag:
                     'HeroTagBookmark${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
-                child: BookmarkIcon(
-                  isInFavoriteList: widget.isInFavoriteList,
-                  addToOfflineList: widget.addToOfflineList,
-                  removeFromOfflineList: widget.removeFromOfflineList,
+                child: FlatButton(
+                  padding: EdgeInsets.all(0),
+                  child: DbHelper.checkDatabaseExist(
+                          offlineListType: OfflineListType.favorite,
+                          sense: widget.jishoDefinition.senses,
+                          context: context)
+                      ? Icon(Icons.bookmark, color: Color(0xffff8882))
+                      : Icon(Icons.bookmark, color: Colors.grey),
+                  onPressed: () {
+                    if (DbHelper.checkDatabaseExist(
+                            offlineListType: OfflineListType.favorite,
+                            sense: widget.jishoDefinition.senses,
+                            context: context) ==
+                        false) {
+                      setState(() {
+                        DbHelper.addToOfflineList(
+                            offlineListType: OfflineListType.favorite,
+                            offlineWordRecord: OfflineWordRecord(
+                              slug: widget.jishoDefinition.slug,
+                              is_common:
+                                  widget.jishoDefinition.is_common == true
+                                      ? 1
+                                      : 0,
+                              tags: jsonEncode(widget.jishoDefinition.tags),
+                              jlpt: jsonEncode(widget.jishoDefinition.jlpt),
+                              word: widget.jishoDefinition.word,
+                              reading: widget.jishoDefinition.reading,
+                              senses: jsonEncode(widget.jishoDefinition.senses),
+                              vietnamese_definition:
+                                  widget.vietnameseDefinition,
+                              added: DateTime.now().microsecondsSinceEpoch,
+                              firstReview: null,
+                              lastReview: null,
+                              due: null,
+                              interval: null,
+                              ease: 2.5,
+                              reviews: 0,
+                              lapses: 0,
+                              averageTimeMinute: 0,
+                              totalTimeMinute: 0,
+                              cardType: 'default',
+                              noteType: 'default',
+                              deck: 'default',
+                            ),
+                            context: context);
+                      });
+                    } else
+                      setState(() {
+                        DbHelper.removeFromOfflineList(
+                            offlineListType: OfflineListType.favorite,
+                            senses: widget.jishoDefinition.senses,
+                            context: context,
+                            slug: widget.jishoDefinition.slug,
+                            word: widget.jishoDefinition.word);
+                      });
+                  },
                 ),
               ),
             ],
-          ),
-          Hero(
-            tag:
-                'HeroTagHiragana${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
-            child: Material(
-              color: Colors.transparent,
-              child: Text(
-                widget.jishoDefinition.reading ?? '',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
           ),
           Hero(
             tag:

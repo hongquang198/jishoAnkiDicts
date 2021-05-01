@@ -1,7 +1,6 @@
 import 'package:JapaneseOCR/screens/favorite_screen.dart';
 import 'package:JapaneseOCR/screens/history_screen.dart';
-import 'file:///C:/Users/ADMIN/AndroidStudioProjects/JapaneseOCR/lib/widgets/draw_screen.dart';
-import 'package:JapaneseOCR/screens/main_screen.dart';
+import 'package:JapaneseOCR/screens/review_screen.dart';
 import 'package:flutter/material.dart';
 
 class NavBar extends StatelessWidget {
@@ -70,7 +69,15 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.alarm),
             title: Text('Review'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ReviewScreen(
+                            textEditingController: textEditingController,
+                          )));
+            },
           ),
           ListTile(
             leading: Icon(Icons.settings),

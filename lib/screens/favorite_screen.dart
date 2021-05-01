@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/jishoDefinition.dart';
+import 'package:JapaneseOCR/models/offlineWordRecord.dart';
 import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
 import 'package:JapaneseOCR/services/jisho_query.dart';

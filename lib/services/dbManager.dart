@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:JapaneseOCR/models/offlineWordRecord.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -23,24 +24,28 @@ class DbManager {
       // When the database is first created, create a table to store dogs.
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE history(id INTEGER PRIMARY KEY, slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT)",
+          "CREATE TABLE history(id INTEGER PRIMARY KEY, slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
         );
         db.execute(
-          "CREATE TABLE favorite(id INTEGER PRIMARY KEY, slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT)",
+          "CREATE TABLE favorite(id INTEGER PRIMARY KEY, slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
         );
+        db.execute(
+          "CREATE TABLE review(id INTEGER PRIMARY KEY, slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
+        );
+
         // Offline vietnamese dictionary covert from text file to sqlite
-        db.execute(
-          "CREATE TABLE jpvnDictionary(id INTEGER PRIMARY KEY, word TEXT, definition TEXT)",
-        );
-        print('Create jpvnDicts successfully');
-        db.execute(
-          "CREATE TABLE kanjiDictionary(id TEXT PRIMARY KEY, keyword TEXT, hanViet TEXT, kanji TEXT, constituent TEXT, strokeCount TEXT, lessonNo TEXT, heisigStory TEXT, heisigComment TEXT, koohiiStory1 TEXT, koohiiStory2 TEXT, jouYou TEXT, jlpt TEXT, onYomi TEXT, kunYomi TEXT, readingExamples TEXT)",
-        );
-        print('Create kanjiDicts successfully');
-        db.execute(
-          "CREATE TABLE exampleDictionary(jpSentenceId INTEGER PRIMARY KEY, jpSentence TEXT, vnSentenceId INTEGER, vnSentence TEXT)",
-        );
-        print('Create kanjiDicts successfully');
+        // db.execute(
+        //   "CREATE TABLE jpvnDictionary(id INTEGER PRIMARY KEY, word TEXT, definition TEXT)",
+        // );
+        // print('Create jpvnDicts successfully');
+        // db.execute(
+        //   "CREATE TABLE kanjiDictionary(id TEXT PRIMARY KEY, keyword TEXT, hanViet TEXT, kanji TEXT, constituent TEXT, strokeCount TEXT, lessonNo TEXT, heisigStory TEXT, heisigComment TEXT, koohiiStory1 TEXT, koohiiStory2 TEXT, jouYou TEXT, jlpt TEXT, onYomi TEXT, kunYomi TEXT, readingExamples TEXT)",
+        // );
+        // print('Create kanjiDicts successfully');
+        // db.execute(
+        //   "CREATE TABLE exampleDictionary(jpSentenceId INTEGER PRIMARY KEY, jpSentence TEXT, vnSentenceId INTEGER, vnSentence TEXT)",
+        // );
+        // print('Create kanjiDicts successfully');
         return db;
       },
       // Set the version. This executes the onCreate function and provides a
@@ -111,6 +116,19 @@ class DbManager {
         reading: maps[i]['reading'],
         senses: maps[i]['senses'],
         vietnamese_definition: maps[i]['vietnamese_definition'],
+        added: maps[i]['added'],
+        firstReview: maps[i]['firstReview'],
+        lastReview: maps[i]['lastReview'],
+        due: maps[i]['due'],
+        interval: maps[i]['interval'],
+        ease: maps[i]['ease'],
+        reviews: maps[i]['reviews'],
+        lapses: maps[i]['lapses'],
+        averageTimeMinute: maps[i]['averageTimeMinute'],
+        totalTimeMinute: maps[i]['totalTimeMinute'],
+        cardType: maps[i]['cardType'],
+        noteType: maps[i]['noteType'],
+        deck: maps[i]['deck'],
       );
     });
   }
@@ -186,10 +204,12 @@ class DbManager {
       '$tableName',
       offlineWordRecord.toMap(),
       // Ensure that the Dog has a matching id.
-      where: "id = ?",
+      where: "slug = ? OR word = ? OR reading = ?",
       // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [offlineWordRecord.id],
+      whereArgs: [offlineWordRecord.slug ?? offlineWordRecord.word],
     );
+
+    print('Updated successfully');
   }
 
   Future<void> delete({String word, String tableName}) async {
@@ -204,81 +224,5 @@ class DbManager {
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [word],
     );
-  }
-
-  // var fido = Dog(
-  //   id: 0,
-  //   name: 'Fido',
-  //   age: 35,
-  // );
-
-  // Insert a dog into the database.
-  // await insertDog(fido);
-
-  // Print the list of dogs (only Fido for now).
-  // print(await dogs());
-
-  // Update Fido's age and save it to the database.
-  // fido = Dog(
-  //   id: fido.id,
-  //   name: fido.name,
-  //   age: fido.age + 7,
-  // );
-  // await updateDog(fido);
-
-  // Print Fido's updated information.
-  // print(await dogs());
-
-  // Delete Fido from the database.
-  // await deleteDog(fido.id);
-
-  // Print the list of dogs (empty).
-  // print(await dogs());
-}
-
-class OfflineWordRecord {
-  int id;
-  String slug; //
-  int is_common; //
-  String tags; //
-  String jlpt; //
-  String word; //
-  String reading; //
-  String senses; //
-  String vietnamese_definition; //
-
-  OfflineWordRecord({
-    this.id,
-    this.slug,
-    this.is_common,
-    this.tags,
-    this.jlpt,
-    this.word,
-    this.reading,
-    this.senses,
-    this.vietnamese_definition,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'slug': slug,
-      'is_common': is_common,
-      'tags': tags,
-      'jlpt': jlpt,
-      'word': word,
-      'reading': reading,
-      'senses': senses,
-      'vietnamese_definition': vietnamese_definition,
-    };
-  }
-
-  // Implement toString to make it easier to see information about
-  // each dog when using the print statement.
-  @override
-  String toString() {
-    return 'OfflineWordRecord{slug: $slug, is_common: $is_common, tags: $tags, '
-        'jlpt: $jlpt, word: $word, reading: $reading, senses: $senses,'
-        'vietnamese_definition: $vietnamese_definition}';
   }
 }

@@ -1,1 +1,1 @@
-enum OfflineListType { history, favorite }
+enum OfflineListType { history, favorite, review }
