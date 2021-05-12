@@ -9,6 +9,7 @@ import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/screens/definition_screen.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
@@ -17,12 +18,10 @@ import 'definition_screen/definition_tags.dart';
 
 class SearchResultTile extends StatefulWidget {
   final JishoDefinition jishoDefinition;
-  final String vietnameseDefinition;
   final TextEditingController textEditingController;
   SearchResultTile({
     this.jishoDefinition,
     this.textEditingController,
-    this.vietnameseDefinition,
   });
 
   @override
@@ -30,27 +29,10 @@ class SearchResultTile extends StatefulWidget {
 }
 
 class _SearchResultTileState extends State<SearchResultTile> {
-  List<String> hanViet = [];
-  List<Kanji> kanjiList = [];
-  List<Kanji> kanjiDict;
   OfflineWordRecord offlineWordRecord;
 
   @override
   void initState() {
-    kanjiDict = Provider.of<Dictionary>(context, listen: false).kanjiDictionary;
-    hanViet = KanjiHelper.getHanvietReading(
-        word: widget.jishoDefinition.word ??
-            widget.jishoDefinition.slug ??
-            widget.jishoDefinition.reading ??
-            '',
-        kanjiDict: kanjiDict);
-    kanjiList = KanjiHelper.extractKanji(
-        word: widget.jishoDefinition.word ??
-            widget.jishoDefinition.slug ??
-            widget.jishoDefinition.reading ??
-            '',
-        kanjiDict: kanjiDict);
-
     offlineWordRecord = OfflineWordRecord(
       slug: widget.jishoDefinition.slug,
       is_common: widget.jishoDefinition.is_common == true ? 1 : 0,
@@ -59,13 +41,13 @@ class _SearchResultTileState extends State<SearchResultTile> {
       word: widget.jishoDefinition.word,
       reading: widget.jishoDefinition.reading,
       senses: jsonEncode(widget.jishoDefinition.senses),
-      vietnamese_definition: widget.vietnameseDefinition,
+      vietnamese_definition: null,
       added: DateTime.now().millisecondsSinceEpoch,
       firstReview: null,
       lastReview: null,
       due: null,
       interval: 0,
-      ease: 2.5,
+      ease: SharedPref.prefs.getDouble('startingEase'),
       reviews: 0,
       lapses: 0,
       averageTimeMinute: 0,
@@ -75,6 +57,12 @@ class _SearchResultTileState extends State<SearchResultTile> {
       deck: 'default',
     );
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -91,7 +79,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               color: Colors.transparent,
               child: Text(
                 widget.jishoDefinition.reading ?? '',
-                style: TextStyle(fontSize: 11),
+                style: TextStyle(fontSize: 13),
               ),
             ),
           ),
@@ -109,17 +97,23 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ),
             ),
           ),
-          Hero(
-            tag:
-                'HeroTagHanViet${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
-            child: Material(
-              color: Colors.transparent,
-              child: Text(
-                hanViet.toString().toUpperCase(),
-                style: TextStyle(fontSize: 12),
-              ),
-            ),
-          ),
+          // Hero(
+          //   tag:
+          //       'HeroTagHanViet${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
+          //   child: Material(
+          //     color: Colors.transparent,
+          //     child: FutureBuilder(
+          //       future: hanViet,
+          //       builder: (context, snapshot) {
+          //         if (snapshot.data == null) return Text('');
+          //         return SelectableText(
+          //           snapshot.data.toString().toUpperCase(),
+          //           style: TextStyle(fontSize: 12),
+          //         );
+          //       },
+          //     ),
+          //   ),
+          // ),
           Hero(
             tag:
                 'HeroTagWordTags${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
@@ -156,7 +150,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               widget.jishoDefinition.senses[0]['english_definitions']
                       .toString() ??
                   'null',
-              style: TextStyle(fontSize: 12)),
+              style: TextStyle(fontSize: 13)),
           // Todo: Adding vietnamese meaning
           // Text(
           //     widget.vietnameseDefinition.length > 150
@@ -207,6 +201,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ),
             ),
           ),
+
+          // Add button to review list
           SizedBox(
             width: 45,
             child: FlatButton(
@@ -253,8 +249,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
           context,
           MaterialPageRoute(
             builder: (context) => DefinitionScreen(
-              kanjiList: kanjiList,
-              hanVietReading: hanViet,
               textEditingController: widget.textEditingController,
               isInFavoriteList: DbHelper.checkDatabaseExist(
                           offlineListType: OfflineListType.favorite,
@@ -264,7 +258,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ? true
                   : false,
               jishoDefinition: widget.jishoDefinition,
-              vietnameseDefinition: widget.vietnameseDefinition,
             ),
           ),
         );

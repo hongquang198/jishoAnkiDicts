@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:JapaneseOCR/models/dictionary.dart';
+import 'package:JapaneseOCR/models/kanji.dart';
+import 'package:JapaneseOCR/models/offlineWordRecord.dart';
+import 'package:JapaneseOCR/utils/redoType.dart';
 import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:JapaneseOCR/services/dbHelper.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
@@ -29,10 +31,16 @@ class ReviewScreen extends StatefulWidget {
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  int currentCard = 0;
+  int totalCardNumber;
   String clipboard;
   bool showAll = false;
   List<int> steps;
+  Future<List<Widget>> pitchAccent;
+  Future<List<Kanji>> kanjiComponent;
+  Future<String> vnDefinition;
+  OfflineWordRecord redo;
+  OfflineWordRecord currentCard;
+  RedoType redoType;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.length > 0) {
@@ -55,13 +63,41 @@ class _ReviewScreenState extends State<ReviewScreen> {
     super.dispose();
   }
 
+  // getKanjiComponent() async {
+  //   kanjiComponent = KanjiHelper.getKanjiComponent(
+  //       word: Provider.of<Dictionary>(context, listen: false)
+  //               .getCards[currentCard]
+  //               .word ??
+  //           Provider.of<Dictionary>(context, listen: false)
+  //               .getCards[currentCard]
+  //               .slug,
+  //       context: context);
+  // }
+  //
+  // drawPitchAccent() async {
+  //   pitchAccent = KanjiHelper.getPitchAccent(
+  //       word: Provider.of<Dictionary>(context, listen: false)
+  //           .getCards[currentCard]
+  //           .word,
+  //       slug: Provider.of<Dictionary>(context, listen: false)
+  //           .getCards[currentCard]
+  //           .slug,
+  //       reading: Provider.of<Dictionary>(context, listen: false)
+  //           .getCards[currentCard]
+  //           .reading,
+  //       context: context);
+  //   return pitchAccent;
+  // }
+
   @override
   void initState() {
-    getClipboard();
+    // Get steps from settings to calculate card's next interval
     steps = SharedPref.prefs
         .getStringList('newCardsSteps')
         .map((i) => int.parse(i))
         .toList();
+
+    // Add listener to listen to clipboard change to look up fast
     widget.textEditingController.addListener(() {
       if (mounted) {
         if (clipboard != widget.textEditingController.text) {
@@ -71,6 +107,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
         }
       }
     });
+
+    // Review list maybe empty so try catch
+    try {
+      currentCard = Provider.of<Dictionary>(context, listen: false).getCards[0];
+      redo = currentCard;
+    } catch (e) {
+      print('Card empty. $e');
+    }
+    getClipboard();
     super.initState();
   }
 
@@ -81,44 +126,102 @@ class _ReviewScreenState extends State<ReviewScreen> {
         appBar: AppBar(
           title: Text('Review'),
           actions: [
-            Icon(Icons.undo),
-            Icon(Icons.brush),
-            Icon(Icons.menu),
             GestureDetector(
                 onTap: () {
-                  setState(() {
-                    DbHelper.removeFromOfflineList(
-                        offlineListType: OfflineListType.review,
-                        context: context,
-                        senses:
-                            jsonDecode(dictionary.review[currentCard].senses),
-                        slug: dictionary.review[currentCard].slug,
-                        word: dictionary.review[currentCard].word);
-                  });
+                  if (redo != null)
+                    setState(() {
+                      currentCard = redo;
+                      if (redoType == RedoType.update) {
+                        DbHelper.updateWordInfo(
+                            offlineListType: OfflineListType.review,
+                            context: context,
+                            senses: jsonDecode(currentCard.senses),
+                            offlineWordRecord: currentCard);
+                      } else if (redoType == RedoType.delete) {
+                        DbHelper.addToOfflineList(
+                            offlineListType: OfflineListType.review,
+                            offlineWordRecord: currentCard,
+                            context: context);
+                      }
+                      showAll = false;
+                      dictionary.getCards;
+                    });
+                },
+                child: Icon(Icons.undo)),
+            GestureDetector(
+                onTap: () {
+                  dictionary.getCards.length > 0 &&
+                          dictionary.getCards.length != null
+                      ? setState(() {
+                          redo = OfflineWordRecord(
+                            slug: currentCard.slug,
+                            is_common: currentCard.is_common,
+                            tags: currentCard.tags,
+                            jlpt: currentCard.jlpt,
+                            word: currentCard.word,
+                            reading: currentCard.reading,
+                            senses: currentCard.senses,
+                            vietnamese_definition:
+                                currentCard.vietnamese_definition,
+                            added: currentCard.added,
+                            firstReview: currentCard.firstReview,
+                            lastReview: currentCard.lastReview,
+                            due: currentCard.due,
+                            interval: currentCard.interval,
+                            ease: currentCard.ease,
+                            reviews: currentCard.reviews,
+                            lapses: currentCard.lapses,
+                            averageTimeMinute: currentCard.averageTimeMinute,
+                            totalTimeMinute: currentCard.totalTimeMinute,
+                            cardType: currentCard.cardType,
+                            noteType: currentCard.noteType,
+                            deck: currentCard.deck,
+                          );
+
+                          redoType = RedoType.delete;
+
+                          DbHelper.removeFromOfflineList(
+                              offlineListType: OfflineListType.review,
+                              context: context,
+                              senses: jsonDecode(currentCard.senses),
+                              slug: currentCard.slug,
+                              word: currentCard.word);
+                          if (dictionary.getCards.length != 0)
+                            currentCard = dictionary.getCards[0];
+                        })
+                      : print('No card');
                 },
                 child: Icon(Icons.delete)),
             GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CardInfoScreen(
-                                offlineWordRecord:
-                                    dictionary.review[currentCard],
-                              )));
+                  dictionary.getCards.length > 0 &&
+                          dictionary.getCards.length != null
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CardInfoScreen(
+                                    offlineWordRecord: currentCard,
+                                  )))
+                      : print('No card');
                 },
                 child: Icon(Icons.info))
           ],
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(24),
-            child: Container(
-              height: 24,
-              color: Color(0xFFF7E7E6),
-              child: ReviewInfo(),
-            ),
-          ),
+          bottom: dictionary.getCards.length > 0 &&
+                  dictionary.getCards.length != null
+              ? PreferredSize(
+                  preferredSize: Size.fromHeight(24),
+                  child: Container(
+                    height: 24,
+                    color: Color(0xFFF7E7E6),
+                    child: ReviewInfo(
+                      offlineWordRecord: currentCard,
+                    ),
+                  ),
+                )
+              : PreferredSize(
+                  child: SizedBox(), preferredSize: Size.fromHeight(0)),
         ),
-        body: currentCard < dictionary.review.length
+        body: dictionary.getCards.length > 0
             ? buildCard(dictionary, context)
             : Center(
                 child: Text('You completed your reviews'),
@@ -127,6 +230,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
     });
   }
 
+  // How to decide which card is shown first ? use a list = dictionary.getCards at index 0 since every review updates cards position
+  // For example, a card due in 1 minute will be updated to show earlier than a card due in 10 minutes
+  // The card position update is actually in the getCards function
   Column buildCard(Dictionary dictionary, BuildContext context) {
     return Column(children: [
       Expanded(
@@ -134,28 +240,34 @@ class _ReviewScreenState extends State<ReviewScreen> {
           SizedBox(
             height: 10,
           ),
-          showAll == true &&
-                  KanjiHelper.getPitchAccent(
-                          word: dictionary.review[currentCard].word ?? '',
-                          slug: dictionary.review[currentCard].slug ?? '',
-                          reading: dictionary.review[currentCard].reading ?? '',
-                          pitchAccentDict: dictionary.pitchAccentDict) !=
-                      null
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: KanjiHelper.getPitchAccent(
-                      word: dictionary.review[currentCard].word ?? '',
-                      slug: dictionary.review[currentCard].slug ?? '',
-                      reading: dictionary.review[currentCard].reading ?? '',
-                      pitchAccentDict: dictionary.pitchAccentDict),
+          showAll == true
+              ? FutureBuilder(
+                  future: KanjiHelper.getPitchAccent(
+                      word: currentCard.word,
+                      slug: currentCard.slug,
+                      reading: currentCard.reading,
+                      context: context),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null)
+                      return Center(
+                        child: Text(
+                          currentCard.reading ?? '',
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: snapshot.data,
+                    );
+                  },
                 )
               : SizedBox(),
           Center(
             child: Text(
-              dictionary.review[currentCard].word ??
-                  dictionary.review[currentCard].slug ??
-                  dictionary.review[currentCard].reading ??
-                  '',
+              currentCard.word ?? currentCard.slug ?? currentCard.reading ?? '',
               style: TextStyle(
                 fontSize: 45.0,
                 fontWeight: FontWeight.bold,
@@ -163,23 +275,26 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           showAll == true
-              ? Center(
-                  child: Text(
-                    KanjiHelper.getHanvietReading(
-                            word: dictionary.review[currentCard].word,
-                            kanjiDict: dictionary.kanjiDictionary)
-                        .toString()
-                        .toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 22,
-                    ),
-                  ),
+              ? FutureBuilder(
+                  future: KanjiHelper.getHanvietReading(
+                      word: currentCard.word, context: context),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return SizedBox();
+                    return Center(
+                      child: Text(
+                        snapshot.data.toString().toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 22,
+                        ),
+                      ),
+                    );
+                  },
                 )
               : SizedBox(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              dictionary.review[currentCard].is_common == 1
+              currentCard.is_common == 1
                   ? Card(
                       color: Color(0xFF8ABC82),
                       child: Text(
@@ -193,20 +308,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     )
                   : SizedBox(),
               DefinitionTags(
-                  tags: jsonDecode(dictionary.review[currentCard].tags),
-                  color: Color(0xFF909DC0)),
+                  tags: jsonDecode(currentCard.tags), color: Color(0xFF909DC0)),
               DefinitionTags(
-                  tags: jsonDecode(dictionary.review[currentCard].jlpt),
-                  color: Color(0xFF909DC0)),
+                  tags: jsonDecode(currentCard.jlpt), color: Color(0xFF909DC0)),
             ],
           ),
           SizedBox(height: 8),
           showAll == true
               ? Center(
                   child: DefinitionWidget(
-                    senses: jsonDecode(dictionary.review[currentCard].senses),
-                    vietnameseDefinition:
-                        dictionary.review[currentCard].vietnamese_definition,
+                    senses: jsonDecode(currentCard.senses),
+                    vietnameseDefinition: KanjiHelper.getVnDefinition(
+                        word: currentCard.word ??
+                            currentCard.slug ??
+                            currentCard.reading ??
+                            '',
+                        context: context),
                   ),
                 )
               : SizedBox(),
@@ -227,8 +344,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ? Padding(
                   padding: EdgeInsets.only(left: 12, right: 12),
                   child: ExampleSentenceWidget(
-                      word: dictionary.review[currentCard].slug ??
-                          dictionary.review[currentCard].word),
+                      word: currentCard.slug ?? currentCard.word),
                 )
               : SizedBox(),
           Divider(),
@@ -248,9 +364,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ? Padding(
                   padding: EdgeInsets.only(left: 12, right: 12),
                   child: ComponentWidget(
-                    kanjiList: KanjiHelper.extractKanji(
-                        word: dictionary.review[currentCard].word,
-                        kanjiDict: dictionary.kanjiDictionary),
+                    kanjiComponent: KanjiHelper.getKanjiComponent(
+                      word: currentCard.word ?? currentCard.slug,
+                      context: context,
+                    ),
                   ),
                 )
               : SizedBox(),
@@ -283,99 +400,174 @@ class _ReviewScreenState extends State<ReviewScreen> {
         Container(
           child: Row(
             children: [
+              // Again button
               GestureDetector(
                 onTap: () {
-                  setState(() {
-                    dictionary.review[currentCard].ease =
-                        SharedPref.prefs.getDouble('startingEase');
-                    showAll = false;
-                    if (dictionary.review[currentCard].reviews == 0) {
-                      dictionary.review[currentCard].firstReview =
-                          DateTime.now().millisecondsSinceEpoch;
-                    } else {
-                      // If card is mature
-                      if (dictionary.review[currentCard].interval >
-                          21 * 24 * 60 * 60 * 1000) {
-                        dictionary.review[currentCard].lapses++;
-                      }
-                    }
-                    dictionary.review[currentCard].lastReview =
+                  // Prepare for redo button
+                  redo = OfflineWordRecord(
+                    slug: currentCard.slug,
+                    is_common: currentCard.is_common,
+                    tags: currentCard.tags,
+                    jlpt: currentCard.jlpt,
+                    word: currentCard.word,
+                    reading: currentCard.reading,
+                    senses: currentCard.senses,
+                    vietnamese_definition: currentCard.vietnamese_definition,
+                    added: currentCard.added,
+                    firstReview: currentCard.firstReview,
+                    lastReview: currentCard.lastReview,
+                    due: currentCard.due,
+                    interval: currentCard.interval,
+                    ease: currentCard.ease,
+                    reviews: currentCard.reviews,
+                    lapses: currentCard.lapses,
+                    averageTimeMinute: currentCard.averageTimeMinute,
+                    totalTimeMinute: currentCard.totalTimeMinute,
+                    cardType: currentCard.cardType,
+                    noteType: currentCard.noteType,
+                    deck: currentCard.deck,
+                  );
+                  redoType = RedoType.update;
+
+                  // Calculate and update card interval
+                  if (currentCard.reviews == 0) {
+                    currentCard.firstReview =
                         DateTime.now().millisecondsSinceEpoch;
-                    dictionary.review[currentCard].interval =
-                        steps[0] * 60 * 1000;
-                    dictionary.review[currentCard].due =
-                        DateTime.now().millisecondsSinceEpoch +
-                            dictionary.review[currentCard].interval;
-                    dictionary.review[currentCard].reviews++;
-                    DbHelper.updateWordInfo(
-                        offlineListType: OfflineListType.review,
-                        context: context,
-                        senses:
-                            jsonDecode(dictionary.review[currentCard].senses),
-                        offlineWordRecord: dictionary.review[currentCard]);
-                    currentCard++;
+                  } else {
+                    // If card is mature
+                    if (currentCard.interval > 21 * 24 * 60 * 60 * 1000) {
+                      currentCard.lapses++;
+                    }
+                  }
+                  currentCard.lastReview =
+                      DateTime.now().millisecondsSinceEpoch;
+                  currentCard.interval = steps[0] * 60 * 1000;
+                  currentCard.due = DateTime.now().millisecondsSinceEpoch +
+                      currentCard.interval;
+                  currentCard.reviews++;
+
+                  DbHelper.updateWordInfo(
+                      offlineListType: OfflineListType.review,
+                      context: context,
+                      senses: jsonDecode(currentCard.senses),
+                      offlineWordRecord: currentCard);
+                  // dictionary.review = await dictionary.offlineDatabase.retrieve(tableName: 'review');
+                  setState(() {
+                    showAll = false;
+                    if (dictionary.getCards.length > 0)
+                      currentCard = dictionary.getCards[0];
                   });
                 },
                 child: AnswerButton(
-                    currentCard: currentCard,
+                    offlineWordRecord: currentCard,
                     steps: steps,
                     buttonText: 'Again',
                     color: Colors.red),
               ),
+
+              // Good button
               GestureDetector(
                 onTap: () {
-                  setState(() {
-                    showAll = false;
-                    dictionary.review[currentCard].lastReview =
+                  // Prepare for redo button
+                  redo = OfflineWordRecord(
+                    slug: currentCard.slug,
+                    is_common: currentCard.is_common,
+                    tags: currentCard.tags,
+                    jlpt: currentCard.jlpt,
+                    word: currentCard.word,
+                    reading: currentCard.reading,
+                    senses: currentCard.senses,
+                    vietnamese_definition: currentCard.vietnamese_definition,
+                    added: currentCard.added,
+                    firstReview: currentCard.firstReview,
+                    lastReview: currentCard.lastReview,
+                    due: currentCard.due,
+                    interval: currentCard.interval,
+                    ease: currentCard.ease,
+                    reviews: currentCard.reviews,
+                    lapses: currentCard.lapses,
+                    averageTimeMinute: currentCard.averageTimeMinute,
+                    totalTimeMinute: currentCard.totalTimeMinute,
+                    cardType: currentCard.cardType,
+                    noteType: currentCard.noteType,
+                    deck: currentCard.deck,
+                  );
+                  redo = OfflineWordRecord(
+                    slug: currentCard.slug,
+                    is_common: currentCard.is_common,
+                    tags: currentCard.tags,
+                    jlpt: currentCard.jlpt,
+                    word: currentCard.word,
+                    reading: currentCard.reading,
+                    senses: currentCard.senses,
+                    vietnamese_definition: currentCard.vietnamese_definition,
+                    added: currentCard.added,
+                    firstReview: currentCard.firstReview,
+                    lastReview: currentCard.lastReview,
+                    due: currentCard.due,
+                    interval: currentCard.interval,
+                    ease: currentCard.ease,
+                    reviews: currentCard.reviews,
+                    lapses: currentCard.lapses,
+                    averageTimeMinute: currentCard.averageTimeMinute,
+                    totalTimeMinute: currentCard.totalTimeMinute,
+                    cardType: currentCard.cardType,
+                    noteType: currentCard.noteType,
+                    deck: currentCard.deck,
+                  );
+                  redoType = RedoType.update;
+
+                  // Calculate and update card interval
+                  currentCard.lastReview =
+                      DateTime.now().millisecondsSinceEpoch;
+                  if (currentCard.reviews == 0)
+                    currentCard.firstReview =
                         DateTime.now().millisecondsSinceEpoch;
-                    if (dictionary.review[currentCard].reviews == 0)
-                      dictionary.review[currentCard].firstReview =
-                          DateTime.now().millisecondsSinceEpoch;
-                    if (dictionary.review[currentCard].interval <
-                        steps[steps.length - 1] * 60 * 1000)
-                      for (int i = 0; i < steps.length; i++) {
-                        if (dictionary.review[currentCard].interval <
-                            steps[i] * 60 * 1000) {
-                          dictionary.review[currentCard].interval =
-                              steps[i] * 60 * 1000;
-                          break;
-                        }
+                  if (currentCard.interval <
+                      steps[steps.length - 1] * 60 * 1000)
+                    for (int i = 0; i < steps.length; i++) {
+                      if (currentCard.interval < steps[i] * 60 * 1000) {
+                        currentCard.interval = steps[i] * 60 * 1000;
+                        break;
                       }
-                    else if (dictionary.review[currentCard].interval ==
-                        steps[steps.length - 1] * 60 * 1000) {
-                      dictionary.review[currentCard].interval =
-                          SharedPref.prefs.getInt('graduatingInterval') *
-                              24 *
-                              60 *
-                              60 *
-                              1000;
-                    } else if (dictionary.review[currentCard].interval >=
+                    }
+                  else if (currentCard.interval ==
+                      steps[steps.length - 1] * 60 * 1000) {
+                    currentCard.interval =
                         SharedPref.prefs.getInt('graduatingInterval') *
                             24 *
                             60 *
                             60 *
-                            1000) {
-                      dictionary.review[currentCard].interval =
-                          (dictionary.review[currentCard].interval *
-                                  dictionary.review[currentCard].ease)
-                              .round();
-                    }
-                    dictionary.review[currentCard].due =
-                        dictionary.review[currentCard].interval +
-                            DateTime.now().millisecondsSinceEpoch;
+                            1000;
+                  } else if (currentCard.interval >=
+                      SharedPref.prefs.getInt('graduatingInterval') *
+                          24 *
+                          60 *
+                          60 *
+                          1000) {
+                    currentCard.interval =
+                        (currentCard.interval * currentCard.ease).round();
+                  }
 
-                    dictionary.review[currentCard].reviews++;
-                    DbHelper.updateWordInfo(
-                        offlineListType: OfflineListType.review,
-                        context: context,
-                        senses:
-                            jsonDecode(dictionary.review[currentCard].senses),
-                        offlineWordRecord: dictionary.review[currentCard]);
-                    currentCard++;
+                  currentCard.due = currentCard.interval +
+                      DateTime.now().millisecondsSinceEpoch;
+                  currentCard.reviews++;
+
+                  DbHelper.updateWordInfo(
+                    offlineListType: OfflineListType.review,
+                    context: context,
+                    senses: jsonDecode(currentCard.senses),
+                    offlineWordRecord: currentCard,
+                  );
+
+                  setState(() {
+                    showAll = false;
+                    if (dictionary.getCards.length > 0)
+                      currentCard = dictionary.getCards[0];
                   });
                 },
                 child: AnswerButton(
-                    currentCard: currentCard,
+                    offlineWordRecord: currentCard,
                     steps: steps,
                     buttonText: 'Good',
                     color: Colors.green),

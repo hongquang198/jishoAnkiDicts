@@ -81,7 +81,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Provider.of<Dictionary>(context).history;
             return SearchResultTile(
               textEditingController: widget.textEditingController,
-              vietnameseDefinition: history[index].vietnamese_definition,
               jishoDefinition: JishoDefinition(
                 slug: history[index].slug,
                 is_common: history[index].is_common == 1 ? true : false,

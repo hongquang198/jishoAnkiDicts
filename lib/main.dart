@@ -23,7 +23,7 @@ File file;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  file = await getImageFileFromAssets('circle-cropped.png');
+  file = await getImageFileFromAssets('floatingicon.png');
   runApp(MyApp());
 }
 
@@ -42,8 +42,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       } else {
         FloatButtonOverlay.openOverlay(
           activityName: 'MainActivity',
-          notificationText: "Float Button Overlay ☠️",
-          notificationTitle: 'Float Button Overlay ☠️',
+          notificationText: "Floating icon",
+          notificationTitle: 'JishoAnki Dictionary',
           packageName: 'com.quangpham.japaneseOCR',
           iconPath: file.path,
         );
@@ -76,43 +76,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();
     final loadDictionary = LoadDictionary(dbManager: dicts.offlineDatabase);
-    // OfflineWordRecord n = OfflineWordRecord(
-    //     slug: 'a',
-    //     is_common: 1,
-    //     tags: 'c',
-    //     jlpt: 'd',
-    //     reading: 'e',
-    //     english_definitions: 'f',
-    //     vietnamese_definition: 'g',
-    //     parts_of_speech: 'h',
-    //     links: 'i',
-    //     see_also: 'j',
-    //     antonyms: 'k',
-    //     source: 'l',
-    //     info: 'm');
-    // await dicts.offlineDatabase
-    //     .insertWord(offlineWordRecord: n, tableName: 'favorite');
-
-    // dicts.vietnameseDictionary = await loadDictionary.loadAssetDictionary();
-    dicts.exampleDictionary = await loadDictionary.loadExampleDictionary();
-
-    // try {
-    //   dicts.vietnameseDictionary =
-    //       await dicts.offlineDatabase.retrieveJpvnDictionary();
-    //   dicts.kanjiDictionary =
-    //       await dicts.offlineDatabase.retrieveKanjiDictionary();
-    //   dicts.exampleDictionary =
-    //       await dicts.offlineDatabase.retrieveExampleDictionary();
-    // } catch (e) {
-    //   print('error loading offline database dicts $e');
-    // }
+    // dicts.vietnameseDictionary = await loadDictionary.loadJpvnDictionary();
+    // print('Load vndict finished');
+    // dicts.kanjiDictionary = await loadDictionary.loadAssetKanji();
+    // print('Load kanji finished');
+    // dicts.pitchAccentDict = await loadDictionary.loadPitchAccentDictionary();
+    // print('Load pitch accent finished');
+    // dicts.exampleDictionary = await loadDictionary.loadExampleDictionary();
+    // print('Load example finished');
 
     dicts.history = await dicts.offlineDatabase.retrieve(tableName: 'history');
     dicts.favorite =
         await dicts.offlineDatabase.retrieve(tableName: 'favorite');
     dicts.review = await dicts.offlineDatabase.retrieve(tableName: 'review');
-    dicts.kanjiDictionary = await loadDictionary.loadAssetKanji();
-    dicts.pitchAccentDict = await loadDictionary.loadPitchAccentDictionary();
 
     return dicts;
   }

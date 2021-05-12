@@ -5,6 +5,7 @@ import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
 import 'package:JapaneseOCR/models/pitchAccent.dart';
+import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/services/dbHelper.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
@@ -20,20 +21,14 @@ import 'dart:async';
 
 class DefinitionScreen extends StatefulWidget {
   final JishoDefinition jishoDefinition;
-  final String vietnameseDefinition;
   final bool isInFavoriteList;
   final TextEditingController textEditingController;
   final bool isOfflineList;
-  final List<String> hanVietReading;
-  final List<Kanji> kanjiList;
   DefinitionScreen({
     this.textEditingController,
     this.jishoDefinition,
-    this.vietnameseDefinition,
     this.isInFavoriteList,
     this.isOfflineList,
-    this.hanVietReading,
-    this.kanjiList,
   });
 
   @override
@@ -41,8 +36,12 @@ class DefinitionScreen extends StatefulWidget {
 }
 
 class _DefinitionScreenState extends State<DefinitionScreen> {
-  List<Widget> pitchAccent;
+  bool isClipboardSet = false;
   String clipboard;
+  Future<List<Widget>> pitchAccent;
+  Future<List<String>> hanVietReading;
+  Future<List<Kanji>> kanjiList;
+  Future<String> vnDefinition;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.length > 0) {
@@ -71,18 +70,34 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
   @override
   void initState() {
-    List<PitchAccent> pitchDict =
-        Provider.of<Dictionary>(context, listen: false).pitchAccentDict;
+    pitchAccent = KanjiHelper.getPitchAccent(
+      word: widget.jishoDefinition.word,
+      slug: widget.jishoDefinition.slug,
+      reading: widget.jishoDefinition.reading,
+      context: context,
+    );
 
-    try {
-      pitchAccent = KanjiHelper.getPitchAccent(
-          word: widget.jishoDefinition.word,
-          slug: widget.jishoDefinition.slug,
-          reading: widget.jishoDefinition.reading,
-          pitchAccentDict: pitchDict);
-    } catch (e) {
-      print('Pitch accent is $pitchAccent $e');
-    }
+    hanVietReading = KanjiHelper.getHanvietReading(
+        word: widget.jishoDefinition.word ??
+            widget.jishoDefinition.slug ??
+            widget.jishoDefinition.reading ??
+            '',
+        context: context);
+
+    kanjiList = KanjiHelper.getKanjiComponent(
+        word: widget.jishoDefinition.word ??
+            widget.jishoDefinition.slug ??
+            widget.jishoDefinition.reading ??
+            '',
+        context: context);
+
+    vnDefinition = KanjiHelper.getVnDefinition(
+        word: widget.jishoDefinition.word ??
+            widget.jishoDefinition.slug ??
+            widget.jishoDefinition.reading ??
+            '',
+        context: context);
+
     getClipboard();
     widget.textEditingController.addListener(() {
       if (mounted) {
@@ -106,22 +121,23 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           SizedBox(
             height: 10,
           ),
-          Hero(
-            tag:
-                'HeroTagHiragana${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
-            child: Material(
-              color: Colors.transparent,
-              child: pitchAccent == null
-                  ? Text(
-                      widget.jishoDefinition.reading ?? '',
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        color: Colors.grey,
-                      ),
-                    )
-                  : Row(
-                      children: pitchAccent,
+          Material(
+            color: Colors.transparent,
+            child: FutureBuilder(
+              future: pitchAccent,
+              builder: (context, snapshot) {
+                if (snapshot.data == null)
+                  return Text(
+                    widget.jishoDefinition.reading ?? '',
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      color: Colors.grey,
                     ),
+                  );
+                return Row(
+                  children: snapshot.data,
+                );
+              },
             ),
           ),
           Row(
@@ -176,8 +192,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                               word: widget.jishoDefinition.word,
                               reading: widget.jishoDefinition.reading,
                               senses: jsonEncode(widget.jishoDefinition.senses),
-                              vietnamese_definition:
-                                  widget.vietnameseDefinition,
+                              vietnamese_definition: null,
                               added: DateTime.now().microsecondsSinceEpoch,
                               firstReview: null,
                               lastReview: null,
@@ -208,18 +223,32 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
               ),
             ],
           ),
-          Hero(
-            tag:
-                'HeroTagHanViet${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',
-            child: Material(
-              color: Colors.transparent,
-              child: Text(
-                widget.hanVietReading.toString().toUpperCase(),
-                style: TextStyle(
-                  fontSize: 22,
-                ),
-              ),
-            ),
+          FutureBuilder(
+            future: hanVietReading,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return Text('');
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    snapshot.data.toString().toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 22,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(
+                          text: snapshot.data.toString().toUpperCase()));
+                      isClipboardSet = true;
+                    },
+                    child: isClipboardSet == false
+                        ? Icon(Icons.copy)
+                        : Icon(Icons.check_outlined),
+                  ),
+                ],
+              );
+            },
           ),
           Hero(
             tag:
@@ -251,7 +280,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           SizedBox(height: 8),
           DefinitionWidget(
             senses: widget.jishoDefinition.senses,
-            vietnameseDefinition: widget.vietnameseDefinition,
+            vietnameseDefinition: vnDefinition,
           ),
           Divider(),
           Text(
@@ -274,7 +303,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
             ),
           ),
           ComponentWidget(
-            kanjiList: widget.kanjiList,
+            kanjiComponent: kanjiList,
           ),
         ]),
       ),

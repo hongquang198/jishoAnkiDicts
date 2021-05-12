@@ -4,8 +4,8 @@ import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ComponentWidget extends StatefulWidget {
-  List<Kanji> kanjiList;
-  ComponentWidget({this.kanjiList});
+  Future<List<Kanji>> kanjiComponent;
+  ComponentWidget({this.kanjiComponent});
 
   @override
   _ComponentWidgetState createState() => _ComponentWidgetState();
@@ -230,12 +230,17 @@ class _ComponentWidgetState extends State<ComponentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        for (int i = 0; i < widget.kanjiList.length; i++)
-          getKanjiComponents(widget.kanjiList[i]),
-      ],
-    );
+    return FutureBuilder(
+        future: widget.kanjiComponent,
+        builder: (context, snapshot) {
+          if (snapshot.data == null) return Column();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              for (int i = 0; i < snapshot.data.length; i++)
+                getKanjiComponents(snapshot.data[i]),
+            ],
+          );
+        });
   }
 }

@@ -109,17 +109,19 @@ class DbHelper {
     }
   }
 
-  static void updateWordInfo(
-      {OfflineListType offlineListType,
-      List<dynamic> senses,
-      BuildContext context,
-      OfflineWordRecord offlineWordRecord}) {
+  static void updateWordInfo({
+    OfflineListType offlineListType,
+    List<dynamic> senses,
+    BuildContext context,
+    OfflineWordRecord offlineWordRecord,
+  }) {
     List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.review) {
-      table = Provider.of<Dictionary>(context, listen: false).review;
-      int index =
-          table.indexWhere((element) => element.senses == jsonEncode(senses));
-      table[index] = offlineWordRecord;
+      int index = Provider.of<Dictionary>(context, listen: false)
+          .review
+          .indexWhere((element) => element.senses == jsonEncode(senses));
+      Provider.of<Dictionary>(context, listen: false).review[index] =
+          offlineWordRecord;
       Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase
           .update(offlineWordRecord: offlineWordRecord, tableName: 'review');

@@ -13,8 +13,10 @@ class NavBar extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountEmail: Text('hongquang127@gmail.com'),
-            accountName: Text('My Name'),
+            accountEmail: Text('hongquang127@gmail.com',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            accountName:
+                Text('My Name', style: TextStyle(fontWeight: FontWeight.bold)),
             currentAccountPicture: CircleAvatar(
               child: ClipOval(
                 child: Image.asset('assets/ava.png'),

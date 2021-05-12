@@ -7,8 +7,13 @@ class PredictionWidget extends StatefulWidget {
   final List<Prediction> predictions;
   final List<Kanji> kanjiAll;
   final TextEditingController textEditingController;
+  final Function clearStrokes;
   const PredictionWidget(
-      {Key key, this.predictions, this.kanjiAll, this.textEditingController})
+      {Key key,
+      this.predictions,
+      this.kanjiAll,
+      this.textEditingController,
+      this.clearStrokes})
       : super(key: key);
 
   @override
@@ -27,6 +32,7 @@ class _PredictionWidgetState extends State<PredictionWidget> {
       onTap: () {
         widget.textEditingController.text =
             widget.textEditingController.text + prediction.label;
+        widget.clearStrokes();
         // var kanji = getKanji(prediction.label);
         // return showCupertinoModalBottomSheet(
         //   expand: true,

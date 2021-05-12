@@ -1,5 +1,4 @@
 class OfflineWordRecord {
-  int id;
   String slug; //
   int is_common; //
   String tags; //
@@ -26,8 +25,7 @@ class OfflineWordRecord {
   String deck;
 
   OfflineWordRecord(
-      {this.id,
-      this.slug,
+      {this.slug,
       this.is_common,
       this.tags,
       this.jlpt,
@@ -51,7 +49,6 @@ class OfflineWordRecord {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'slug': slug,
       'is_common': is_common,
       'tags': tags,

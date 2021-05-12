@@ -84,7 +84,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             // ignore: missing_return, missing_return
             return SearchResultTile(
               textEditingController: widget.textEditingController,
-              vietnameseDefinition: favorite[index].vietnamese_definition,
               jishoDefinition: JishoDefinition(
                 slug: favorite[index].slug,
                 is_common: favorite[index].is_common == 1 ? true : false,

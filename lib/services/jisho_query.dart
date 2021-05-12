@@ -15,7 +15,7 @@ class JishoQuery {
   Future<List<JishoDefinition>> getSearchResult(dynamic jishoData) async {
     List<JishoDefinition> jishoDefinitionList = [];
     var data = jishoData['data'];
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < jishoData['data'].length; i++) {
       try {
         JishoDefinition jishoDefinition = JishoDefinition(
             slug: jishoData['data'][i]['slug'],
@@ -32,11 +32,11 @@ class JishoQuery {
             is_jmnedict: jishoData['data'][i]['attribution']['jmnedict']);
         jishoDefinitionList.add(jishoDefinition);
       } catch (e) {
-        print('error: ');
+        print('error search result list:  $e');
         print(e);
       }
     }
-    print(jishoDefinitionList.length);
+    print('Search result list length is ${jishoDefinitionList.length}');
     return jishoDefinitionList;
   }
 }

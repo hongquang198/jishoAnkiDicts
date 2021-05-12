@@ -1,5 +1,8 @@
+import 'package:JapaneseOCR/models/example_sentence.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/pitchAccent.dart';
+import 'package:JapaneseOCR/models/vietnamese_definition.dart';
+import 'package:JapaneseOCR/services/dbManager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,12 +10,17 @@ import 'package:JapaneseOCR/models/dictionary.dart';
 
 class KanjiHelper {
   // Extract kanji from word
-  static List<Kanji> extractKanji({String word, List<Kanji> kanjiDict}) {
+  static Future<List<Kanji>> getKanjiComponent(
+      {String word, BuildContext context}) async {
     List<Kanji> kanjiExtracted = [];
+    List<Kanji> kanjiFound = [];
     for (int i = 0; i < word.length; i++) {
       try {
+        kanjiFound = await Provider.of<Dictionary>(context, listen: false)
+            .offlineDatabase
+            .searchForKanji(kanji: word[i]);
         Kanji kanji =
-            kanjiDict.firstWhere((element) => element.kanji == word[i]);
+            kanjiFound.firstWhere((element) => element.kanji == word[i]);
         if (kanji != null) {
           kanjiExtracted.add(kanji);
         }
@@ -23,13 +31,17 @@ class KanjiHelper {
     return kanjiExtracted;
   }
 
-  static List<String> getHanvietReading({String word, List<Kanji> kanjiDict}) {
+  static Future<List<String>> getHanvietReading(
+      {String word, BuildContext context}) async {
     List<String> hanViet = [];
     List<String> array = [];
-    List<Kanji> kanjiExtracted = extractKanji(word: word, kanjiDict: kanjiDict);
-    for (int i = 0; i < kanjiExtracted.length; i++) {
+    List<Kanji> kanjiComponent =
+        await getKanjiComponent(word: word, context: context);
+    print('kanji component length is ${kanjiComponent.length}');
+    for (int i = 0; i < kanjiComponent.length; i++) {
       try {
-        array = kanjiExtracted[i].hanViet.split(" ");
+        array = kanjiComponent[i].hanViet.split(" ");
+        array = array[0].split(",");
         hanViet.add(array[0].toUpperCase());
       } catch (e) {
         print('error adding kanji extracted $e');
@@ -92,16 +104,21 @@ class KanjiHelper {
       );
   }
 
-  static List<Widget> getPitchAccent(
-      {String word,
-      String slug,
-      String reading,
-      List<PitchAccent> pitchAccentDict}) {
+  static Future<List<Widget>> getPitchAccent({
+    String word,
+    String slug,
+    String reading,
+    BuildContext context,
+  }) async {
     List<Widget> widgetList = [];
+    List<PitchAccent> pitchFound =
+        await Provider.of<Dictionary>(context, listen: false)
+            .offlineDatabase
+            .searchForPitchAccent(word: slug ?? word, reading: reading);
     String pitchAccent;
     PitchAccent pitch;
     try {
-      pitch = pitchAccentDict.firstWhere((element) =>
+      pitch = pitchFound.firstWhere((element) =>
           element.orths_txt.contains(word ?? slug ?? reading) &&
           element.hira == reading);
     } catch (e) {
@@ -114,5 +131,34 @@ class KanjiHelper {
         widgetList.add(getPitchForChar(
             character: reading[i], position: i, pitchAccent: pitchAccent));
     return widgetList;
+  }
+
+  static Future<String> getVnDefinition(
+      {String word, BuildContext context}) async {
+    List<VietnameseDefinition> vietnameseDefinition;
+    try {
+      vietnameseDefinition =
+          await Provider.of<Dictionary>(context, listen: false)
+              .offlineDatabase
+              .searchForVnMeaning(word: word);
+    } catch (e) {
+      print('Error searching for vn definition $e');
+    }
+    if (vietnameseDefinition.length > 0)
+      return vietnameseDefinition[0].definition;
+    return null;
+  }
+
+  static Future<List<ExampleSentence>> getExampleSentence(
+      {String word, BuildContext context}) async {
+    List<ExampleSentence> exampleSentence;
+    try {
+      exampleSentence = await Provider.of<Dictionary>(context, listen: false)
+          .offlineDatabase
+          .searchForExample(word: word);
+    } catch (e) {
+      print('Error searching for example $e');
+    }
+    return exampleSentence;
   }
 }

@@ -55,9 +55,14 @@ class _DrawScreenState extends State<DrawScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        inputSelectionBar(),
+        InputSelectionBar(),
         allPredictions()?.isNotEmpty ?? false
             ? PredictionWidget(
+                clearStrokes: () {
+                  setState(() {
+                    _points.clear();
+                  });
+                },
                 textEditingController: widget.textEditingController,
                 predictions: allPredictions(),
                 kanjiAll: kanjiDict,
@@ -120,8 +125,10 @@ class _DrawScreenState extends State<DrawScreen> {
           ),
           GestureDetector(
             onTap: () {
-              widget.textEditingController.text =
-                  widget.textEditingController.text + _prediction[0].label;
+              if (widget.textEditingController.text.length != 0)
+                widget.textEditingController.text = widget
+                    .textEditingController.text
+                    .substring(0, widget.textEditingController.text.length - 1);
             },
             child: Container(
               width: 35,
@@ -132,7 +139,7 @@ class _DrawScreenState extends State<DrawScreen> {
               ),
               child: Center(
                 child: Icon(
-                  Icons.keyboard_return,
+                  Icons.keyboard_backspace,
                   size: 25,
                   color: Colors.white,
                 ),
@@ -220,8 +227,8 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 }
 
-class inputSelectionBar extends StatelessWidget {
-  const inputSelectionBar({
+class InputSelectionBar extends StatelessWidget {
+  const InputSelectionBar({
     Key key,
   }) : super(key: key);
 

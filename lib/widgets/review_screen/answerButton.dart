@@ -8,67 +8,62 @@ import 'package:provider/provider.dart';
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
     Key key,
-    @required this.currentCard,
     @required this.steps,
     @required this.color,
     @required this.buttonText,
+    @required this.offlineWordRecord,
   }) : super(key: key);
-
-  final int currentCard;
+  final OfflineWordRecord offlineWordRecord;
   final List<int> steps;
   final Color color;
   final String buttonText;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Dictionary>(builder: (context, dictionary, child) {
-      return Container(
-        width: MediaQuery.of(context).size.width / 2,
-        height: 50,
-        color: color,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                buttonText,
-                style: TextStyle(color: Colors.white),
-              ),
-              if (buttonText == 'Again') Text('1m') else getInterval(dictionary)
-            ],
-          ),
+    return Container(
+      width: MediaQuery.of(context).size.width / 2,
+      height: 50,
+      color: color,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              buttonText,
+              style: TextStyle(color: Colors.white),
+            ),
+            if (buttonText == 'Again') Text('1m') else getInterval()
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Text getInterval(Dictionary dictionary) {
-    if (dictionary.review[currentCard].interval <
-        steps[steps.length - 1] * 60 * 1000)
+  Widget getInterval() {
+    if (offlineWordRecord.interval < steps[steps.length - 1] * 60 * 1000)
       for (int i = 0; i < steps.length; i++) {
-        if (dictionary.review[currentCard].interval < steps[i] * 60 * 1000) {
+        if (offlineWordRecord.interval < steps[i] * 60 * 1000) {
           return Text('${steps[i]}min');
         }
       }
-    else if (dictionary.review[currentCard].interval ==
+    else if (offlineWordRecord.interval ==
         steps[steps.length - 1] * 60 * 1000) {
       return Text('${SharedPref.prefs.getInt('graduatingInterval')}day');
-    } else if (dictionary.review[currentCard].interval >=
+    } else if (offlineWordRecord.interval >=
         SharedPref.prefs.getInt('graduatingInterval') * 24 * 60 * 60 * 1000) {
-      if (dictionary.review[currentCard].interval *
-              dictionary.review[currentCard].ease <=
+      if (offlineWordRecord.interval * offlineWordRecord.ease <=
           31 * 24 * 60 * 60 * 1000) {
         return Text(
-            '${Duration(milliseconds: (dictionary.review[currentCard].interval * dictionary.review[currentCard].ease).round()).inDays}day');
-      } else if (dictionary.review[currentCard].interval *
-              dictionary.review[currentCard].ease <=
+            '${Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays}day');
+      } else if (offlineWordRecord.interval * offlineWordRecord.ease <=
           365 * 24 * 60 * 60 * 1000) {
         return Text(
-            '${(Duration(milliseconds: (dictionary.review[currentCard].interval * dictionary.review[currentCard].ease).round()).inDays / 31).toStringAsFixed(1)}month');
+            '${(Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays / 31).toStringAsFixed(1)}month');
       }
       return Text(
-          '${(Duration(milliseconds: (dictionary.review[currentCard].interval * dictionary.review[currentCard].ease).round()).inDays / 365).toStringAsFixed(1)}year');
+          '${(Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays / 365).toStringAsFixed(1)}year');
     }
+    return Text('');
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/services/jisho_query.dart';
+import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'dart:async';
 import 'package:JapaneseOCR/services/load_dictionary.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
@@ -46,6 +47,8 @@ class _MainScreenState extends State<MainScreen> {
       _streamController.add(null);
       return;
     }
+    _streamController.add(null);
+
     _streamController.add("waiting");
     jishoData = await jishoQuery.getJishoQuery(_textController.text);
     _streamController.add(jishoData);
@@ -56,37 +59,33 @@ class _MainScreenState extends State<MainScreen> {
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
-  _onChangeHandler(value) {
+  _onChangeHandler(value) async {
     const duration = Duration(
         milliseconds:
-            300); // set the duration that you want call search() after that.
+            150); // set the duration that you want call search() after that.
     if (searchOnStoppedTyping != null) {
       setState(() => searchOnStoppedTyping.cancel()); // clear timer
     }
-    setState(() => searchOnStoppedTyping = new Timer(duration, () {
-          _search(); // Your state change code goes here
+    setState(() => searchOnStoppedTyping = new Timer(duration, () async {
+          await _search(); // Your state change code goes here
         }));
   }
 
   @override
   void initState() {
-    _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
-
     _streamController = StreamController();
     _stream = _streamController.stream;
     _textController = TextEditingController();
 
-    _textController.addListener(() {
+    _textController.addListener(() async {
       if (previousText != _textController.text) {
         previousText = _textController.text;
-        setState(() {
-          _onChangeHandler(_textController.text);
-        });
+        await _onChangeHandler(_textController.text);
       }
     });
 
     clipboardTriggerTime =
-        Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        Timer.periodic(const Duration(milliseconds: 75), (timer) {
       Clipboard.getData('text/plain').then((clipboardContent) {
         if (clipboard != clipboardContent.text) {
           clipboard = clipboardContent.text;
@@ -94,6 +93,7 @@ class _MainScreenState extends State<MainScreen> {
         }
       });
     });
+    _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
 
     super.initState();
   }
@@ -224,10 +224,6 @@ class _MainScreenState extends State<MainScreen> {
                     itemBuilder: (BuildContext context, int index) {
                       return SearchResultTile(
                         textEditingController: _textController,
-                        vietnameseDefinition: getVietnameseDefinition(
-                            snapshot.data['data'][index]['slug'] ??
-                                snapshot.data['data'][index]['japanese'][0]
-                                    ['word']),
                         jishoDefinition: JishoDefinition(
                             slug: snapshot.data['data'][index]['slug'],
                             is_common: snapshot.data['data'][index]

@@ -2,8 +2,8 @@ import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class DefinitionWidget extends StatelessWidget {
-  String vietnameseDefinition;
-  List<dynamic> senses;
+  final Future<String> vietnameseDefinition;
+  final List<dynamic> senses;
   DefinitionWidget({this.vietnameseDefinition, this.senses});
 
   @override
@@ -26,12 +26,16 @@ class DefinitionWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           for (int i = 0; i < senses.length; i++) getDefinitions(i),
-          // Text(
-          //   vietnameseDefinition == null
-          //       ? vietnameseDefinition.replaceAll('\\n', '\n\n')
-          //       : '',
-          //   style: TextStyle(fontSize: Constants.definitionTextSize),
-          // ),
+          FutureBuilder(
+            future: vietnameseDefinition,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) return SizedBox();
+              return Text(
+                snapshot.data.replaceAll('\\n', '\n\n'),
+                style: TextStyle(fontSize: Constants.definitionTextSize),
+              );
+            },
+          ),
         ],
       );
     }
