@@ -3,17 +3,13 @@ import 'dart:convert';
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/vietnamese_definition.dart';
-import 'package:JapaneseOCR/services/dbManager.dart';
-import 'package:JapaneseOCR/services/jisho_query.dart';
 import 'dart:async';
 import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/widgets/nav_bar.dart';
 import 'package:JapaneseOCR/widgets/search_result_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -67,7 +63,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Your favorite",
+          AppLocalizations.of(context).favorite,
           style: TextStyle(color: Constants.appBarTextColor),
         ),
       ),

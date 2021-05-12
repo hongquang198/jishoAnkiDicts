@@ -1,12 +1,8 @@
 import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/example_sentence.dart';
 import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/services/jisho_query.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'dart:async';
-import 'package:JapaneseOCR/services/load_dictionary.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:JapaneseOCR/widgets/nav_bar.dart';
 import 'package:JapaneseOCR/widgets/search_result_tile.dart';
@@ -16,8 +12,7 @@ import 'package:JapaneseOCR/widgets/draw_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:JapaneseOCR/services/recognizer.dart';
-import 'package:flutter/services.dart';
-import 'package:float_button_overlay/float_button_overlay.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -128,7 +123,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             appBar: AppBar(
               title: Text(
-                "Japanese Dictionary",
+                AppLocalizations.of(context).appTitle,
                 style: TextStyle(color: Constants.appBarTextColor),
               ),
               bottom: PreferredSize(

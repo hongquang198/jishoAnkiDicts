@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('assets/$path');
@@ -36,19 +38,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<Dictionary> dicts;
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      if (AppLifecycleState.resumed == state) {
-        FloatButtonOverlay.closeOverlay;
-      } else {
-        FloatButtonOverlay.openOverlay(
-          activityName: 'MainActivity',
-          notificationText: "Floating icon",
-          notificationTitle: 'JishoAnki Dictionary',
-          packageName: 'com.quangpham.japaneseOCR',
-          iconPath: file.path,
-        );
-      }
-    });
+    if (SharedPref.prefs.getBool('enableFloating') == true)
+      setState(() {
+        if (AppLifecycleState.resumed == state) {
+          FloatButtonOverlay.closeOverlay;
+        } else {
+          FloatButtonOverlay.openOverlay(
+            activityName: 'MainActivity',
+            notificationText: "Floating icon",
+            notificationTitle: 'JishoAnki Dictionary',
+            packageName: 'com.quangpham.japaneseOCR',
+            iconPath: file.path,
+          );
+        }
+      });
   }
 
   Future<void> initPlatformState() async {
@@ -72,8 +75,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Future<Dictionary> initDictionary() async {
-    SharedPref.init();
     Dictionary dicts = Dictionary();
+    await SharedPref.init();
     await dicts.offlineDatabase.initDatabase();
     final loadDictionary = LoadDictionary(dbManager: dicts.offlineDatabase);
     // dicts.vietnameseDictionary = await loadDictionary.loadJpvnDictionary();
@@ -99,22 +102,40 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       create: (context) async {
         return dicts;
       },
-      child: MaterialApp(
-        title: 'Japanese Handwriting Recognizer',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          appBarTheme: AppBarTheme(
-            color: Color(0xffDB8C8A),
-          ),
-          bottomSheetTheme: BottomSheetThemeData(
-            backgroundColor: Colors.white.withOpacity(0),
-          ),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: Color(0xffDB8C8A),
-          ),
-        ),
-        home: MainScreen(),
-      ),
+      child: FutureBuilder(
+          future: SharedPref.init(),
+          builder: (context, snapshot) {
+            if (snapshot.data == null) return CircularProgressIndicator();
+            return MaterialApp(
+              title: 'JishoAnki Dictionary',
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                const Locale('en', ''),
+                const Locale('vi', ''),
+              ],
+              locale: snapshot.data.getString('language') == 'Tiếng Việt'
+                  ? Locale('vi', '')
+                  : Locale('en', ''),
+              theme: ThemeData(
+                appBarTheme: AppBarTheme(
+                  color: Color(0xffDB8C8A),
+                ),
+                bottomSheetTheme: BottomSheetThemeData(
+                  backgroundColor: Colors.white.withOpacity(0),
+                ),
+                floatingActionButtonTheme: FloatingActionButtonThemeData(
+                  backgroundColor: Color(0xffDB8C8A),
+                ),
+              ),
+              home: MainScreen(),
+            );
+          }),
     );
   }
 }

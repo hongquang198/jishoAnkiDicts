@@ -19,7 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'cardInfoScreen.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -124,7 +124,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     return Consumer<Dictionary>(builder: (context, dictionary, child) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Review'),
+          title: Text(AppLocalizations.of(context).review),
           actions: [
             GestureDetector(
                 onTap: () {
@@ -224,7 +224,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         body: dictionary.getCards.length > 0
             ? buildCard(dictionary, context)
             : Center(
-                child: Text('You completed your reviews'),
+                child: Text(AppLocalizations.of(context).reviewComplete),
               ),
       );
     });

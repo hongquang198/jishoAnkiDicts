@@ -1,0 +1,17 @@
+{
+    "helloWorld": "Hello World!",
+    "@helloWorld": {
+      "description": "The conventional newborn programmer greeting"
+    },
+    "lookUp" : "Look up",
+    "history" : "History",
+    "favorite" : "Favorite",
+    "review" : "Review",
+    "settings" : "Settings",
+    "examples" : "Examples",
+    "components" : "Components",
+    "enableFloating" : "Enable floating app",
+    "language" : "Language",
+    "reviewComplete" : "You have completed your reviews.",
+    "appTitle" : "JishoAnki Dictionary"
+}

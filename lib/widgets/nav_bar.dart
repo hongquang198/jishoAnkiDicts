@@ -1,7 +1,9 @@
 import 'package:JapaneseOCR/screens/favorite_screen.dart';
 import 'package:JapaneseOCR/screens/history_screen.dart';
 import 'package:JapaneseOCR/screens/review_screen.dart';
+import 'package:JapaneseOCR/screens/settingsScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;
@@ -34,14 +36,14 @@ class NavBar extends StatelessWidget {
               Icons.search,
               color: Colors.blue,
             ),
-            title: Text('Word look up'),
+            title: Text(AppLocalizations.of(context).lookUp),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
             leading: Icon(Icons.history),
-            title: Text('History'),
+            title: Text(AppLocalizations.of(context).history),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -57,7 +59,7 @@ class NavBar extends StatelessWidget {
               Icons.favorite,
               color: Colors.red,
             ),
-            title: Text('Favorite'),
+            title: Text(AppLocalizations.of(context).favorite),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -70,7 +72,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.alarm),
-            title: Text('Review'),
+            title: Text(AppLocalizations.of(context).review),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -83,17 +85,12 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Sign out'),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.color_lens),
-            title: Text('Dark mode'),
+            title: Text(AppLocalizations.of(context).settings),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SettingsScreen()));
+            },
           ),
         ],
       ),
