@@ -84,6 +84,16 @@ class NavBar extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.menu_book_outlined),
+            title: Text(AppLocalizations.of(context).sentenceTranslate),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: Icon(Icons.bar_chart),
+            title: Text(AppLocalizations.of(context).statistics),
+            onTap: () {},
+          ),
+          ListTile(
             leading: Icon(Icons.settings),
             title: Text(AppLocalizations.of(context).settings),
             onTap: () {

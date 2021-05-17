@@ -35,7 +35,7 @@ dependencies:
   tflite: ^1.1.2
   modal_bottom_sheet: ^1.0.0+1
   provider: ^5.0.0
-  float_button_overlay: ^0.2.2
+  float_button_overlay: ^0.3.2
   shared_preferences: ^2.0.5
   flutter_localizations: # Add this line
     sdk: flutter         # Add this line

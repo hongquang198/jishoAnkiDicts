@@ -24,8 +24,8 @@ class LoadDictionary {
         ExampleSentence exampleSentence = new ExampleSentence(
           jpSentenceId: infoByLine[0] != null ? infoByLine[0] : null,
           jpSentence: infoByLine[1] != null ? infoByLine[1] : null,
-          vnSentenceId: infoByLine[2] != null ? infoByLine[2] : null,
-          vnSentence: infoByLine[3] != null ? infoByLine[3] : null,
+          targetSentenceId: infoByLine[2] != null ? infoByLine[2] : null,
+          targetSentence: infoByLine[3] != null ? infoByLine[3] : null,
         );
         exampleDictionary.add(exampleSentence);
         i++;

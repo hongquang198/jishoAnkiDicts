@@ -9,17 +9,19 @@ class DefinitionTags extends StatelessWidget {
   Widget build(BuildContext context) {
     if (tags.length > 0) {
       for (int i = 0; i < tags.length; i++) {
-        return Card(
-          color: color,
-          child: Text(
-            tags[i] == null ? '' : tags[i].toString(),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
+        return tags[i] != null && tags[i].length > 0
+            ? Card(
+                color: color,
+                child: Text(
+                  tags[i] == null ? '' : tags[i].toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            : SizedBox();
       }
     }
     return SizedBox();

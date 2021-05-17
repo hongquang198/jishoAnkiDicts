@@ -1,4 +1,5 @@
 import 'package:JapaneseOCR/models/kanji.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -20,7 +21,9 @@ class _ComponentWidgetState extends State<ComponentWidget> {
       child: ListTile(
         contentPadding: EdgeInsets.only(left: 0),
         title: Text(
-          kanji.kanji + ' ' + kanji.hanViet,
+          SharedPref.prefs.getString('language').contains('Tiếng Việt')
+              ? kanji.kanji + ' ' + kanji.hanViet
+              : kanji.kanji,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Constants.definitionTextSize,

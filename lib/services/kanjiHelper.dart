@@ -150,12 +150,12 @@ class KanjiHelper {
   }
 
   static Future<List<ExampleSentence>> getExampleSentence(
-      {String word, BuildContext context}) async {
+      {String word, BuildContext context, String tableName}) async {
     List<ExampleSentence> exampleSentence;
     try {
       exampleSentence = await Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase
-          .searchForExample(word: word);
+          .searchForExample(word: word, tableName: tableName);
     } catch (e) {
       print('Error searching for example $e');
     }

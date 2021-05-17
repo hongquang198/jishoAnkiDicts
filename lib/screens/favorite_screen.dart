@@ -77,6 +77,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           itemBuilder: (BuildContext context, int index) {
             List<OfflineWordRecord> favorite =
                 Provider.of<Dictionary>(context).favorite;
+            favorite = favorite.reversed.toList();
             // ignore: missing_return, missing_return
             return SearchResultTile(
               textEditingController: widget.textEditingController,

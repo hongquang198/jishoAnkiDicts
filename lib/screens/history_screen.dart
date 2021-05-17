@@ -75,6 +75,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           itemBuilder: (BuildContext context, int index) {
             List<OfflineWordRecord> history =
                 Provider.of<Dictionary>(context).history;
+            history = history.reversed.toList();
             return SearchResultTile(
               textEditingController: widget.textEditingController,
               jishoDefinition: JishoDefinition(

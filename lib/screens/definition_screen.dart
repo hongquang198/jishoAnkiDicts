@@ -1,21 +1,18 @@
 import 'dart:convert';
 
-import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/jishoDefinition.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnamese_definition.dart';
 import 'package:JapaneseOCR/services/dbHelper.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/definition_tags.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
 
@@ -223,33 +220,35 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
               ),
             ],
           ),
-          FutureBuilder(
-            future: hanVietReading,
-            builder: (context, snapshot) {
-              if (snapshot.data == null) return Text('');
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    snapshot.data.toString().toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 22,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(
-                          text: snapshot.data.toString().toUpperCase()));
-                      isClipboardSet = true;
-                    },
-                    child: isClipboardSet == false
-                        ? Icon(Icons.copy)
-                        : Icon(Icons.check_outlined),
-                  ),
-                ],
-              );
-            },
-          ),
+          SharedPref.prefs.getString('language').contains('Tiếng Việt')
+              ? FutureBuilder(
+                  future: hanVietReading,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Text('');
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          snapshot.data.toString().toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(
+                                text: snapshot.data.toString().toUpperCase()));
+                            isClipboardSet = true;
+                          },
+                          child: isClipboardSet == false
+                              ? Icon(Icons.copy)
+                              : Icon(Icons.check_outlined),
+                        ),
+                      ],
+                    );
+                  },
+                )
+              : SizedBox(),
           Hero(
             tag:
                 'HeroTagWordTags${widget.jishoDefinition.word}${widget.jishoDefinition.reading}',

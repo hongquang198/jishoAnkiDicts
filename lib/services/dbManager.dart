@@ -292,19 +292,31 @@ class DbManager {
     });
   }
 
-  Future<List<ExampleSentence>> searchForExample({String word}) async {
+  Future<List<ExampleSentence>> searchForExample(
+      {String word, String tableName}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
-    final List<Map<String, dynamic>> maps = await db.query('exampleDictionary',
-        where: "jpSentence LIKE ?", whereArgs: ['%$word%']);
-    return List.generate(maps.length, (i) {
-      return ExampleSentence(
-        jpSentenceId: maps[i]['jpSentenceId'].toString(),
-        vnSentenceId: maps[i]['vnSentenceId'].toString(),
-        jpSentence: maps[i]['jpSentence'],
-        vnSentence: maps[i]['vnSentence'],
-      );
-    });
+    final List<Map<String, dynamic>> maps = await db
+        .query(tableName, where: "jpSentence LIKE ?", whereArgs: ['%$word%']);
+    if (tableName == 'exampleDictionary') {
+      return List.generate(maps.length, (i) {
+        return ExampleSentence(
+          jpSentenceId: maps[i]['jpSentenceId'].toString(),
+          targetSentenceId: maps[i]['vnSentenceId'].toString(),
+          jpSentence: maps[i]['jpSentence'],
+          targetSentence: maps[i]['vnSentence'],
+        );
+      });
+    } else if (tableName == 'englishExampleDictionary') {
+      return List.generate(maps.length, (i) {
+        return ExampleSentence(
+          jpSentenceId: maps[i]['jpSentenceId'].toString(),
+          targetSentenceId: maps[i]['enSentenceId'].toString(),
+          jpSentence: maps[i]['jpSentence'],
+          targetSentence: maps[i]['enSentence'],
+        );
+      });
+    }
   }
 
   Future<List<VietnameseDefinition>> searchForVnMeaning({String word}) async {
@@ -330,8 +342,8 @@ class DbManager {
       return ExampleSentence(
         jpSentence: maps[i]['jpSentence'],
         jpSentenceId: maps[i]['jpSentenceId'].toString(),
-        vnSentence: maps[i]['vnSentence'],
-        vnSentenceId: maps[i]['vnSentenceId'].toString(),
+        targetSentence: maps[i]['vnSentence'],
+        targetSentenceId: maps[i]['vnSentenceId'].toString(),
       );
     });
   }

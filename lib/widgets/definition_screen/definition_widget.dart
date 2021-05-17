@@ -1,4 +1,5 @@
 import 'package:JapaneseOCR/utils/constants.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 
 class DefinitionWidget extends StatelessWidget {
@@ -26,16 +27,18 @@ class DefinitionWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           for (int i = 0; i < senses.length; i++) getDefinitions(i),
-          FutureBuilder(
-            future: vietnameseDefinition,
-            builder: (context, snapshot) {
-              if (snapshot.data == null) return SizedBox();
-              return Text(
-                snapshot.data.replaceAll('\\n', '\n\n'),
-                style: TextStyle(fontSize: Constants.definitionTextSize),
-              );
-            },
-          ),
+          SharedPref.prefs.getString('language').contains('Tiếng Việt')
+              ? FutureBuilder(
+                  future: vietnameseDefinition,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return SizedBox();
+                    return Text(
+                      snapshot.data.replaceAll('\\n', '\n\n'),
+                      style: TextStyle(fontSize: Constants.definitionTextSize),
+                    );
+                  },
+                )
+              : SizedBox(),
         ],
       );
     }

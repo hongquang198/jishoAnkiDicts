@@ -1,17 +1,20 @@
 class ExampleSentence {
   String jpSentenceId;
-  String vnSentenceId;
+  String targetSentenceId;
   String jpSentence;
-  String vnSentence;
+  String targetSentence;
   ExampleSentence(
-      {this.jpSentence, this.vnSentence, this.jpSentenceId, this.vnSentenceId});
+      {this.jpSentence,
+      this.targetSentence,
+      this.jpSentenceId,
+      this.targetSentenceId});
 
   Map<String, dynamic> toMap() {
     return {
       'jpSentenceId': jpSentenceId,
-      'vnSentenceId': vnSentenceId,
+      'vnSentenceId': targetSentenceId,
       'jpSentence': jpSentence,
-      'vnSentence': vnSentence,
+      'vnSentence': targetSentence,
     };
   }
 }

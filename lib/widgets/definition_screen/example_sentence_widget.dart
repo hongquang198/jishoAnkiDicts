@@ -1,9 +1,8 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/example_sentence.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ExampleSentenceWidget extends StatefulWidget {
   final String word;
@@ -19,8 +18,17 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
   @override
   void initState() {
     try {
-      exampleSentence =
-          KanjiHelper.getExampleSentence(word: widget.word, context: context);
+      if (SharedPref.prefs.getString('language').contains('English'))
+        exampleSentence = KanjiHelper.getExampleSentence(
+            word: widget.word,
+            context: context,
+            tableName: 'englishExampleDictionary');
+      else if (SharedPref.prefs.getString('language') == 'Tiếng Việt') {
+        exampleSentence = KanjiHelper.getExampleSentence(
+            word: widget.word,
+            context: context,
+            tableName: 'exampleDictionary');
+      }
     } catch (e) {
       print('Error getting example sentence $e');
     }
@@ -38,7 +46,7 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
             fontWeight: FontWeight.bold),
       ));
       sentence.add(Text(
-        exampleSentence[i].vnSentence,
+        exampleSentence[i].targetSentence,
         style: TextStyle(fontSize: Constants.definitionTextSize),
       ));
     }
@@ -50,7 +58,10 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
     return FutureBuilder(
         future: exampleSentence,
         builder: (context, snapshot) {
-          if (snapshot.data == null) return SizedBox();
+          if (snapshot.data == null) {
+            print('Example dictionary is null');
+            return SizedBox();
+          }
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: generateSentence(snapshot.data));

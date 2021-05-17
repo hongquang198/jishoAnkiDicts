@@ -13,5 +13,18 @@
     "enableFloating" : "Enable floating app",
     "language" : "Language",
     "reviewComplete" : "You have completed your reviews.",
-    "appTitle" : "JishoAnki Dictionary"
+    "appTitle" : "JishoAnki Dictionary",
+    "newCardsPerDay" : "New cards per day",
+    "graduatingInterval" : "Graduating interval (days)",
+    "graduatingIntervalDescription" : "Card newly graduated will have this interval (days)",
+    "startingEase" : "Starting ease ratio",
+    "startingEaseDescription" : "The ratio which will determine how long the next interval should be (new interval = old interval * this ratio)",
+    "lapsesSteps" : "Lapses steps",
+    "lapsesStepsDescription" : "When a graduated card is forgotten, it will have this interval",
+    "leechThreshold" : "Leech threshold (times)",
+    "leechThresholdDescription" : "Number of times a graduated card is forgotten. If this number is reached the card will be deleted and moved to 'Favorite' list",
+    "newCardsStep" : "New cards steps",
+    "newCardsStepDescription" : "New cards will progress through these interval before finally graduating.",
+    "sentenceTranslate" : "Sentence translate",
+    "statistics" : "Statistics"
 }

@@ -42,6 +42,7 @@ class _MainScreenState extends State<MainScreen> {
       _streamController.add(null);
       return;
     }
+    _streamController.done;
     _streamController.add(null);
 
     _streamController.add("waiting");

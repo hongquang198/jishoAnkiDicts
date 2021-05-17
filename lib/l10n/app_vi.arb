@@ -10,6 +10,33 @@
     "enableFloating" : "Nút tra nhanh khi thoát ứng dụng",
     "language" : "Ngôn ngữ",
     "reviewComplete" : "Bạn đã hoàn thành phần ôn tập.",
-    "appTitle" : "Từ điển ishoAnki"
-J
+    "appTitle" : "Từ điển JishoAnki",
+    "newCardsPerDay" : "Số thẻ flashcard mới / ngày",
+    "graduatingInterval" : "Khoảng thời gian thẻ flashcard trưởng thành",
+    "@graduatingInterval": {
+      "graduatingInterval": "Graduating Interval: Khi một thẻ mới được học sẽ có khoảng thời gian (interval) tương ứng với số ngày này"
+    },
+    "graduatingIntervalDescription" : "Graduating Interval: Khi một thẻ mới được học sẽ có khoảng thời gian (interval) này",
+    "startingEase" : "Tỉ lệ ease ban đầu",
+    "@startingEase": {
+      "startingEase": "Starting ease: Tỉ lệ ban đầu được nhân với khoảng thời gian (interval) của thẻ để quyết định khoảng interval tiếp theo khi ấn nút Tốt"
+    },
+    "startingEaseDescription" : "Starting ease: Tỉ lệ ban đầu được nhân với khoảng thời gian (interval) của thẻ để quyết định khoảng interval tiếp theo khi ấn nút Tốt",
+    "lapsesSteps" : "",
+    "@lapsesSteps": {
+      "lapsesSteps": "Lapses Steps: Khi một thẻ đã đạt độ trưởng thành mà bị quên, thẻ sẽ có khoảng thời gian mới này"
+    },
+    "lapsesStepsDescription" : "Lapses Steps: Khi một thẻ đã đạt độ trưởng thành mà bị quên, thẻ sẽ có khoảng thời gian mới này",
+    "leechThreshold" : "Ngưỡng học lại (số lần)",
+    "@leechThreshold": {
+      "leechThreshold": "Leech Threshold: Số lần một thẻ trưởng thành bị học lại (ấn nút Again) quá nhiều lần, thẻ sẽ bị xóa"
+    },
+    "leechThresholdDescription" : "Leech Threshold: Số lần một thẻ trưởng thành bị học lại (ấn nút Again) quá nhiều lần, thẻ sẽ bị xóa",
+    "newCardsStep" : "Bước nhảy của thẻ mới",
+    "@newCardsStep": {
+    "newCardsStep": "New cards steps: Khoảng thời gian của thẻ sẽ lần lượt có interval trong list sau mỗi lần ấn nút 'Tốt'"
+    },
+    "newCardsStepDescription" : "New cards steps: Khoảng thời gian của thẻ sẽ lần lượt có interval trong list sau mỗi lần ấn nút 'Tốt'",
+    "sentenceTranslate" : "Dịch câu",
+    "statistics" : "Thống kê"
 }

@@ -49,6 +49,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             notificationTitle: 'JishoAnki Dictionary',
             packageName: 'com.quangpham.japaneseOCR',
             iconPath: file.path,
+            showTransparentCircle: true,
+            iconWidth: 120,
+            iconHeight: 120,
+            transpCircleHeight: 130,
+            transpCircleWidth: 130,
           );
         }
       });
@@ -65,6 +70,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     dicts = initDictionary();
     initPlatformState();
     WidgetsBinding.instance.addObserver(this);
+
     super.initState();
   }
 

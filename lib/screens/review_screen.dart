@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
@@ -8,6 +7,7 @@ import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:JapaneseOCR/services/dbHelper.dart';
 import 'package:JapaneseOCR/services/kanjiHelper.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
+import 'package:JapaneseOCR/widgets/customDialog.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/definition_tags.dart';
 import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
@@ -147,7 +147,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       dictionary.getCards;
                     });
                 },
-                child: Icon(Icons.undo)),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: Icon(Icons.undo),
+                )),
             GestureDetector(
                 onTap: () {
                   dictionary.getCards.length > 0 &&
@@ -191,7 +194,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         })
                       : print('No card');
                 },
-                child: Icon(Icons.delete)),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: Icon(Icons.delete),
+                )),
             GestureDetector(
                 onTap: () {
                   dictionary.getCards.length > 0 &&
@@ -204,7 +210,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   )))
                       : print('No card');
                 },
-                child: Icon(Icons.info))
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: Icon(Icons.info),
+                ))
           ],
           bottom: dictionary.getCards.length > 0 &&
                   dictionary.getCards.length != null
@@ -437,6 +446,32 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     // If card is mature
                     if (currentCard.interval > 21 * 24 * 60 * 60 * 1000) {
                       currentCard.lapses++;
+                      if (currentCard.lapses ==
+                          SharedPref.prefs.getInt('leechThreshold')) {
+                        print('Card lapses reached. Deleting');
+                        redoType = RedoType.delete;
+                        DbHelper.addToOfflineList(
+                          offlineListType: OfflineListType.favorite,
+                          offlineWordRecord: currentCard,
+                          context: context,
+                        );
+                        DbHelper.removeFromOfflineList(
+                          offlineListType: OfflineListType.review,
+                          senses: jsonDecode(currentCard.senses),
+                          context: context,
+                          slug: currentCard.slug,
+                          word: currentCard.word,
+                        );
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) => CustomDialog());
+                        setState(() {
+                          showAll = false;
+                          if (dictionary.getCards.length > 0)
+                            currentCard = dictionary.getCards[0];
+                        });
+                        return;
+                      }
                     }
                   }
                   currentCard.lastReview =
@@ -452,6 +487,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       senses: jsonDecode(currentCard.senses),
                       offlineWordRecord: currentCard);
                   // dictionary.review = await dictionary.offlineDatabase.retrieve(tableName: 'review');
+
                   setState(() {
                     showAll = false;
                     if (dictionary.getCards.length > 0)
@@ -469,29 +505,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
               GestureDetector(
                 onTap: () {
                   // Prepare for redo button
-                  redo = OfflineWordRecord(
-                    slug: currentCard.slug,
-                    is_common: currentCard.is_common,
-                    tags: currentCard.tags,
-                    jlpt: currentCard.jlpt,
-                    word: currentCard.word,
-                    reading: currentCard.reading,
-                    senses: currentCard.senses,
-                    vietnamese_definition: currentCard.vietnamese_definition,
-                    added: currentCard.added,
-                    firstReview: currentCard.firstReview,
-                    lastReview: currentCard.lastReview,
-                    due: currentCard.due,
-                    interval: currentCard.interval,
-                    ease: currentCard.ease,
-                    reviews: currentCard.reviews,
-                    lapses: currentCard.lapses,
-                    averageTimeMinute: currentCard.averageTimeMinute,
-                    totalTimeMinute: currentCard.totalTimeMinute,
-                    cardType: currentCard.cardType,
-                    noteType: currentCard.noteType,
-                    deck: currentCard.deck,
-                  );
                   redo = OfflineWordRecord(
                     slug: currentCard.slug,
                     is_common: currentCard.is_common,
