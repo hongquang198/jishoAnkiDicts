@@ -26,5 +26,10 @@
     "newCardsStep" : "New cards steps",
     "newCardsStepDescription" : "New cards will progress through these interval before finally graduating.",
     "sentenceTranslate" : "Sentence translate",
-    "statistics" : "Statistics"
+    "statistics" : "Statistics",
+    "exampleNumber" : "Maximum number of examples",
+    "grammar" : "Grammar",
+    "darkMode" : "Dark mode",
+    "view": "View",
+    "views" : "views"
 }

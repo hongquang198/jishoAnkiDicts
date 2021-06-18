@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:JapaneseOCR/models/grammarPoint.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
 import 'package:JapaneseOCR/models/pitchAccent.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/models/vietnamese_definition.dart';
-import 'package:JapaneseOCR/models/example_sentence.dart';
+import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
+import 'package:JapaneseOCR/models/exampleSentence.dart';
 
 class DbManager {
   // Avoid errors caused by flutter upgrade.
@@ -42,7 +44,7 @@ class DbManager {
       // Write and flush the bytes written
       await File(path).writeAsBytes(bytes, flush: true);
     } else {
-      print("Opening existing database");
+      // print("Opening existing database");
     }
 // open the database
     Database db = await openDatabase(path, readOnly: false);
@@ -145,14 +147,16 @@ class DbManager {
   Future<void> insertWord(
       {OfflineWordRecord offlineWordRecord, String tableName}) async {
     Database db = await initDatabase();
-    // Insert the Dog into the correct table. Also specify the
-    // `conflictAlgorithm`. In this case, if the same dog is inserted
-    // multiple times, it replaces the previous data.
-    await db.insert(
-      '$tableName',
-      offlineWordRecord.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    try {
+      await db.insert(
+        '$tableName',
+        offlineWordRecord.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('Added to history database');
+    } catch (e) {
+      print('error inserting to database: $e');
+    }
   }
 
   Future<List<OfflineWordRecord>> retrieve({String tableName}) async {
@@ -198,6 +202,25 @@ class DbManager {
       return VietnameseDefinition(
         word: maps[i]['word'],
         definition: maps[i]['definition'],
+      );
+    });
+  }
+
+  Future<List<GrammarPoint>> retrieveJpGrammarDictionary() async {
+    Database db = await initDatabase();
+    // Query the table for all The Dogs.
+    final List<Map<String, dynamic>> maps =
+        await db.query('japaneseGrammar', groupBy: 'grammarPoint');
+
+    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    return List.generate(maps.length, (i) {
+      return GrammarPoint(
+        enSentence: maps[i]['enSentence'],
+        jpSentence: maps[i]['jpSentence'],
+        jlptLevel: maps[i]['jlptLevel'],
+        grammarMeaning: maps[i]['grammarMeaning'],
+        grammarPoint: maps[i]['grammarPoint'],
+        romanSentence: maps[i]['romanSentence'],
       );
     });
   }
@@ -292,12 +315,15 @@ class DbManager {
     });
   }
 
+  // ignore: missing_return
   Future<List<ExampleSentence>> searchForExample(
       {String word, String tableName}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
-    final List<Map<String, dynamic>> maps = await db
-        .query(tableName, where: "jpSentence LIKE ?", whereArgs: ['%$word%']);
+    final List<Map<String, dynamic>> maps = await db.query(tableName,
+        where: "jpSentence LIKE ?",
+        whereArgs: ['%$word%'],
+        limit: SharedPref.prefs.getInt('exampleNumber') ?? 3);
     if (tableName == 'exampleDictionary') {
       return List.generate(maps.length, (i) {
         return ExampleSentence(
@@ -319,11 +345,53 @@ class DbManager {
     }
   }
 
-  Future<List<VietnameseDefinition>> searchForVnMeaning({String word}) async {
+  Future<List<ExampleSentence>> searchForGrammarExample(
+      {String grammarPoint}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
-    final List<Map<String, dynamic>> maps =
-        await db.query('jpvnDictionary', where: "word = ?", whereArgs: [word]);
+    final List<Map<String, dynamic>> maps = await db.query(
+      'japaneseGrammar',
+      where: 'grammarPoint = ?',
+      whereArgs: [grammarPoint],
+    );
+    return List.generate(maps.length, (i) {
+      print(maps[i]['enSentence']);
+      return ExampleSentence(
+        targetSentence: maps[i]['enSentence'],
+        jpSentence: maps[i]['jpSentence'],
+        jpSentenceId: null,
+        targetSentenceId: null,
+      );
+    });
+  }
+
+  Future<List<GrammarPoint>> searchForGrammar({String grammarPoint}) async {
+    Database db = await initDatabase();
+    // Query the table for all The Dogs
+    final List<Map<String, dynamic>> maps = await db.query('japaneseGrammar',
+        where: 'grammarPoint LIKE ?',
+        whereArgs: ['%$grammarPoint%'],
+        groupBy: 'grammarPoint',
+        orderBy: 'length(grammarPoint) ASC');
+    return List.generate(maps.length, (i) {
+      return GrammarPoint(
+        jpSentence: maps[i]['jpSentence'],
+        enSentence: maps[i]['enSentence'],
+        jlptLevel: maps[i]['jlptLevel'],
+        grammarMeaning: maps[i]['grammarMeaning'],
+        romanSentence: maps[i]['romanSentence'],
+        grammarPoint: maps[i]['grammarPoint'],
+      );
+    });
+  }
+
+  Future<List<VietnameseDefinition>> searchForVnMeaning({String word}) async {
+    Database db = await initDatabase();
+    // Don't input limit parameter because this search function is using LIKE function
+    final List<Map<String, dynamic>> maps = await db.query('jpvnDictionary',
+        where: "word LIKE ?",
+        whereArgs: ['%$word%'],
+        orderBy: 'length(word) ASC');
     return List.generate(maps.length, (i) {
       return VietnameseDefinition(
         word: maps[i]['word'],
@@ -352,18 +420,19 @@ class DbManager {
       {OfflineWordRecord offlineWordRecord, String tableName}) async {
     // Get a reference to the database.
     final db = await initDatabase();
-
-    // Update the given Dog.
-    await db.update(
-      '$tableName',
-      offlineWordRecord.toMap(),
-      // Ensure that the Dog has a matching id.
-      where: "slug = ? OR word = ? OR reading = ?",
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [offlineWordRecord.slug ?? offlineWordRecord.word],
-    );
-
-    print('Updated successfully');
+    try {
+      await db.update(
+        '$tableName',
+        offlineWordRecord.toMap(),
+        // Ensure that the Dog has a matching id.
+        where: "slug = ? OR word = ? OR reading = ?",
+        // Pass the Dog's id as a whereArg to prevent SQL injection.
+        whereArgs: [offlineWordRecord.slug ?? offlineWordRecord.word],
+      );
+      print('Updated successfully');
+    } catch (e) {
+      print('Error updating to database: $e');
+    }
   }
 
   Future<void> delete({String word, String tableName}) async {

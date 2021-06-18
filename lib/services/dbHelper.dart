@@ -4,13 +4,12 @@ import 'package:JapaneseOCR/models/dictionary.dart';
 import 'package:JapaneseOCR/models/offlineWordRecord.dart';
 import 'package:JapaneseOCR/utils/offlineListType.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DbHelper {
   static bool checkDatabaseExist(
-      {OfflineListType offlineListType,
-      List<dynamic> sense,
-      BuildContext context}) {
+      {OfflineListType offlineListType, String word, BuildContext context}) {
     List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.history)
       table = Provider.of<Dictionary>(context, listen: false).history;
@@ -20,7 +19,7 @@ class DbHelper {
       table = Provider.of<Dictionary>(context, listen: false).review;
     bool inDatabase = false;
     for (int i = 0; i < table.length; i++) {
-      if (table[i].senses == jsonEncode(sense)) {
+      if ((table[i].word ?? table[i].slug) == word) {
         inDatabase = true;
       }
     }
@@ -29,30 +28,26 @@ class DbHelper {
 
   // Remove from history or favorite
   static void removeFromOfflineList(
-      {OfflineListType offlineListType,
-      List<dynamic> senses,
-      BuildContext context,
-      String slug,
-      String word}) {
+      {OfflineListType offlineListType, BuildContext context, String word}) {
     List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.favorite) {
       table = Provider.of<Dictionary>(context, listen: false).favorite;
-      table.removeWhere((element) => element.senses == jsonEncode(senses));
+      table.removeWhere((element) => (element.word ?? element.slug) == word);
       Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase
-          .delete(word: slug ?? word, tableName: 'favorite');
+          .delete(word: word, tableName: 'favorite');
     } else if (offlineListType == OfflineListType.history) {
       table = Provider.of<Dictionary>(context, listen: false).history;
-      table.removeWhere((element) => element.senses == jsonEncode(senses));
+      table.removeWhere((element) => (element.word ?? element.slug) == word);
       Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase
-          .delete(word: slug ?? word, tableName: 'history');
+          .delete(word: word, tableName: 'history');
     } else if (offlineListType == OfflineListType.review) {
       table = Provider.of<Dictionary>(context, listen: false).review;
-      table.removeWhere((element) => element.senses == jsonEncode(senses));
+      table.removeWhere((element) => (element.word ?? element.slug) == word);
       Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase
-          .delete(word: slug ?? word, tableName: 'review');
+          .delete(word: word, tableName: 'review');
     }
   }
 
@@ -64,7 +59,7 @@ class DbHelper {
     if (offlineListType == OfflineListType.history) {
       if (checkDatabaseExist(
               offlineListType: OfflineListType.history,
-              sense: jsonDecode(offlineWordRecord.senses),
+              word: offlineWordRecord.word ?? offlineWordRecord.slug,
               context: context) ==
           false) {
         Provider.of<Dictionary>(context, listen: false)
@@ -74,12 +69,26 @@ class DbHelper {
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'history');
-        print('Added to history list successfully');
+      } else {
+        OfflineWordRecord found =
+            Provider.of<Dictionary>(context, listen: false).history.firstWhere(
+                (element) =>
+                    (element.word ?? element.slug) ==
+                    (offlineWordRecord.word ?? offlineWordRecord.slug));
+        found.reviews++;
+        Provider.of<Dictionary>(context, listen: false).history.remove(found);
+        Provider.of<Dictionary>(context, listen: false)
+            .offlineDatabase
+            .delete(word: found.word ?? found.slug, tableName: 'history');
+        Provider.of<Dictionary>(context, listen: false).history.add(found);
+        Provider.of<Dictionary>(context, listen: false)
+            .offlineDatabase
+            .insertWord(offlineWordRecord: found, tableName: 'history');
       }
     } else if (offlineListType == OfflineListType.favorite) {
       if (checkDatabaseExist(
               offlineListType: OfflineListType.favorite,
-              sense: jsonDecode(offlineWordRecord.senses),
+              word: offlineWordRecord.word ?? offlineWordRecord.slug,
               context: context) ==
           false) {
         Provider.of<Dictionary>(context, listen: false)
@@ -94,7 +103,7 @@ class DbHelper {
     } else if (offlineListType == OfflineListType.review) {
       if (checkDatabaseExist(
               offlineListType: OfflineListType.review,
-              sense: jsonDecode(offlineWordRecord.senses),
+              word: offlineWordRecord.word ?? offlineWordRecord.slug,
               context: context) ==
           false) {
         Provider.of<Dictionary>(context, listen: false)
@@ -115,11 +124,12 @@ class DbHelper {
     BuildContext context,
     OfflineWordRecord offlineWordRecord,
   }) {
-    List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.review) {
       int index = Provider.of<Dictionary>(context, listen: false)
           .review
-          .indexWhere((element) => element.senses == jsonEncode(senses));
+          .indexWhere((element) =>
+              (element.word ?? element.slug) ==
+              (offlineWordRecord.word ?? offlineWordRecord.slug));
       Provider.of<Dictionary>(context, listen: false).review[index] =
           offlineWordRecord;
       Provider.of<Dictionary>(context, listen: false)
@@ -128,27 +138,3 @@ class DbHelper {
     }
   }
 }
-
-// OfflineWordRecord offlineWordRecord = OfflineWordRecord(
-//   slug: widget.jishoDefinition.slug,
-//   is_common: widget.jishoDefinition.is_common == true ? 1 : 0,
-//   tags: jsonEncode(widget.jishoDefinition.tags),
-//   jlpt: jsonEncode(widget.jishoDefinition.jlpt),
-//   word: widget.jishoDefinition.word,
-//   reading: widget.jishoDefinition.reading,
-//   senses: jsonEncode(widget.jishoDefinition.senses),
-//   vietnamese_definition: widget.vietnameseDefinition,
-//   added: DateTime.now().microsecondsSinceEpoch,
-//   firstReview: null,
-//   lastReview: null,
-//   due: null,
-//   interval: null,
-//   ease: 2.5,
-//   reviews: 0,
-//   lapses: 0,
-//   averageTimeMinute: 0,
-//   totalTimeMinute: 0,
-//   cardType: 'default',
-//   noteType: 'default',
-//   deck: 'default',
-// );

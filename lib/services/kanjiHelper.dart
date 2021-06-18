@@ -1,8 +1,9 @@
-import 'package:JapaneseOCR/models/example_sentence.dart';
+import 'package:JapaneseOCR/models/exampleSentence.dart';
 import 'package:JapaneseOCR/models/kanji.dart';
 import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnamese_definition.dart';
+import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ class KanjiHelper {
           kanjiExtracted.add(kanji);
         }
       } catch (e) {
-        print('Error extracting kanji $e');
+        // print('Error extracting kanji $e');
       }
     }
     return kanjiExtracted;
@@ -37,7 +38,7 @@ class KanjiHelper {
     List<String> array = [];
     List<Kanji> kanjiComponent =
         await getKanjiComponent(word: word, context: context);
-    print('kanji component length is ${kanjiComponent.length}');
+    // print('kanji component length is ${kanjiComponent.length}');
     for (int i = 0; i < kanjiComponent.length; i++) {
       try {
         array = kanjiComponent[i].hanViet.split(" ");
@@ -59,13 +60,17 @@ class KanjiHelper {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Colors.black,
+              color: SharedPref.prefs.getString('theme') == 'dark'
+                  ? Colors.white
+                  : Colors.black,
               width: 1.0,
             ),
             right: pitchAccent[position + 1] == 'H' ||
                     pitchAccent[position + 1] == 'h'
                 ? BorderSide(
-                    color: Colors.black,
+                    color: SharedPref.prefs.getString('theme') == 'dark'
+                        ? Colors.white
+                        : Colors.black,
                     width: 1.0,
                   )
                 : BorderSide(
@@ -83,13 +88,17 @@ class KanjiHelper {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: Colors.black,
+              color: SharedPref.prefs.getString('theme') == 'dark'
+                  ? Colors.white
+                  : Colors.black,
               width: 1.0,
             ),
             right: pitchAccent[position + 1] == 'L' ||
                     pitchAccent[position + 1] == 'l'
                 ? BorderSide(
-                    color: Colors.black,
+                    color: SharedPref.prefs.getString('theme') == 'dark'
+                        ? Colors.white
+                        : Colors.black,
                     width: 1.0,
                   )
                 : BorderSide(
@@ -133,7 +142,7 @@ class KanjiHelper {
     return widgetList;
   }
 
-  static Future<String> getVnDefinition(
+  static Future<List<VietnameseDefinition>> getVnDefinition(
       {String word, BuildContext context}) async {
     List<VietnameseDefinition> vietnameseDefinition;
     try {
@@ -144,9 +153,7 @@ class KanjiHelper {
     } catch (e) {
       print('Error searching for vn definition $e');
     }
-    if (vietnameseDefinition.length > 0)
-      return vietnameseDefinition[0].definition;
-    return null;
+    return vietnameseDefinition;
   }
 
   static Future<List<ExampleSentence>> getExampleSentence(

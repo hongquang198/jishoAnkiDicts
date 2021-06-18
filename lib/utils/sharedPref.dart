@@ -1,3 +1,4 @@
+import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
@@ -50,7 +51,9 @@ class SharedPref {
     prefs.getInt('minimumInterval') ?? prefs.setInt('minimumInterval', 1);
     prefs.getInt('leechThreshold') ?? prefs.setInt('leechThreshold', 8);
     prefs.getBool('enableFloating') ?? prefs.setBool('enableFloating', false);
-    prefs.getString('language') ?? prefs.setString('language', 'English');
+    prefs.getString('language') ?? prefs.setString('language', 'Tiếng Việt');
+    prefs.getInt('exampleNumber') ?? prefs.setInt('exampleNumber', 3);
+    prefs.getString('theme') ?? prefs.setString('theme', 'light');
     print('${prefs.getString('language')}');
     return prefs;
   }

@@ -1,16 +1,22 @@
-import 'package:JapaneseOCR/screens/favorite_screen.dart';
-import 'package:JapaneseOCR/screens/history_screen.dart';
-import 'package:JapaneseOCR/screens/review_screen.dart';
+import 'package:JapaneseOCR/screens/favoriteScreen.dart';
+import 'package:JapaneseOCR/screens/grammar_screen.dart';
+import 'package:JapaneseOCR/screens/historyScreen.dart';
+import 'package:JapaneseOCR/screens/reviewScreen.dart';
 import 'package:JapaneseOCR/screens/settingsScreen.dart';
+import 'package:JapaneseOCR/screens/statisticsScreen.dart';
+import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:JapaneseOCR/themeManager.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;
-  const NavBar({Key key, this.textEditingController}) : super(key: key);
+  NavBar({this.textEditingController});
 
   @override
   Widget build(BuildContext context) {
+    // return Consumer<ThemeNotifier>(builder: (context, theme, _) {
     return Drawer(
       child: ListView(
         children: <Widget>[
@@ -84,14 +90,26 @@ class NavBar extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.menu_book_outlined),
-            title: Text(AppLocalizations.of(context).sentenceTranslate),
-            onTap: () {},
-          ),
-          ListTile(
             leading: Icon(Icons.bar_chart),
             title: Text(AppLocalizations.of(context).statistics),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => StatisticsScreen()));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.collections_bookmark_outlined),
+            title: Text(AppLocalizations.of(context).grammar),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => GrammarScreen(
+                            textEditingController: textEditingController,
+                          )));
+            },
           ),
           ListTile(
             leading: Icon(Icons.settings),
@@ -102,8 +120,26 @@ class NavBar extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => SettingsScreen()));
             },
           ),
+          ListTile(
+            trailing: Switch(
+              value:
+                  SharedPref.prefs.getString('theme') == 'dark' ? true : false,
+              onChanged: (valueChanged) {
+                if (valueChanged == true)
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .setDarkMode();
+                else
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .setLightMode();
+              },
+            ),
+            leading: Icon(Icons.nightlight_round),
+            title: Text(AppLocalizations.of(context).darkMode),
+          ),
         ],
       ),
     );
+    // },
+    // );
   }
 }

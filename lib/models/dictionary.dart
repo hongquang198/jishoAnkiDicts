@@ -1,8 +1,9 @@
-import 'package:JapaneseOCR/models/example_sentence.dart';
+import 'package:JapaneseOCR/models/exampleSentence.dart';
 import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnamese_definition.dart';
+import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
 import 'package:JapaneseOCR/services/dbManager.dart';
 import 'package:JapaneseOCR/utils/sharedPref.dart';
+import 'grammarPoint.dart';
 import 'kanji.dart';
 import 'offlineWordRecord.dart';
 
@@ -14,6 +15,7 @@ class Dictionary {
   List<OfflineWordRecord> favorite;
   List<OfflineWordRecord> review;
   List<PitchAccent> pitchAccentDict;
+  List<GrammarPoint> grammarDict;
   // This database is used to store history/favorite list from users
   DbManager offlineDatabase = DbManager(dbName: 'offlineDatabase');
 
@@ -42,6 +44,23 @@ class Dictionary {
     return numberOfLearnedCards;
   }
 
+  int get getYoungCardNumber {
+    int numberOfYoungCards = 0;
+    List<int> newCardsStep = SharedPref.prefs
+        .getStringList('newCardsSteps')
+        .map((e) => int.parse(e))
+        .toList();
+
+    review.forEach((element) {
+      if (element.reviews != 0) {
+        if (element.interval <= 21 * 24 * 60 * 60 * 1000 &&
+            element.due < DateTime.now().millisecondsSinceEpoch)
+          numberOfYoungCards++;
+      }
+    });
+    return numberOfYoungCards;
+  }
+
   int get getDueCardNumber {
     int numberOfDueCards = 0;
     List<int> newCardsStep = SharedPref.prefs
@@ -49,12 +68,36 @@ class Dictionary {
         .map((e) => int.parse(e))
         .toList();
     review.forEach((element) {
+      print(
+          element.interval - newCardsStep[newCardsStep.length - 1] * 60 * 1000);
       if (element.interval >
               newCardsStep[newCardsStep.length - 1] * 60 * 1000 &&
           element.due < DateTime.now().millisecondsSinceEpoch)
         numberOfDueCards++;
     });
     return numberOfDueCards;
+  }
+
+  int get getMatureCardNumber {
+    int numberOfMatureCards = 0;
+    review.forEach((element) {
+      if (element.interval > 21 * 60 * 1000 &&
+          element.due < DateTime.now().millisecondsSinceEpoch)
+        numberOfMatureCards++;
+    });
+    return numberOfMatureCards;
+  }
+
+  int get getDifficultCardNumber {
+    int lapses = 0;
+    List<int> newCardsStep = SharedPref.prefs
+        .getStringList('newCardsSteps')
+        .map((e) => int.parse(e))
+        .toList();
+    review.forEach((element) {
+      if (element.lapses > 5) lapses++;
+    });
+    return lapses;
   }
 
   List<OfflineWordRecord> get getCards {

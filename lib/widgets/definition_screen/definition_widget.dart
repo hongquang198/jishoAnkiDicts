@@ -1,11 +1,81 @@
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:html/parser.dart';
+import 'package:html/dom.dart' as dom;
 
 class DefinitionWidget extends StatelessWidget {
-  final Future<String> vietnameseDefinition;
+  final String vietnameseDefinition;
   final List<dynamic> senses;
   DefinitionWidget({this.vietnameseDefinition, this.senses});
+
+  getVnDefinitionWidget() {
+    String wordType;
+    List<String> example = [];
+    List<String> exampleTrans = [];
+    String modifiedHtml = '';
+    if (vietnameseDefinition == null) return SizedBox();
+
+    var document = parse(vietnameseDefinition);
+
+    var fontList = document.querySelectorAll("font");
+
+    var listList = document.querySelectorAll("li");
+
+    var imgList = document.querySelectorAll("img");
+
+    var pList = document.querySelectorAll("p");
+
+    var brList = document.querySelectorAll("br");
+
+    for (dom.Element br in brList) {
+      br.remove();
+    }
+
+    for (dom.Element img in imgList) {
+      img.remove();
+    }
+
+    for (dom.Element p in pList) {
+      if (p.attributes["class"] == "nv_a") p.remove();
+    }
+    for (dom.Element font in fontList) {
+      // word type
+      if (font.attributes["color"] == '#0066ff') {
+        wordType = font.text;
+      }
+
+      //Example
+      if (font.attributes["color"] == '#144A14') {
+        example.add(font.text);
+      }
+      if (SharedPref.prefs.getString('theme') == 'dark')
+        font.attributes["color"] = '0xffffff';
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0, right: 15),
+      child: HtmlWidget(
+        document.outerHtml,
+        textStyle: TextStyle(
+          fontSize: Constants.definitionTextSize,
+          color: SharedPref.prefs.getString('theme') == 'dark'
+              ? Colors.white
+              : null,
+        ),
+        customStylesBuilder: (element) {
+          if (element.className.contains('nv_b'))
+            return {
+              "list-style-type": "upper-roman",
+              "align": "left",
+              "margin-left": "0px",
+              "padding-left": "0px"
+            };
+          return null;
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,29 +92,16 @@ class DefinitionWidget extends StatelessWidget {
       }
     }
 
-    if (senses.length > 0) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SharedPref.prefs.getString('language') == ('Tiếng Việt')
+            ? getVnDefinitionWidget()
+            : SizedBox(),
+        if (SharedPref.prefs.getString('language').contains('English') ||
+            vietnameseDefinition == null)
           for (int i = 0; i < senses.length; i++) getDefinitions(i),
-          SharedPref.prefs.getString('language').contains('Tiếng Việt')
-              ? FutureBuilder(
-                  future: vietnameseDefinition,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) return SizedBox();
-                    return Text(
-                      snapshot.data.replaceAll('\\n', '\n\n'),
-                      style: TextStyle(fontSize: Constants.definitionTextSize),
-                    );
-                  },
-                )
-              : SizedBox(),
-        ],
-      );
-    }
-    return Text(
-      'Unknown',
-      style: TextStyle(fontSize: 20),
+      ],
     );
   }
 

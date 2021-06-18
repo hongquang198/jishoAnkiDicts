@@ -3,9 +3,10 @@ import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:JapaneseOCR/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ComponentWidget extends StatefulWidget {
-  Future<List<Kanji>> kanjiComponent;
+  final Future<List<Kanji>> kanjiComponent;
   ComponentWidget({this.kanjiComponent});
 
   @override
@@ -20,8 +21,23 @@ class _ComponentWidgetState extends State<ComponentWidget> {
       },
       child: ListTile(
         contentPadding: EdgeInsets.only(left: 0),
+        trailing: Padding(
+          padding: EdgeInsets.only(right: 18),
+          child: Container(
+              width: 40,
+              height: 25,
+              decoration: BoxDecoration(
+                  color: Color(0xffDB8C8A),
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context).view,
+                  style: TextStyle(color: Colors.white),
+                ),
+              )),
+        ),
         title: Text(
-          SharedPref.prefs.getString('language').contains('Tiếng Việt')
+          SharedPref.prefs.getString('language') == ('Tiếng Việt')
               ? kanji.kanji + ' ' + kanji.hanViet
               : kanji.kanji,
           style: TextStyle(
@@ -39,7 +55,6 @@ class _ComponentWidgetState extends State<ComponentWidget> {
             Text(
               kanji.keyword,
               style: TextStyle(
-                color: Colors.black,
                 fontSize: Constants.definitionTextSize,
               ),
             ),
@@ -97,7 +112,6 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                               ),
                             ),
                             Card(
-                              color: Colors.white,
                               margin: EdgeInsets.only(
                                 top: 15.0,
                                 bottom: 5.0,
@@ -114,7 +128,6 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                           ],
                         ),
                         Card(
-                          color: Colors.white,
                           child: Text(
                             "${kanji?.strokeCount ?? '0'} nét",
                             style: TextStyle(
@@ -138,7 +151,6 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                       ),
                     ),
                     Card(
-                      color: Colors.white,
                       child: Text(
                         "${kanji?.hanViet ?? ''}",
                         style: TextStyle(
@@ -163,7 +175,6 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                       ),
                     ),
                     Card(
-                      color: Colors.white,
                       child: Text(
                         "${kanji?.keyword ?? ''}",
                         style: TextStyle(

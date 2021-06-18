@@ -38,5 +38,10 @@
     },
     "newCardsStepDescription" : "New cards steps: Khoảng thời gian của thẻ sẽ lần lượt có interval trong list sau mỗi lần ấn nút 'Tốt'",
     "sentenceTranslate" : "Dịch câu",
-    "statistics" : "Thống kê"
+    "statistics" : "Thống kê",
+    "exampleNumber" : "Số câu ví dụ (tối đa)",
+    "grammar" : "Ngữ pháp",
+    "darkMode" : "Chế độ ban đêm",
+    "view": "Xem",
+    "views" : "Lượt xem"
 }
