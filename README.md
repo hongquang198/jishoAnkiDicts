@@ -10,6 +10,7 @@ Main features:
 - Application floating icon (Like facebook messenger) with functionality to look up fast using clipboard
 - Supports English and Vietnamese
 - Kanji dictionary is based off of RTK with Koohii top 2 stories with most upvotes.
+- View times support that helps learners decide whether words are worth learning
 - Beautiful UI
 
 ### Package
