@@ -2,6 +2,8 @@
 Japanese Dictionary with Handwriting recognition using Tensorflow Lite and ETL models, jisho API
 (It works on both Android and iOS.)
 
+UI inspired by https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
+
 Main features:
 
 - Definition is taken from Jisho.org using its API.
