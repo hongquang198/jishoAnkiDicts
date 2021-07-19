@@ -33,6 +33,8 @@ class BarLine extends StatelessWidget {
 
   /// Determine the maximun height a bar line can have. Default = 100
   final double maxHeightPixel;
+
+  final EdgeInsetsGeometry padding;
   const BarLine(
       {Key key,
       this.maxHeightPixel = 100,
@@ -44,12 +46,13 @@ class BarLine extends StatelessWidget {
       @required this.color,
       this.barTitle = '',
       @required this.baseHeight,
-      this.barTitleType = BarTitleType.hidden})
+      this.barTitleType = BarTitleType.hidden,
+      this.padding = const EdgeInsets.only(left: 15.0, right: 15.0)})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+      padding: padding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

@@ -50,8 +50,8 @@ class SharedPref {
         prefs.setDouble('lapsesNewInterval', 0.8);
     prefs.getInt('minimumInterval') ?? prefs.setInt('minimumInterval', 1);
     prefs.getInt('leechThreshold') ?? prefs.setInt('leechThreshold', 8);
-    prefs.getBool('enableFloating') ?? prefs.setBool('enableFloating', false);
-    prefs.getString('language') ?? prefs.setString('language', 'Tiếng Việt');
+    prefs.getBool('enableFloating') ?? prefs.setBool('enableFloating', true);
+    prefs.getString('language') ?? prefs.setString('language', 'English');
     prefs.getInt('exampleNumber') ?? prefs.setInt('exampleNumber', 3);
     prefs.getString('theme') ?? prefs.setString('theme', 'light');
     print('${prefs.getString('language')}');

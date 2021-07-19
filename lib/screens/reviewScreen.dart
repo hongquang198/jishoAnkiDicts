@@ -63,9 +63,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
-    List<VietnameseDefinition> vnList =
-        await KanjiHelper.getVnDefinition(word: word, context: context);
-    return vnList[0];
+    List<VietnameseDefinition> vnList = [];
+    try {
+      vnList = await KanjiHelper.getVnDefinition(word: word, context: context);
+      return vnList[0];
+    } catch (e) {
+      print('No VN definition found $e');
+    }
   }
 
   @override

@@ -239,7 +239,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.favorite,
                         context: context,
-                        word: widget.jishoDefinition.word);
+                        word: widget.jishoDefinition.word ??
+                            widget.jishoDefinition.slug);
                   });
               },
             ),
@@ -259,6 +260,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ? Icon(Icons.alarm_on, color: Color(0xffff8882))
                   : Icon(Icons.alarm_add),
               onPressed: () {
+                print(widget.vnDefinition.word);
                 if (DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.review,
                         word: widget.vnDefinition.word ??
@@ -304,7 +306,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.review,
                         context: context,
-                        word: widget.jishoDefinition.word);
+                        word: widget.jishoDefinition.word ??
+                            widget.jishoDefinition.slug);
                   });
               },
             ),

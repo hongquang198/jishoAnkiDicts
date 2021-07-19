@@ -140,7 +140,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,');
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -171,7 +170,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.favorite,
                       context: context,
-                      word: widget.jishoDefinition.word);
+                      word: widget.jishoDefinition.word ??
+                          widget.jishoDefinition.slug);
                 });
             },
           ),
@@ -209,7 +209,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.review,
                       context: context,
-                      word: widget.jishoDefinition.word);
+                      word: widget.jishoDefinition.word ??
+                          widget.jishoDefinition.slug);
                 });
             },
           ),

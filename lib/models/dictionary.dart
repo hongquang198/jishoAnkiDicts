@@ -81,7 +81,7 @@ class Dictionary {
   int get getMatureCardNumber {
     int numberOfMatureCards = 0;
     review.forEach((element) {
-      if (element.interval > 21 * 60 * 1000 &&
+      if (element.interval > 21 * 24 * 60 * 60 * 1000 &&
           element.due < DateTime.now().millisecondsSinceEpoch)
         numberOfMatureCards++;
     });

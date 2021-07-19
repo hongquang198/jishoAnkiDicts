@@ -62,14 +62,18 @@ class _MainScreenState extends State<MainScreen> {
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
     clipboardTriggerTime =
         Timer.periodic(const Duration(milliseconds: 120), (timer) {
-      Clipboard.getData('text/plain').then((clipboardContent) {
-        if (clipboard != clipboardContent.text) {
-          clipboard = clipboardContent.text;
-          textEditingController.text = clipboard;
-          _search();
-          setState(() {});
+        try {
+          Clipboard.getData('text/plain').then((clipboardContent) {
+            if (clipboard != clipboardContent.text) {
+              clipboard = clipboardContent.text;
+              textEditingController.text = clipboard;
+              _search();
+              setState(() {});
+            }
+          });
+        } catch(e) {
+          print('No clipboard data');
         }
-      });
     });
     super.initState();
   }
