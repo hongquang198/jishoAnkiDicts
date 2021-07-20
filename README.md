@@ -34,3 +34,6 @@ tflite : A Flutter plugin for accessing TensorFlow Lite API
 
 https://pub.dev/packages/tflite"# jishoAnkiDicts" 
 
+![Handwriting recognition feature](https://media.giphy.com/media/xBFVqB0pID2iTSKfeS/giphy.gif)
+
+
