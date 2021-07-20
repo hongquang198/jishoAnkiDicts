@@ -22,6 +22,8 @@ Main functionality:
 - Kanji dictionary was based off of a RTK kanji deck with top 2 most upvoted stories on kanji.koohii.com: 2200 entries.
 - Supports Vietnamese and English language.
 - No ads. This is a completely free, open-source application and I intend to not include ads in the future
+- 
+![Handwriting recognition feature](https://media.giphy.com/media/75Skz96l0CTpT1hLwT/giphy.gif)
 
 And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/download/v1.0-betaEN/app-release.apk
 And if you think this project is interesting, please star the GitHub page and if you think you can lend me a hand, please contact me, I would really appreciate it.
@@ -34,6 +36,5 @@ tflite : A Flutter plugin for accessing TensorFlow Lite API
 
 https://pub.dev/packages/tflite"# jishoAnkiDicts" 
 
-![Handwriting recognition feature](https://media.giphy.com/media/xBFVqB0pID2iTSKfeS/giphy.gif)
 
 
