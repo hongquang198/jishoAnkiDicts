@@ -26,6 +26,7 @@ Main functionality:
 And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/download/v1.0-betaEN/app-release.apk
 And if you think this project is interesting, please star the GitHub page and if you think you can lend me a hand, please contact me, I would really appreciate it.
 Here is the link to my reddit post for more discussions: https://www.reddit.com/r/LearnJapanese/comments/on2b6g/jishoanki_a_mobile_dictionary_application_with/
+
 Thank you all and happy learning!
 
 ### Package
