@@ -4,17 +4,27 @@ Japanese Dictionary with Handwriting recognition using Tensorflow Lite and ETL m
 
 UI inspired by https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
 
-Main features:
+Since Jisho.org doesn't have a mobile application version, and most of the dictionary apps look like they're made from 2005, moreover in order to support my Vietnamese community with the latest smart features, I decided to try my best to create one using Flutter and integrated it with some basic Anki functionalities.
 
-- Definition is taken from Jisho.org using its API.
-- Example dictionary taken from Tatoeba.org: 228.000 entries
-- Pitch accent dictionary taken from Wadoku dictionary: 111.000 entries
-- Application floating icon (Like facebook messenger) with functionality to look up fast using clipboard
-- Supports English and Vietnamese
-- Kanji dictionary is based off of RTK with Koohii top 2 stories with most upvotes.
-- View times support that helps learners decide whether words are worth learning
-- Basic grammar look up
-- Beautiful UI
+In short, the app aims to combine Anki with a smart dictionary to completely remove the time-consuming input process to create flashcard as fast as possible, with ample word information like pitch accent, example sentences, and a lot more!
+
+Main functionality:
+
+- Dark mode, beautiful UI, inspired by a great designer I came across on https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
+- Pitch accent dictionary was taken from Wadoku dictionary with more than 111.000 entries.
+- View times on each words to help you decide whether they are worth learning.
+- Fast look up using application floating icon (like facebook messenger) with the ability to look up from clipboard
+- Configurable spaced-repetition system.
+- Offline handwriting recognition.
+- Example sentences taken from tatoeba.org: > 200.000 entries.
+- Basic grammar look up with corresponding JLPT level.
+- Kanji dictionary was based off of a RTK kanji deck with top 2 most upvoted stories on kanji.koohii.com: 2200 entries.
+- Supports Vietnamese and English language.
+- No ads. This is a completely free, open-source application and I intend to not include ads in the future
+
+And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/download/v1.0-betaEN/app-release.apk
+And if you think this project is interesting, please star the GitHub page and if you think you can lend me a hand, please contact me, I would really appreciate it.
+Thank you all and happy learning!
 
 ### Package
 tflite : A Flutter plugin for accessing TensorFlow Lite API
