@@ -8,8 +8,9 @@ Since Jisho.org doesn't have a mobile application version, and most of the dicti
 
 In short, the app aims to combine Anki with a smart dictionary to completely remove the time-consuming input process to create flashcard as fast as possible, with ample word information like pitch accent, example sentences, and a lot more!
 
-Main functionality:
+![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
 
+Main functionality:
 - Dark mode, beautiful UI, inspired by a great designer I came across on https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
 - Pitch accent dictionary was taken from Wadoku dictionary with more than 111.000 entries.
 - View times on each words to help you decide whether they are worth learning.
@@ -30,5 +31,4 @@ Thank you all and happy learning!
 tflite : A Flutter plugin for accessing TensorFlow Lite API
 
 https://pub.dev/packages/tflite"# jishoAnkiDicts" 
-![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
 
