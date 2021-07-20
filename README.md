@@ -23,7 +23,7 @@ Main functionality:
 - Supports Vietnamese and English language.
 - No ads. This is a completely free, open-source application and I intend to not include ads in the future
 
-![handwriting-feature](https://github.com/hongquang198/jishoAnkiDicts/tree/main/assets/ezgif.com-gif-maker.gif)
+![Alt text](gif.gif) / ![](gif.gif)
 
 And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/download/v1.0-betaEN/app-release.apk
 And if you think this project is interesting, please star the GitHub page and if you think you can lend me a hand, please contact me, I would really appreciate it.
