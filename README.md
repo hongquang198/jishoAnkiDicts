@@ -37,6 +37,8 @@ Thank you all and happy learning!
 tflite : A Flutter plugin for accessing TensorFlow Lite API
 
 https://pub.dev/packages/tflite"# jishoAnkiDicts" 
+Professor Nguyen Viet Khoa, Dean of School of Foreign Languages, Hanoi University of Science and Technology, was kind enough to send me his compilation of the Japanese-Vietnamese dictionary, so many thanks to him.
+Visit his website http://nguyenvietkhoa.edu.vn/ for more info.
 
 
 
