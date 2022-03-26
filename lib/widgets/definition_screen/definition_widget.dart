@@ -1,5 +1,5 @@
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/utils/constants.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/parser.dart';
@@ -11,17 +11,12 @@ class DefinitionWidget extends StatelessWidget {
   DefinitionWidget({this.vietnameseDefinition, this.senses});
 
   getVnDefinitionWidget() {
-    String wordType;
     List<String> example = [];
-    List<String> exampleTrans = [];
-    String modifiedHtml = '';
     if (vietnameseDefinition == null) return SizedBox();
 
     var document = parse(vietnameseDefinition);
 
     var fontList = document.querySelectorAll("font");
-
-    var listList = document.querySelectorAll("li");
 
     var imgList = document.querySelectorAll("img");
 
@@ -43,7 +38,6 @@ class DefinitionWidget extends StatelessWidget {
     for (dom.Element font in fontList) {
       // word type
       if (font.attributes["color"] == '#0066ff') {
-        wordType = font.text;
       }
 
       //Example

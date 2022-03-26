@@ -1,11 +1,7 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/utils/barTitleType.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/widgets/statistics_screen/YAxisNumberLine.dart';
-import 'package:JapaneseOCR/widgets/statistics_screen/barLine.dart';
-import 'package:JapaneseOCR/widgets/statistics_screen/predictionChart.dart';
-import 'package:JapaneseOCR/widgets/statistics_screen/todayDueChart.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/dictionary.dart';
+import '../utils/constants.dart';
+import '../widgets/statistics_screen/predictionChart.dart';
+import '../widgets/statistics_screen/todayDueChart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';

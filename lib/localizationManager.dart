@@ -1,5 +1,4 @@
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import 'utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 
 class LocalizationNotifier with ChangeNotifier {

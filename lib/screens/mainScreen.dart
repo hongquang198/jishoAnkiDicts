@@ -1,23 +1,22 @@
 import 'dart:convert';
 
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/themeManager.dart';
-import 'package:JapaneseOCR/services/jishoQuery.dart';
+import '../models/dictionary.dart';
+import '../models/jishoDefinition.dart';
+import '../models/vietnameseDefinition.dart';
+import '../themeManager.dart';
+import '../services/jishoQuery.dart';
 import 'dart:async';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:JapaneseOCR/widgets/main_screen/search_result_tile.dart';
-import 'package:JapaneseOCR/widgets/nav_bar.dart';
-import 'package:flutter/cupertino.dart';
+import '../utils/constants.dart';
+import '../utils/sharedPref.dart';
+import '../widgets/main_screen/search_result_tile.dart';
+import '../widgets/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:JapaneseOCR/services/recognizer.dart';
+import '../services/recognizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/widgets/main_screen/draw_screen.dart';
+import '../services/kanjiHelper.dart';
+import '../widgets/main_screen/draw_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -49,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future _initModel({String modelFilePath, String labelFilePath}) async {
-    var res = await _recognizer.loadModel(
+     await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
@@ -215,16 +214,16 @@ class _MainScreenState extends State<MainScreen> {
                   loadingDefinition: true,
                   jishoDefinition: JishoDefinition(
                     slug: '',
-                    is_common: false,
+                    isCommon: false,
                     tags: [],
                     jlpt: [],
                     word: 'waiting',
                     reading: '',
                     senses: jsonDecode(
                         '[{"english_definitions":[],"parts_of_speech":[],"links":[],"tags":[],"restrictions":[],"see_also":[],"antonyms":[],"source":[],"info":[]}]'),
-                    is_jmnedict: '',
-                    is_dbpedia: '',
-                    is_jmdict: '',
+                    isJmnedict: '',
+                    isDbpedia: '',
+                    isJmdict: '',
                   ),
                   textEditingController: textEditingController,
                   hanViet: KanjiHelper.getHanvietReading(
@@ -236,16 +235,16 @@ class _MainScreenState extends State<MainScreen> {
                   loadingDefinition: false,
                   jishoDefinition: JishoDefinition(
                     slug: '',
-                    is_common: false,
+                    isCommon: false,
                     tags: [],
                     jlpt: [],
                     word: 'waiting',
                     reading: '',
                     senses: jsonDecode(
                         '[{"english_definitions":[],"parts_of_speech":[],"links":[],"tags":[],"restrictions":[],"see_also":[],"antonyms":[],"source":[],"info":[]}]'),
-                    is_jmnedict: '',
-                    is_dbpedia: '',
-                    is_jmdict: '',
+                    isJmnedict: '',
+                    isDbpedia: '',
+                    isJmdict: '',
                   ),
                   textEditingController: textEditingController,
                   hanViet: KanjiHelper.getHanvietReading(
@@ -271,7 +270,7 @@ class _MainScreenState extends State<MainScreen> {
                       loadingDefinition: false,
                       jishoDefinition: JishoDefinition(
                           slug: jishoSnapshot.data['data'][i]['slug'],
-                          is_common:
+                          isCommon:
                               jishoSnapshot.data['data'][i]['is_common'] == null
                                   ? false
                                   : jishoSnapshot.data['data'][i]['is_common'],
@@ -282,11 +281,11 @@ class _MainScreenState extends State<MainScreen> {
                           reading: jishoSnapshot.data['data'][i]['japanese'][0]
                               ['reading'],
                           senses: jishoSnapshot.data['data'][i]['senses'],
-                          is_jmdict: jishoSnapshot.data['data'][i]
+                          isJmdict: jishoSnapshot.data['data'][i]
                               ['attribution']['jmdict'],
-                          is_dbpedia: jishoSnapshot.data['data'][i]
+                          isDbpedia: jishoSnapshot.data['data'][i]
                               ['attribution']['dbpedia'],
-                          is_jmnedict: jishoSnapshot.data['data'][i]
+                          isJmnedict: jishoSnapshot.data['data'][i]
                               ['attribution']['jmnedict']),
                       textEditingController: textEditingController,
                       hanViet: KanjiHelper.getHanvietReading(
@@ -319,7 +318,7 @@ class _MainScreenState extends State<MainScreen> {
                         return SearchResultTile(
                           jishoDefinition: JishoDefinition(
                               slug: jishoSnapshot.data['data'][index]['slug'],
-                              is_common: jishoSnapshot.data['data'][index]
+                              isCommon: jishoSnapshot.data['data'][index]
                               ['is_common'] ==
                                   null
                                   ? false
@@ -331,11 +330,11 @@ class _MainScreenState extends State<MainScreen> {
                               reading: jishoSnapshot.data['data'][index]['japanese']
                               [0]['reading'],
                               senses: jishoSnapshot.data['data'][index]['senses'],
-                              is_jmdict: jishoSnapshot.data['data'][index]
+                              isJmdict: jishoSnapshot.data['data'][index]
                               ['attribution']['jmdict'],
-                              is_dbpedia: jishoSnapshot.data['data'][index]
+                              isDbpedia: jishoSnapshot.data['data'][index]
                               ['attribution']['dbpedia'],
-                              is_jmnedict: jishoSnapshot.data['data'][index]
+                              isJmnedict: jishoSnapshot.data['data'][index]
                               ['attribution']['jmnedict']),
                           textEditingController: textEditingController,
                           hanViet: KanjiHelper.getHanvietReading(
@@ -348,7 +347,7 @@ class _MainScreenState extends State<MainScreen> {
                       } else return SearchResultTile(
                         jishoDefinition: JishoDefinition(
                             slug: jishoSnapshot.data['data'][index]['slug'],
-                            is_common: jishoSnapshot.data['data'][index]
+                            isCommon: jishoSnapshot.data['data'][index]
                             ['is_common'] ==
                                 null
                                 ? false
@@ -360,11 +359,11 @@ class _MainScreenState extends State<MainScreen> {
                             reading: jishoSnapshot.data['data'][index]['japanese']
                             [0]['reading'],
                             senses: jishoSnapshot.data['data'][index]['senses'],
-                            is_jmdict: jishoSnapshot.data['data'][index]
+                            isJmdict: jishoSnapshot.data['data'][index]
                             ['attribution']['jmdict'],
-                            is_dbpedia: jishoSnapshot.data['data'][index]
+                            isDbpedia: jishoSnapshot.data['data'][index]
                             ['attribution']['dbpedia'],
-                            is_jmnedict: jishoSnapshot.data['data'][index]
+                            isJmnedict: jishoSnapshot.data['data'][index]
                             ['attribution']['jmnedict']),
                         textEditingController: textEditingController,
                         hanViet: KanjiHelper.getHanvietReading(

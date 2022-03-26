@@ -1,6 +1,6 @@
 class JishoDefinition {
   String slug;
-  bool is_common;
+  bool isCommon;
   List<dynamic> tags;
   List<dynamic> jlpt;
   String word;
@@ -14,13 +14,13 @@ class JishoDefinition {
   // List<dynamic> source;
   // List<dynamic> info;
 
-  dynamic is_jmdict;
-  dynamic is_jmnedict;
-  dynamic is_dbpedia;
+  dynamic isJmdict;
+  dynamic isJmnedict;
+  dynamic isDbpedia;
 
   JishoDefinition({
     this.slug,
-    this.is_common,
+    this.isCommon,
     this.tags,
     this.jlpt,
     this.word,
@@ -33,8 +33,8 @@ class JishoDefinition {
     // this.antonyms,
     // this.source,
     // this.info,
-    this.is_jmdict,
-    this.is_jmnedict,
-    this.is_dbpedia,
+    this.isJmdict,
+    this.isJmnedict,
+    this.isDbpedia,
   });
 }

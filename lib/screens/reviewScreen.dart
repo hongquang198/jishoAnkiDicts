@@ -1,25 +1,24 @@
 import 'dart:convert';
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/utils/redoType.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:JapaneseOCR/services/dbHelper.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/utils/offlineListType.dart';
-import 'package:JapaneseOCR/widgets/customDialog.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/definition_tags.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
-import 'package:JapaneseOCR/widgets/review_screen/answerButton.dart';
-import 'package:JapaneseOCR/widgets/review_screen/reviewInfo.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/dictionary.dart';
+import '../models/exampleSentence.dart';
+import '../models/kanji.dart';
+import '../models/offlineWordRecord.dart';
+import '../models/vietnameseDefinition.dart';
+import '../utils/redoType.dart';
+import '../utils/sharedPref.dart';
+import '../services/dbHelper.dart';
+import '../services/kanjiHelper.dart';
+import '../utils/offlineListType.dart';
+import '../widgets/customDialog.dart';
+import '../widgets/definition_screen/component_widget.dart';
+import '../widgets/definition_screen/definition_tags.dart';
+import '../widgets/definition_screen/example_sentence_widget.dart';
+import '../widgets/review_screen/answerButton.dart';
+import '../widgets/review_screen/reviewInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/definition_widget.dart';
+import '../widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'cardInfoScreen.dart';
@@ -60,6 +59,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<String> getClipboard() async {
     ClipboardData data = await Clipboard.getData('text/plain');
     clipboard = data.text;
+    return data.text;
   }
 
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
@@ -69,6 +69,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       return vnList[0];
     } catch (e) {
       print('No VN definition found $e');
+      return vnList[0];
     }
   }
 
@@ -172,13 +173,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       dictionary.getCards.length != null) {
                     redo = OfflineWordRecord(
                       slug: currentCard.slug,
-                      is_common: currentCard.is_common,
+                      isCommon: currentCard.isCommon,
                       tags: currentCard.tags,
                       jlpt: currentCard.jlpt,
                       word: currentCard.word,
                       reading: currentCard.reading,
                       senses: currentCard.senses,
-                      vietnamese_definition: currentCard.vietnamese_definition,
+                      vietnameseDefinition: currentCard.vietnameseDefinition,
                       added: currentCard.added,
                       firstReview: currentCard.firstReview,
                       lastReview: currentCard.lastReview,
@@ -319,7 +320,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              currentCard.is_common == 1
+              currentCard.isCommon == 1
                   ? Card(
                       color: Color(0xFF8ABC82),
                       child: Text(
@@ -430,13 +431,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   // Prepare for redo button
                   redo = OfflineWordRecord(
                     slug: currentCard.slug,
-                    is_common: currentCard.is_common,
+                    isCommon: currentCard.isCommon,
                     tags: currentCard.tags,
                     jlpt: currentCard.jlpt,
                     word: currentCard.word,
                     reading: currentCard.reading,
                     senses: currentCard.senses,
-                    vietnamese_definition: currentCard.vietnamese_definition,
+                    vietnameseDefinition: currentCard.vietnameseDefinition,
                     added: currentCard.added,
                     firstReview: currentCard.firstReview,
                     lastReview: currentCard.lastReview,
@@ -525,13 +526,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   // Prepare for redo button
                   redo = OfflineWordRecord(
                     slug: currentCard.slug,
-                    is_common: currentCard.is_common,
+                    isCommon: currentCard.isCommon,
                     tags: currentCard.tags,
                     jlpt: currentCard.jlpt,
                     word: currentCard.word,
                     reading: currentCard.reading,
                     senses: currentCard.senses,
-                    vietnamese_definition: currentCard.vietnamese_definition,
+                    vietnameseDefinition: currentCard.vietnameseDefinition,
                     added: currentCard.added,
                     firstReview: currentCard.firstReview,
                     lastReview: currentCard.lastReview,
@@ -610,10 +611,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   getDefinitionWidget() {
-    if (currentCard.vietnamese_definition != null)
+    if (currentCard.vietnameseDefinition != null)
       return DefinitionWidget(
         senses: jsonDecode(currentCard.senses),
-        vietnameseDefinition: currentCard.vietnamese_definition,
+        vietnameseDefinition: currentCard.vietnameseDefinition,
       );
     else
       return FutureBuilder(

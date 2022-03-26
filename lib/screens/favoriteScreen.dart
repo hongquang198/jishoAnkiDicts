@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
+import '../models/dictionary.dart';
+import '../models/jishoDefinition.dart';
+import '../models/offlineWordRecord.dart';
+import '../models/vietnameseDefinition.dart';
+import '../services/kanjiHelper.dart';
 import 'dart:async';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/widgets/main_screen/search_result_tile.dart';
-import 'package:flutter/cupertino.dart';
+import '../utils/constants.dart';
+import '../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -28,6 +27,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Future<String> getClipboard() async {
     ClipboardData data = await Clipboard.getData('text/plain');
     clipboard = data.text;
+    return data.text;
   }
 
   getVietnameseDefinition(String word) async {
@@ -101,8 +101,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       textEditingController: widget.textEditingController,
                       jishoDefinition: JishoDefinition(
                         slug: favorite[index].slug,
-                        is_common:
-                            favorite[index].is_common == 1 ? true : false,
+                        isCommon: favorite[index].isCommon == 1 ? true : false,
                         tags: convertToList(
                             jsonDecode(favorite[index].tags).toString()),
                         jlpt: convertToList(
@@ -110,9 +109,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         word: favorite[index].word,
                         reading: favorite[index].reading,
                         senses: jsonDecode(favorite[index].senses),
-                        is_jmdict: [],
-                        is_dbpedia: [],
-                        is_jmnedict: [],
+                        isJmdict: [],
+                        isDbpedia: [],
+                        isJmnedict: [],
                       ),
                     );
                   return SearchResultTile(
@@ -123,7 +122,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     textEditingController: widget.textEditingController,
                     jishoDefinition: JishoDefinition(
                       slug: favorite[index].slug,
-                      is_common: favorite[index].is_common == 1 ? true : false,
+                      isCommon: favorite[index].isCommon == 1 ? true : false,
                       tags: convertToList(
                           jsonDecode(favorite[index].tags).toString()),
                       jlpt: convertToList(
@@ -131,9 +130,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       word: favorite[index].word,
                       reading: favorite[index].reading,
                       senses: jsonDecode(favorite[index].senses),
-                      is_jmdict: [],
-                      is_dbpedia: [],
-                      is_jmnedict: [],
+                      isJmdict: [],
+                      isDbpedia: [],
+                      isJmnedict: [],
                     ),
                   );
                 });

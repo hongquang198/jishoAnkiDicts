@@ -1,12 +1,12 @@
 class OfflineWordRecord {
   String slug; //
-  int is_common; //
+  int isCommon; //
   String tags; //
   String jlpt; //
   String word; //
   String reading; //
   String senses; //
-  String vietnamese_definition; //
+  String vietnameseDefinition; //
   // Date
   int added;
   int firstReview;
@@ -26,13 +26,13 @@ class OfflineWordRecord {
 
   OfflineWordRecord(
       {this.slug,
-      this.is_common,
+      this.isCommon,
       this.tags,
       this.jlpt,
       this.word,
       this.reading,
       this.senses,
-      this.vietnamese_definition,
+      this.vietnameseDefinition,
       this.added,
       this.firstReview,
       this.lastReview,
@@ -50,13 +50,13 @@ class OfflineWordRecord {
   Map<String, dynamic> toMap() {
     return {
       'slug': slug,
-      'is_common': is_common,
+      'is_common': isCommon,
       'tags': tags,
       'jlpt': jlpt,
       'word': word,
       'reading': reading,
       'senses': senses,
-      'vietnamese_definition': vietnamese_definition,
+      'vietnamese_definition': vietnameseDefinition,
       'added': added,
       'firstReview': firstReview,
       'lastReview': lastReview,
@@ -77,9 +77,9 @@ class OfflineWordRecord {
   // each dog when using the print statement.
   @override
   String toString() {
-    return 'OfflineWordRecord{slug: $slug, is_common: $is_common, tags: $tags, '
+    return 'OfflineWordRecord{slug: $slug, is_common: $isCommon, tags: $tags, '
         'jlpt: $jlpt, word: $word, reading: $reading, senses: $senses,'
-        'vietnamese_definition: $vietnamese_definition, added: $added, firstReview: $firstReview,'
+        'vietnamese_definition: $vietnameseDefinition, added: $added, firstReview: $firstReview,'
         'lastReview: $lastReview, due: $due, interval: $interval, ease: $ease, reviews: $reviews, '
         'lapses: $lapses, averageTimeMinute: $averageTimeMinute, totalTimeMinute: $totalTimeMinute, '
         'cardType: $cardType, noteType: $noteType, deck: $deck}';

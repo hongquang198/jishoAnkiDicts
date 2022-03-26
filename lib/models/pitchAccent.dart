@@ -1,19 +1,19 @@
 class PitchAccent {
-  final String orths_txt;
+  final String orthsTxt;
   final String hira;
   final String hz;
-  final String accs_txt;
-  final String patts_txt;
+  final String accsTxt;
+  final String pattsTxt;
   PitchAccent(
-      {this.orths_txt, this.accs_txt, this.hira, this.hz, this.patts_txt});
+      {this.orthsTxt, this.accsTxt, this.hira, this.hz, this.pattsTxt});
 
   Map<String, dynamic> toMap() {
     return {
-      'orths_txt': orths_txt,
+      'orths_txt': orthsTxt,
       'hira': hira,
       'hz': hz,
-      'accs_txt': accs_txt,
-      'patts_txt': patts_txt,
+      'accs_txt': accsTxt,
+      'patts_txt': pattsTxt,
     };
   }
 }

@@ -1,15 +1,8 @@
-import 'dart:convert';
-
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/grammarPoint.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
+import '../models/dictionary.dart';
+import '../models/grammarPoint.dart';
 import 'dart:async';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/widgets/grammar_screen/grammar_query_tile.dart';
-import 'package:JapaneseOCR/widgets/main_screen/search_result_tile.dart';
-import 'package:flutter/cupertino.dart';
+import '../utils/constants.dart';
+import '../widgets/grammar_screen/grammar_query_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,6 +22,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
   Future<String> getClipboard() async {
     ClipboardData data = await Clipboard.getData('text/plain');
     clipboard = data.text;
+    return data.text;
   }
 
   _searchForGrammar(String grammarPoint) async {

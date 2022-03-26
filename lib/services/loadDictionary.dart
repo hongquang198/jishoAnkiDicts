@@ -1,13 +1,9 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/services/dbManager.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/exampleSentence.dart';
+import '../models/pitchAccent.dart';
+import '../models/vietnameseDefinition.dart';
+import '../models/kanji.dart';
+import '../services/dbManager.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:JapaneseOCR/services/dbManager.dart';
 
 class LoadDictionary {
   final DbManager dbManager;
@@ -15,7 +11,6 @@ class LoadDictionary {
 
   Future<List<ExampleSentence>> loadExampleDictionary() async {
     List<ExampleSentence> exampleDictionary = [];
-    int i = 0;
     try {
       String contents = await rootBundle.loadString('assets/sentence_dict.tsv');
       List<String> lines = contents.split("\n");
@@ -28,7 +23,6 @@ class LoadDictionary {
           targetSentence: infoByLine[3] != null ? infoByLine[3] : null,
         );
         exampleDictionary.add(exampleSentence);
-        i++;
       });
       try {
         await dbManager.batchInsertExampleDictionary(exampleDictionary);
@@ -47,7 +41,6 @@ class LoadDictionary {
       try {
         String contents = await rootBundle.loadString('assets/kanji.txt');
         List<String> lines = contents.split("\n");
-        int i = 0;
         lines.forEach((line) async {
           List<String> infoByLine = line.split("\t");
           Kanji kanji = new Kanji(
@@ -69,7 +62,6 @@ class LoadDictionary {
             readingExamples: infoByLine[15] != null ? infoByLine[15] : null,
           );
           kanjiDictionary.add(kanji);
-          i++;
         });
         if (kanjiDictionary != null)
           try {
@@ -77,9 +69,11 @@ class LoadDictionary {
           } catch (e) {
             print("Error converting kanji dictionary to sqlite, $e");
           }
+        return kanjiDictionary;
       } catch (e) {
         // If encountering an error, return 0.
         print(e);
+        return kanjiDictionary;
       }
     } else
       return kanjiDictionary;
@@ -111,19 +105,19 @@ class LoadDictionary {
     return dictAll;
   }
 
-  Future<List<PitchAccent>> loadPitchAccentDictionary() async {
-    // TODO: Shorten this to one single line of code
-    String clean_orth(String orth) {
-      orth = orth.replaceAll("(", "");
-      orth = orth.replaceAll(")", "");
-      orth = orth.replaceAll("△", "");
-      orth = orth.replaceAll("×", "");
-      orth = orth.replaceAll("･", "");
-      orth = orth.replaceAll("〈", "");
-      orth = orth.replaceAll("〉", "");
-      orth = orth.replaceAll("{", "");
-      orth = orth.replaceAll("}", "");
-      orth = orth.replaceAll("…", "〜");
+  Future<void> loadPitchAccentDictionary() async {
+    String cleanOrth(String orth) {
+      orth = orth
+        ..replaceAll("(", "")
+        ..replaceAll(")", "")
+        ..replaceAll("△", "")
+        ..replaceAll("×", "")
+        ..replaceAll("･", "")
+        ..replaceAll("〈", "")
+        ..replaceAll("〉", "")
+        ..replaceAll("{", "")
+        ..replaceAll("}", "")
+        ..replaceAll("…", "〜");
       return orth;
     }
 
@@ -137,18 +131,18 @@ class LoadDictionary {
         List<String> lines = contents.split("\n");
         lines.forEach((line) async {
           List<String> infoByLine = line.split('\u241e');
-          List<String> orth_txts = infoByLine[0].split('\u241f');
-          if (clean_orth(orth_txts[0]) != orth_txts[0]) {
-            orth_txts = [clean_orth(orth_txts[0])] + orth_txts;
+          List<String> orthTxts = infoByLine[0].split('\u241f');
+          if (cleanOrth(orthTxts[0]) != orthTxts[0]) {
+            orthTxts = [cleanOrth(orthTxts[0])] + orthTxts;
           }
           List<String> patts = infoByLine[4].split(',');
 
           PitchAccent pitchAccent = PitchAccent(
-              orths_txt: orth_txts.toString(),
+              orthsTxt: orthTxts.toString(),
               hira: infoByLine[1],
               hz: infoByLine[2],
-              accs_txt: infoByLine[3],
-              patts_txt: patts[0]);
+              accsTxt: infoByLine[3],
+              pattsTxt: patts[0]);
           pitchDictionary.add(pitchAccent);
           i++;
         });

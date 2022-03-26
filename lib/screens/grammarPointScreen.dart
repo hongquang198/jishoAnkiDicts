@@ -1,12 +1,11 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/grammarPoint.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/dictionary.dart';
+import '../models/exampleSentence.dart';
+import '../models/grammarPoint.dart';
+import '../models/kanji.dart';
+import '../services/kanjiHelper.dart';
+import '../utils/constants.dart';
+import '../widgets/definition_screen/component_widget.dart';
+import '../widgets/definition_screen/example_sentence_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 

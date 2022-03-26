@@ -1,8 +1,7 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/utils/cardStatus.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:flutter/cupertino.dart';
+import '/models/dictionary.dart';
+import '/models/offlineWordRecord.dart';
+import '/utils/cardStatus.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

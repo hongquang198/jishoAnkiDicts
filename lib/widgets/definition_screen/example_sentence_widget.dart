@@ -1,7 +1,5 @@
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/models/exampleSentence.dart';
+import '/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class ExampleSentenceWidget extends StatefulWidget {

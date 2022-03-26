@@ -1,7 +1,6 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/utils/barTitleType.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/models/dictionary.dart';
+import '/models/offlineWordRecord.dart';
+import '/utils/barTitleType.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';

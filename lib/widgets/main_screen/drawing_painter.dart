@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
+import '/utils/constants.dart';
 
 class DrawingPainter extends CustomPainter {
   final List<Offset> points;

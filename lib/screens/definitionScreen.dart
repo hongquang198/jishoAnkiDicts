@@ -1,21 +1,20 @@
 import 'dart:convert';
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/services/dbHelper.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/utils/offlineListType.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/component_widget.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/definition_tags.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/example_sentence_widget.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/dictionary.dart';
+import '../models/exampleSentence.dart';
+import '../models/jishoDefinition.dart';
+import '../models/kanji.dart';
+import '../models/offlineWordRecord.dart';
+import '../models/vietnameseDefinition.dart';
+import '../services/dbHelper.dart';
+import '../services/kanjiHelper.dart';
+import '../utils/offlineListType.dart';
+import '../utils/sharedPref.dart';
+import '../widgets/definition_screen/component_widget.dart';
+import '../widgets/definition_screen/definition_tags.dart';
+import '../widgets/definition_screen/example_sentence_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:JapaneseOCR/widgets/definition_screen/definition_widget.dart';
+import '../widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +61,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   Future<String> getClipboard() async {
     ClipboardData data = await Clipboard.getData('text/plain');
     clipboard = data.text;
+    return data.text;
   }
 
   @override
@@ -73,7 +73,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   void initState() {
     offlineWordRecord = OfflineWordRecord(
       slug: widget.jishoDefinition.slug ?? widget.jishoDefinition.word,
-      is_common: widget.jishoDefinition.is_common == true ? 1 : 0,
+      isCommon: widget.jishoDefinition.isCommon == true ? 1 : 0,
       tags: jsonEncode(widget.jishoDefinition.tags),
       jlpt: jsonEncode(widget.jishoDefinition.jlpt),
       word: widget.vnDefinition.word ??
@@ -81,7 +81,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           widget.jishoDefinition.slug,
       reading: widget.jishoDefinition.reading,
       senses: jsonEncode(widget.jishoDefinition.senses),
-      vietnamese_definition: widget.vnDefinition.definition,
+      vietnameseDefinition: widget.vnDefinition.definition,
       added: DateTime.now().millisecondsSinceEpoch,
       firstReview: null,
       lastReview: null,
@@ -299,7 +299,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
               : SizedBox(),
           Row(
             children: <Widget>[
-              widget.jishoDefinition.is_common == true
+              widget.jishoDefinition.isCommon == true
                   ? Card(
                       color: Color(0xFF8ABC82),
                       child: Text(
