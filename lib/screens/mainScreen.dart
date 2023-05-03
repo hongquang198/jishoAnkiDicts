@@ -24,7 +24,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   TextEditingController textEditingController;
 
   Timer searchOnStoppedTyping;
@@ -48,10 +47,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future _initModel({String modelFilePath, String labelFilePath}) async {
-     await _recognizer.loadModel(
+    await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
-
 
   @override
   void initState() {
@@ -61,18 +59,20 @@ class _MainScreenState extends State<MainScreen> {
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
     clipboardTriggerTime =
         Timer.periodic(const Duration(milliseconds: 120), (timer) {
-        try {
-          Clipboard.getData('text/plain').then((clipboardContent) {
+      try {
+        Clipboard.getData('text/plain').then((clipboardContent) {
+          if (clipboardContent != null) {
             if (clipboard != clipboardContent.text) {
               clipboard = clipboardContent.text;
               textEditingController.text = clipboard;
               _search();
               setState(() {});
             }
-          });
-        } catch(e) {
-          print('No clipboard data');
-        }
+          }
+        });
+      } catch (e) {
+        print('No clipboard data');
+      }
     });
     super.initState();
   }
@@ -99,103 +99,105 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
-      builder: (context, theme, child) =>
-      Scaffold(
-      drawer: NavBar(
-        textEditingController: textEditingController,
-      ),
-      appBar: AppBar(
-        leading: Builder(
-            builder: (context) => IconButton(
-              icon: Icon(Icons.menu_rounded),
-              color: Constants.appBarIconColor,
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            )
-        ),
-        title: Text(
-          AppLocalizations.of(context).appTitle,
-          style: TextStyle(color: Constants.appBarTextColor),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48.0),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 12.0, bottom: 8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: TextField(
-                    onSubmitted: (valueChanged) async {
-                      await _search();
-                      setState(() {});
-                    },
-                    style: TextStyle(color: Constants.appBarTextColor),
-                    controller: textEditingController,
-                    decoration: InputDecoration(
-                      prefixIcon: IconButton(
-                        icon: Icon(Icons.search),
-                        color: Constants.appBarTextColor,
-                        onPressed: () async {
-                          await _search();
-                          setState(() {});
-                        },
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          Icons.cancel,
+        builder: (context, theme, child) => Scaffold(
+              drawer: NavBar(
+                textEditingController: textEditingController,
+              ),
+              appBar: AppBar(
+                leading: Builder(
+                    builder: (context) => IconButton(
+                          icon: Icon(Icons.menu_rounded),
                           color: Constants.appBarIconColor,
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        )),
+                title: Text(
+                  AppLocalizations.of(context).appTitle,
+                  style: TextStyle(color: Constants.appBarTextColor),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(48.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          margin:
+                              const EdgeInsets.only(left: 12.0, bottom: 8.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: TextField(
+                            onSubmitted: (valueChanged) async {
+                              await _search();
+                              setState(() {});
+                            },
+                            style: TextStyle(color: Constants.appBarTextColor),
+                            controller: textEditingController,
+                            decoration: InputDecoration(
+                              prefixIcon: IconButton(
+                                icon: Icon(Icons.search),
+                                color: Constants.appBarTextColor,
+                                onPressed: () async {
+                                  await _search();
+                                  setState(() {});
+                                },
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  Icons.cancel,
+                                  color: Constants.appBarIconColor,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    textEditingController.text = '';
+                                  });
+                                },
+                              ),
+                              hintText: "Search for a word",
+                              hintStyle:
+                                  TextStyle(color: Constants.appBarTextColor),
+                              labelStyle:
+                                  TextStyle(color: Constants.appBarTextColor),
+                              border: InputBorder.none,
+                            ),
+                          ),
                         ),
+                      ),
+                      IconButton(
+                        padding: EdgeInsets.only(bottom: 10),
+                        icon: Icon(Icons.brush),
+                        color: Constants.appBarIconColor,
                         onPressed: () {
                           setState(() {
                             textEditingController.text = '';
                           });
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              enableDrag: false,
+                              context: context,
+                              builder: (ctx) {
+                                return Wrap(children: <Widget>[
+                                  Container(
+                                    color: Color(0xFFf8f1f1),
+                                    height: 400,
+                                    child: DrawScreen(
+                                        textEditingController:
+                                            textEditingController),
+                                  ),
+                                ]);
+                              });
                         },
                       ),
-                      hintText: "Search for a word",
-                      hintStyle: TextStyle(color: Constants.appBarTextColor),
-                      labelStyle: TextStyle(color: Constants.appBarTextColor),
-                      border: InputBorder.none,
-                    ),
+                    ],
                   ),
                 ),
               ),
-              IconButton(
-                padding: EdgeInsets.only(bottom: 10),
-                icon: Icon(Icons.brush),
-                color: Constants.appBarIconColor,
-                onPressed: () {
-                  setState(() {
-                    textEditingController.text = '';
-                  });
-                  showModalBottomSheet(
-                      isScrollControlled: true,
-                      enableDrag: false,
-                      context: context,
-                      builder: (ctx) {
-                        return Wrap(children: <Widget>[
-                          Container(
-                            color: Color(0xFFf8f1f1),
-                            height: 400,
-                            child: DrawScreen(
-                                textEditingController: textEditingController),
-                          ),
-                        ]);
-                      });
-                },
+              body: Container(
+                margin: EdgeInsets.all(8),
+                child: getSearchResultTiles(),
               ),
-            ],
-          ),
-        ),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(8),
-        child: getSearchResultTiles(),
-      ),
-    ));
+            ));
   }
 
   getSearchResultTiles() {
@@ -252,7 +254,8 @@ class _MainScreenState extends State<MainScreen> {
                   vnDefinition: vnDictQuery[index],
                   // ignore: missing_return
                 );
-                if (jishoSnapshot.connectionState == ConnectionState.done && jishoSnapshot.data != null) {
+                if (jishoSnapshot.connectionState == ConnectionState.done &&
+                    jishoSnapshot.data != null) {
                   bool gotWordInfo = false;
                   int i = 0;
                   for (i = 0; i < jishoSnapshot.data['data'].length; i++) {
@@ -281,8 +284,8 @@ class _MainScreenState extends State<MainScreen> {
                           reading: jishoSnapshot.data['data'][i]['japanese'][0]
                               ['reading'],
                           senses: jishoSnapshot.data['data'][i]['senses'],
-                          isJmdict: jishoSnapshot.data['data'][i]
-                              ['attribution']['jmdict'],
+                          isJmdict: jishoSnapshot.data['data'][i]['attribution']
+                              ['jmdict'],
                           isDbpedia: jishoSnapshot.data['data'][i]
                               ['attribution']['dbpedia'],
                           isJmnedict: jishoSnapshot.data['data'][i]
@@ -302,8 +305,8 @@ class _MainScreenState extends State<MainScreen> {
       return FutureBuilder(
         future: jishoData,
         builder: (context, jishoSnapshot) {
-          if (jishoSnapshot.connectionState ==
-              ConnectionState.done && jishoSnapshot.data != null){
+          if (jishoSnapshot.connectionState == ConnectionState.done &&
+              jishoSnapshot.data != null) {
             return ListView.separated(
                 separatorBuilder: (context, index) => Divider(
                       thickness: 0.4,
@@ -311,72 +314,79 @@ class _MainScreenState extends State<MainScreen> {
                 itemCount: jishoSnapshot.data["data"].length,
                 itemBuilder: (BuildContext context, int index) {
                   return FutureBuilder(
-                    future: getVietnameseDefinition(jishoSnapshot.data['data'][index]['slug'] ?? jishoSnapshot.data['data'][index]['japanese'][0]
-                    ['word']),
-                      builder: (context, vnSnapshot){
-                      if (vnSnapshot.connectionState == ConnectionState.done && vnSnapshot.data != null) {
-                        return SearchResultTile(
-                          jishoDefinition: JishoDefinition(
-                              slug: jishoSnapshot.data['data'][index]['slug'],
-                              isCommon: jishoSnapshot.data['data'][index]
-                              ['is_common'] ==
-                                  null
-                                  ? false
-                                  : jishoSnapshot.data['data'][index]['is_common'],
-                              tags: jishoSnapshot.data['data'][index]['tags'],
-                              jlpt: jishoSnapshot.data['data'][index]['jlpt'],
-                              word: jishoSnapshot.data['data'][index]['japanese'][0]
-                              ['word'],
-                              reading: jishoSnapshot.data['data'][index]['japanese']
-                              [0]['reading'],
-                              senses: jishoSnapshot.data['data'][index]['senses'],
-                              isJmdict: jishoSnapshot.data['data'][index]
-                              ['attribution']['jmdict'],
-                              isDbpedia: jishoSnapshot.data['data'][index]
-                              ['attribution']['dbpedia'],
-                              isJmnedict: jishoSnapshot.data['data'][index]
-                              ['attribution']['jmnedict']),
-                          textEditingController: textEditingController,
-                          hanViet: KanjiHelper.getHanvietReading(
-                              word: jishoSnapshot.data['data'][index]['japanese'][0]
-                              ['word'] ??
-                                  jishoSnapshot.data['data'][index]['slug'],
-                              context: context),
-                          vnDefinition: vnSnapshot.data,
-                        );
-                      } else return SearchResultTile(
-                        jishoDefinition: JishoDefinition(
-                            slug: jishoSnapshot.data['data'][index]['slug'],
-                            isCommon: jishoSnapshot.data['data'][index]
-                            ['is_common'] ==
-                                null
-                                ? false
-                                : jishoSnapshot.data['data'][index]['is_common'],
-                            tags: jishoSnapshot.data['data'][index]['tags'],
-                            jlpt: jishoSnapshot.data['data'][index]['jlpt'],
-                            word: jishoSnapshot.data['data'][index]['japanese'][0]
-                            ['word'],
-                            reading: jishoSnapshot.data['data'][index]['japanese']
-                            [0]['reading'],
-                            senses: jishoSnapshot.data['data'][index]['senses'],
-                            isJmdict: jishoSnapshot.data['data'][index]
-                            ['attribution']['jmdict'],
-                            isDbpedia: jishoSnapshot.data['data'][index]
-                            ['attribution']['dbpedia'],
-                            isJmnedict: jishoSnapshot.data['data'][index]
-                            ['attribution']['jmnedict']),
-                        textEditingController: textEditingController,
-                        hanViet: KanjiHelper.getHanvietReading(
-                            word: jishoSnapshot.data['data'][index]['japanese'][0]
-                            ['word'] ??
-                                jishoSnapshot.data['data'][index]['slug'],
-                            context: context),
-                        vnDefinition:
-                        VietnameseDefinition(word: null, definition: null),
-                      );
+                      future: getVietnameseDefinition(jishoSnapshot.data['data']
+                              [index]['slug'] ??
+                          jishoSnapshot.data['data'][index]['japanese'][0]
+                              ['word']),
+                      builder: (context, vnSnapshot) {
+                        if (vnSnapshot.connectionState ==
+                                ConnectionState.done &&
+                            vnSnapshot.data != null) {
+                          return SearchResultTile(
+                            jishoDefinition: JishoDefinition(
+                                slug: jishoSnapshot.data['data'][index]['slug'],
+                                isCommon:
+                                    jishoSnapshot.data['data'][index]['is_common'] == null
+                                        ? false
+                                        : jishoSnapshot.data['data'][index]
+                                            ['is_common'],
+                                tags: jishoSnapshot.data['data'][index]['tags'],
+                                jlpt: jishoSnapshot.data['data'][index]['jlpt'],
+                                word: jishoSnapshot.data['data'][index]
+                                    ['japanese'][0]['word'],
+                                reading: jishoSnapshot.data['data'][index]
+                                    ['japanese'][0]['reading'],
+                                senses: jishoSnapshot.data['data'][index]
+                                    ['senses'],
+                                isJmdict: jishoSnapshot.data['data'][index]
+                                    ['attribution']['jmdict'],
+                                isDbpedia: jishoSnapshot.data['data'][index]
+                                    ['attribution']['dbpedia'],
+                                isJmnedict: jishoSnapshot.data['data'][index]
+                                    ['attribution']['jmnedict']),
+                            textEditingController: textEditingController,
+                            hanViet: KanjiHelper.getHanvietReading(
+                                word: jishoSnapshot.data['data'][index]
+                                        ['japanese'][0]['word'] ??
+                                    jishoSnapshot.data['data'][index]['slug'],
+                                context: context),
+                            vnDefinition: vnSnapshot.data,
+                          );
+                        } else
+                          return SearchResultTile(
+                            jishoDefinition: JishoDefinition(
+                                slug: jishoSnapshot.data['data'][index]['slug'],
+                                isCommon:
+                                    jishoSnapshot.data['data'][index]['is_common'] == null
+                                        ? false
+                                        : jishoSnapshot.data['data'][index]
+                                            ['is_common'],
+                                tags: jishoSnapshot.data['data'][index]['tags'],
+                                jlpt: jishoSnapshot.data['data'][index]['jlpt'],
+                                word: jishoSnapshot.data['data'][index]
+                                    ['japanese'][0]['word'],
+                                reading: jishoSnapshot.data['data'][index]
+                                    ['japanese'][0]['reading'],
+                                senses: jishoSnapshot.data['data'][index]
+                                    ['senses'],
+                                isJmdict: jishoSnapshot.data['data'][index]
+                                    ['attribution']['jmdict'],
+                                isDbpedia: jishoSnapshot.data['data'][index]
+                                    ['attribution']['dbpedia'],
+                                isJmnedict: jishoSnapshot.data['data'][index]
+                                    ['attribution']['jmnedict']),
+                            textEditingController: textEditingController,
+                            hanViet: KanjiHelper.getHanvietReading(
+                                word: jishoSnapshot.data['data'][index]
+                                        ['japanese'][0]['word'] ??
+                                    jishoSnapshot.data['data'][index]['slug'],
+                                context: context),
+                            vnDefinition: VietnameseDefinition(
+                                word: null, definition: null),
+                          );
                       });
-                });}
-          else
+                });
+          } else
             return Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
