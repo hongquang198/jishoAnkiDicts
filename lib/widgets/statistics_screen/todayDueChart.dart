@@ -1,7 +1,6 @@
-import 'package:JapaneseOCR/utils/barTitleType.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:flutter/cupertino.dart';
+import '/utils/barTitleType.dart';
+import '/utils/constants.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 
 import 'barLine.dart';

@@ -1,15 +1,14 @@
 import 'dart:convert';
 
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
+import '../models/dictionary.dart';
+import '../models/jishoDefinition.dart';
+import '../models/offlineWordRecord.dart';
+import '../models/vietnameseDefinition.dart';
+import '../services/kanjiHelper.dart';
 import 'dart:async';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:JapaneseOCR/widgets/main_screen/search_result_tile.dart';
-import 'package:flutter/cupertino.dart';
+import '../utils/constants.dart';
+import '../utils/sharedPref.dart';
+import '../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -27,6 +26,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<String> getClipboard() async {
     ClipboardData data = await Clipboard.getData('text/plain');
     clipboard = data.text;
+    return data.text;
   }
 
   List<OfflineWordRecord> history;
@@ -97,7 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget getSearchResultTile(int index) {
     if (SharedPref.prefs.getString('language') == ('Tiếng Việt')) {
-      if (history[index].vietnamese_definition == null) {
+      if (history[index].vietnameseDefinition == null) {
         return FutureBuilder(
             future: getVietnameseDefinition(
                 history[index].word ?? history[index].slug),
@@ -112,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   textEditingController: widget.textEditingController,
                   jishoDefinition: JishoDefinition(
                     slug: history[index].slug,
-                    is_common: history[index].is_common == 1 ? true : false,
+                    isCommon: history[index].isCommon == 1 ? true : false,
                     tags: convertToList(
                         jsonDecode(history[index].tags).toString()),
                     jlpt: convertToList(
@@ -120,9 +120,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     word: history[index].word,
                     reading: history[index].reading,
                     senses: jsonDecode(history[index].senses),
-                    is_jmdict: [],
-                    is_dbpedia: [],
-                    is_jmnedict: [],
+                    isJmdict: [],
+                    isDbpedia: [],
+                    isJmnedict: [],
                   ),
                 );
               else {
@@ -134,7 +134,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   textEditingController: widget.textEditingController,
                   jishoDefinition: JishoDefinition(
                     slug: history[index].slug,
-                    is_common: history[index].is_common == 1 ? true : false,
+                    isCommon: history[index].isCommon == 1 ? true : false,
                     tags: convertToList(
                         jsonDecode(history[index].tags).toString()),
                     jlpt: convertToList(
@@ -142,9 +142,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     word: history[index].word,
                     reading: history[index].reading,
                     senses: jsonDecode(history[index].senses),
-                    is_jmdict: [],
-                    is_dbpedia: [],
-                    is_jmnedict: [],
+                    isJmdict: [],
+                    isDbpedia: [],
+                    isJmnedict: [],
                   ),
                 );
               }
@@ -156,19 +156,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
               context: context),
           vnDefinition: VietnameseDefinition(
               word: history[index].word ?? history[index].slug,
-              definition: history[index].vietnamese_definition),
+              definition: history[index].vietnameseDefinition),
           textEditingController: widget.textEditingController,
           jishoDefinition: JishoDefinition(
             slug: history[index].slug,
-            is_common: history[index].is_common == 1 ? true : false,
+            isCommon: history[index].isCommon == 1 ? true : false,
             tags: convertToList(jsonDecode(history[index].tags).toString()),
             jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
             word: history[index].word,
             reading: history[index].reading,
             senses: jsonDecode(history[index].senses),
-            is_jmdict: [],
-            is_dbpedia: [],
-            is_jmnedict: [],
+            isJmdict: [],
+            isDbpedia: [],
+            isJmnedict: [],
           ),
         );
     } else
@@ -179,15 +179,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
         textEditingController: widget.textEditingController,
         jishoDefinition: JishoDefinition(
           slug: history[index].slug,
-          is_common: history[index].is_common == 1 ? true : false,
+          isCommon: history[index].isCommon == 1 ? true : false,
           tags: convertToList(jsonDecode(history[index].tags).toString()),
           jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
           word: history[index].word,
           reading: history[index].reading,
           senses: jsonDecode(history[index].senses),
-          is_jmdict: [],
-          is_dbpedia: [],
-          is_jmnedict: [],
+          isJmdict: [],
+          isDbpedia: [],
+          isJmnedict: [],
         ),
       );
   }

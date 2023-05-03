@@ -1,8 +1,8 @@
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/services/dbManager.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/models/exampleSentence.dart';
+import '/models/pitchAccent.dart';
+import '/models/vietnameseDefinition.dart';
+import '/services/dbManager.dart';
+import '/utils/sharedPref.dart';
 import 'grammarPoint.dart';
 import 'kanji.dart';
 import 'offlineWordRecord.dart';
@@ -46,10 +46,6 @@ class Dictionary {
 
   int get getYoungCardNumber {
     int numberOfYoungCards = 0;
-    List<int> newCardsStep = SharedPref.prefs
-        .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
 
     review.forEach((element) {
       if (element.reviews != 0) {
@@ -90,10 +86,6 @@ class Dictionary {
 
   int get getDifficultCardNumber {
     int lapses = 0;
-    List<int> newCardsStep = SharedPref.prefs
-        .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
     review.forEach((element) {
       if (element.lapses > 5) lapses++;
     });
@@ -108,12 +100,10 @@ class Dictionary {
     List<OfflineWordRecord> dueCards = [];
     List<OfflineWordRecord> newCards = [];
     int dueNumber = 0;
-    int newNumber = 0;
     review.forEach((element) {
       if (element.reviews == 0) {
         // print('new ${element.word}');
         newCards.add(element);
-        newNumber++;
       } else if (element.due < DateTime.now().millisecondsSinceEpoch) {
         // print('due<datenow ${element.word}');
         dueCards.add(element);

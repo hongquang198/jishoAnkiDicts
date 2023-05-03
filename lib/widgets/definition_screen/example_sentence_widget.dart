@@ -1,7 +1,7 @@
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/services/kanjiHelper.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import 'dart:convert';
+
+import '/models/exampleSentence.dart';
+import '/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class ExampleSentenceWidget extends StatefulWidget {
@@ -20,7 +20,21 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
 
   List<Widget> generateSentence(List<ExampleSentence> exampleSentence) {
     List<Widget> sentence = [];
+
     for (int i = 0; i < exampleSentence.length; i++) {
+      if (exampleSentence[i].jpSentence.startsWith('[{"')) {
+        var jsonList = jsonDecode(exampleSentence[i].jpSentence);
+        for (int j = 0; j < jsonList.length; j++) {
+          var jsonObject = jsonList[j];
+          jsonObject.removeWhere((key, value) => value == null || value == '');
+        }
+        var prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonList);
+        exampleSentence[i].jpSentence = prettyJsonString
+            .replaceAll('  ', "")
+            .replaceAll("[\n", "")
+            .replaceAll("]\n", "")
+            .replaceAll("]", "");
+      }
       if (i == 5) break;
       sentence.add(Padding(
         padding: EdgeInsets.only(right: 10, top: 9),
@@ -31,13 +45,14 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
               fontWeight: FontWeight.bold),
         ),
       ));
-      sentence.add(Padding(
-        padding: EdgeInsets.only(left: 10, right: 10, top: 2),
-        child: Text(
-          exampleSentence[i].targetSentence,
-          style: TextStyle(fontSize: Constants.definitionTextSize),
-        ),
-      ));
+      if (exampleSentence[i].targetSentence != null)
+        sentence.add(Padding(
+          padding: EdgeInsets.only(left: 10, right: 10, top: 2),
+          child: Text(
+            exampleSentence[i].targetSentence,
+            style: TextStyle(fontSize: Constants.definitionTextSize),
+          ),
+        ));
     }
     return sentence;
   }

@@ -1,7 +1,7 @@
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/models/kanji.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
+import '/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

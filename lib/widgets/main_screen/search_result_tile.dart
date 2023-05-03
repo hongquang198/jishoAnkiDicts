@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:JapaneseOCR/widgets/customDialog.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/jishoDefinition.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/screens/definitionScreen.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/widgets/customDialog.dart';
+import '/models/offlineWordRecord.dart';
+import '/models/jishoDefinition.dart';
+import '/models/vietnameseDefinition.dart';
+import '/screens/definitionScreen.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
-import 'package:JapaneseOCR/utils/offlineListType.dart';
-import 'package:JapaneseOCR/services/dbHelper.dart';
+import '/utils/offlineListType.dart';
+import '/services/dbHelper.dart';
 import '../definition_screen/definition_tags.dart';
 import 'package:html/parser.dart';
 import 'package:html/dom.dart' as dom;
@@ -142,7 +142,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ))
               : Row(
                   children: [
-                    widget.jishoDefinition.is_common == true
+                    widget.jishoDefinition.isCommon == true
                         ? Card(
                             color: Color(0xFF8ABC82),
                             child: Text(
@@ -183,8 +183,10 @@ class _SearchResultTileState extends State<SearchResultTile> {
           //state of word : bookmarked or not
           SizedBox(
             width: 45,
-            child: FlatButton(
-              padding: EdgeInsets.all(0),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+              ),
               child: DbHelper.checkDatabaseExist(
                       offlineListType: OfflineListType.favorite,
                       word: widget.vnDefinition.word ??
@@ -208,8 +210,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           slug: widget.vnDefinition.word ??
                               widget.jishoDefinition.slug ??
                               widget.jishoDefinition.word,
-                          is_common:
-                              widget.jishoDefinition.is_common == true ? 1 : 0,
+                          isCommon:
+                              widget.jishoDefinition.isCommon == true ? 1 : 0,
                           tags: jsonEncode(widget.jishoDefinition.tags),
                           jlpt: jsonEncode(widget.jishoDefinition.jlpt),
                           word: widget.vnDefinition.word ??
@@ -217,7 +219,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                               widget.jishoDefinition.slug,
                           reading: widget.jishoDefinition.reading,
                           senses: jsonEncode(widget.jishoDefinition.senses),
-                          vietnamese_definition: widget.vnDefinition.definition,
+                          vietnameseDefinition: widget.vnDefinition.definition,
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
@@ -249,8 +251,10 @@ class _SearchResultTileState extends State<SearchResultTile> {
           // Add button to review list
           SizedBox(
             width: 45,
-            child: FlatButton(
-              padding: EdgeInsets.all(0),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+              ),
               child: DbHelper.checkDatabaseExist(
                       offlineListType: OfflineListType.review,
                       word: widget.vnDefinition.word ??
@@ -275,8 +279,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           slug: widget.vnDefinition.word ??
                               widget.jishoDefinition.slug ??
                               widget.jishoDefinition.word,
-                          is_common:
-                              widget.jishoDefinition.is_common == true ? 1 : 0,
+                          isCommon:
+                              widget.jishoDefinition.isCommon == true ? 1 : 0,
                           tags: jsonEncode(widget.jishoDefinition.tags),
                           jlpt: jsonEncode(widget.jishoDefinition.jlpt),
                           word: widget.vnDefinition.word ??
@@ -284,7 +288,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                               widget.jishoDefinition.slug,
                           reading: widget.jishoDefinition.reading,
                           senses: jsonEncode(widget.jishoDefinition.senses),
-                          vietnamese_definition: widget.vnDefinition.definition,
+                          vietnameseDefinition: widget.vnDefinition.definition,
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
@@ -322,7 +326,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               slug: widget.vnDefinition.word ??
                   widget.jishoDefinition.slug ??
                   widget.jishoDefinition.word,
-              is_common: widget.jishoDefinition.is_common == true ? 1 : 0,
+              isCommon: widget.jishoDefinition.isCommon == true ? 1 : 0,
               tags: jsonEncode(widget.jishoDefinition.tags),
               jlpt: jsonEncode(widget.jishoDefinition.jlpt),
               word: widget.vnDefinition.word ??
@@ -330,7 +334,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   widget.jishoDefinition.slug,
               reading: widget.jishoDefinition.reading,
               senses: jsonEncode(widget.jishoDefinition.senses),
-              vietnamese_definition: widget.vnDefinition.definition,
+              vietnameseDefinition: widget.vnDefinition.definition,
               added: DateTime.now().millisecondsSinceEpoch,
               firstReview: null,
               lastReview: null,

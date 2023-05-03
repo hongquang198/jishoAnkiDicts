@@ -1,5 +1,4 @@
-import 'package:JapaneseOCR/utils/barTitleType.dart';
-import 'package:flutter/cupertino.dart';
+import '/utils/barTitleType.dart';
 import 'package:flutter/material.dart';
 
 class BarLine extends StatelessWidget {

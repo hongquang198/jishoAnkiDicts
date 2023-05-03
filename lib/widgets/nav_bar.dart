@@ -1,14 +1,14 @@
-import 'package:JapaneseOCR/screens/favoriteScreen.dart';
-import 'package:JapaneseOCR/screens/grammar_screen.dart';
-import 'package:JapaneseOCR/screens/historyScreen.dart';
-import 'package:JapaneseOCR/screens/reviewScreen.dart';
-import 'package:JapaneseOCR/screens/settingsScreen.dart';
-import 'package:JapaneseOCR/screens/statisticsScreen.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '/screens/favoriteScreen.dart';
+import '/screens/grammar_screen.dart';
+import '/screens/historyScreen.dart';
+import '/screens/reviewScreen.dart';
+import '/screens/settingsScreen.dart';
+import '/screens/statisticsScreen.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:JapaneseOCR/themeManager.dart';
+import '/themeManager.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;
@@ -16,7 +16,6 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Consumer<ThemeNotifier>(builder: (context, theme, _) {
     return Drawer(
       child: ListView(
         children: <Widget>[

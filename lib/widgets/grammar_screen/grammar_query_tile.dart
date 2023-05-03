@@ -1,6 +1,5 @@
-import 'package:JapaneseOCR/models/grammarPoint.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/screens/grammarPointScreen.dart';
+import '/models/grammarPoint.dart';
+import '/screens/grammarPointScreen.dart';
 import 'package:flutter/material.dart';
 
 class GrammarQueryTile extends StatefulWidget {
@@ -15,12 +14,6 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
   }
 
   @override

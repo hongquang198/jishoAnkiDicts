@@ -1,14 +1,10 @@
-import 'dart:typed_data';
-import 'dart:ui';
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/services/loadDictionary.dart';
-import 'package:JapaneseOCR/widgets/nav_bar.dart';
+import '/models/dictionary.dart';
+import '/models/kanji.dart';
 import 'package:flutter/material.dart';
-import 'package:JapaneseOCR/models/prediction.dart';
-import 'package:JapaneseOCR/widgets/main_screen/drawing_painter.dart';
-import 'package:JapaneseOCR/services/recognizer.dart';
-import 'package:JapaneseOCR/utils/constants.dart';
+import '/models/prediction.dart';
+import '/widgets/main_screen/drawing_painter.dart';
+import '/services/recognizer.dart';
+import '/utils/constants.dart';
 import 'package:provider/provider.dart';
 import '../definition_screen/kanji_drawboard.dart';
 
@@ -20,7 +16,7 @@ class DrawScreen extends StatefulWidget {
 }
 
 class _DrawScreenState extends State<DrawScreen> {
-  var _points = List<Offset>();
+  List<Offset> _points = [];
   final _recognizer = Recognizer();
   List<Prediction> _prediction;
   List<Prediction> _prediction2;
@@ -30,8 +26,7 @@ class _DrawScreenState extends State<DrawScreen> {
   final labelFilePath1 = "assets/label806.txt";
   final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
-  var lastStrokes = List<Offset>();
-
+  List<Offset> lastStrokes = [];
   List<Kanji> kanjiDict = [];
 
   @override
@@ -197,13 +192,10 @@ class _DrawScreenState extends State<DrawScreen> {
   }
 
   Future _initModel({String modelFilePath, String labelFilePath}) async {
-    var res = await _recognizer.loadModel(
+    await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
-  Future<Uint8List> _previewImage() async {
-    return await _recognizer.previewImage(_points);
-  }
 
   Future _recognize({bool isForSecondModel = false}) async {
     List<dynamic> pred = await _recognizer.recognize(_points);

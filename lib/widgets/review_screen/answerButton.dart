@@ -1,9 +1,6 @@
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:flutter/cupertino.dart';
+import '/models/offlineWordRecord.dart';
+import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({

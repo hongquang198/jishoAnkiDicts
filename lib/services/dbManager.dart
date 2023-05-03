@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:JapaneseOCR/models/grammarPoint.dart';
-import 'package:JapaneseOCR/models/offlineWordRecord.dart';
-import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '../models/grammarPoint.dart';
+import '../models/offlineWordRecord.dart';
+import '../models/pitchAccent.dart';
+import '../utils/sharedPref.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/models/exampleSentence.dart';
+import '../models/kanji.dart';
+import '../models/vietnameseDefinition.dart';
+import '../models/exampleSentence.dart';
 
 class DbManager {
   // Avoid errors caused by flutter upgrade.
@@ -50,49 +48,6 @@ class DbManager {
     Database db = await openDatabase(path, readOnly: false);
     return db;
 
-    final Future<Database> database = openDatabase(
-      // Set the path to the database. Note: Using the `join` function from the
-      // `path` package is best practice to ensure the path is correctly
-      // constructed for each platform.
-      join(await getDatabasesPath(), '$dbName.db'),
-      // When the database is first created, create a table to store dogs.
-      onCreate: (db, version) {
-        db.execute(
-          "CREATE TABLE history(slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
-        );
-        db.execute(
-          "CREATE TABLE favorite(slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
-        );
-        db.execute(
-          "CREATE TABLE review(slug TEXT, is_common INTEGER, tags TEXT, jlpt TEXT, word TEXT, reading TEXT, senses TEXT, vietnamese_definition TEXT, added INTEGER, firstReview INTEGER, lastReview INTEGER, due INTEGER, interval INTEGER, ease REAL, reviews INTEGER, lapses INTEGER, averageTimeMinute REAL, totalTimeMinute REAL, cardType TEXT, noteType TEXT, deck TEXT)",
-        );
-
-        // Offline vietnamese dictionary covert from text file to sqlite
-        db.execute(
-          "CREATE TABLE jpvnDictionary(id INTEGER PRIMARY KEY, word TEXT, definition TEXT)",
-        );
-        print('Create jpvnDicts successfully');
-
-        db.execute(
-          "CREATE TABLE kanjiDictionary(id TEXT PRIMARY KEY, keyword TEXT, hanViet TEXT, kanji TEXT, constituent TEXT, strokeCount TEXT, lessonNo TEXT, heisigStory TEXT, heisigComment TEXT, koohiiStory1 TEXT, koohiiStory2 TEXT, jouYou TEXT, jlpt TEXT, onYomi TEXT, kunYomi TEXT, readingExamples TEXT)",
-        );
-        print('Create kanjiDicts successfully');
-        db.execute(
-          "CREATE TABLE pitchDictionary(orths_txt TEXT, hira TEXT, hz TEXT, accs_txt TEXT, patts_txt TEXT)",
-        );
-        print('Create pitchDicts successfully');
-
-        db.execute(
-          "CREATE TABLE exampleDictionary(jpSentenceId INTEGER PRIMARY KEY, jpSentence TEXT, vnSentenceId INTEGER, vnSentence TEXT)",
-        );
-        print('Create kanjiDicts successfully');
-        return db;
-      },
-      // Set the version. This executes the onCreate function and provides a
-      // path to perform database upgrades and downgrades.
-      version: 1,
-    );
-    return database;
   }
 
   Future<void> batchInsertKanjiDictionary(List<Kanji> kanjiDictionary) async {
@@ -168,13 +123,13 @@ class DbManager {
     return List.generate(maps.length, (i) {
       return OfflineWordRecord(
         slug: maps[i]['slug'],
-        is_common: maps[i]['is_common'],
+        isCommon: maps[i]['is_common'],
         tags: maps[i]['tags'],
         jlpt: maps[i]['jlpt'],
         word: maps[i]['word'],
         reading: maps[i]['reading'],
         senses: maps[i]['senses'],
-        vietnamese_definition: maps[i]['vietnamese_definition'],
+        vietnameseDefinition: maps[i]['vietnamese_definition'],
         added: maps[i]['added'],
         firstReview: maps[i]['firstReview'],
         lastReview: maps[i]['lastReview'],
@@ -261,11 +216,11 @@ class DbManager {
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
       return PitchAccent(
-        orths_txt: maps[i]['orths_txt'],
+        orthsTxt: maps[i]['orths_txt'],
         hira: maps[i]['hira'],
         hz: maps[i]['hz'],
-        accs_txt: maps[i]['accs_txt'],
-        patts_txt: maps[i]['patts_txt'],
+        accsTxt: maps[i]['accs_txt'],
+        pattsTxt: maps[i]['patts_txt'],
       );
     });
   }
@@ -279,11 +234,11 @@ class DbManager {
         whereArgs: ['%$word%', reading]);
     return List.generate(maps.length, (i) {
       return PitchAccent(
-        orths_txt: maps[i]['orths_txt'],
+        orthsTxt: maps[i]['orths_txt'],
         hira: maps[i]['hira'],
         hz: maps[i]['hz'],
-        accs_txt: maps[i]['accs_txt'],
-        patts_txt: maps[i]['patts_txt'],
+        accsTxt: maps[i]['accs_txt'],
+        pattsTxt: maps[i]['patts_txt'],
       );
     });
   }

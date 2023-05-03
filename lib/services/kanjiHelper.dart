@@ -1,13 +1,11 @@
-import 'package:JapaneseOCR/models/exampleSentence.dart';
-import 'package:JapaneseOCR/models/kanji.dart';
-import 'package:JapaneseOCR/models/pitchAccent.dart';
-import 'package:JapaneseOCR/models/vietnameseDefinition.dart';
-import 'package:JapaneseOCR/services/dbManager.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
-import 'package:flutter/cupertino.dart';
+import '../models/exampleSentence.dart';
+import '../models/kanji.dart';
+import '../models/pitchAccent.dart';
+import '../models/vietnameseDefinition.dart';
+import '../utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:JapaneseOCR/models/dictionary.dart';
+import '../models/dictionary.dart';
 
 class KanjiHelper {
   // Extract kanji from word
@@ -128,13 +126,13 @@ class KanjiHelper {
     PitchAccent pitch;
     try {
       pitch = pitchFound.firstWhere((element) =>
-          element.orths_txt.contains(word ?? slug ?? reading) &&
+          element.orthsTxt.contains(word ?? slug ?? reading) &&
           element.hira == reading);
     } catch (e) {
       print(e);
       return null;
     }
-    pitchAccent = pitch.patts_txt;
+    pitchAccent = pitch.pattsTxt;
     if (reading.length + 1 == pitchAccent.length)
       for (int i = 0; i < reading.length; i++)
         widgetList.add(getPitchForChar(

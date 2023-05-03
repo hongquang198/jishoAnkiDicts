@@ -1,8 +1,7 @@
-import 'package:JapaneseOCR/themeManager.dart';
-import 'package:JapaneseOCR/models/dictionary.dart';
-import 'package:JapaneseOCR/screens/mainScreen.dart';
-import 'package:JapaneseOCR/services/loadDictionary.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import 'themeManager.dart';
+import 'models/dictionary.dart';
+import 'screens/mainScreen.dart';
+import 'utils/sharedPref.dart';
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +11,6 @@ import 'dart:io';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'localizationManager.dart';
-import 'themeManager.dart';
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('assets/$path');
@@ -88,15 +86,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<Dictionary> initDictionary() async {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();
-    final loadDictionary = LoadDictionary(dbManager: dicts.offlineDatabase);
-    // dicts.vietnameseDictionary = await loadDictionary.loadJpvnDictionary();
-    // print('Load vndict finished');
-    // dicts.kanjiDictionary = await loadDictionary.loadAssetKanji();
-    // print('Load kanji finished');
-    // dicts.pitchAccentDict = await loadDictionary.loadPitchAccentDictionary();
-    // print('Load pitch accent finished');
-    // dicts.exampleDictionary = await loadDictionary.loadExampleDictionary();
-    // print('Load example finished');
 
     dicts.history = await dicts.offlineDatabase.retrieve(tableName: 'history');
     dicts.favorite =
@@ -112,6 +101,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MultiProvider(
         providers: [
           FutureProvider<Dictionary>(
+            initialData: null,
             create: (context) async {
               return dicts;
             },

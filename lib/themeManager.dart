@@ -1,33 +1,29 @@
-import 'package:JapaneseOCR/utils/constants.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
+import '../utils/constants.dart';
+
+import 'utils/sharedPref.dart';
 
 class ThemeNotifier with ChangeNotifier {
+  final theme = ThemeData();
   final darkTheme = ThemeData(
     primarySwatch: Colors.grey,
     primaryColor: Color(0xFF212121),
     brightness: Brightness.dark,
     backgroundColor: const Color(0xFF212121),
-    accentColor: Colors.white,
-    accentIconTheme: IconThemeData(color: Color(0xFF212121)),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      foregroundColor: Color(0xFF212121),
+    ),
     dividerColor: Colors.black12,
   );
 
-  final lightTheme =
-      // ThemeData(
-      //   primarySwatch: Colors.grey,
-      //   primaryColor: Colors.white,
-      //   brightness: Brightness.light,
-      //   backgroundColor: const Color(0xFFE5E5E5),
-      //   accentColor: Colors.black,
-      //   accentIconTheme: IconThemeData(color: Colors.white),
-      //   dividerColor: Colors.white54,
-      // );
-      ThemeData(
+  final lightTheme = ThemeData(
     primaryColor: Color(0xffDB8C8A),
     primaryIconTheme: IconThemeData(color: Constants.appBarIconColor),
-    primaryTextTheme:
-        TextTheme(title: TextStyle(color: Constants.appBarTextColor)),
+    primaryTextTheme: TextTheme(
+      titleSmall: TextStyle(color: Constants.appBarTextColor),
+      titleMedium: TextStyle(color: Constants.appBarTextColor),
+      titleLarge: TextStyle(color: Constants.appBarTextColor),
+    ),
     appBarTheme: AppBarTheme(
       color: Color(0xffDB8C8A),
     ),
@@ -41,7 +37,8 @@ class ThemeNotifier with ChangeNotifier {
 
   ThemeData getTheme() {
     if (SharedPref.prefs.getString('theme') == 'dark') {
-      return darkTheme;
+      return darkTheme.copyWith(
+          colorScheme: darkTheme.colorScheme.copyWith(secondary: Colors.white));
     } else {
       return lightTheme;
     }

@@ -1,6 +1,5 @@
-import 'package:JapaneseOCR/services/dbHelper.dart';
-import 'package:JapaneseOCR/utils/offlineListType.dart';
-import 'package:JapaneseOCR/utils/sharedPref.dart';
+import '../services/dbHelper.dart';
+import '../utils/offlineListType.dart';
 import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
