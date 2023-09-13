@@ -1,3 +1,4 @@
 {
-  "editor.formatOnSave": false
+  "editor.formatOnSave": false,
+  "dart.flutterSdkPath": "C:\\development\\flutter_windows_3.7.12-stable\\flutter"
 }

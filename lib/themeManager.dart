@@ -9,7 +9,9 @@ class ThemeNotifier with ChangeNotifier {
     primarySwatch: Colors.grey,
     primaryColor: Color(0xFF212121),
     brightness: Brightness.dark,
-    backgroundColor: const Color(0xFF212121),
+    colorScheme: ColorScheme.dark(
+      background: const Color(0xFF212121)
+    ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       foregroundColor: Color(0xFF212121),
     ),
