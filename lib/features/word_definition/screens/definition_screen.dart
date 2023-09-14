@@ -76,7 +76,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     if (word.isEmpty) {
       word = widget.jishoDefinition?.word ?? '';
     }
-    if (word.isEmpty && widget.jishoDefinition?.slug.isEmpty == true) {
+    if (word.isEmpty) {
       word = widget.jishoDefinition?.slug ?? '';
     }
     offlineWordRecord = OfflineWordRecord(

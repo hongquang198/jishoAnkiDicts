@@ -104,7 +104,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                                 bottom: 5.0,
                               ),
                               child: Text(
-                                "N${kanji?.jlpt ?? '0'}",
+                                "N${kanji.jlpt ?? '0'}",
                                 style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                                 left: 3.0,
                               ),
                               child: Text(
-                                "Cấp độ ${kanji?.jouYou ?? '0'}",
+                                "Cấp độ ${kanji.jouYou ?? '0'}",
                                 style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                         ),
                         Card(
                           child: Text(
-                            "${kanji?.strokeCount ?? '0'} nét",
+                            "${kanji.strokeCount ?? '0'} nét",
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
@@ -152,7 +152,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                     ),
                     Card(
                       child: Text(
-                        "${kanji?.hanViet ?? ''}",
+                        "${kanji.hanViet ?? ''}",
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -176,7 +176,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                     ),
                     Card(
                       child: Text(
-                        "${kanji?.keyword ?? ''}",
+                        "${kanji.keyword ?? ''}",
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -189,7 +189,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                   color: Colors.grey,
                 ),
                 Text(
-                  "Âm Onyomi: ${kanji?.onYomi ?? ''}",
+                  "Âm Onyomi: ${kanji.onYomi ?? ''}",
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
@@ -200,7 +200,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                   color: Colors.grey,
                 ),
                 Text(
-                  "Âm Kunyomi: ${kanji?.kunYomi ?? ''}",
+                  "Âm Kunyomi: ${kanji.kunYomi ?? ''}",
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
@@ -211,7 +211,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                   color: Colors.grey,
                 ),
                 Text(
-                  "Ví dụ: ${kanji?.readingExamples ?? ''}",
+                  "Ví dụ: ${kanji.readingExamples ?? ''}",
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                   color: Colors.grey,
                 ),
                 Text(
-                  "Mẹo nhớ : ${kanji?.koohiiStory1 ?? 'Chưa có'}",
+                  "Mẹo nhớ : ${kanji.koohiiStory1 ?? 'Chưa có'}",
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,

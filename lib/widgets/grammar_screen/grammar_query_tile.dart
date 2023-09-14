@@ -29,7 +29,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
             child: Material(
               color: Colors.transparent,
               child: Text(
-                widget.grammarPoint.grammarPoint,
+                widget.grammarPoint.grammarPoint!,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -41,7 +41,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
               Card(
                 color: Color(0xFF8ABC82),
                 child: Text(
-                  widget.grammarPoint.jlptLevel,
+                  widget.grammarPoint.jlptLevel!,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.0,
@@ -56,7 +56,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(widget.grammarPoint.grammarMeaning,
+          Text(widget.grammarPoint.grammarMeaning!,
               style: TextStyle(fontSize: 13)),
         ],
       ),

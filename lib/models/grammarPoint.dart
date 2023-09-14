@@ -1,17 +1,17 @@
 class GrammarPoint {
-  String enSentence;
-  String jpSentence;
-  String jlptLevel;
-  String grammarMeaning;
-  String romanSentence;
-  String grammarPoint;
+  final String? enSentence;
+  final String? jpSentence;
+  final String? jlptLevel;
+  final String? grammarMeaning;
+  final String? romanSentence;
+  final String? grammarPoint;
   GrammarPoint(
-      {required this.enSentence,
-      required this.jpSentence,
-      required this.jlptLevel,
-      required this.grammarMeaning,
-      required this.romanSentence,
-      required this.grammarPoint});
+      {this.enSentence,
+      this.jpSentence,
+      this.jlptLevel,
+      this.grammarMeaning,
+      this.romanSentence,
+      this.grammarPoint});
 
   Map<String, dynamic> toMap() {
     return {

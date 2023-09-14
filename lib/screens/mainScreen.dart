@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   final labelFilePath2 = "assets/label3036.txt";
 
   late Timer clipboardTriggerTime;
-  late String clipboard;
+  String clipboard = '';
 
   _search() async {
     if (SharedPref.prefs.getString('language') == ('Tiếng Việt'))

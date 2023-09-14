@@ -1,11 +1,9 @@
-import '/models/dictionary.dart';
 import '/models/kanji.dart';
 import 'package:flutter/material.dart';
 import '/models/prediction.dart';
 import '/widgets/main_screen/drawing_painter.dart';
 import '/services/recognizer.dart';
 import '/utils/constants.dart';
-import 'package:provider/provider.dart';
 import '../definition_screen/kanji_drawboard.dart';
 
 class DrawScreen extends StatefulWidget {
@@ -31,7 +29,8 @@ class _DrawScreenState extends State<DrawScreen> {
 
   @override
   void initState() {
-    kanjiDict = Provider.of<Dictionary>(context, listen: false).kanjiDictionary;
+    _prediction = [];
+    _prediction2 = [];
     super.initState();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
   }

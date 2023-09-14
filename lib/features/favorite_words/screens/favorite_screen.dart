@@ -89,12 +89,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
             return FutureBuilder<VietnameseDefinition>(
                 future: getVietnameseDefinition(
-                    favorite[index].word ?? favorite[index].slug),
+                    favorite[index].japaneseWord),
                 builder: (context, snapshot) {
                   if (snapshot.data == null)
                     return SearchResultTile(
                       hanViet: KanjiHelper.getHanvietReading(
-                          word: favorite[index].word ?? favorite[index].slug,
+                          word: favorite[index].japaneseWord,
                           context: context),
                       vnDefinition: null,
                       textEditingController: widget.textEditingController,
@@ -115,7 +115,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     );
                   return SearchResultTile(
                     hanViet: KanjiHelper.getHanvietReading(
-                        word: favorite[index].word ?? favorite[index].slug,
+                        word: favorite[index].japaneseWord,
                         context: context),
                     vnDefinition: snapshot.data,
                     textEditingController: widget.textEditingController,

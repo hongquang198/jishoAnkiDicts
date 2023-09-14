@@ -36,7 +36,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
         await Provider.of<Dictionary>(context, listen: false)
             .offlineDatabase
             .searchForGrammarExample(
-                grammarPoint: widget.grammarPoint.grammarPoint);
+                grammarPoint: widget.grammarPoint.grammarPoint!);
     return query;
   }
 
@@ -50,7 +50,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
     super.initState();
 
     kanjiList = KanjiHelper.getKanjiComponent(
-        word: widget.grammarPoint.grammarPoint, context: context);
+        word: widget.grammarPoint.grammarPoint!, context: context);
   }
 
   @override
@@ -67,7 +67,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  widget.grammarPoint.grammarPoint,
+                  widget.grammarPoint.grammarPoint!,
                   style: TextStyle(
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold,
@@ -81,7 +81,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
               Card(
                 color: Color(0xFF8ABC82),
                 child: Text(
-                  widget.grammarPoint.jlptLevel,
+                  widget.grammarPoint.jlptLevel!,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.0,
@@ -95,7 +95,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           Padding(
             padding: EdgeInsets.only(bottom: 10, left: 10),
             child: Text(
-              widget.grammarPoint.grammarMeaning,
+              widget.grammarPoint.grammarMeaning!,
               style: TextStyle(fontSize: Constants.definitionTextSize),
             ),
           ),

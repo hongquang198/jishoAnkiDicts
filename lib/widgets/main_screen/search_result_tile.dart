@@ -34,10 +34,8 @@ class _SearchResultTileState extends State<SearchResultTile> {
   String get word {
     if (widget.vnDefinition?.word.isNotEmpty == true) {
       return widget.vnDefinition!.word;
-    } else if (
-      widget.jishoDefinition?.word.isNotEmpty == true
-    ) {
-      return widget.jishoDefinition!.word;
+    } else if (widget.jishoDefinition?.word?.isNotEmpty == true) {
+      return widget.jishoDefinition!.word!;
     } else {
       return widget.jishoDefinition?.slug ?? '';
     }

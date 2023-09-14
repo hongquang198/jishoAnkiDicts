@@ -11,7 +11,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late String dropdownValue;
+  String? dropdownValue;
   GlobalKey _toolTipGraduatingIntervalKey = GlobalKey();
   GlobalKey _toolTipStartingEaseKey = GlobalKey();
   GlobalKey _toolTipLeechThresholdKey = GlobalKey();

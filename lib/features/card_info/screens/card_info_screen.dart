@@ -75,7 +75,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
             children: [
               Text('Due'),
               Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.due!)}')
+                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.due)}')
             ],
           ),
           Row(

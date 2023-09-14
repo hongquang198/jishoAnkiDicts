@@ -148,10 +148,9 @@ packages:
   float_button_overlay:
     dependency: "direct main"
     description:
-      name: float_button_overlay
-      sha256: "2436325cabe5e33ea7cd495c64d00ae00a64bbb93245bbd0ab43a9c9524b1524"
-      url: "https://pub.dev"
-    source: hosted
+      path: "dependencies/float_button_overlay-0.3.4"
+      relative: true
+    source: path
     version: "0.3.4"
   flutter:
     dependency: "direct main"
