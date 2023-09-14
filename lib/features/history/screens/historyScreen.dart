@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import '../models/dictionary.dart';
-import '../models/jishoDefinition.dart';
-import '../models/offlineWordRecord.dart';
-import '../models/vietnameseDefinition.dart';
-import '../services/kanjiHelper.dart';
+import '../../../models/dictionary.dart';
+import '../../../models/jishoDefinition.dart';
+import '../../../models/offlineWordRecord.dart';
+import '../../../models/vietnameseDefinition.dart';
+import '../../../services/kanjiHelper.dart';
 import 'dart:async';
-import '../utils/constants.dart';
-import '../utils/sharedPref.dart';
-import '../widgets/main_screen/search_result_tile.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/sharedPref.dart';
+import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

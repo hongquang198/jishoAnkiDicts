@@ -1,7 +1,7 @@
-import '../models/dictionary.dart';
-import '../utils/constants.dart';
-import '../widgets/statistics_screen/predictionChart.dart';
-import '../widgets/statistics_screen/todayDueChart.dart';
+import '../../../models/dictionary.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/statistics_screen/predictionChart.dart';
+import '../../../widgets/statistics_screen/todayDueChart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';

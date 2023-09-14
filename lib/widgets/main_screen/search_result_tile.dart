@@ -3,7 +3,7 @@ import '/widgets/customDialog.dart';
 import '/models/offlineWordRecord.dart';
 import '/models/jishoDefinition.dart';
 import '/models/vietnameseDefinition.dart';
-import '/screens/definitionScreen.dart';
+import '../../features/word_definition/screens/definition_screen.dart';
 import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import '/utils/offlineListType.dart';

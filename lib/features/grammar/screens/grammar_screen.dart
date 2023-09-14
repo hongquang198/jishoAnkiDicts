@@ -1,8 +1,8 @@
-import '../models/dictionary.dart';
-import '../models/grammarPoint.dart';
+import '../../../models/dictionary.dart';
+import '../../../models/grammarPoint.dart';
 import 'dart:async';
-import '../utils/constants.dart';
-import '../widgets/grammar_screen/grammar_query_tile.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/grammar_screen/grammar_query_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

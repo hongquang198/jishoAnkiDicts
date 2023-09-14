@@ -1,11 +1,11 @@
-import '../models/dictionary.dart';
-import '../models/exampleSentence.dart';
-import '../models/grammarPoint.dart';
-import '../models/kanji.dart';
-import '../services/kanjiHelper.dart';
-import '../utils/constants.dart';
-import '../widgets/definition_screen/component_widget.dart';
-import '../widgets/definition_screen/example_sentence_widget.dart';
+import '../../../models/dictionary.dart';
+import '../../../models/exampleSentence.dart';
+import '../../../models/grammarPoint.dart';
+import '../../../models/kanji.dart';
+import '../../../services/kanjiHelper.dart';
+import '../../../utils/constants.dart';
+import '../../../widgets/definition_screen/component_widget.dart';
+import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 

@@ -1,5 +1,5 @@
 import '/models/grammarPoint.dart';
-import '/screens/grammarPointScreen.dart';
+import '../../features/single_grammar_point/screen/grammar_point_screen.dart';
 import 'package:flutter/material.dart';
 
 class GrammarQueryTile extends StatefulWidget {

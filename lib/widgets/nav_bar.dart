@@ -1,9 +1,9 @@
-import '/screens/favoriteScreen.dart';
-import '/screens/grammar_screen.dart';
-import '/screens/historyScreen.dart';
-import '/screens/reviewScreen.dart';
-import '/screens/settingsScreen.dart';
-import '/screens/statisticsScreen.dart';
+import '../features/favorite_words/screens/favorite_screen.dart';
+import '../features/grammar/screens/grammar_screen.dart';
+import '../features/history/screens/historyScreen.dart';
+import '../features/review/screens/reviewScreen.dart';
+import '../features/settings/screens/settingsScreen.dart';
+import '../features/statistics/screens/statisticsScreen.dart';
 import '/utils/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
