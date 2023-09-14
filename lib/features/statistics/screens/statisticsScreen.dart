@@ -18,7 +18,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            AppLocalizations.of(context).statistics,
+            AppLocalizations.of(context)!.statistics,
             style: TextStyle(color: Constants.appBarTextColor),
           ),
         ),

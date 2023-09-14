@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '/utils/constants.dart';
 
 class DrawingPainter extends CustomPainter {
-  final List<Offset> points;
+  final List<Offset?> points;
 
   DrawingPainter(this.points);
 
@@ -15,7 +15,7 @@ class DrawingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i], points[i + 1], _paint);
+        canvas.drawLine(points[i]!, points[i + 1]!, _paint);
       }
     }
   }

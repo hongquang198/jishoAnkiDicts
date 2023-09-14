@@ -10,7 +10,7 @@ class LocalizationNotifier with ChangeNotifier {
     }
   }
 
-  void setLanguage({String language}) async {
+  void setLanguage({required String language}) async {
     SharedPref.prefs.setString('language', language);
     notifyListeners();
   }

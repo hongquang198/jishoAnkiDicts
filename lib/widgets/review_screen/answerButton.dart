@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
-    Key key,
-    @required this.steps,
-    @required this.color,
-    @required this.buttonText,
-    @required this.offlineWordRecord,
+    Key? key,
+    required this.steps,
+    required this.color,
+    required this.buttonText,
+    required this.offlineWordRecord,
   }) : super(key: key);
   final OfflineWordRecord offlineWordRecord;
   final List<int> steps;
@@ -47,7 +47,7 @@ class AnswerButton extends StatelessWidget {
         steps[steps.length - 1] * 60 * 1000) {
       return Text('${SharedPref.prefs.getInt('graduatingInterval')}day');
     } else if (offlineWordRecord.interval >=
-        SharedPref.prefs.getInt('graduatingInterval') * 24 * 60 * 60 * 1000) {
+        SharedPref.prefs.getInt('graduatingInterval')! * 24 * 60 * 60 * 1000) {
       if (offlineWordRecord.interval * offlineWordRecord.ease <=
           31 * 24 * 60 * 60 * 1000) {
         return Text(

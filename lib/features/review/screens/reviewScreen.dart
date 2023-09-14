@@ -25,41 +25,39 @@ import '../../card_info/screens/card_info_screen.dart';
 
 class ReviewScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  ReviewScreen({this.textEditingController});
+  ReviewScreen({required this.textEditingController});
 
   @override
   _ReviewScreenState createState() => _ReviewScreenState();
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  int totalCardNumber;
-  String clipboard;
+  late int totalCardNumber;
+  late String clipboard;
   bool showAll = false;
-  List<int> steps;
-  Future<List<Widget>> pitchAccent;
-  Future<List<Kanji>> kanjiComponent;
-  Future<List<String>> hanViet;
-  OfflineWordRecord redo;
-  OfflineWordRecord currentCard;
-  RedoType redoType;
-  Future<List<ExampleSentence>> enExampleSentence;
-  Future<List<ExampleSentence>> vnExampleSentence;
+  late List<int> steps;
+  late Future<List<Widget>> pitchAccent;
+  late Future<List<Kanji>> kanjiComponent;
+  late Future<List<String>> hanViet;
+  late OfflineWordRecord? redo;
+  late OfflineWordRecord currentCard;
+  late RedoType redoType;
+  late Future<List<ExampleSentence>> enExampleSentence;
+  late Future<List<ExampleSentence>> vnExampleSentence;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.length > 0) {
-      for (int i = 0; i < partsOfSpeech.length; i++) {
         return Text(
-          partsOfSpeech[i].toString().toUpperCase(),
+          partsOfSpeech.first.toString().toUpperCase(),
         );
-      }
     }
     return SizedBox();
   }
 
   Future<String> getClipboard() async {
-    ClipboardData data = await Clipboard.getData('text/plain');
-    clipboard = data.text;
-    return data.text;
+    ClipboardData? data = await Clipboard.getData('text/plain');
+    clipboard = data?.text ?? '';
+    return clipboard;
   }
 
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
@@ -109,8 +107,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
     // Get steps from settings to calculate card's next interval
     steps = SharedPref.prefs
         .getStringList('newCardsSteps')
-        .map((i) => int.parse(i))
-        .toList();
+        ?.map((i) => int.parse(i))
+        .toList() ?? [];
 
     // Add listener to listen to clipboard change to look up fast
     widget.textEditingController.addListener(() {
@@ -135,22 +133,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
     getClipboard();
     super.initState();
   }
+  String get word => currentCard.word.isEmpty ? currentCard.slug : currentCard.word;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<Dictionary>(builder: (context, dictionary, child) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context).review),
+          title: Text(AppLocalizations.of(context)!.review),
           actions: [
             GestureDetector(
                 onTap: () async {
-                  if (redo != null) currentCard = redo;
+                  if (redo != null) currentCard = redo!;
                   if (redoType == RedoType.update) {
                     DbHelper.updateWordInfo(
                         offlineListType: OfflineListType.review,
                         context: context,
-                        senses: jsonDecode(currentCard.senses),
                         offlineWordRecord: currentCard);
                   } else if (redoType == RedoType.delete) {
                     DbHelper.addToOfflineList(
@@ -169,8 +167,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 )),
             GestureDetector(
                 onTap: () async {
-                  if (dictionary.getCards.length > 0 &&
-                      dictionary.getCards.length != null) {
+                  if (dictionary.getCards.length > 0) {
                     redo = OfflineWordRecord(
                       slug: currentCard.slug,
                       isCommon: currentCard.isCommon,
@@ -217,8 +214,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 )),
             GestureDetector(
                 onTap: () {
-                  dictionary.getCards.length > 0 &&
-                          dictionary.getCards.length != null
+                  dictionary.getCards.length > 0
                       ? Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -232,8 +228,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: Icon(Icons.info),
                 ))
           ],
-          bottom: dictionary.getCards.length > 0 &&
-                  dictionary.getCards.length != null
+          bottom: dictionary.getCards.length > 0
               ? PreferredSize(
                   preferredSize: Size.fromHeight(24),
                   child: Container(
@@ -250,7 +245,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         body: dictionary.getCards.length > 0
             ? buildCard(dictionary, context)
             : Center(
-                child: Text(AppLocalizations.of(context).reviewComplete),
+                child: Text(AppLocalizations.of(context)!.reviewComplete),
               ),
       );
     });
@@ -267,7 +262,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             height: 10,
           ),
           showAll == true
-              ? FutureBuilder(
+              ? FutureBuilder<List<Widget>>(
                   future: KanjiHelper.getPitchAccent(
                       word: currentCard.word,
                       slug: currentCard.slug,
@@ -277,7 +272,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     if (snapshot.data == null)
                       return Center(
                         child: Text(
-                          currentCard.reading ?? '',
+                          currentCard.reading,
                           style: TextStyle(
                             fontSize: 15.0,
                             color: Colors.grey,
@@ -286,14 +281,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       );
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: snapshot.data,
+                      children: snapshot.data ?? [],
                     );
                   },
                 )
               : SizedBox(),
           Center(
             child: Text(
-              currentCard.word ?? currentCard.slug ?? currentCard.reading ?? '',
+              currentCard.japaneseWord,
               style: TextStyle(
                 fontSize: 45.0,
                 fontWeight: FontWeight.bold,
@@ -357,11 +352,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
           showAll == true
               ? Padding(
                   padding: EdgeInsets.only(left: 12, right: 12),
-                  child: FutureBuilder(
+                  child: FutureBuilder<List<ExampleSentence>>(
                       future: vnExampleSentence,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          if (snapshot.data.length == 0)
+                        if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                          if (snapshot.data!.length == 0)
                             return ExampleSentenceWidget(
                                 exampleSentence: enExampleSentence);
                           return ExampleSentenceWidget(
@@ -390,7 +385,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   padding: EdgeInsets.only(left: 12, right: 12),
                   child: ComponentWidget(
                     kanjiComponent: KanjiHelper.getKanjiComponent(
-                      word: currentCard.word ?? currentCard.slug,
+                      word: currentCard.japaneseWord,
                       context: context,
                     ),
                   ),
@@ -479,7 +474,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) => CustomDialog(
-                                  word: currentCard.word ?? currentCard.slug,
+                                  word: currentCard.japaneseWord,
                                   message:
                                       'Card has reached lapses threshold (${SharedPref.prefs.getInt('leechThreshold')} times wrong) and has been moved to your favorite list since you probably need to revisit it.',
                                 ));
@@ -503,7 +498,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   DbHelper.updateWordInfo(
                       offlineListType: OfflineListType.review,
                       context: context,
-                      senses: jsonDecode(currentCard.senses),
                       offlineWordRecord: currentCard);
                   // dictionary.review = await dictionary.offlineDatabase.retrieve(tableName: 'review');
                   showAll = false;
@@ -566,13 +560,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   else if (currentCard.interval ==
                       steps[steps.length - 1] * 60 * 1000) {
                     currentCard.interval =
-                        SharedPref.prefs.getInt('graduatingInterval') *
+                        SharedPref.prefs.getInt('graduatingInterval')! *
                             24 *
                             60 *
                             60 *
                             1000;
                   } else if (currentCard.interval >=
-                      SharedPref.prefs.getInt('graduatingInterval') *
+                      SharedPref.prefs.getInt('graduatingInterval')! *
                           24 *
                           60 *
                           60 *
@@ -588,7 +582,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   DbHelper.updateWordInfo(
                     offlineListType: OfflineListType.review,
                     context: context,
-                    senses: jsonDecode(currentCard.senses),
                     offlineWordRecord: currentCard,
                   );
                   showAll = false;
@@ -611,14 +604,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   getDefinitionWidget() {
-    if (currentCard.vietnameseDefinition != null)
+    if (currentCard.vietnameseDefinition.isNotEmpty)
       return DefinitionWidget(
         senses: jsonDecode(currentCard.senses),
         vietnameseDefinition: currentCard.vietnameseDefinition,
       );
     else
-      return FutureBuilder(
-          future: getVietnameseDefinition(currentCard.word ?? currentCard.slug),
+      return FutureBuilder<VietnameseDefinition>(
+          future: getVietnameseDefinition(word),
           builder: (context, snapshot) {
             if (snapshot.data == null)
               return Center(
@@ -630,14 +623,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
             return Center(
               child: DefinitionWidget(
                 senses: jsonDecode(currentCard.senses),
-                vietnameseDefinition: snapshot.data.definition,
+                vietnameseDefinition: snapshot.data?.definition,
               ),
             );
           });
   }
 
   void updateAdditionalInfo() {
-    getVietnameseDefinition(currentCard.word ?? currentCard.slug);
+    getVietnameseDefinition(word);
     hanViet =
         KanjiHelper.getHanvietReading(word: currentCard.word, context: context);
     enExampleSentence = KanjiHelper.getExampleSentence(

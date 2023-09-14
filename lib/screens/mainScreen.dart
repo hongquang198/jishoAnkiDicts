@@ -24,9 +24,9 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  TextEditingController textEditingController;
+  late TextEditingController textEditingController;
 
-  Timer searchOnStoppedTyping;
+  late Timer searchOnStoppedTyping;
 
   JishoQuery jishoQuery = JishoQuery();
   List<VietnameseDefinition> vnDictQuery = [];
@@ -37,8 +37,8 @@ class _MainScreenState extends State<MainScreen> {
   final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
 
-  Timer clipboardTriggerTime;
-  String clipboard;
+  late Timer clipboardTriggerTime;
+  late String clipboard;
 
   _search() async {
     if (SharedPref.prefs.getString('language') == ('Tiếng Việt'))
@@ -46,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
     jishoData = jishoQuery.getJishoQuery(textEditingController.text);
   }
 
-  Future _initModel({String modelFilePath, String labelFilePath}) async {
+  Future _initModel({required String modelFilePath, required String labelFilePath}) async {
     await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
@@ -62,8 +62,8 @@ class _MainScreenState extends State<MainScreen> {
       try {
         Clipboard.getData('text/plain').then((clipboardContent) {
           if (clipboardContent != null) {
-            if (clipboard != clipboardContent.text) {
-              clipboard = clipboardContent.text;
+            if (clipboard != clipboardContent.text && clipboardContent.text != null) {
+              clipboard = clipboardContent.text!;
               textEditingController.text = clipboard;
               _search();
               setState(() {});
@@ -113,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
                           },
                         )),
                 title: Text(
-                  AppLocalizations.of(context).appTitle,
+                  AppLocalizations.of(context)!.appTitle,
                   style: TextStyle(color: Constants.appBarTextColor),
                 ),
                 bottom: PreferredSize(
@@ -209,7 +209,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         itemCount: vnDictQuery.length,
         itemBuilder: (BuildContext context, int index) {
-          return FutureBuilder(
+          return FutureBuilder<dynamic>(
               future: jishoData,
               builder: (context, jishoSnapshot) {
                 SearchResultTile searchResultTileOldWaiting = SearchResultTile(
@@ -259,8 +259,10 @@ class _MainScreenState extends State<MainScreen> {
                   bool gotWordInfo = false;
                   int i = 0;
                   for (i = 0; i < jishoSnapshot.data['data'].length; i++) {
-                    if (jishoSnapshot.data['data'][i]['japanese'][0]['word'] ==
-                            vnDictQuery[index].word ??
+                    final jishoSnapshotWord = jishoSnapshot.data['data'][i]['japanese'][0]['word'];
+                    String vnDictQueryWord = vnDictQuery[index].word;
+                    if (jishoSnapshotWord ==
+                            vnDictQueryWord ||
                         jishoSnapshot.data['data'][i]['slug'] ==
                             vnDictQuery[index].word) {
                       gotWordInfo = true;
@@ -302,7 +304,7 @@ class _MainScreenState extends State<MainScreen> {
         },
       );
     } else
-      return FutureBuilder(
+      return FutureBuilder<dynamic>(
         future: jishoData,
         builder: (context, jishoSnapshot) {
           if (jishoSnapshot.connectionState == ConnectionState.done &&
@@ -381,8 +383,6 @@ class _MainScreenState extends State<MainScreen> {
                                         ['japanese'][0]['word'] ??
                                     jishoSnapshot.data['data'][index]['slug'],
                                 context: context),
-                            vnDefinition: VietnameseDefinition(
-                                word: null, definition: null),
                           );
                       });
                 });

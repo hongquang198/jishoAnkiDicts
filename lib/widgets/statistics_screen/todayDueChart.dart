@@ -12,7 +12,7 @@ class TodayDueChart extends StatefulWidget {
   final double difficultCardNumber;
 
   const TodayDueChart(
-      {Key key,
+      {Key? key,
       this.newCardNumber = 0,
       this.youngCardNumber = 0,
       this.difficultCardNumber = 0,

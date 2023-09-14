@@ -13,17 +13,17 @@ import 'package:html/parser.dart';
 import 'package:html/dom.dart' as dom;
 
 class SearchResultTile extends StatefulWidget {
-  final JishoDefinition jishoDefinition;
-  final VietnameseDefinition vnDefinition;
+  final JishoDefinition? jishoDefinition;
+  final VietnameseDefinition? vnDefinition;
   final Future<List<String>> hanViet;
   final TextEditingController textEditingController;
   final bool loadingDefinition;
 
   SearchResultTile(
-      {this.hanViet,
-      this.vnDefinition,
-      this.jishoDefinition,
-      this.textEditingController,
+      {required this.hanViet,
+      this.vnDefinition = const VietnameseDefinition(),
+      this.jishoDefinition = const JishoDefinition(),
+      required this.textEditingController,
       this.loadingDefinition = false});
 
   @override
@@ -31,6 +31,18 @@ class SearchResultTile extends StatefulWidget {
 }
 
 class _SearchResultTileState extends State<SearchResultTile> {
+  String get word {
+    if (widget.vnDefinition?.word.isNotEmpty == true) {
+      return widget.vnDefinition!.word;
+    } else if (
+      widget.jishoDefinition?.word.isNotEmpty == true
+    ) {
+      return widget.jishoDefinition!.word;
+    } else {
+      return widget.jishoDefinition?.slug ?? '';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,10 +68,10 @@ class _SearchResultTileState extends State<SearchResultTile> {
   }
 
   getVnDefinitionSummary() {
-    if (widget.vnDefinition.definition == null) {
+    if (widget.vnDefinition?.definition == null) {
       return SizedBox();
     } else
-      return parseVnDefHtmlWidget(widget.vnDefinition.definition);
+      return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
   }
 
   Route _createRoute() {
@@ -70,9 +82,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
         textEditingController: widget.textEditingController,
         isInFavoriteList: DbHelper.checkDatabaseExist(
                     offlineListType: OfflineListType.favorite,
-                    word: widget.vnDefinition.word ??
-                        widget.jishoDefinition.word ??
-                        widget.jishoDefinition.slug,
+                    word: word,
                     context: context) ==
                 true
             ? true
@@ -101,16 +111,14 @@ class _SearchResultTileState extends State<SearchResultTile> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          widget.jishoDefinition.reading != null
+          widget.jishoDefinition?.reading != null
               ? Text(
-                  widget.jishoDefinition.reading,
+                  widget.jishoDefinition?.reading ?? '',
                   style: TextStyle(fontSize: 13),
                 )
               : SizedBox(),
           Text(
-            widget.vnDefinition.word ??
-                widget.jishoDefinition.word ??
-                '${widget.jishoDefinition.reading}',
+            word,
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -119,7 +127,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ? FutureBuilder(
                   future: widget.hanViet,
                   builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data.length == 0)
+                    if (snapshot.data == null || snapshot.data!.length == 0)
                       return SizedBox(height: 0);
                     return SelectableText(
                       snapshot.data.toString().toUpperCase(),
@@ -142,7 +150,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ))
               : Row(
                   children: [
-                    widget.jishoDefinition.isCommon == true
+                    widget.jishoDefinition?.isCommon == true
                         ? Card(
                             color: Color(0xFF8ABC82),
                             child: Text(
@@ -156,19 +164,18 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           )
                         : SizedBox(),
                     DefinitionTags(
-                        tags: widget.jishoDefinition.tags,
+                        tags: widget.jishoDefinition?.tags ?? [],
                         color: Color(0xFF909DC0)),
                     DefinitionTags(
-                        tags: widget.jishoDefinition.jlpt,
+                        tags: widget.jishoDefinition?.jlpt ?? [],
                         color: Color(0xFF909DC0)),
                   ],
                 ),
-          if (widget.jishoDefinition.senses != null &&
+          if (widget.jishoDefinition?.senses != null &&
               SharedPref.prefs.getString('language') == ("English"))
             Text(
-                widget.jishoDefinition.senses[0]['english_definitions']
-                        .toString() ??
-                    'null',
+                widget.jishoDefinition!.senses[0]['english_definitions']
+                        .toString(),
                 style: TextStyle(fontSize: 13))
           else
             SizedBox(),
@@ -189,43 +196,35 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ),
               child: DbHelper.checkDatabaseExist(
                       offlineListType: OfflineListType.favorite,
-                      word: widget.vnDefinition.word ??
-                          widget.jishoDefinition.word ??
-                          widget.jishoDefinition.slug,
+                      word: word,
                       context: context)
                   ? Icon(Icons.favorite, color: Color(0xffff8882))
                   : Icon(Icons.favorite, color: Colors.grey),
               onPressed: () {
                 if (DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.favorite,
-                        word: widget.vnDefinition.word ??
-                            widget.jishoDefinition.word ??
-                            widget.jishoDefinition.slug,
+                        word: word,
                         context: context) ==
                     false) {
                   setState(() {
                     DbHelper.addToOfflineList(
                         offlineListType: OfflineListType.favorite,
                         offlineWordRecord: OfflineWordRecord(
-                          slug: widget.vnDefinition.word ??
-                              widget.jishoDefinition.slug ??
-                              widget.jishoDefinition.word,
+                          slug: word,
                           isCommon:
-                              widget.jishoDefinition.isCommon == true ? 1 : 0,
-                          tags: jsonEncode(widget.jishoDefinition.tags),
-                          jlpt: jsonEncode(widget.jishoDefinition.jlpt),
-                          word: widget.vnDefinition.word ??
-                              widget.jishoDefinition.word ??
-                              widget.jishoDefinition.slug,
-                          reading: widget.jishoDefinition.reading,
-                          senses: jsonEncode(widget.jishoDefinition.senses),
-                          vietnameseDefinition: widget.vnDefinition.definition,
+                              widget.jishoDefinition?.isCommon == true ? 1 : 0,
+                          tags: jsonEncode(widget.jishoDefinition?.tags),
+                          jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+                          word: word,
+                          reading: widget.jishoDefinition?.reading ?? '',
+                          senses: jsonEncode(widget.jishoDefinition?.senses),
+                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
-                          due: null,
+                          due: -1,
                           interval: 0,
-                          ease: SharedPref.prefs.getDouble('startingEase'),
+                          ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -241,8 +240,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.favorite,
                         context: context,
-                        word: widget.jishoDefinition.word ??
-                            widget.jishoDefinition.slug);
+                        word: widget.jishoDefinition?.japaneseWord ?? '');
                   });
               },
             ),
@@ -257,44 +255,36 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ),
               child: DbHelper.checkDatabaseExist(
                       offlineListType: OfflineListType.review,
-                      word: widget.vnDefinition.word ??
-                          widget.jishoDefinition.word ??
-                          widget.jishoDefinition.slug,
+                      word: word,
                       context: context)
                   ? Icon(Icons.alarm_on, color: Color(0xffff8882))
                   : Icon(Icons.alarm_add),
               onPressed: () {
-                print(widget.vnDefinition.word);
+                print(widget.vnDefinition?.word);
                 if (DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.review,
-                        word: widget.vnDefinition.word ??
-                            widget.jishoDefinition.word ??
-                            widget.jishoDefinition.slug,
+                        word: word,
                         context: context) ==
                     false) {
                   setState(() {
                     DbHelper.addToOfflineList(
                         offlineListType: OfflineListType.review,
                         offlineWordRecord: OfflineWordRecord(
-                          slug: widget.vnDefinition.word ??
-                              widget.jishoDefinition.slug ??
-                              widget.jishoDefinition.word,
+                          slug: word,
                           isCommon:
-                              widget.jishoDefinition.isCommon == true ? 1 : 0,
-                          tags: jsonEncode(widget.jishoDefinition.tags),
-                          jlpt: jsonEncode(widget.jishoDefinition.jlpt),
-                          word: widget.vnDefinition.word ??
-                              widget.jishoDefinition.word ??
-                              widget.jishoDefinition.slug,
-                          reading: widget.jishoDefinition.reading,
-                          senses: jsonEncode(widget.jishoDefinition.senses),
-                          vietnameseDefinition: widget.vnDefinition.definition,
+                              widget.jishoDefinition?.isCommon == true ? 1 : 0,
+                          tags: jsonEncode(widget.jishoDefinition?.tags),
+                          jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+                          word: word,
+                          reading: widget.jishoDefinition?.reading ?? '',
+                          senses: jsonEncode(widget.jishoDefinition?.senses),
+                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
-                          due: null,
+                          due: -1,
                           interval: 0,
-                          ease: SharedPref.prefs.getDouble('startingEase'),
+                          ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -310,8 +300,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.review,
                         context: context,
-                        word: widget.jishoDefinition.word ??
-                            widget.jishoDefinition.slug);
+                        word: word);
                   });
               },
             ),
@@ -319,28 +308,24 @@ class _SearchResultTileState extends State<SearchResultTile> {
         ],
       ),
       onTap: () {
-        FocusManager.instance.primaryFocus.unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
         DbHelper.addToOfflineList(
             offlineListType: OfflineListType.history,
             offlineWordRecord: OfflineWordRecord(
-              slug: widget.vnDefinition.word ??
-                  widget.jishoDefinition.slug ??
-                  widget.jishoDefinition.word,
-              isCommon: widget.jishoDefinition.isCommon == true ? 1 : 0,
-              tags: jsonEncode(widget.jishoDefinition.tags),
-              jlpt: jsonEncode(widget.jishoDefinition.jlpt),
-              word: widget.vnDefinition.word ??
-                  widget.jishoDefinition.word ??
-                  widget.jishoDefinition.slug,
-              reading: widget.jishoDefinition.reading,
-              senses: jsonEncode(widget.jishoDefinition.senses),
-              vietnameseDefinition: widget.vnDefinition.definition,
+              slug: word,
+              isCommon: widget.jishoDefinition?.isCommon == true ? 1 : 0,
+              tags: jsonEncode(widget.jishoDefinition?.tags),
+              jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+              word: word,
+              reading: widget.jishoDefinition?.reading ?? '',
+              senses: jsonEncode(widget.jishoDefinition?.senses),
+              vietnameseDefinition: widget.vnDefinition?.definition ?? '',
               added: DateTime.now().millisecondsSinceEpoch,
               firstReview: null,
               lastReview: null,
-              due: null,
+              due: -1,
               interval: 0,
-              ease: SharedPref.prefs.getDouble('startingEase'),
+              ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
               reviews: 0,
               lapses: 0,
               averageTimeMinute: 0,
@@ -356,8 +341,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
         showDialog(
             context: context,
             builder: (BuildContext context) => CustomDialog(
-                  word: widget.jishoDefinition.word ??
-                      widget.jishoDefinition.slug,
+                  word: word,
                   message: 'You are about to delete a word from history',
                 ));
         setState(() {});

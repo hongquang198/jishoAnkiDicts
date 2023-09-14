@@ -8,14 +8,14 @@ import 'kanji.dart';
 import 'offlineWordRecord.dart';
 
 class Dictionary {
-  List<VietnameseDefinition> vietnameseDictionary;
-  List<Kanji> kanjiDictionary;
-  List<ExampleSentence> exampleDictionary;
-  List<OfflineWordRecord> history;
-  List<OfflineWordRecord> favorite;
-  List<OfflineWordRecord> review;
-  List<PitchAccent> pitchAccentDict;
-  List<GrammarPoint> grammarDict;
+  late List<VietnameseDefinition> vietnameseDictionary;
+  late List<Kanji> kanjiDictionary;
+  late List<ExampleSentence> exampleDictionary;
+  late List<OfflineWordRecord> history;
+  late List<OfflineWordRecord> favorite;
+  late List<OfflineWordRecord> review;
+  late List<PitchAccent> pitchAccentDict;
+  late List<GrammarPoint> grammarDict;
   // This database is used to store history/favorite list from users
   DbManager offlineDatabase = DbManager(dbName: 'offlineDatabase');
 
@@ -31,8 +31,8 @@ class Dictionary {
     int numberOfLearnedCards = 0;
     List<int> newCardsStep = SharedPref.prefs
         .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
+        ?.map((e) => int.parse(e))
+        .toList() ?? [];
 
     review.forEach((element) {
       if (element.reviews != 0) {
@@ -61,8 +61,8 @@ class Dictionary {
     int numberOfDueCards = 0;
     List<int> newCardsStep = SharedPref.prefs
         .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
+        ?.map((e) => int.parse(e))
+        .toList() ?? [];
     review.forEach((element) {
       print(
           element.interval - newCardsStep[newCardsStep.length - 1] * 60 * 1000);
@@ -95,8 +95,8 @@ class Dictionary {
   List<OfflineWordRecord> get getCards {
     List<int> newCardsStep = SharedPref.prefs
         .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
+        ?.map((e) => int.parse(e))
+        .toList() ?? [];
     List<OfflineWordRecord> dueCards = [];
     List<OfflineWordRecord> newCards = [];
     int dueNumber = 0;

@@ -16,11 +16,11 @@ class YAxisNumberLine extends StatefulWidget {
   /// The value of each horizontal line is calculated as: its height (pixel, relative to 0)/barLineMaximumHeightPixel*maxNumber
   final double highestCardNumber;
   const YAxisNumberLine(
-      {Key key,
+      {Key? key,
       this.totalNumberOfCards = 0,
-      this.maximumHeightPixel,
+      this.maximumHeightPixel = 0,
       this.highestCardNumber = 100,
-      this.barLineMaximumHeightPixel})
+      this.barLineMaximumHeightPixel = 0})
       : super(key: key);
 
   @override
@@ -106,7 +106,7 @@ class _YAxisNumberLineState extends State<YAxisNumberLine> {
     );
   }
 
-  Padding getHorizontalLine({double value}) {
+  Padding getHorizontalLine({double value = 0}) {
     return Padding(
       padding: EdgeInsets.only(bottom: getHorizontalLineHeight(value: value)),
       child: Row(
@@ -127,7 +127,7 @@ class _YAxisNumberLineState extends State<YAxisNumberLine> {
   }
 
   /// Calculate the height of the horizontal bar (pixel) with respect to its value
-  double getHorizontalLineHeight({double value}) {
+  double getHorizontalLineHeight({double value = 0}) {
     if (widget.highestCardNumber != 0)
       return (value / widget.highestCardNumber) *
           widget.barLineMaximumHeightPixel;

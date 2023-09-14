@@ -7,7 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ComponentWidget extends StatefulWidget {
   final Future<List<Kanji>> kanjiComponent;
-  ComponentWidget({this.kanjiComponent});
+  ComponentWidget({required this.kanjiComponent});
 
   @override
   _ComponentWidgetState createState() => _ComponentWidgetState();
@@ -31,15 +31,15 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                   borderRadius: BorderRadius.all(Radius.circular(8))),
               child: Center(
                 child: Text(
-                  AppLocalizations.of(context).view,
+                  AppLocalizations.of(context)!.view,
                   style: TextStyle(color: Colors.white),
                 ),
               )),
         ),
         title: Text(
           SharedPref.prefs.getString('language') == ('Tiếng Việt')
-              ? kanji.kanji + ' ' + kanji.hanViet
-              : kanji.kanji,
+              ? (kanji.kanji ?? '') + ' ' + (kanji.hanViet ?? '')
+              : (kanji.kanji ?? ''),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Constants.definitionTextSize,
@@ -53,7 +53,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
               style: TextStyle(color: Colors.grey),
             ),
             Text(
-              kanji.keyword,
+              kanji.keyword ?? '',
               style: TextStyle(
                 fontSize: Constants.definitionTextSize,
               ),
@@ -84,7 +84,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                         horizontal: 5.0,
                       ),
                       child: Text(
-                        "${kanji?.kanji ?? ''}",
+                        "${kanji.kanji ?? ''}",
                         style: TextStyle(
                           fontSize: 120.0,
                         ),
@@ -244,15 +244,15 @@ class _ComponentWidgetState extends State<ComponentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<List<Kanji>>(
         future: widget.kanjiComponent,
         builder: (context, snapshot) {
           if (snapshot.data == null) return Column();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              for (int i = 0; i < snapshot.data.length; i++)
-                getKanjiComponents(snapshot.data[i]),
+              for (int i = 0; i < (snapshot.data!.length); i++)
+                getKanjiComponents(snapshot.data![i]),
             ],
           );
         });

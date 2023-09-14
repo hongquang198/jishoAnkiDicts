@@ -17,7 +17,7 @@ final _whitePaint = Paint()
 final _bgPaint = Paint()..color = Colors.black;
 
 class Recognizer {
-  Future loadModel({String modelPath, String labelPath}) {
+  Future loadModel({required String modelPath, required String labelPath}) {
     Tflite.close();
     return Tflite.loadModel(
       model: modelPath,
@@ -35,10 +35,10 @@ class Recognizer {
         Constants.writingImageSize, Constants.writingImageSize);
     var pngBytes = await image.toByteData(format: ImageByteFormat.png);
 
-    return pngBytes.buffer.asUint8List();
+    return pngBytes?.buffer.asUint8List() ?? Uint8List(0);
   }
 
-  Future recognize(List<Offset> points) async {
+  Future recognize(List<Offset?> points) async {
     final picture = _pointsToPicture(points);
     Uint8List bytes =
         await _imageToByteListUint8(picture, Constants.writingImageSize);
@@ -57,17 +57,17 @@ class Recognizer {
 
     int index = 0;
 
-    for (int i = 0; i < imgBytes.lengthInBytes; i += 4) {
-      final r = imgBytes.getUint8(i);
-      final g = imgBytes.getUint8(i + 1);
-      final b = imgBytes.getUint8(i + 2);
+    for (int i = 0; i < (imgBytes?.lengthInBytes ?? 0); i += 4) {
+      final r = imgBytes?.getUint8(i) ?? 0;
+      final g = imgBytes?.getUint8(i + 1) ?? 0;
+      final b = imgBytes?.getUint8(i + 2) ?? 0;
       buffer[index++] = (r + g + b) / 3.0 / 255.0;
     }
 
     return resultBytes.buffer.asUint8List();
   }
 
-  Picture _pointsToPicture(List<Offset> points) {
+  Picture _pointsToPicture(List<Offset?> points) {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder, _canvasCullRect)
       ..scale(Constants.writingImageSize / Constants.canvasSize);
@@ -78,7 +78,7 @@ class Recognizer {
 
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i], points[i + 1], _whitePaint);
+        canvas.drawLine(points[i]!, points[i + 1]!, _whitePaint);
       }
     }
     return recorder.endRecording();

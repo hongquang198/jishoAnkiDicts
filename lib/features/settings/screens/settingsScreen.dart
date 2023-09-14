@@ -11,7 +11,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String dropdownValue;
+  late String dropdownValue;
   GlobalKey _toolTipGraduatingIntervalKey = GlobalKey();
   GlobalKey _toolTipStartingEaseKey = GlobalKey();
   GlobalKey _toolTipLeechThresholdKey = GlobalKey();
@@ -33,7 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              AppLocalizations.of(context).settings,
+              AppLocalizations.of(context)!.settings,
               style: TextStyle(color: Constants.appBarTextColor),
             ),
           ),
@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(AppLocalizations.of(context).enableFloating),
+                    child: Text(AppLocalizations.of(context)!.enableFloating),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -80,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(AppLocalizations.of(context).language),
+                    child: Text(AppLocalizations.of(context)!.language),
                   ),
                   DropdownButton<String>(
                     value: dropdownValue,
@@ -92,10 +92,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       height: 2,
                       color: Color(0xffDB8C8A),
                     ),
-                    onChanged: (String newValue) {
-                      setState(() {
-                        localization.setLanguage(language: newValue);
-                      });
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          localization.setLanguage(language: newValue);
+                        });
+                      }
                     },
                     items: <String>[
                       'English',
@@ -114,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Padding(
                       padding: const EdgeInsets.only(left: 15.0),
-                      child: Text(AppLocalizations.of(context).newCardsPerDay)),
+                      child: Text(AppLocalizations.of(context)!.newCardsPerDay)),
                   Padding(
                     padding: const EdgeInsets.only(right: 15.0),
                     child: SizedBox(
@@ -143,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Row(
                         children: [
-                          Text(AppLocalizations.of(context).graduatingInterval),
+                          Text(AppLocalizations.of(context)!.graduatingInterval),
                           GestureDetector(
                             onTap: () {
                               final dynamic _toolTip =
@@ -152,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                             child: Tooltip(
                                 key: _toolTipGraduatingIntervalKey,
-                                message: AppLocalizations.of(context)
+                                message: AppLocalizations.of(context)!
                                     .graduatingIntervalDescription,
                                 child: Icon(
                                   Icons.contact_support_outlined,
@@ -189,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Row(
                         children: [
-                          Text(AppLocalizations.of(context).startingEase),
+                          Text(AppLocalizations.of(context)!.startingEase),
                           GestureDetector(
                             onTap: () {
                               final dynamic _toolTip =
@@ -198,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                             child: Tooltip(
                                 key: _toolTipStartingEaseKey,
-                                message: AppLocalizations.of(context)
+                                message: AppLocalizations.of(context)!
                                     .startingEaseDescription,
                                 child: Icon(
                                   Icons.contact_support_outlined,
@@ -235,7 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Row(
                         children: [
-                          Text(AppLocalizations.of(context).leechThreshold),
+                          Text(AppLocalizations.of(context)!.leechThreshold),
                           GestureDetector(
                             onTap: () {
                               final dynamic _toolTip =
@@ -244,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                             child: Tooltip(
                                 key: _toolTipLeechThresholdKey,
-                                message: AppLocalizations.of(context)
+                                message: AppLocalizations.of(context)!
                                     .leechThresholdDescription,
                                 child: Icon(
                                   Icons.contact_support_outlined,
@@ -281,7 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Row(
                         children: [
-                          Text(AppLocalizations.of(context).exampleNumber),
+                          Text(AppLocalizations.of(context)!.exampleNumber),
                         ],
                       )),
                   Padding(

@@ -5,7 +5,7 @@ class PitchAccent {
   final String accsTxt;
   final String pattsTxt;
   PitchAccent(
-      {this.orthsTxt, this.accsTxt, this.hira, this.hz, this.pattsTxt});
+      {this.orthsTxt = '', this.accsTxt = '', this.hira = '', this.hz = '', this.pattsTxt = ''});
 
   Map<String, dynamic> toMap() {
     return {

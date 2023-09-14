@@ -16,20 +16,20 @@ import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  HistoryScreen({this.textEditingController});
+  HistoryScreen({required this.textEditingController});
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  String clipboard;
+  late String clipboard;
   Future<String> getClipboard() async {
-    ClipboardData data = await Clipboard.getData('text/plain');
-    clipboard = data.text;
-    return data.text;
+    ClipboardData? data = await Clipboard.getData('text/plain');
+    clipboard = data?.text ?? '';
+    return clipboard;
   }
 
-  List<OfflineWordRecord> history;
+  late List<OfflineWordRecord> history;
 
   @override
   void initState() {
@@ -76,7 +76,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).history,
+          AppLocalizations.of(context)!.history,
           style: TextStyle(color: Constants.appBarTextColor),
         ),
       ),
@@ -96,19 +96,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget getSearchResultTile(int index) {
+    final offlineWordRecord = history[index];
+    final word = offlineWordRecord.word.isEmpty
+        ? offlineWordRecord.slug
+        : offlineWordRecord.word;
     if (SharedPref.prefs.getString('language') == ('Tiếng Việt')) {
-      if (history[index].vietnameseDefinition == null) {
-        return FutureBuilder(
-            future: getVietnameseDefinition(
-                history[index].word ?? history[index].slug),
+      if (history[index].vietnameseDefinition.isEmpty) {
+        return FutureBuilder<VietnameseDefinition>(
+            future: getVietnameseDefinition(word),
             builder: (context, snapshot) {
               if (snapshot.data == null)
                 return SearchResultTile(
                   hanViet: KanjiHelper.getHanvietReading(
-                      word: history[index].word ?? history[index].slug,
+                      word: word,
                       context: context),
-                  vnDefinition:
-                      VietnameseDefinition(word: null, definition: null),
                   textEditingController: widget.textEditingController,
                   jishoDefinition: JishoDefinition(
                     slug: history[index].slug,
@@ -128,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               else {
                 return SearchResultTile(
                   hanViet: KanjiHelper.getHanvietReading(
-                      word: history[index].word ?? history[index].slug,
+                      word: word,
                       context: context),
                   vnDefinition: snapshot.data,
                   textEditingController: widget.textEditingController,
@@ -152,10 +153,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       } else
         return SearchResultTile(
           hanViet: KanjiHelper.getHanvietReading(
-              word: history[index].word ?? history[index].slug,
+              word: word,
               context: context),
           vnDefinition: VietnameseDefinition(
-              word: history[index].word ?? history[index].slug,
+              word: word,
               definition: history[index].vietnameseDefinition),
           textEditingController: widget.textEditingController,
           jishoDefinition: JishoDefinition(
@@ -174,8 +175,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } else
       return SearchResultTile(
         hanViet: KanjiHelper.getHanvietReading(
-            word: history[index].word ?? history[index].slug, context: context),
-        vnDefinition: VietnameseDefinition(word: null, definition: null),
+            word: word, context: context),
         textEditingController: widget.textEditingController,
         jishoDefinition: JishoDefinition(
           slug: history[index].slug,

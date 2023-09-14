@@ -2,9 +2,9 @@ class VietnameseDefinition {
   final String word;
   final String definition;
 
-  VietnameseDefinition({
-    this.word,
-    this.definition,
+  const VietnameseDefinition({
+    this.word = '',
+    this.definition = '',
   });
 
   Map<String, dynamic> toMap() {

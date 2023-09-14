@@ -10,16 +10,16 @@ import '../definition_screen/kanji_drawboard.dart';
 
 class DrawScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  DrawScreen({this.textEditingController});
+  DrawScreen({required this.textEditingController});
   @override
   _DrawScreenState createState() => _DrawScreenState();
 }
 
 class _DrawScreenState extends State<DrawScreen> {
-  List<Offset> _points = [];
+  List<Offset?> _points = [];
   final _recognizer = Recognizer();
-  List<Prediction> _prediction;
-  List<Prediction> _prediction2;
+  late List<Prediction> _prediction;
+  late List<Prediction> _prediction2;
   bool initialize = false;
   bool firstModelPredictionHasFinished = true;
   final modelFilePath1 = "assets/model806.tflite";
@@ -38,7 +38,7 @@ class _DrawScreenState extends State<DrawScreen> {
 
   List<Prediction> allPredictions() {
     List<Prediction> all = [];
-    if (_prediction != null && _prediction2 != null) {
+    if (_prediction.isNotEmpty && _prediction2.isNotEmpty) {
       all.addAll(_prediction);
       all.addAll(_prediction2);
     }
@@ -51,7 +51,7 @@ class _DrawScreenState extends State<DrawScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         InputSelectionBar(),
-        allPredictions()?.isNotEmpty ?? false
+        allPredictions().isNotEmpty
             ? PredictionWidget(
                 clearStrokes: () {
                   setState(() {
@@ -191,7 +191,7 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  Future _initModel({String modelFilePath, String labelFilePath}) async {
+  Future _initModel({required String modelFilePath, required String labelFilePath}) async {
     await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
@@ -221,7 +221,7 @@ class _DrawScreenState extends State<DrawScreen> {
 
 class InputSelectionBar extends StatelessWidget {
   const InputSelectionBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

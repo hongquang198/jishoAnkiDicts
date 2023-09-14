@@ -15,22 +15,22 @@ import 'package:provider/provider.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  FavoriteScreen({this.textEditingController});
+  FavoriteScreen({required this.textEditingController});
 
   @override
   _FavoriteScreenState createState() => _FavoriteScreenState();
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-  String clipboard;
+  late String clipboard;
 
   Future<String> getClipboard() async {
-    ClipboardData data = await Clipboard.getData('text/plain');
-    clipboard = data.text;
-    return data.text;
+    ClipboardData? data = await Clipboard.getData('text/plain');
+    clipboard = data?.text ?? '';
+    return clipboard;
   }
 
-  getVietnameseDefinition(String word) async {
+  Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
     List<VietnameseDefinition> vnDefinition =
         await KanjiHelper.getVnDefinition(word: word, context: context);
     return vnDefinition[0];
@@ -71,7 +71,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).favorite,
+          AppLocalizations.of(context)!.favorite,
           style: TextStyle(color: Constants.appBarTextColor),
         ),
       ),
@@ -87,7 +87,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 Provider.of<Dictionary>(context).favorite;
             favorite = favorite.reversed.toList();
 
-            return FutureBuilder(
+            return FutureBuilder<VietnameseDefinition>(
                 future: getVietnameseDefinition(
                     favorite[index].word ?? favorite[index].slug),
                 builder: (context, snapshot) {
@@ -96,8 +96,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       hanViet: KanjiHelper.getHanvietReading(
                           word: favorite[index].word ?? favorite[index].slug,
                           context: context),
-                      vnDefinition:
-                          VietnameseDefinition(word: null, definition: null),
+                      vnDefinition: null,
                       textEditingController: widget.textEditingController,
                       jishoDefinition: JishoDefinition(
                         slug: favorite[index].slug,

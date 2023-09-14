@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 
 class LoadDictionary {
   final DbManager dbManager;
-  LoadDictionary({this.dbManager});
+  LoadDictionary({required this.dbManager});
 
   Future<List<ExampleSentence>> loadExampleDictionary() async {
     List<ExampleSentence> exampleDictionary = [];
@@ -15,7 +15,7 @@ class LoadDictionary {
       String contents = await rootBundle.loadString('assets/sentence_dict.tsv');
       List<String> lines = contents.split("\n");
       lines.forEach((line) async {
-        List<String> infoByLine = line.split("\t");
+        List<String?> infoByLine = line.split("\t");
         ExampleSentence exampleSentence = new ExampleSentence(
           jpSentenceId: infoByLine[0] != null ? infoByLine[0] : null,
           jpSentence: infoByLine[1] != null ? infoByLine[1] : null,
@@ -42,7 +42,7 @@ class LoadDictionary {
         String contents = await rootBundle.loadString('assets/kanji.txt');
         List<String> lines = contents.split("\n");
         lines.forEach((line) async {
-          List<String> infoByLine = line.split("\t");
+          List<String?> infoByLine = line.split("\t");
           Kanji kanji = new Kanji(
             id: infoByLine[0] != null ? infoByLine[0] : null,
             keyword: infoByLine[1] != null ? infoByLine[1] : null,
@@ -63,7 +63,7 @@ class LoadDictionary {
           );
           kanjiDictionary.add(kanji);
         });
-        if (kanjiDictionary != null)
+        if (kanjiDictionary.isNotEmpty)
           try {
             await dbManager.batchInsertKanjiDictionary(kanjiDictionary);
           } catch (e) {
@@ -88,10 +88,10 @@ class LoadDictionary {
       lines.forEach((line) async {
         List<String> infoByLine = line.split("\t");
         VietnameseDefinition definition = VietnameseDefinition(
-            word: infoByLine[0] ?? '', definition: infoByLine[1]);
+            word: infoByLine[0], definition: infoByLine[1]);
         dictAll.add(definition);
       });
-      if (dictAll != null)
+      if (dictAll.isNotEmpty)
         try {
           await dbManager.batchInsertJpvnDictionary(dictAll);
         } catch (e) {
@@ -146,17 +146,15 @@ class LoadDictionary {
           pitchDictionary.add(pitchAccent);
           i++;
         });
-        if (pitchDictionary != null)
+        if (pitchDictionary.isNotEmpty)
           try {
             await dbManager.batchInsertPitchDictionary(pitchDictionary);
           } catch (e) {
             print('Error while converting to pitchDictionary sqlite $e');
           }
-        return pitchDictionary;
       } catch (e) {
         print('Error loading pitch accent dictionary at line $i $e');
       }
-    } else
-      return pitchDictionary;
+    }
   }
 }

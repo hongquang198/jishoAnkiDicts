@@ -10,19 +10,19 @@ import 'package:provider/provider.dart';
 
 class GrammarScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  GrammarScreen({this.textEditingController});
+  GrammarScreen({required this.textEditingController});
   @override
   _GrammarScreenState createState() => _GrammarScreenState();
 }
 
 class _GrammarScreenState extends State<GrammarScreen> {
-  TextEditingController _textController;
-  String clipboard;
-  List<GrammarPoint> grammarAll;
+  late TextEditingController _textController;
+  late String clipboard;
+  late List<GrammarPoint> grammarAll;
   Future<String> getClipboard() async {
-    ClipboardData data = await Clipboard.getData('text/plain');
-    clipboard = data.text;
-    return data.text;
+    ClipboardData? data = await Clipboard.getData('text/plain');
+    clipboard = data?.text ?? '';
+    return clipboard;
   }
 
   _searchForGrammar(String grammarPoint) async {
@@ -66,7 +66,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).grammar,
+          AppLocalizations.of(context)!.grammar,
           style: TextStyle(color: Constants.appBarTextColor),
         ),
         bottom: PreferredSize(

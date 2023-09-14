@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 import '../models/exampleSentence.dart';
 import '../models/kanji.dart';
 import '../models/pitchAccent.dart';
@@ -10,7 +12,7 @@ import '../models/dictionary.dart';
 class KanjiHelper {
   // Extract kanji from word
   static Future<List<Kanji>> getKanjiComponent(
-      {String word, BuildContext context}) async {
+      {required String word, required BuildContext context}) async {
     List<Kanji> kanjiExtracted = [];
     List<Kanji> kanjiFound = [];
     for (int i = 0; i < word.length; i++) {
@@ -18,8 +20,8 @@ class KanjiHelper {
         kanjiFound = await Provider.of<Dictionary>(context, listen: false)
             .offlineDatabase
             .searchForKanji(kanji: word[i]);
-        Kanji kanji =
-            kanjiFound.firstWhere((element) => element.kanji == word[i]);
+        Kanji? kanji =
+            kanjiFound.firstWhereOrNull((element) => element.kanji == word[i]);
         if (kanji != null) {
           kanjiExtracted.add(kanji);
         }
@@ -31,7 +33,7 @@ class KanjiHelper {
   }
 
   static Future<List<String>> getHanvietReading(
-      {String word, BuildContext context}) async {
+      {required String word, required BuildContext context}) async {
     List<String> hanViet = [];
     List<String> array = [];
     List<Kanji> kanjiComponent =
@@ -39,7 +41,7 @@ class KanjiHelper {
     // print('kanji component length is ${kanjiComponent.length}');
     for (int i = 0; i < kanjiComponent.length; i++) {
       try {
-        array = kanjiComponent[i].hanViet.split(" ");
+        array = kanjiComponent[i].hanViet?.split(" ") ?? [];
         array = array[0].split(",");
         hanViet.add(array[0].toUpperCase());
       } catch (e) {
@@ -52,7 +54,7 @@ class KanjiHelper {
   // Draw a box with border corresponding to its pitch
   // For example, if the pitch is low, bottom border will be drawn, side border is dependent on the next character pitch
   static Container getPitchForChar(
-      {String character, int position, String pitchAccent}) {
+      {required String character, required int position, required String pitchAccent}) {
     if (pitchAccent[position] == 'L' || pitchAccent[position] == 'l') {
       return Container(
         decoration: BoxDecoration(
@@ -112,37 +114,37 @@ class KanjiHelper {
   }
 
   static Future<List<Widget>> getPitchAccent({
-    String word,
-    String slug,
-    String reading,
-    BuildContext context,
+    String? word,
+    String? slug,
+    String? reading,
+    required BuildContext context,
   }) async {
     List<Widget> widgetList = [];
     List<PitchAccent> pitchFound =
         await Provider.of<Dictionary>(context, listen: false)
             .offlineDatabase
-            .searchForPitchAccent(word: slug ?? word, reading: reading);
+            .searchForPitchAccent(word: slug ?? word ?? '', reading: reading ?? '');
     String pitchAccent;
     PitchAccent pitch;
     try {
       pitch = pitchFound.firstWhere((element) =>
-          element.orthsTxt.contains(word ?? slug ?? reading) &&
+          element.orthsTxt.contains(word ?? slug ?? reading ?? '') &&
           element.hira == reading);
     } catch (e) {
       print(e);
-      return null;
+      return [];
     }
     pitchAccent = pitch.pattsTxt;
-    if (reading.length + 1 == pitchAccent.length)
-      for (int i = 0; i < reading.length; i++)
+    if ((reading?.length ?? 0) + 1 == pitchAccent.length)
+      for (int i = 0; i < (reading?.length ?? 0); i++)
         widgetList.add(getPitchForChar(
-            character: reading[i], position: i, pitchAccent: pitchAccent));
+            character: reading?[i] ?? '', position: i, pitchAccent: pitchAccent));
     return widgetList;
   }
 
   static Future<List<VietnameseDefinition>> getVnDefinition(
-      {String word, BuildContext context}) async {
-    List<VietnameseDefinition> vietnameseDefinition;
+      {required String word, required BuildContext context}) async {
+    late List<VietnameseDefinition> vietnameseDefinition;
     try {
       vietnameseDefinition =
           await Provider.of<Dictionary>(context, listen: false)
@@ -155,8 +157,8 @@ class KanjiHelper {
   }
 
   static Future<List<ExampleSentence>> getExampleSentence(
-      {String word, BuildContext context, String tableName}) async {
-    List<ExampleSentence> exampleSentence;
+      {required String word, required BuildContext context, required String tableName}) async {
+    late List<ExampleSentence> exampleSentence;
     try {
       exampleSentence = await Provider.of<Dictionary>(context, listen: false)
           .offlineDatabase

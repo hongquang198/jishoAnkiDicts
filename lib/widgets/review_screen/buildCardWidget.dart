@@ -19,7 +19,7 @@
 //   final int currentCard;
 //   final List<int> step;
 //   CardWidget(
-//       {Key key, this.currentCard, this.dictionary, this.context, this.step})
+//       {Key? key, this.currentCard, this.dictionary, this.context, this.step})
 //       : super(key: key);
 //
 //   @override

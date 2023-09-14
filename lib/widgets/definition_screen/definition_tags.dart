@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class DefinitionTags extends StatelessWidget {
   final List<dynamic> tags;
   final Color color;
-  DefinitionTags({this.tags, this.color});
+  DefinitionTags({required this.tags, required this.color});
 
   @override
   Widget build(BuildContext context) {
     if (tags.length > 0) {
-      for (int i = 0; i < tags.length; i++) {
+      for (int i = 0; i < tags.length;) {
         return tags[i] != null && tags[i].length > 0
             ? Card(
                 color: color,

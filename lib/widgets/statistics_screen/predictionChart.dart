@@ -17,11 +17,11 @@ class _PredictionChartState extends State<PredictionChart> {
   /// For example matureCardNumber[0] = Today's mature card number, matureCardNumber[1] = Tomorrow's new card number
   /// youngCardNumber[6] = Young card number 8 days from now
   /// 6 is max (weekly interval)
-  double newCardNumber;
+  late double newCardNumber;
   List<double> youngCardNumber = [0, 0, 0, 0, 0, 0, 0];
   List<double> matureCardNumber = [0, 0, 0, 0, 0, 0, 0];
-  double difficultCardNumber;
-  List<OfflineWordRecord> review;
+  late double difficultCardNumber;
+  late List<OfflineWordRecord> review;
 
   double highestCardTypeNumber() {
     double maxYoung = youngCardNumber.reduce(max);
@@ -170,13 +170,13 @@ class PredictionLineBar extends StatelessWidget {
   final String barTitle;
 
   const PredictionLineBar({
-    @required this.barTitle,
+    required this.barTitle,
     this.difficultCardNumber = 0,
     this.matureCardNumber = 0,
     this.newCardNumber = 0,
     this.youngCardNumber = 0,
     this.maxNumber = 0,
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

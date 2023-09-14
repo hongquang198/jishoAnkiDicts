@@ -7,26 +7,25 @@ import 'package:provider/provider.dart';
 
 class ReviewInfo extends StatefulWidget {
   final OfflineWordRecord offlineWordRecord;
-  ReviewInfo({this.offlineWordRecord});
+  ReviewInfo({required this.offlineWordRecord});
 
   @override
   _ReviewInfoState createState() => _ReviewInfoState();
 }
 
 class _ReviewInfoState extends State<ReviewInfo> {
-  List<OfflineWordRecord> review;
-  List<int> steps;
+  late List<OfflineWordRecord> review;
+  late List<int> steps;
 
   @override
   void initState() {
     steps = SharedPref.prefs
         .getStringList('newCardsSteps')
-        .map((e) => int.parse(e))
-        .toList();
+        ?.map((e) => int.parse(e))
+        .toList() ?? [];
     super.initState();
   }
 
-  // ignore: missing_return
   CardStatus getCardStatus() {
     if (widget.offlineWordRecord.reviews == 0)
       return CardStatus.isNew;
@@ -35,6 +34,7 @@ class _ReviewInfoState extends State<ReviewInfo> {
       return CardStatus.isLearned;
     else if (widget.offlineWordRecord.due <
         DateTime.now().millisecondsSinceEpoch) return CardStatus.isDue;
+    return CardStatus.isNew;
   }
 
   @override

@@ -8,11 +8,11 @@ class PredictionWidget extends StatefulWidget {
   final TextEditingController textEditingController;
   final Function clearStrokes;
   const PredictionWidget(
-      {Key key,
-      this.predictions,
-      this.kanjiAll,
-      this.textEditingController,
-      this.clearStrokes})
+      {Key? key,
+      required this.predictions,
+      required this.kanjiAll,
+      required this.textEditingController,
+      required this.clearStrokes})
       : super(key: key);
 
   @override

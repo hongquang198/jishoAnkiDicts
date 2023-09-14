@@ -9,8 +9,8 @@ class OfflineWordRecord {
   String vietnameseDefinition; //
   // Date
   int added;
-  int firstReview;
-  int lastReview;
+  int? firstReview;
+  int? lastReview;
   int due;
   // Duration
   int interval;
@@ -24,28 +24,37 @@ class OfflineWordRecord {
   String noteType;
   String deck;
 
+  String get japaneseWord {
+    if (word.isNotEmpty) {
+      return word;
+    } else if (slug.isNotEmpty) {
+      return slug;
+    }
+    return reading;
+  }
+
   OfflineWordRecord(
-      {this.slug,
-      this.isCommon,
-      this.tags,
-      this.jlpt,
-      this.word,
-      this.reading,
-      this.senses,
-      this.vietnameseDefinition,
-      this.added,
+      {required this.slug,
+      this.isCommon = -1,
+      this.tags = '',
+      this.jlpt = '',
+      this.word = '',
+      this.reading = '',
+      this.senses = '',
+      this.vietnameseDefinition = '',
+      this.added = -1,
       this.firstReview,
       this.lastReview,
-      this.due,
-      this.interval,
-      this.ease,
-      this.reviews,
-      this.lapses,
-      this.averageTimeMinute,
-      this.totalTimeMinute,
-      this.cardType,
-      this.noteType,
-      this.deck});
+      this.due = -1,
+      this.interval = -1,
+      this.ease = -1,
+      this.reviews = -1,
+      this.lapses = -1,
+      this.averageTimeMinute = -1,
+      this.totalTimeMinute = -1,
+      this.cardType = '',
+      this.noteType = '',
+      this.deck = ''});
 
   Map<String, dynamic> toMap() {
     return {

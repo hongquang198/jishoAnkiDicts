@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class ExampleSentenceWidget extends StatefulWidget {
   final Future<List<ExampleSentence>> exampleSentence;
 
-  ExampleSentenceWidget({this.exampleSentence});
+  ExampleSentenceWidget({required this.exampleSentence});
   @override
   _ExampleSentenceWidgetState createState() => _ExampleSentenceWidgetState();
 }
@@ -22,8 +22,8 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
     List<Widget> sentence = [];
 
     for (int i = 0; i < exampleSentence.length; i++) {
-      if (exampleSentence[i].jpSentence.startsWith('[{"')) {
-        var jsonList = jsonDecode(exampleSentence[i].jpSentence);
+      if (exampleSentence[i].jpSentence?.startsWith('[{"') == true) {
+        var jsonList = jsonDecode(exampleSentence[i].jpSentence ?? '');
         for (int j = 0; j < jsonList.length; j++) {
           var jsonObject = jsonList[j];
           jsonObject.removeWhere((key, value) => value == null || value == '');
@@ -39,7 +39,7 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
       sentence.add(Padding(
         padding: EdgeInsets.only(right: 10, top: 9),
         child: Text(
-          exampleSentence[i].jpSentence,
+          exampleSentence[i].jpSentence ?? '',
           style: TextStyle(
               fontSize: Constants.definitionTextSize,
               fontWeight: FontWeight.bold),
@@ -49,7 +49,7 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
         sentence.add(Padding(
           padding: EdgeInsets.only(left: 10, right: 10, top: 2),
           child: Text(
-            exampleSentence[i].targetSentence,
+            exampleSentence[i].targetSentence ?? '',
             style: TextStyle(fontSize: Constants.definitionTextSize),
           ),
         ));
@@ -59,7 +59,7 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<List<ExampleSentence>>(
         future: widget.exampleSentence,
         builder: (context, snapshot) {
           if (snapshot.data == null) {
@@ -68,7 +68,7 @@ class _ExampleSentenceWidgetState extends State<ExampleSentenceWidget> {
           }
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: generateSentence(snapshot.data));
+              children: generateSentence(snapshot.data ?? []));
         });
   }
 }

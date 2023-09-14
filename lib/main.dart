@@ -2,6 +2,7 @@ import 'themeManager.dart';
 import 'models/dictionary.dart';
 import 'screens/mainScreen.dart';
 import 'utils/sharedPref.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,7 +23,7 @@ Future<File> getImageFileFromAssets(String path) async {
   return file;
 }
 
-File file;
+late File file;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +38,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  Future<Dictionary> dicts;
+  late Future<Dictionary> dicts;
   // Process floating application icon when exit.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -100,7 +101,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          FutureProvider<Dictionary>(
+          FutureProvider<Dictionary?>(
             initialData: null,
             create: (context) async {
               return dicts;
@@ -118,7 +119,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             future: SharedPref.init(),
             builder: (context, snapshot) {
               if (snapshot.data == null ||
-                  Provider.of<Dictionary>(context) == null)
+                  Provider.of<Dictionary?>(context) == null)
                 return Center(child: CircularProgressIndicator());
               else
                 return MaterialApp(

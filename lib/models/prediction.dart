@@ -3,7 +3,7 @@ class Prediction {
   final int index;
   final String label;
 
-  Prediction({this.confidence, this.index, this.label});
+  Prediction({this.confidence = 0, this.index = -1, this.label = ''});
 
   factory Prediction.fromJson(Map<dynamic, dynamic> json) {
     return Prediction(

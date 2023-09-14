@@ -12,7 +12,7 @@ import '/themeManager.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;
-  NavBar({this.textEditingController});
+  NavBar({required this.textEditingController});
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +41,14 @@ class NavBar extends StatelessWidget {
               Icons.search,
               color: Colors.blue,
             ),
-            title: Text(AppLocalizations.of(context).lookUp),
+            title: Text(AppLocalizations.of(context)!.lookUp),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
             leading: Icon(Icons.history),
-            title: Text(AppLocalizations.of(context).history),
+            title: Text(AppLocalizations.of(context)!.history),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -64,7 +64,7 @@ class NavBar extends StatelessWidget {
               Icons.favorite,
               color: Colors.red,
             ),
-            title: Text(AppLocalizations.of(context).favorite),
+            title: Text(AppLocalizations.of(context)!.favorite),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -77,7 +77,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.alarm),
-            title: Text(AppLocalizations.of(context).review),
+            title: Text(AppLocalizations.of(context)!.review),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -90,7 +90,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.bar_chart),
-            title: Text(AppLocalizations.of(context).statistics),
+            title: Text(AppLocalizations.of(context)!.statistics),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context,
@@ -99,7 +99,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.collections_bookmark_outlined),
-            title: Text(AppLocalizations.of(context).grammar),
+            title: Text(AppLocalizations.of(context)!.grammar),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -112,7 +112,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context).settings),
+            title: Text(AppLocalizations.of(context)!.settings),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context,
@@ -133,7 +133,7 @@ class NavBar extends StatelessWidget {
               },
             ),
             leading: Icon(Icons.nightlight_round),
-            title: Text(AppLocalizations.of(context).darkMode),
+            title: Text(AppLocalizations.of(context)!.darkMode),
           ),
         ],
       ),

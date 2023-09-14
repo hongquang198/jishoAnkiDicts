@@ -13,7 +13,7 @@ class BarLine extends StatelessWidget {
   final Color color;
 
   /// Determine the title of the bar line.
-  final String barTitle;
+  final String? barTitle;
 
   /// Determine the width of the bar line.
   final double barWidth;
@@ -28,23 +28,23 @@ class BarLine extends StatelessWidget {
   final bool showNumber;
 
   /// 0 if not specified
-  final double borderRadius;
+  final double? borderRadius;
 
   /// Determine the maximun height a bar line can have. Default = 100
   final double maxHeightPixel;
 
   final EdgeInsetsGeometry padding;
   const BarLine(
-      {Key key,
+      {Key? key,
       this.maxHeightPixel = 100,
-      this.showNumber,
+      this.showNumber = false,
       this.borderRadius,
-      @required this.barWidth,
-      @required this.number,
-      @required this.maxNumber,
-      @required this.color,
-      this.barTitle = '',
-      @required this.baseHeight,
+      required this.barWidth,
+      required this.number,
+      required this.maxNumber,
+      required this.color,
+      this.barTitle,
+      required this.baseHeight,
       this.barTitleType = BarTitleType.hidden,
       this.padding = const EdgeInsets.only(left: 15.0, right: 15.0)})
       : super(key: key);
@@ -83,7 +83,7 @@ class BarLine extends StatelessWidget {
                                 Radius.circular(4),
                               )
                             : BorderRadius.all(
-                                Radius.circular(borderRadius),
+                                Radius.circular(borderRadius!),
                               ),
                       ),
                     ),
@@ -96,7 +96,7 @@ class BarLine extends StatelessWidget {
                       child: FittedBox(
                         fit: BoxFit.contain,
                         child: Text(
-                          barTitle,
+                          barTitle!,
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -106,7 +106,7 @@ class BarLine extends StatelessWidget {
           ),
           barTitleType == BarTitleType.rightSideBar && barTitle != null
               ? Text(
-                  barTitle,
+                  barTitle!,
                   style: TextStyle(color: Colors.grey),
                 )
               : SizedBox(),

@@ -1,11 +1,11 @@
 class ExampleSentence {
-  String jpSentenceId;
-  String targetSentenceId;
-  String jpSentence;
-  String targetSentence;
+  String? jpSentenceId;
+  String? targetSentenceId;
+  String? jpSentence;
+  String? targetSentence;
   ExampleSentence(
-      {this.jpSentence,
-      this.targetSentence,
+      {required this.jpSentence,
+      required this.targetSentence,
       this.jpSentenceId,
       this.targetSentenceId});
 

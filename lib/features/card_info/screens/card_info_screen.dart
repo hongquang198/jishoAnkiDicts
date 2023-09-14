@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 class CardInfoScreen extends StatefulWidget {
   final OfflineWordRecord offlineWordRecord;
-  CardInfoScreen({@required this.offlineWordRecord});
+  CardInfoScreen({required this.offlineWordRecord});
 
   @override
   _CardInfoScreenState createState() => _CardInfoScreenState();
 }
 
 class _CardInfoScreenState extends State<CardInfoScreen> {
-  Duration duration;
+  late Duration duration;
 
   @override
   void initState() {
@@ -43,47 +43,39 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                  'Word: ${widget.offlineWordRecord.word ?? widget.offlineWordRecord.slug}'),
+                  'Word: ${widget.offlineWordRecord.word}'),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Added: '),
-              widget.offlineWordRecord.added != null
-                  ? Text(
-                      '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.added)}')
-                  : SizedBox(),
+              Text(
+                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.added)}')
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('First Review'),
-              widget.offlineWordRecord.firstReview != null
-                  ? Text(
-                      '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.firstReview)}')
-                  : SizedBox(),
+              Text(
+                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.firstReview!)}')
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Latest review'),
-              widget.offlineWordRecord.lastReview != null
-                  ? Text(
-                      '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.lastReview)}')
-                  : SizedBox(),
+              Text(
+                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.lastReview!)}')
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Due'),
-              widget.offlineWordRecord.due != null
-                  ? Text(
-                      '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.due)}')
-                  : SizedBox(),
+              Text(
+                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.due!)}')
             ],
           ),
           Row(

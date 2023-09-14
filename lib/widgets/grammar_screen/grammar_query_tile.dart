@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class GrammarQueryTile extends StatefulWidget {
   final GrammarPoint grammarPoint;
-  GrammarQueryTile({this.grammarPoint});
+  GrammarQueryTile({required this.grammarPoint});
 
   @override
   _GrammarQueryTileState createState() => _GrammarQueryTileState();
@@ -61,7 +61,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
         ],
       ),
       onTap: () {
-        FocusManager.instance.primaryFocus.unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
         Navigator.push(
           context,
           MaterialPageRoute(

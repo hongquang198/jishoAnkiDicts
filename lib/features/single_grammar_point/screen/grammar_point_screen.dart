@@ -13,22 +13,20 @@ import 'package:provider/provider.dart';
 
 class GrammarPointScreen extends StatefulWidget {
   final GrammarPoint grammarPoint;
-  GrammarPointScreen({this.grammarPoint});
+  GrammarPointScreen({required this.grammarPoint});
 
   @override
   _GrammarPointScreenState createState() => _GrammarPointScreenState();
 }
 
 class _GrammarPointScreenState extends State<GrammarPointScreen> {
-  Future<List<Kanji>> kanjiList;
+  late Future<List<Kanji>> kanjiList;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.length > 0) {
-      for (int i = 0; i < partsOfSpeech.length; i++) {
         return Text(
-          partsOfSpeech[i].toString().toUpperCase(),
+          partsOfSpeech.first.toString().toUpperCase(),
         );
-      }
     }
     return SizedBox();
   }

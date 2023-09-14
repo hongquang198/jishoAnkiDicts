@@ -6,12 +6,12 @@ class GrammarPoint {
   String romanSentence;
   String grammarPoint;
   GrammarPoint(
-      {this.enSentence,
-      this.jpSentence,
-      this.jlptLevel,
-      this.grammarMeaning,
-      this.romanSentence,
-      this.grammarPoint});
+      {required this.enSentence,
+      required this.jpSentence,
+      required this.jlptLevel,
+      required this.grammarMeaning,
+      required this.romanSentence,
+      required this.grammarPoint});
 
   Map<String, dynamic> toMap() {
     return {

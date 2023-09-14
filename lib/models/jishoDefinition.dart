@@ -1,11 +1,11 @@
 class JishoDefinition {
-  String slug;
-  bool isCommon;
-  List<dynamic> tags;
-  List<dynamic> jlpt;
-  String word;
-  String reading;
-  List<dynamic> senses;
+  final String slug;
+  final bool isCommon;
+  final List<dynamic> tags;
+  final List<dynamic> jlpt;
+  final String word;
+  final String reading;
+  final List<dynamic> senses;
   // List<dynamic> english_definitions;
   // List<dynamic> parts_of_speech;
   // List<dynamic> links;
@@ -14,18 +14,27 @@ class JishoDefinition {
   // List<dynamic> source;
   // List<dynamic> info;
 
-  dynamic isJmdict;
-  dynamic isJmnedict;
-  dynamic isDbpedia;
+  final dynamic isJmdict;
+  final dynamic isJmnedict;
+  final dynamic isDbpedia;
 
-  JishoDefinition({
-    this.slug,
-    this.isCommon,
-    this.tags,
-    this.jlpt,
-    this.word,
-    this.reading,
-    this.senses,
+  String get japaneseWord {
+    if (word.isNotEmpty) {
+      return word;
+    } else if (slug.isNotEmpty) {
+      return slug;
+    }
+    return reading;
+  }
+
+  const JishoDefinition({
+    this.slug = '',
+    this.isCommon = false,
+    this.tags = const [],
+    this.jlpt = const [],
+    this.word = '',
+    this.reading = '',
+    this.senses = const [],
     // this.english_definitions,
     // this.parts_of_speech,
     // this.links,

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class CustomDialog extends StatelessWidget {
   final String word;
   final String message;
-  CustomDialog({this.word, this.message});
+  CustomDialog({required this.word, required this.message});
 
   @override
   Widget build(BuildContext context) {

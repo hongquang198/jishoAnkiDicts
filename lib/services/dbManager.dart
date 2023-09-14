@@ -16,7 +16,7 @@ class DbManager {
   // Avoid errors caused by flutter upgrade.
   // Importing 'package:flutter/widgets.dart' is required.
   final String dbName;
-  DbManager({this.dbName});
+  DbManager({required this.dbName});
 
   Future<Database> initDatabase() async {
     // Open the database and store the reference.
@@ -100,7 +100,7 @@ class DbManager {
   }
 
   Future<void> insertWord(
-      {OfflineWordRecord offlineWordRecord, String tableName}) async {
+      {required OfflineWordRecord offlineWordRecord, required String tableName}) async {
     Database db = await initDatabase();
     try {
       await db.insert(
@@ -114,7 +114,7 @@ class DbManager {
     }
   }
 
-  Future<List<OfflineWordRecord>> retrieve({String tableName}) async {
+  Future<List<OfflineWordRecord>> retrieve({required String tableName}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('$tableName');
@@ -226,7 +226,7 @@ class DbManager {
   }
 
   Future<List<PitchAccent>> searchForPitchAccent(
-      {String word, String reading}) async {
+      {required String word, required String reading}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('pitchDictionary',
@@ -243,7 +243,7 @@ class DbManager {
     });
   }
 
-  Future<List<Kanji>> searchForKanji({String kanji}) async {
+  Future<List<Kanji>> searchForKanji({required String kanji}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db
@@ -272,7 +272,7 @@ class DbManager {
 
   // ignore: missing_return
   Future<List<ExampleSentence>> searchForExample(
-      {String word, String tableName}) async {
+      {required String word, required String tableName}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
     final List<Map<String, dynamic>> maps = await db.query(tableName,
@@ -298,10 +298,11 @@ class DbManager {
         );
       });
     }
+    return [];
   }
 
   Future<List<ExampleSentence>> searchForGrammarExample(
-      {String grammarPoint}) async {
+      {required String grammarPoint}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
     final List<Map<String, dynamic>> maps = await db.query(
@@ -320,7 +321,7 @@ class DbManager {
     });
   }
 
-  Future<List<GrammarPoint>> searchForGrammar({String grammarPoint}) async {
+  Future<List<GrammarPoint>> searchForGrammar({required String grammarPoint}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
     final List<Map<String, dynamic>> maps = await db.query('japaneseGrammar',
@@ -340,7 +341,7 @@ class DbManager {
     });
   }
 
-  Future<List<VietnameseDefinition>> searchForVnMeaning({String word}) async {
+  Future<List<VietnameseDefinition>> searchForVnMeaning({required String word}) async {
     Database db = await initDatabase();
     // Don't input limit parameter because this search function is using LIKE function
     final List<Map<String, dynamic>> maps = await db.query('jpvnDictionary',
@@ -372,7 +373,7 @@ class DbManager {
   }
 
   Future<void> update(
-      {OfflineWordRecord offlineWordRecord, String tableName}) async {
+      {required OfflineWordRecord offlineWordRecord, required String tableName}) async {
     // Get a reference to the database.
     final db = await initDatabase();
     try {
@@ -382,7 +383,11 @@ class DbManager {
         // Ensure that the Dog has a matching id.
         where: "slug = ? OR word = ? OR reading = ?",
         // Pass the Dog's id as a whereArg to prevent SQL injection.
-        whereArgs: [offlineWordRecord.slug ?? offlineWordRecord.word],
+        whereArgs: [
+          offlineWordRecord.slug.isEmpty
+              ? offlineWordRecord.word
+              : offlineWordRecord.slug
+        ],
       );
       print('Updated successfully');
     } catch (e) {
@@ -390,7 +395,7 @@ class DbManager {
     }
   }
 
-  Future<void> delete({String word, String tableName}) async {
+  Future<void> delete({required String word, required String tableName}) async {
     // Get a reference to the database.
     final db = await initDatabase();
 
