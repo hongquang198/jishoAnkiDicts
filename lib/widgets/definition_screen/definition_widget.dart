@@ -93,7 +93,7 @@ class DefinitionWidget extends StatelessWidget {
             ? getVnDefinitionWidget()
             : SizedBox(),
         if ((SharedPref.prefs.getString('language')?.contains('English') == true) ||
-            vietnameseDefinition == null)
+            vietnameseDefinition?.isEmpty == true)
           for (int i = 0; i < (senses?.length ?? 0); i++) getDefinitions(i),
       ],
     );
