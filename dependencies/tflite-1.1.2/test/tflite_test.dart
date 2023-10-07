@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:test/expect.dart' as test_expect;
 import 'package:tflite/tflite.dart';
 
 void main() {
@@ -14,7 +15,8 @@ void main() {
   final List<MethodCall> log = <MethodCall>[];
 
   setUp(() async {
-    channel.setMockMethodCallHandler((MethodCall methodCall) {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) {
       log.add(methodCall);
       return null;
     });
@@ -30,7 +32,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'loadModel',
           arguments: <String, dynamic>{
@@ -56,7 +58,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runModelOnImage',
           arguments: <String, dynamic>{
@@ -85,7 +87,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runModelOnBinary',
           arguments: <String, dynamic>{
@@ -128,7 +130,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runModelOnFrame',
           arguments: <String, dynamic>{
@@ -178,7 +180,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'detectObjectOnImage',
           arguments: <String, dynamic>{
@@ -225,7 +227,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'detectObjectOnBinary',
           arguments: <String, dynamic>{
@@ -286,7 +288,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'detectObjectOnFrame',
           arguments: <String, dynamic>{
@@ -335,7 +337,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runPix2PixOnImage',
           arguments: <String, dynamic>{
@@ -362,7 +364,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runPix2PixOnBinary',
           arguments: <String, dynamic>{
@@ -403,7 +405,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runPix2PixOnFrame',
           arguments: <String, dynamic>{
@@ -447,7 +449,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runSegmentationOnImage',
           arguments: <String, dynamic>{
@@ -484,7 +486,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runSegmentationOnBinary',
           arguments: <String, dynamic>{
@@ -535,7 +537,7 @@ void main() {
     );
     expect(
       log,
-      <Matcher>[
+      <test_expect.Matcher>[
         isMethodCall(
           'runSegmentationOnFrame',
           arguments: <String, dynamic>{

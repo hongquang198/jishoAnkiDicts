@@ -42,7 +42,7 @@ dependencies:
   shared_preferences: ^2.0.5
   flutter_localizations: # Add this line
     sdk: flutter         # Add this line
-  intl: ^0.17.0 # Add this line
+  intl: ^0.18.1 # Add this line
   flutter_widget_from_html: ^0.10.5+3
 
 dev_dependencies:
