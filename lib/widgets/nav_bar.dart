@@ -5,6 +5,7 @@ import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import '../injection.dart';
 import '/themeManager.dart';
 
 class NavBar extends StatelessWidget {
@@ -101,7 +102,7 @@ class NavBar extends StatelessWidget {
           ListTile(
             trailing: Switch(
               value:
-                  SharedPref.prefs.getString('theme') == 'dark' ? true : false,
+                  getIt<SharedPref>().prefs.getString('theme') == 'dark' ? true : false,
               onChanged: (valueChanged) {
                 if (valueChanged == true)
                   Provider.of<ThemeNotifier>(context, listen: false)

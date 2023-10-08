@@ -1,7 +1,8 @@
 import 'dart:convert';
+import '../../features/main_search/domain/entities/jisho_definition.dart';
+import '../../injection.dart';
 import '/widgets/customDialog.dart';
 import '/models/offlineWordRecord.dart';
-import '/models/jishoDefinition.dart';
 import '/models/vietnameseDefinition.dart';
 import '../../features/word_definition/screens/definition_screen.dart';
 import '../../core/data/datasources/sharedPref.dart';
@@ -22,7 +23,7 @@ class SearchResultTile extends StatefulWidget {
   SearchResultTile(
       {required this.hanViet,
       this.vnDefinition = const VietnameseDefinition(),
-      this.jishoDefinition = const JishoDefinition(),
+      this.jishoDefinition,
       required this.textEditingController,
       this.loadingDefinition = false});
 
@@ -123,7 +124,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SharedPref.prefs.getString('language') == ("Tiếng Việt")
+          getIt<SharedPref>().prefs.getString('language') == ("Tiếng Việt")
               ? FutureBuilder(
                   future: widget.hanViet,
                   builder: (context, snapshot) {
@@ -172,14 +173,14 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ],
                 ),
           if (widget.jishoDefinition?.senses != null &&
-              SharedPref.prefs.getString('language') == ("English"))
+              getIt<SharedPref>().prefs.getString('language') == ("English"))
             Text(
-                widget.jishoDefinition!.senses[0]['english_definitions']
+                widget.jishoDefinition!.senses[0].englishDefinitions
                         .toString(),
                 style: TextStyle(fontSize: 13))
           else
             SizedBox(),
-          SharedPref.prefs.getString('language') == ("Tiếng Việt")
+          getIt<SharedPref>().prefs.getString('language') == ("Tiếng Việt")
               ? getVnDefinitionSummary()
               : SizedBox(),
         ],
@@ -224,7 +225,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           lastReview: null,
                           due: -1,
                           interval: 0,
-                          ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
+                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -284,7 +285,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           lastReview: null,
                           due: -1,
                           interval: 0,
-                          ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
+                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -325,7 +326,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               lastReview: null,
               due: -1,
               interval: 0,
-              ease: SharedPref.prefs.getDouble('startingEase') ?? -1,
+              ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
               reviews: 0,
               lapses: 0,
               averageTimeMinute: 0,

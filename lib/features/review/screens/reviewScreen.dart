@@ -64,7 +64,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
     List<VietnameseDefinition> vnList = [];
     try {
-      vnList = await KanjiHelper.getVnDefinition(word: word, context: context);
+      vnList = await KanjiHelper.getVnDefinition(word: word);
       return vnList[0];
     } catch (e) {
       print('No VN definition found $e');
@@ -106,7 +106,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   void initState() {
     // Get steps from settings to calculate card's next interval
-    steps = SharedPref.prefs
+    steps = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((i) => int.parse(i))
         .toList() ?? [];
@@ -297,7 +297,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           showAll == true &&
-                  SharedPref.prefs.getString('language') == 'Tiếng Việt'
+                  getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt'
               ? FutureBuilder(
                   future: hanViet,
                   builder: (context, snapshot) {
@@ -459,7 +459,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     if (currentCard.interval > 21 * 24 * 60 * 60 * 1000) {
                       currentCard.lapses++;
                       if (currentCard.lapses ==
-                          SharedPref.prefs.getInt('leechThreshold')) {
+                          getIt<SharedPref>().prefs.getInt('leechThreshold')) {
                         print('Card lapses reached. Deleting');
                         redoType = RedoType.delete;
                         DbHelper.addToOfflineList(
@@ -477,7 +477,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             builder: (BuildContext context) => CustomDialog(
                                   word: currentCard.japaneseWord,
                                   message:
-                                      'Card has reached lapses threshold (${SharedPref.prefs.getInt('leechThreshold')} times wrong) and has been moved to your favorite list since you probably need to revisit it.',
+                                      'Card has reached lapses threshold (${getIt<SharedPref>().prefs.getInt('leechThreshold')} times wrong) and has been moved to your favorite list since you probably need to revisit it.',
                                 ));
                         showAll = false;
                         if (dictionary.getCards.length > 0) {
@@ -561,13 +561,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   else if (currentCard.interval ==
                       steps[steps.length - 1] * 60 * 1000) {
                     currentCard.interval =
-                        SharedPref.prefs.getInt('graduatingInterval')! *
+                        getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
                             24 *
                             60 *
                             60 *
                             1000;
                   } else if (currentCard.interval >=
-                      SharedPref.prefs.getInt('graduatingInterval')! *
+                      getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
                           24 *
                           60 *
                           60 *

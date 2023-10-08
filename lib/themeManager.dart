@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 
 import 'core/data/datasources/sharedPref.dart';
+import 'injection.dart';
 
 class ThemeNotifier with ChangeNotifier {
   final theme = ThemeData();
@@ -38,7 +39,7 @@ class ThemeNotifier with ChangeNotifier {
   );
 
   ThemeData getTheme() {
-    if (SharedPref.prefs.getString('theme') == 'dark') {
+    if (getIt<SharedPref>().prefs.getString('theme') == 'dark') {
       return darkTheme.copyWith(
           colorScheme: darkTheme.colorScheme.copyWith(secondary: Colors.white));
     } else {
@@ -47,12 +48,12 @@ class ThemeNotifier with ChangeNotifier {
   }
 
   void setDarkMode() async {
-    SharedPref.prefs.setString('theme', 'dark');
+    getIt<SharedPref>().prefs.setString('theme', 'dark');
     notifyListeners();
   }
 
   void setLightMode() async {
-    SharedPref.prefs.setString('theme', 'light');
+    getIt<SharedPref>().prefs.setString('theme', 'light');
     notifyListeners();
   }
 }

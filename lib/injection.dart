@@ -1,5 +1,11 @@
 import 'package:get_it/get_it.dart';
 import 'package:japanese_ocr/core/data/datasources/sharedPref.dart';
+import 'package:japanese_ocr/features/main_search/data/data_sources/jisho_remote_data_source.dart';
+import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repository.dart';
+import 'package:japanese_ocr/features/main_search/domain/usecases/look_for_vietnamese_definition.dart';
+import 'package:japanese_ocr/features/main_search/domain/usecases/search_jisho_for_phrase.dart';
+import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
+import 'package:japanese_ocr/features/main_search/repository/jisho_repository_impl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'core/client/http_client.dart';
@@ -10,7 +16,7 @@ import 'core/domain/entities/dictionary.dart';
 final getIt = GetIt.instance;
 
 Future<void> inject() async {
-  getIt.registerSingletonAsync<SharedPref>(SharedPref.init);
+  getIt.registerSingletonAsync<SharedPref>(SharedPref().init);
   getIt.registerSingletonAsync<Dictionary>(() async {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();
@@ -29,36 +35,29 @@ Future<void> inject() async {
   getIt.registerLazySingleton<NavigationService>(() => NavigationServiceImpl());
 
   // BLoC
-  // getIt
-  //   ..registerFactory<ConfigCustomerSettingsBloc>(
-  //     () => ConfigCustomerSettingsBloc(
-  //       login: getIt(),
-  //       fetchRestaurant: getIt(),
-  //       fetchTable: getIt(),
-  //       selectRestaurant: getIt(),
-  //       selectRestaurantTable: getIt(),
-  //     ),
-  //   );
+  getIt
+    ..registerFactoryAsync<MainSearchBloc>(
+      () async {
+        final Dictionary dictionary = getIt();
+        return MainSearchBloc(
+          dictionary: dictionary,
+          searchJishoForPhrase: getIt(),
+          lookForVietnameseDefinition: getIt(),
+        );
+      } 
+    );
 
   // Use cases
-  // getIt
-  //   ..registerLazySingleton<Login>(() => Login(getIt()))
-  //   ..registerLazySingleton<FetchRestaurant>(() => FetchRestaurant(getIt()))
-  //   ..registerLazySingleton<FetchTable>(() => FetchTable(getIt()))
-  //   ..registerLazySingleton<SelectRestaurant>(
-  //       () => SelectRestaurant(restaurantRepository: getIt()))
-  //   ..registerLazySingleton<SelectRestaurantTable>(
-  //       () => SelectRestaurantTable(restaurantTableRepository: getIt()))
-  //   ..registerLazySingleton<GetCachedSelectedRestaurant>(
-  //       () => GetCachedSelectedRestaurant(getIt()))
-  //   ..registerLazySingleton<GetCachedSelectedTable>(
-  //       () => GetCachedSelectedTable(getIt()));
+  getIt
+    ..registerLazySingleton<SearchJishoForPhrase>(
+        () => SearchJishoForPhrase(getIt()))
+    ..registerLazySingleton<LookForVietnameseDefinition>(
+        () => LookForVietnameseDefinition());
 
   // Repository
-  // getIt.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(
-  //       userRemoteDataSource: getIt(),
-  //       httpsClient: getIt(),
-  //     ));
+  getIt.registerLazySingleton<JishoRepository>(() => JishoRepositoryImpl(
+        jishoRemoteDataSource: getIt(),
+      ));
 
   // getIt.registerLazySingleton<RestaurantRepository>(() => RestaurantRepositoryImpl(
   //       restaurantLocalDataSource: getIt(),
@@ -73,8 +72,8 @@ Future<void> inject() async {
   //         ));
 
   // Data source
-  // getIt.registerLazySingleton<UserRemoteDataSource>(
-  //     () => UserRemoteDataSourceImpl(httpsClient: getIt()));
+  getIt.registerLazySingleton<JishoRemoteDataSource>(
+      () => JishoRemoteDataSourceImpl());
   // getIt.registerLazySingleton<RestaurantRemoteDataSource>(
   //     () => RestaurantRemoteDataSourceImpl(httpsClient: getIt()));
   // getIt.registerLazySingleton<RestaurantLocalDataSource>(

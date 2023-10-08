@@ -1,3 +1,4 @@
+import '../../injection.dart';
 import '/utils/barTitleType.dart';
 import '/utils/constants.dart';
 import '../../core/data/datasources/sharedPref.dart';
@@ -96,7 +97,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
           ],
         ),
         SizedBox(height: 10.0),
-        SharedPref.prefs.getString('language') == 'English'
+        getIt<SharedPref>().prefs.getString('language') == 'English'
             ? Text(
                 'There are ${(widget.newCardNumber + widget.youngCardNumber + widget.matureCardNumber + widget.difficultCardNumber).toInt()} cards due today.',
                 style: TextStyle(fontSize: Constants.definitionTextSize))

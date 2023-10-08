@@ -10,7 +10,7 @@ import 'package:japanese_ocr/features/single_grammar_point/screen/grammar_point_
 import 'package:japanese_ocr/features/statistics/screens/statisticsScreen.dart';
 import 'package:japanese_ocr/features/word_definition/screens/definition_screen.dart';
 import 'package:japanese_ocr/models/grammarPoint.dart';
-import 'package:japanese_ocr/screens/mainScreen.dart';
+import 'package:japanese_ocr/features/main_search/presentation/screens/mainScreen.dart';
 
 import '../core/services/navigation_service.dart';
 import '../injection.dart';

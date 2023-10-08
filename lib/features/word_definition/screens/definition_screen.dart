@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/exampleSentence.dart';
-import '../../../models/jishoDefinition.dart';
 import '../../../models/kanji.dart';
 import '../../../models/offlineWordRecord.dart';
 import '../../../models/vietnameseDefinition.dart';
@@ -21,6 +20,7 @@ import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../widgets/definition_screen/example_sentence_widget.dart';
+import '../../main_search/domain/entities/jisho_definition.dart';
 
 class DefinitionScreenArgs {
   final Future<List<String>>? hanViet;
@@ -123,12 +123,12 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
         context: context);
 
     try {
-      if (SharedPref.prefs.getString('language')?.contains('English') == true)
+      if (getIt<SharedPref>().prefs.getString('language')?.contains('English') == true)
         exampleSentence = KanjiHelper.getExampleSentence(
             word: word,
             context: context,
             tableName: 'englishExampleDictionary');
-      else if (SharedPref.prefs.getString('language') == 'Tiếng Việt') {
+      else if (getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt') {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: word,
             context: context,
@@ -279,7 +279,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   )),
             ],
           ),
-          SharedPref.prefs.getString('language') == ('Tiếng Việt')
+          getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
               ? FutureBuilder<List<String>>(
                   future: widget.args.hanViet,
                   builder: (context, snapshot) {

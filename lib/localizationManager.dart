@@ -1,9 +1,11 @@
 import 'core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 
+import 'injection.dart';
+
 class LocalizationNotifier with ChangeNotifier {
   Locale getLanguage() {
-    if (SharedPref.prefs.getString('language') == 'Tiếng Việt') {
+    if (getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt') {
       return Locale('vi', '');
     } else {
       return Locale('en', '');
@@ -11,7 +13,7 @@ class LocalizationNotifier with ChangeNotifier {
   }
 
   void setLanguage({required String language}) async {
-    SharedPref.prefs.setString('language', language);
+    getIt<SharedPref>().prefs.setString('language', language);
     notifyListeners();
   }
 }

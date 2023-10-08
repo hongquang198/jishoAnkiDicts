@@ -1,3 +1,4 @@
+import '../../../injection.dart';
 import '/models/exampleSentence.dart';
 import '/models/pitchAccent.dart';
 import '/models/vietnameseDefinition.dart';
@@ -29,7 +30,7 @@ class Dictionary {
 
   int get getLearnedCardNumber {
     int numberOfLearnedCards = 0;
-    List<int> newCardsStep = SharedPref.prefs
+    List<int> newCardsStep = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((e) => int.parse(e))
         .toList() ?? [];
@@ -59,7 +60,7 @@ class Dictionary {
 
   int get getDueCardNumber {
     int numberOfDueCards = 0;
-    List<int> newCardsStep = SharedPref.prefs
+    List<int> newCardsStep = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((e) => int.parse(e))
         .toList() ?? [];
@@ -93,7 +94,7 @@ class Dictionary {
   }
 
   List<OfflineWordRecord> get getCards {
-    List<int> newCardsStep = SharedPref.prefs
+    List<int> newCardsStep = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((e) => int.parse(e))
         .toList() ?? [];

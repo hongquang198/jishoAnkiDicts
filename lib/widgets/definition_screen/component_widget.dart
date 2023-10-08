@@ -1,3 +1,4 @@
+import '../../injection.dart';
 import '/models/kanji.dart';
 import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
               )),
         ),
         title: Text(
-          SharedPref.prefs.getString('language') == ('Tiếng Việt')
+          getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
               ? (kanji.kanji ?? '') + ' ' + (kanji.hanViet ?? '')
               : (kanji.kanji ?? ''),
           style: TextStyle(

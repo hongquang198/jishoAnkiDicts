@@ -24,4 +24,15 @@ class ServerFailure extends Failure {
   }) : super(properties: [code, message]);
 }
 
+class SqfliteFailure extends Failure {
+  final String? code;
+  final String? message;
+
+  SqfliteFailure({
+    this.code,
+    this.message,
+  }) : super(properties: [code, message]);
+}
+
+
 class CacheFailure extends Failure {}

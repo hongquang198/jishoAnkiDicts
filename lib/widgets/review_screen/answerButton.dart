@@ -1,3 +1,4 @@
+import '../../injection.dart';
 import '/models/offlineWordRecord.dart';
 import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +46,9 @@ class AnswerButton extends StatelessWidget {
       }
     else if (offlineWordRecord.interval ==
         steps[steps.length - 1] * 60 * 1000) {
-      return Text('${SharedPref.prefs.getInt('graduatingInterval')}day');
+      return Text('${getIt<SharedPref>().prefs.getInt('graduatingInterval')}day');
     } else if (offlineWordRecord.interval >=
-        SharedPref.prefs.getInt('graduatingInterval')! * 24 * 60 * 60 * 1000) {
+        getIt<SharedPref>().prefs.getInt('graduatingInterval')! * 24 * 60 * 60 * 1000) {
       if (offlineWordRecord.interval * offlineWordRecord.ease <=
           31 * 24 * 60 * 60 * 1000) {
         return Text(

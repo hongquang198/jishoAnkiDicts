@@ -1,4 +1,6 @@
-class VietnameseDefinition {
+import 'package:equatable/equatable.dart';
+
+class VietnameseDefinition extends Equatable {
   final String word;
   final String definition;
 
@@ -13,4 +15,7 @@ class VietnameseDefinition {
       'definition': definition,
     };
   }
+  
+  @override
+  List<Object?> get props => [word, definition];
 }

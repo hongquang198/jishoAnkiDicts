@@ -1,4 +1,5 @@
 import '../../core/domain/entities/dictionary.dart';
+import '../../injection.dart';
 import '/models/offlineWordRecord.dart';
 import '/utils/cardStatus.dart';
 import '../../core/data/datasources/sharedPref.dart';
@@ -19,7 +20,7 @@ class _ReviewInfoState extends State<ReviewInfo> {
 
   @override
   void initState() {
-    steps = SharedPref.prefs
+    steps = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((e) => int.parse(e))
         .toList() ?? [];

@@ -60,7 +60,7 @@ class KanjiHelper {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: SharedPref.prefs.getString('theme') == 'dark'
+              color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
                   ? Colors.white
                   : Colors.black,
               width: 1.0,
@@ -68,7 +68,7 @@ class KanjiHelper {
             right: pitchAccent[position + 1] == 'H' ||
                     pitchAccent[position + 1] == 'h'
                 ? BorderSide(
-                    color: SharedPref.prefs.getString('theme') == 'dark'
+                    color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
                         ? Colors.white
                         : Colors.black,
                     width: 1.0,
@@ -88,7 +88,7 @@ class KanjiHelper {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: SharedPref.prefs.getString('theme') == 'dark'
+              color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
                   ? Colors.white
                   : Colors.black,
               width: 1.0,
@@ -96,7 +96,7 @@ class KanjiHelper {
             right: pitchAccent[position + 1] == 'L' ||
                     pitchAccent[position + 1] == 'l'
                 ? BorderSide(
-                    color: SharedPref.prefs.getString('theme') == 'dark'
+                    color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
                         ? Colors.white
                         : Colors.black,
                     width: 1.0,
@@ -143,7 +143,7 @@ class KanjiHelper {
   }
 
   static Future<List<VietnameseDefinition>> getVnDefinition(
-      {required String word, required BuildContext context}) async {
+      {required String word}) async {
     late List<VietnameseDefinition> vietnameseDefinition;
     try {
       vietnameseDefinition =

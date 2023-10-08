@@ -1,11 +1,14 @@
-class JishoDefinition {
-  final String? slug;
+import 'package:equatable/equatable.dart';
+import 'package:unofficial_jisho_api/api.dart';
+
+class JishoDefinition extends Equatable {
+  final String slug;
   final bool isCommon;
-  final List<dynamic> tags;
-  final List<dynamic> jlpt;
+  final List<String> tags;
+  final List<String> jlpt;
   final String? word;
   final String? reading;
-  final List<dynamic> senses;
+  final List<JishoWordSense> senses;
   // List<dynamic> english_definitions;
   // List<dynamic> parts_of_speech;
   // List<dynamic> links;
@@ -21,14 +24,14 @@ class JishoDefinition {
   String get japaneseWord {
     if (word?.isNotEmpty == true) {
       return word!;
-    } else if (slug?.isNotEmpty == true) {
-      return slug!;
+    } else if (slug.isNotEmpty == true) {
+      return slug;
     }
     return reading ?? '';
   }
 
   const JishoDefinition({
-    this.slug,
+    required this.slug,
     this.isCommon = false,
     this.tags = const [],
     this.jlpt = const [],
@@ -46,4 +49,18 @@ class JishoDefinition {
     this.isJmnedict,
     this.isDbpedia,
   });
+  
+  @override
+  List<Object?> get props => [
+    slug,
+        isCommon,
+        tags,
+        jlpt,
+        word,
+        reading,
+        senses,
+        isJmdict,
+        isJmnedict,
+        isDbpedia,
+  ];
 }

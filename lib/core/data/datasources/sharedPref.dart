@@ -1,9 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
-  static late SharedPreferences prefs;
+  late SharedPreferences prefs;
 
-  static Future<SharedPref> init() async {
+  Future<SharedPref> init() async {
     prefs = await SharedPreferences.getInstance();
     List<int> newCardsSteps = [1, 10];
     List<int> lapsesSteps = [10];

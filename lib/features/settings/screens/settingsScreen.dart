@@ -1,3 +1,4 @@
+import '../../../injection.dart';
 import '../../../localizationManager.dart';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/sharedPref.dart';
@@ -50,21 +51,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      SharedPref.prefs.getBool('enableFloating') == true
-                          ? SharedPref.prefs.setBool('enableFloating', false)
-                          : SharedPref.prefs.setBool('enableFloating', true);
+                      getIt<SharedPref>().prefs.getBool('enableFloating') == true
+                          ? getIt<SharedPref>().prefs.setBool('enableFloating', false)
+                          : getIt<SharedPref>().prefs.setBool('enableFloating', true);
                     },
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          SharedPref.prefs.getBool('enableFloating') == true
-                              ? SharedPref.prefs
+                          getIt<SharedPref>().prefs.getBool('enableFloating') == true
+                              ? getIt<SharedPref>().prefs
                                   .setBool('enableFloating', false)
-                              : SharedPref.prefs
+                              : getIt<SharedPref>().prefs
                                   .setBool('enableFloating', true);
                         });
                       },
-                      child: SharedPref.prefs.getBool('enableFloating') == true
+                      child: getIt<SharedPref>().prefs.getBool('enableFloating') == true
                           ? Icon(
                               Icons.check_box_outlined,
                               color: Colors.blue,
@@ -84,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   DropdownButton<String>(
                     value: dropdownValue,
-                    hint: Text('${SharedPref.prefs.getString('language')}'),
+                    hint: Text('${getIt<SharedPref>().prefs.getString('language')}'),
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 24,
                     elevation: 16,
@@ -124,13 +125,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            SharedPref.prefs
+                            getIt<SharedPref>().prefs
                                 .setInt('newCardsPerDay', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: SharedPref.prefs
+                            hintText: getIt<SharedPref>().prefs
                                 .getInt('newCardsPerDay')
                                 .toString(),
                           ),
@@ -170,13 +171,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            SharedPref.prefs.setInt(
+                            getIt<SharedPref>().prefs.setInt(
                                 'graduatingInterval', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: SharedPref.prefs
+                            hintText: getIt<SharedPref>().prefs
                                 .getInt('graduatingInterval')
                                 .toString(),
                           ),
@@ -216,13 +217,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            SharedPref.prefs.setDouble(
+                            getIt<SharedPref>().prefs.setDouble(
                                 'startingEase', double.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: SharedPref.prefs
+                            hintText: getIt<SharedPref>().prefs
                                 .getDouble('startingEase')
                                 .toString(),
                           ),
@@ -262,13 +263,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            SharedPref.prefs
+                            getIt<SharedPref>().prefs
                                 .setInt('leechThreshold', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: SharedPref.prefs
+                            hintText: getIt<SharedPref>().prefs
                                 .getInt('leechThreshold')
                                 .toString(),
                           ),
@@ -293,13 +294,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            SharedPref.prefs
+                            getIt<SharedPref>().prefs
                                 .setInt('exampleNumber', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: SharedPref.prefs
+                            hintText: getIt<SharedPref>().prefs
                                 .getInt('exampleNumber')
                                 .toString(),
                           ),

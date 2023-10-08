@@ -5,7 +5,7 @@ import '../../core/data/models/base_response_model.dart';
 import '../../injection.dart';
 import '../../l10n/localization.dart';
 
-mixin ApiError {
+mixin ApiErrorParseMixin {
   Localization localization = getIt<Localization>();
 
   String parseErrorApiToMessage(error) {

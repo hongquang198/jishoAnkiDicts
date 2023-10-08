@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import '../injection.dart';
 import '../models/grammarPoint.dart';
 import '../models/offlineWordRecord.dart';
 import '../models/pitchAccent.dart';
@@ -278,7 +279,7 @@ class DbManager {
     final List<Map<String, dynamic>> maps = await db.query(tableName,
         where: "jpSentence LIKE ?",
         whereArgs: ['%$word%'],
-        limit: SharedPref.prefs.getInt('exampleNumber') ?? 3);
+        limit: getIt<SharedPref>().prefs.getInt('exampleNumber') ?? 3);
     if (tableName == 'exampleDictionary') {
       return List.generate(maps.length, (i) {
         return ExampleSentence(

@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   // Process floating application icon when exit.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (SharedPref.prefs.getBool('enableFloating') == true) {
+    if (getIt<SharedPref>().prefs.getBool('enableFloating') == true) {
       if (AppLifecycleState.paused == state) {
         FloatButtonOverlay.openOverlay(
           activityName: 'MainActivity',

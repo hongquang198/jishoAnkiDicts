@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/jishoDefinition.dart';
 import '../../../models/offlineWordRecord.dart';
 import '../../../models/vietnameseDefinition.dart';
 import '../../../services/kanjiHelper.dart';
@@ -13,6 +12,8 @@ import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../main_search/domain/entities/jisho_definition.dart';
 
 class HistoryScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -66,7 +67,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
     List<VietnameseDefinition> vnDefinition =
-        await KanjiHelper.getVnDefinition(word: word, context: context);
+        await KanjiHelper.getVnDefinition(word: word);
     print(vnDefinition[0].word);
     return vnDefinition[0];
   }
@@ -100,7 +101,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final word = offlineWordRecord.word.isEmpty
         ? offlineWordRecord.slug
         : offlineWordRecord.word;
-    if (SharedPref.prefs.getString('language') == ('Tiếng Việt')) {
+    if (getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')) {
       if (history[index].vietnameseDefinition.isEmpty) {
         return FutureBuilder<VietnameseDefinition>(
             future: getVietnameseDefinition(word),

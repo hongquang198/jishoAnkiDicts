@@ -1,3 +1,4 @@
+import '../../injection.dart';
 import '/utils/constants.dart';
 import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class DefinitionWidget extends StatelessWidget {
       if (font.attributes["color"] == '#144A14') {
         example.add(font.text);
       }
-      if (SharedPref.prefs.getString('theme') == 'dark')
+      if (getIt<SharedPref>().prefs.getString('theme') == 'dark')
         font.attributes["color"] = '0xffffff';
     }
     return Padding(
@@ -53,7 +54,7 @@ class DefinitionWidget extends StatelessWidget {
         document.outerHtml,
         textStyle: TextStyle(
           fontSize: Constants.definitionTextSize,
-          color: SharedPref.prefs.getString('theme') == 'dark'
+          color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
               ? Colors.white
               : null,
         ),
@@ -89,10 +90,10 @@ class DefinitionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SharedPref.prefs.getString('language') == ('Tiếng Việt')
+        getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
             ? getVnDefinitionWidget()
             : SizedBox(),
-        if ((SharedPref.prefs.getString('language')?.contains('English') == true) ||
+        if ((getIt<SharedPref>().prefs.getString('language')?.contains('English') == true) ||
             vietnameseDefinition?.isEmpty == true)
           for (int i = 0; i < (senses?.length ?? 0); i++) getDefinitions(i),
       ],
