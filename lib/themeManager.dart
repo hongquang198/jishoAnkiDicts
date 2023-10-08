@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 
-import 'utils/sharedPref.dart';
+import 'core/data/datasources/sharedPref.dart';
 
 class ThemeNotifier with ChangeNotifier {
   final theme = ThemeData();

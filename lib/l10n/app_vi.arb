@@ -43,5 +43,11 @@
     "grammar" : "Ngữ pháp",
     "darkMode" : "Chế độ ban đêm",
     "view": "Xem",
-    "views" : "Lượt xem"
+    "views" : "Lượt xem",
+    "unknownError": "Unknown error",
+    "tokenExpiredMessage": "Token expired",
+    "invalidRequest": "Invalid request",
+    "unauthorised": "Unauthorised",
+    "fetchDataError": "Fetch data error",
+    "connectionError": "Connection error"
 }

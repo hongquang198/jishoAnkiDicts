@@ -1,7 +1,7 @@
+import 'config/app_routes.dart';
 import 'themeManager.dart';
 import 'models/dictionary.dart';
-import 'screens/mainScreen.dart';
-import 'utils/sharedPref.dart';
+import 'core/data/datasources/sharedPref.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'localizationManager.dart';
 
@@ -122,23 +121,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   Provider.of<Dictionary?>(context) == null)
                 return Center(child: CircularProgressIndicator());
               else
-                return MaterialApp(
+                return MaterialApp.router(
                   title: 'JishoAnki Dictionary',
                   debugShowCheckedModeBanner: false,
-                  localizationsDelegates: [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: [
-                    const Locale('en', ''),
-                    const Locale('vi', ''),
-                  ],
+                  routerConfig: AppRoutes.routes,
+                  localizationsDelegates: AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
                   locale:
                       Provider.of<LocalizationNotifier>(context).getLanguage(),
                   theme: Provider.of<ThemeNotifier>(context).getTheme(),
-                  home: MainScreen(),
                 );
             },
           );

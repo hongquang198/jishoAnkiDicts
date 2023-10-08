@@ -1,5 +1,5 @@
 import '/models/kanji.dart';
-import '/utils/sharedPref.dart';
+import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import '/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';

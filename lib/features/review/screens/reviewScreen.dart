@@ -5,7 +5,7 @@ import '../../../models/kanji.dart';
 import '../../../models/offlineWordRecord.dart';
 import '../../../models/vietnameseDefinition.dart';
 import '../../../utils/redoType.dart';
-import '../../../utils/sharedPref.dart';
+import '../../../core/data/datasources/sharedPref.dart';
 import '../../../services/dbHelper.dart';
 import '../../../services/kanjiHelper.dart';
 import '../../../utils/offlineListType.dart';

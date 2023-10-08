@@ -4,7 +4,7 @@ import '../models/exampleSentence.dart';
 import '../models/kanji.dart';
 import '../models/pitchAccent.dart';
 import '../models/vietnameseDefinition.dart';
-import '../utils/sharedPref.dart';
+import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/dictionary.dart';

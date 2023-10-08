@@ -1,7 +1,7 @@
 import '/models/dictionary.dart';
 import '/models/offlineWordRecord.dart';
 import '/utils/cardStatus.dart';
-import '/utils/sharedPref.dart';
+import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

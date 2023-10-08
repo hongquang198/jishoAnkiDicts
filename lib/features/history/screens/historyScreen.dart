@@ -7,7 +7,7 @@ import '../../../models/vietnameseDefinition.dart';
 import '../../../services/kanjiHelper.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';
-import '../../../utils/sharedPref.dart';
+import '../../../core/data/datasources/sharedPref.dart';
 import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

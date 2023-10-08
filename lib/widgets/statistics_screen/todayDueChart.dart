@@ -1,6 +1,6 @@
 import '/utils/barTitleType.dart';
 import '/utils/constants.dart';
-import '/utils/sharedPref.dart';
+import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 
 import 'barLine.dart';

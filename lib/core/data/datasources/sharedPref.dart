@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPref {
   static late SharedPreferences prefs;
 
-  static Future init() async {
+  static Future<SharedPref> init() async {
     prefs = await SharedPreferences.getInstance();
     List<int> newCardsSteps = [1, 10];
     List<int> lapsesSteps = [10];
@@ -54,6 +54,6 @@ class SharedPref {
     prefs.getInt('exampleNumber') ?? prefs.setInt('exampleNumber', 3);
     prefs.getString('theme') ?? prefs.setString('theme', 'light');
     print('${prefs.getString('language')}');
-    return prefs;
+    return SharedPref();
   }
 }

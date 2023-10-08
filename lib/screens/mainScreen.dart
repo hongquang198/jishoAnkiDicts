@@ -7,7 +7,7 @@ import '../themeManager.dart';
 import '../services/jishoQuery.dart';
 import 'dart:async';
 import '../utils/constants.dart';
-import '../utils/sharedPref.dart';
+import '../core/data/datasources/sharedPref.dart';
 import '../widgets/main_screen/search_result_tile.dart';
 import '../widgets/nav_bar.dart';
 import 'package:flutter/material.dart';

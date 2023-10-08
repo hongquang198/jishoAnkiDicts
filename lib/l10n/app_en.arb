@@ -31,5 +31,11 @@
     "grammar" : "Grammar",
     "darkMode" : "Dark mode",
     "view": "View",
-    "views" : "views"
+    "views" : "views",
+    "unknownError": "Unknown error",
+    "tokenExpiredMessage": "Token expired",
+    "invalidRequest": "Invalid request",
+    "unauthorised": "Unauthorised",
+    "fetchDataError": "Fetch data error",
+    "connectionError": "Connection error"
 }
