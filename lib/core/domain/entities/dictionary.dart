@@ -2,10 +2,10 @@ import '/models/exampleSentence.dart';
 import '/models/pitchAccent.dart';
 import '/models/vietnameseDefinition.dart';
 import '/services/dbManager.dart';
-import '../core/data/datasources/sharedPref.dart';
-import 'grammarPoint.dart';
-import 'kanji.dart';
-import 'offlineWordRecord.dart';
+import '../../data/datasources/sharedPref.dart';
+import '../../../models/grammarPoint.dart';
+import '../../../models/kanji.dart';
+import '../../../models/offlineWordRecord.dart';
 
 class Dictionary {
   late List<VietnameseDefinition> vietnameseDictionary;

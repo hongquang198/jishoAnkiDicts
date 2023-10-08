@@ -1,5 +1,5 @@
 import '../../injection.dart';
-import '/models/dictionary.dart';
+import '../../core/domain/entities/dictionary.dart';
 import '/models/offlineWordRecord.dart';
 import '/utils/barTitleType.dart';
 import 'package:flutter/material.dart';

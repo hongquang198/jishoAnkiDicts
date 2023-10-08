@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import '../injection.dart';
-import '../models/dictionary.dart';
+import '../core/domain/entities/dictionary.dart';
 import '../models/jishoDefinition.dart';
 import '../models/vietnameseDefinition.dart';
 import '../themeManager.dart';
@@ -40,6 +40,7 @@ class _MainScreenState extends State<MainScreen> {
 
   late Timer clipboardTriggerTime;
   String clipboard = '';
+  String jlptLevel = '';
 
   _search() async {
     if (SharedPref.prefs.getString('language') == ('Tiếng Việt'))

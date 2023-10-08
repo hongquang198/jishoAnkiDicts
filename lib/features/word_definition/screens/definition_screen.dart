@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 
 import '../../../injection.dart';
-import '../../../models/dictionary.dart';
+import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/exampleSentence.dart';
 import '../../../models/jishoDefinition.dart';
 import '../../../models/kanji.dart';

@@ -1,5 +1,5 @@
 import '../../../injection.dart';
-import '../../../models/dictionary.dart';
+import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/grammarPoint.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';

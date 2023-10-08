@@ -5,7 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'core/client/http_client.dart';
 import 'core/services/navigation_service.dart';
 import 'l10n/localization.dart';
-import 'models/dictionary.dart';
+import 'core/domain/entities/dictionary.dart';
 
 final getIt = GetIt.instance;
 

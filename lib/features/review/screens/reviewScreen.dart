@@ -1,6 +1,6 @@
 import 'dart:convert';
 import '../../../injection.dart';
-import '../../../models/dictionary.dart';
+import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/exampleSentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/offlineWordRecord.dart';

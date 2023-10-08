@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import '../../../injection.dart';
-import '../../../models/dictionary.dart';
+import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/jishoDefinition.dart';
 import '../../../models/offlineWordRecord.dart';
 import '../../../models/vietnameseDefinition.dart';

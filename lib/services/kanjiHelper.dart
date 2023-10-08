@@ -7,7 +7,7 @@ import '../models/pitchAccent.dart';
 import '../models/vietnameseDefinition.dart';
 import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
-import '../models/dictionary.dart';
+import '../core/domain/entities/dictionary.dart';
 
 class KanjiHelper {
   // Extract kanji from word

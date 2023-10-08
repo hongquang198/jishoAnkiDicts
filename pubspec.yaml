@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.1+2
 
 environment:
-  sdk: '>=2.19.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -50,6 +50,7 @@ dependencies:
   go_router: ^11.1.2
   # Network
   dio: ^5.3.3
+  unofficial_jisho_api: ^3.0.0
   # Dependency injection
   get_it: ^7.6.4
 

@@ -1,4 +1,4 @@
-import '/models/dictionary.dart';
+import '../../core/domain/entities/dictionary.dart';
 import '/models/offlineWordRecord.dart';
 import '/utils/cardStatus.dart';
 import '../../core/data/datasources/sharedPref.dart';

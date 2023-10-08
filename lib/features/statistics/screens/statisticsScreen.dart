@@ -1,4 +1,4 @@
-import '../../../models/dictionary.dart';
+import '../../../core/domain/entities/dictionary.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/statistics_screen/predictionChart.dart';
 import '../../../widgets/statistics_screen/todayDueChart.dart';

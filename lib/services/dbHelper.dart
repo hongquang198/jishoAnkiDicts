@@ -1,6 +1,6 @@
 
 import '../injection.dart';
-import '../models/dictionary.dart';
+import '../core/domain/entities/dictionary.dart';
 import '../models/offlineWordRecord.dart';
 import '../utils/offlineListType.dart';
 import 'package:flutter/cupertino.dart';
