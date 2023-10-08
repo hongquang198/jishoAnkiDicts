@@ -1,10 +1,7 @@
-import '../features/favorite_words/screens/favorite_screen.dart';
-import '../features/grammar/screens/grammar_screen.dart';
-import '../features/history/screens/historyScreen.dart';
-import '../features/review/screens/reviewScreen.dart';
-import '../features/settings/screens/settingsScreen.dart';
-import '../features/statistics/screens/statisticsScreen.dart';
-import '/utils/sharedPref.dart';
+import 'package:go_router/go_router.dart';
+import 'package:japanese_ocr/config/app_routes.dart';
+
+import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -51,12 +48,8 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.history),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HistoryScreen(
-                            textEditingController: textEditingController,
-                          )));
+              context.goNamed(AppRoutesPath.history,
+                  extra: textEditingController);
             },
           ),
           ListTile(
@@ -67,12 +60,8 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.favorite),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FavoriteScreen(
-                            textEditingController: textEditingController,
-                          )));
+              context.goNamed(AppRoutesPath.favoriteWords,
+                  extra: textEditingController);
             },
           ),
           ListTile(
@@ -80,12 +69,8 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.review),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ReviewScreen(
-                            textEditingController: textEditingController,
-                          )));
+              context.goNamed(AppRoutesPath.review,
+                  extra: textEditingController);
             },
           ),
           ListTile(
@@ -93,8 +78,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.statistics),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StatisticsScreen()));
+              context.goNamed(AppRoutesPath.statistics);
             },
           ),
           ListTile(
@@ -102,12 +86,8 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.grammar),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => GrammarScreen(
-                            textEditingController: textEditingController,
-                          )));
+              context.goNamed(AppRoutesPath.grammar,
+                  extra: textEditingController);
             },
           ),
           ListTile(
@@ -115,8 +95,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.settings),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingsScreen()));
+              context.goNamed(AppRoutesPath.settings);
             },
           ),
           ListTile(

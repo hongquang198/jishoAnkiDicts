@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../injection.dart';
 import '../models/dictionary.dart';
 import '../models/jishoDefinition.dart';
 import '../models/vietnameseDefinition.dart';
@@ -7,7 +8,7 @@ import '../themeManager.dart';
 import '../services/jishoQuery.dart';
 import 'dart:async';
 import '../utils/constants.dart';
-import '../utils/sharedPref.dart';
+import '../core/data/datasources/sharedPref.dart';
 import '../widgets/main_screen/search_result_tile.dart';
 import '../widgets/nav_bar.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<List<VietnameseDefinition>> getVnDictQuery(String word) async {
-    vnDictQuery = await Provider.of<Dictionary>(context, listen: false)
+    vnDictQuery = await getIt<Dictionary>()
         .offlineDatabase
         .searchForVnMeaning(word: word);
     setState(() {});

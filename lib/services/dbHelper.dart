@@ -1,21 +1,21 @@
 
+import '../injection.dart';
 import '../models/dictionary.dart';
 import '../models/offlineWordRecord.dart';
 import '../utils/offlineListType.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class DbHelper {
   static bool checkDatabaseExist(
       {required OfflineListType offlineListType, required String word, required BuildContext context,}) {
     late List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.history)
-      table = Provider.of<Dictionary>(context, listen: false).history;
+      table = getIt<Dictionary>().history;
     else if (offlineListType == OfflineListType.favorite)
-      table = Provider.of<Dictionary>(context, listen: false).favorite;
+      table = getIt<Dictionary>().favorite;
     else if (offlineListType == OfflineListType.review)
-      table = Provider.of<Dictionary>(context, listen: false).review;
+      table = getIt<Dictionary>().review;
     bool inDatabase = false;
     for (int i = 0; i < table.length; i++) {
       String tableWord = table[i].word;
@@ -34,21 +34,21 @@ class DbHelper {
       {required OfflineListType offlineListType, required BuildContext context, required String word}) {
     List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.favorite) {
-      table = Provider.of<Dictionary>(context, listen: false).favorite;
+      table = getIt<Dictionary>().favorite;
       table.removeWhere((element) => element.japaneseWord == word);
-      Provider.of<Dictionary>(context, listen: false)
+      getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'favorite');
     } else if (offlineListType == OfflineListType.history) {
-      table = Provider.of<Dictionary>(context, listen: false).history;
+      table = getIt<Dictionary>().history;
       table.removeWhere((element) => element.japaneseWord == word);
-      Provider.of<Dictionary>(context, listen: false)
+      getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'history');
     } else if (offlineListType == OfflineListType.review) {
-      table = Provider.of<Dictionary>(context, listen: false).review;
+      table = getIt<Dictionary>().review;
       table.removeWhere((element) => element.japaneseWord == word);
-      Provider.of<Dictionary>(context, listen: false)
+      getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'review');
     }
@@ -65,26 +65,26 @@ class DbHelper {
               word: offlineWordRecord.japaneseWord,
               context: context) ==
           false) {
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .history
             .add(offlineWordRecord);
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'history');
       } else {
         OfflineWordRecord found =
-            Provider.of<Dictionary>(context, listen: false).history.firstWhere(
+            getIt<Dictionary>().history.firstWhere(
                 (element) =>
                     element.japaneseWord ==
                     offlineWordRecord.japaneseWord);
         found.reviews++;
-        Provider.of<Dictionary>(context, listen: false).history.remove(found);
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>().history.remove(found);
+        getIt<Dictionary>()
             .offlineDatabase
             .delete(word: found.japaneseWord, tableName: 'history');
-        Provider.of<Dictionary>(context, listen: false).history.add(found);
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>().history.add(found);
+        getIt<Dictionary>()
             .offlineDatabase
             .insertWord(offlineWordRecord: found, tableName: 'history');
       }
@@ -94,10 +94,10 @@ class DbHelper {
               word: offlineWordRecord.japaneseWord,
               context: context) ==
           false) {
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .favorite
             .add(offlineWordRecord);
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'favorite');
@@ -109,10 +109,10 @@ class DbHelper {
               word: offlineWordRecord.japaneseWord,
               context: context) ==
           false) {
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .review
             .add(offlineWordRecord);
-        Provider.of<Dictionary>(context, listen: false)
+        getIt<Dictionary>()
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'review');
@@ -127,14 +127,14 @@ class DbHelper {
     required OfflineWordRecord offlineWordRecord,
   }) {
     if (offlineListType == OfflineListType.review) {
-      int index = Provider.of<Dictionary>(context, listen: false)
+      int index = getIt<Dictionary>()
           .review
           .indexWhere((element) =>
               (element.word.isEmpty ? element.slug : element.word) ==
               (offlineWordRecord.word.isEmpty ? offlineWordRecord.slug : offlineWordRecord.word));
-      Provider.of<Dictionary>(context, listen: false).review[index] =
+      getIt<Dictionary>().review[index] =
           offlineWordRecord;
-      Provider.of<Dictionary>(context, listen: false)
+      getIt<Dictionary>()
           .offlineDatabase
           .update(offlineWordRecord: offlineWordRecord, tableName: 'review');
     }

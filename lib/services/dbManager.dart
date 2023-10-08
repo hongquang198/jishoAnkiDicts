@@ -3,7 +3,7 @@ import 'dart:io';
 import '../models/grammarPoint.dart';
 import '../models/offlineWordRecord.dart';
 import '../models/pitchAccent.dart';
-import '../utils/sharedPref.dart';
+import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';

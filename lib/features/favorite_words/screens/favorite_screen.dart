@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/jishoDefinition.dart';
 import '../../../models/offlineWordRecord.dart';
@@ -11,7 +12,6 @@ import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 class FavoriteScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -81,10 +81,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           separatorBuilder: (context, index) => Divider(
             thickness: 0.4,
           ),
-          itemCount: Provider.of<Dictionary>(context).favorite.length,
+          itemCount: getIt<Dictionary>().favorite.length,
           itemBuilder: (BuildContext context, int index) {
             List<OfflineWordRecord> favorite =
-                Provider.of<Dictionary>(context).favorite;
+                getIt<Dictionary>().favorite;
             favorite = favorite.reversed.toList();
 
             return FutureBuilder<VietnameseDefinition>(

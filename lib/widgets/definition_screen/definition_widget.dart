@@ -1,5 +1,5 @@
 import '/utils/constants.dart';
-import '/utils/sharedPref.dart';
+import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/parser.dart';

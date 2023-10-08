@@ -1,11 +1,12 @@
 import 'dart:convert';
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/exampleSentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/offlineWordRecord.dart';
 import '../../../models/vietnameseDefinition.dart';
 import '../../../utils/redoType.dart';
-import '../../../utils/sharedPref.dart';
+import '../../../core/data/datasources/sharedPref.dart';
 import '../../../services/dbHelper.dart';
 import '../../../services/kanjiHelper.dart';
 import '../../../utils/offlineListType.dart';
@@ -78,10 +79,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   // getKanjiComponent() async {
   //   kanjiComponent = KanjiHelper.getKanjiComponent(
-  //       word: Provider.of<Dictionary>(context, listen: false)
+  //       word: getIt<Dictionary>()
   //               .getCards[currentCard]
   //               .word ??
-  //           Provider.of<Dictionary>(context, listen: false)
+  //           getIt<Dictionary>()
   //               .getCards[currentCard]
   //               .slug,
   //       context: context);
@@ -89,13 +90,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
   //
   // drawPitchAccent() async {
   //   pitchAccent = KanjiHelper.getPitchAccent(
-  //       word: Provider.of<Dictionary>(context, listen: false)
+  //       word: getIt<Dictionary>()
   //           .getCards[currentCard]
   //           .word,
-  //       slug: Provider.of<Dictionary>(context, listen: false)
+  //       slug: getIt<Dictionary>()
   //           .getCards[currentCard]
   //           .slug,
-  //       reading: Provider.of<Dictionary>(context, listen: false)
+  //       reading: getIt<Dictionary>()
   //           .getCards[currentCard]
   //           .reading,
   //       context: context);
@@ -123,7 +124,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     // Review list maybe empty so try catch
     try {
-      currentCard = Provider.of<Dictionary>(context, listen: false).getCards[0];
+      currentCard = getIt<Dictionary>().getCards[0];
       redo = currentCard;
       updateAdditionalInfo();
     } catch (e) {

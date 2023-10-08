@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/exampleSentence.dart';
 import '../../../models/jishoDefinition.dart';
@@ -10,31 +11,39 @@ import '../../../models/vietnameseDefinition.dart';
 import '../../../services/dbHelper.dart';
 import '../../../services/kanjiHelper.dart';
 import '../../../utils/offlineListType.dart';
-import '../../../utils/sharedPref.dart';
+import '../../../core/data/datasources/sharedPref.dart';
 import '../../../widgets/definition_screen/component_widget.dart';
 import '../../../widgets/definition_screen/definition_tags.dart';
-import '../../../widgets/definition_screen/example_sentence_widget.dart';
+import '../../../widgets/definition_screen/definition_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
-class DefinitionScreen extends StatefulWidget {
+import '../../../widgets/definition_screen/example_sentence_widget.dart';
+
+class DefinitionScreenArgs {
+  final Future<List<String>>? hanViet;
+  final VietnameseDefinition? vnDefinition;
+  final TextEditingController textEditingController;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
-  final TextEditingController textEditingController;
   final bool isOfflineList;
-  final VietnameseDefinition? vnDefinition;
-  final Future<List<String>>? hanViet;
-  DefinitionScreen({
+  DefinitionScreenArgs({
     this.hanViet,
     this.vnDefinition,
     required this.textEditingController,
     this.jishoDefinition,
     required this.isInFavoriteList,
     this.isOfflineList = false,
+  });
+}
+
+
+class DefinitionScreen extends StatefulWidget {
+  final DefinitionScreenArgs args;
+  DefinitionScreen({
+    required this.args,
   });
 
   @override
@@ -72,22 +81,22 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
   @override
   void initState() {
-    word = widget.vnDefinition?.word ?? '';
+    word = widget.args.vnDefinition?.word ?? '';
     if (word.isEmpty) {
-      word = widget.jishoDefinition?.word ?? '';
+      word = widget.args.jishoDefinition?.word ?? '';
     }
     if (word.isEmpty) {
-      word = widget.jishoDefinition?.slug ?? '';
+      word = widget.args.jishoDefinition?.slug ?? '';
     }
     offlineWordRecord = OfflineWordRecord(
       slug: word,
-      isCommon: widget.jishoDefinition?.isCommon == true ? 1 : 0,
-      tags: jsonEncode(widget.jishoDefinition?.tags),
-      jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+      isCommon: widget.args.jishoDefinition?.isCommon == true ? 1 : 0,
+      tags: jsonEncode(widget.args.jishoDefinition?.tags),
+      jlpt: jsonEncode(widget.args.jishoDefinition?.jlpt),
       word: word ,
-      reading: widget.jishoDefinition?.reading ?? '',
-      senses: jsonEncode(widget.jishoDefinition?.senses),
-      vietnameseDefinition: widget.vnDefinition?.definition ?? '',
+      reading: widget.args.jishoDefinition?.reading ?? '',
+      senses: jsonEncode(widget.args.jishoDefinition?.senses),
+      vietnameseDefinition: widget.args.vnDefinition?.definition ?? '',
       added: DateTime.now().millisecondsSinceEpoch,
       firstReview: null,
       lastReview: null,
@@ -103,9 +112,9 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
       deck: 'default',
     );
     pitchAccent = KanjiHelper.getPitchAccent(
-      word: widget.jishoDefinition?.word,
-      slug: widget.jishoDefinition?.slug,
-      reading: widget.jishoDefinition?.reading,
+      word: widget.args.jishoDefinition?.word,
+      slug: widget.args.jishoDefinition?.slug,
+      reading: widget.args.jishoDefinition?.reading,
       context: context,
     );
 
@@ -129,10 +138,10 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
       print('Error getting example sentence $e');
     }
     getClipboard();
-    widget.textEditingController.addListener(() {
+    widget.args.textEditingController.addListener(() {
       if (mounted) {
-        if (clipboard != widget.textEditingController.text) {
-          clipboard = widget.textEditingController.text;
+        if (clipboard != widget.args.textEditingController.text) {
+          clipboard = widget.args.textEditingController.text;
           Navigator.of(context).popUntil((route) => route.isFirst);
           print('Definition screen popped');
         }
@@ -222,7 +231,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
             builder: (context, snapshot) {
               if (snapshot.data == null)
                 return Text(
-                  widget.jishoDefinition?.reading ?? '',
+                  widget.args.jishoDefinition?.reading ?? '',
                   style: TextStyle(
                     fontSize: 15.0,
                     color: Colors.grey,
@@ -272,7 +281,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           ),
           SharedPref.prefs.getString('language') == ('Tiếng Việt')
               ? FutureBuilder<List<String>>(
-                  future: widget.hanViet,
+                  future: widget.args.hanViet,
                   builder: (context, snapshot) {
                     if (snapshot.data == null || snapshot.data!.length == 0)
                       return SizedBox();
@@ -292,7 +301,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
               : SizedBox(),
           Row(
             children: <Widget>[
-              widget.jishoDefinition?.isCommon == true
+              widget.args.jishoDefinition?.isCommon == true
                   ? Card(
                       color: Color(0xFF8ABC82),
                       child: Text(
@@ -306,15 +315,15 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                     )
                   : SizedBox(),
               DefinitionTags(
-                  tags: widget.jishoDefinition?.tags ?? [], color: Color(0xFF909DC0)),
+                  tags: widget.args.jishoDefinition?.tags ?? [], color: Color(0xFF909DC0)),
               DefinitionTags(
-                  tags: widget.jishoDefinition?.jlpt ?? [], color: Color(0xFF909DC0)),
+                  tags: widget.args.jishoDefinition?.jlpt ?? [], color: Color(0xFF909DC0)),
             ],
           ),
           SizedBox(height: 8),
           DefinitionWidget(
-            senses: widget.jishoDefinition?.senses,
-            vietnameseDefinition: widget.vnDefinition?.definition,
+            senses: widget.args.jishoDefinition?.senses,
+            vietnameseDefinition: widget.args.vnDefinition?.definition,
           ),
           Divider(),
           Text(
@@ -362,7 +371,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   int getViewCounts() {
     OfflineWordRecord? found;
     try {
-      found = Provider.of<Dictionary>(context).history.firstWhereOrNull((element) {
+      found = getIt<Dictionary>().history.firstWhereOrNull((element) {
         String elementWord = element.word;
         if (elementWord.isEmpty) {
           elementWord = element.slug;

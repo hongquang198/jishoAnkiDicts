@@ -1,8 +1,8 @@
+import '../../injection.dart';
 import '/models/dictionary.dart';
 import '/models/offlineWordRecord.dart';
 import '/utils/barTitleType.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'dart:math';
 import 'YAxisNumberLine.dart';
 import 'barLine.dart';
@@ -70,7 +70,7 @@ class _PredictionChartState extends State<PredictionChart> {
 
   @override
   void initState() {
-    review = Provider.of<Dictionary>(context, listen: false).review;
+    review = getIt<Dictionary>().review;
     getCardNumber();
     super.initState();
   }

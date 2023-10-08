@@ -1,3 +1,4 @@
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/grammarPoint.dart';
 import 'dart:async';
@@ -6,7 +7,6 @@ import '../../../widgets/grammar_screen/grammar_query_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 class GrammarScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -26,7 +26,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
   }
 
   _searchForGrammar(String grammarPoint) async {
-    grammarAll = await Provider.of<Dictionary>(context, listen: false)
+    grammarAll = await getIt<Dictionary>()
         .offlineDatabase
         .searchForGrammar(grammarPoint: grammarPoint);
     setState(() {});
@@ -46,7 +46,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
     });
 
     getClipboard();
-    grammarAll = Provider.of<Dictionary>(context, listen: false).grammarDict;
+    grammarAll = getIt<Dictionary>().grammarDict;
     Future.delayed(Duration(milliseconds: 200), () {
       setState(() {
         _textController.text = clipboard;

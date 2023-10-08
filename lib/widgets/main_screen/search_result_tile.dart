@@ -4,7 +4,7 @@ import '/models/offlineWordRecord.dart';
 import '/models/jishoDefinition.dart';
 import '/models/vietnameseDefinition.dart';
 import '../../features/word_definition/screens/definition_screen.dart';
-import '/utils/sharedPref.dart';
+import '../../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
 import '/utils/offlineListType.dart';
 import '/services/dbHelper.dart';
@@ -75,17 +75,19 @@ class _SearchResultTileState extends State<SearchResultTile> {
   Route _createRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => DefinitionScreen(
-        hanViet: widget.hanViet,
-        vnDefinition: widget.vnDefinition,
-        textEditingController: widget.textEditingController,
-        isInFavoriteList: DbHelper.checkDatabaseExist(
-                    offlineListType: OfflineListType.favorite,
-                    word: word,
-                    context: context) ==
-                true
-            ? true
-            : false,
-        jishoDefinition: widget.jishoDefinition,
+        args: DefinitionScreenArgs(
+          hanViet: widget.hanViet,
+          vnDefinition: widget.vnDefinition,
+          textEditingController: widget.textEditingController,
+          isInFavoriteList: DbHelper.checkDatabaseExist(
+                      offlineListType: OfflineListType.favorite,
+                      word: word,
+                      context: context) ==
+                  true
+              ? true
+              : false,
+          jishoDefinition: widget.jishoDefinition,
+        ),
       ),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(1.0, 0.0);
