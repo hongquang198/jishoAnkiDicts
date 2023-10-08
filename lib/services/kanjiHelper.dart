@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 
+import '../injection.dart';
 import '../models/exampleSentence.dart';
 import '../models/kanji.dart';
 import '../models/pitchAccent.dart';
 import '../models/vietnameseDefinition.dart';
 import '../core/data/datasources/sharedPref.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/dictionary.dart';
 
 class KanjiHelper {
@@ -17,7 +17,7 @@ class KanjiHelper {
     List<Kanji> kanjiFound = [];
     for (int i = 0; i < word.length; i++) {
       try {
-        kanjiFound = await Provider.of<Dictionary>(context, listen: false)
+        kanjiFound = await getIt<Dictionary>()
             .offlineDatabase
             .searchForKanji(kanji: word[i]);
         Kanji? kanji =
@@ -121,7 +121,7 @@ class KanjiHelper {
   }) async {
     List<Widget> widgetList = [];
     List<PitchAccent> pitchFound =
-        await Provider.of<Dictionary>(context, listen: false)
+        await getIt<Dictionary>()
             .offlineDatabase
             .searchForPitchAccent(word: slug ?? word ?? '', reading: reading ?? '');
     String pitchAccent;
@@ -147,7 +147,7 @@ class KanjiHelper {
     late List<VietnameseDefinition> vietnameseDefinition;
     try {
       vietnameseDefinition =
-          await Provider.of<Dictionary>(context, listen: false)
+          await getIt<Dictionary>()
               .offlineDatabase
               .searchForVnMeaning(word: word);
     } catch (e) {
@@ -160,7 +160,7 @@ class KanjiHelper {
       {required String word, required BuildContext context, required String tableName}) async {
     late List<ExampleSentence> exampleSentence;
     try {
-      exampleSentence = await Provider.of<Dictionary>(context, listen: false)
+      exampleSentence = await getIt<Dictionary>()
           .offlineDatabase
           .searchForExample(word: word, tableName: tableName);
     } catch (e) {

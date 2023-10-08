@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/exampleSentence.dart';
 import '../../../models/jishoDefinition.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 import '../../../widgets/definition_screen/example_sentence_widget.dart';
 
@@ -371,7 +371,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   int getViewCounts() {
     OfflineWordRecord? found;
     try {
-      found = Provider.of<Dictionary>(context).history.firstWhereOrNull((element) {
+      found = getIt<Dictionary>().history.firstWhereOrNull((element) {
         String elementWord = element.word;
         if (elementWord.isEmpty) {
           elementWord = element.slug;

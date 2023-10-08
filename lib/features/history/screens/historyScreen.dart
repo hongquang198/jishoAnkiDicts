@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../injection.dart';
 import '../../../models/dictionary.dart';
 import '../../../models/jishoDefinition.dart';
 import '../../../models/offlineWordRecord.dart';
@@ -12,7 +13,6 @@ import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -43,7 +43,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }
       }
     });
-    history = Provider.of<Dictionary>(context, listen: false)
+    history = getIt<Dictionary>()
         .history
         .reversed
         .toList();
@@ -86,7 +86,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           separatorBuilder: (context, index) => Divider(
             thickness: 0.4,
           ),
-          itemCount: Provider.of<Dictionary>(context).history.length,
+          itemCount: getIt<Dictionary>().history.length,
           itemBuilder: (BuildContext context, int index) {
             return getSearchResultTile(index);
           },

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../injection.dart';
 import '../models/dictionary.dart';
 import '../models/jishoDefinition.dart';
 import '../models/vietnameseDefinition.dart';
@@ -89,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<List<VietnameseDefinition>> getVnDictQuery(String word) async {
-    vnDictQuery = await Provider.of<Dictionary>(context, listen: false)
+    vnDictQuery = await getIt<Dictionary>()
         .offlineDatabase
         .searchForVnMeaning(word: word);
     setState(() {});

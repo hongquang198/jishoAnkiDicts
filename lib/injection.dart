@@ -5,11 +5,24 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'core/client/http_client.dart';
 import 'core/services/navigation_service.dart';
 import 'l10n/localization.dart';
+import 'models/dictionary.dart';
 
 final getIt = GetIt.instance;
 
-Future<void> init() async {
+Future<void> inject() async {
   getIt.registerSingletonAsync<SharedPref>(SharedPref.init);
+  getIt.registerSingletonAsync<Dictionary>(() async {
+    Dictionary dicts = Dictionary();
+    await dicts.offlineDatabase.initDatabase();
+
+    dicts.history = await dicts.offlineDatabase.retrieve(tableName: 'history');
+    dicts.favorite =
+        await dicts.offlineDatabase.retrieve(tableName: 'favorite');
+    dicts.review = await dicts.offlineDatabase.retrieve(tableName: 'review');
+    dicts.grammarDict =
+        await dicts.offlineDatabase.retrieveJpGrammarDictionary();
+    return dicts;
+  });
   getIt.registerSingletonAsync<PackageInfo>(PackageInfo.fromPlatform);
   getIt.registerSingletonWithDependencies(() => HttpsClient(),
       dependsOn: [SharedPref, PackageInfo]);
@@ -73,4 +86,5 @@ Future<void> init() async {
 
   // Localization without context
   getIt.registerLazySingleton<Localization>(() => Localization());
+  await getIt.allReady();
 }

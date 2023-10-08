@@ -1,6 +1,6 @@
 import 'config/app_routes.dart';
+import 'injection.dart';
 import 'themeManager.dart';
-import 'models/dictionary.dart';
 import 'core/data/datasources/sharedPref.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:float_button_overlay/float_button_overlay.dart';
@@ -27,7 +27,7 @@ late File file;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   file = await getImageFileFromAssets('floatingicon.png');
-  await SharedPref.init();
+  await inject();
   runApp(MyApp());
 }
 
@@ -37,7 +37,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  late Future<Dictionary> dicts;
   // Process floating application icon when exit.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -69,7 +68,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    dicts = initDictionary();
     // Add observer in order to use didChangeAppLifeCycle
     WidgetsBinding.instance.addObserver(this);
     initPlatformState();
@@ -83,29 +81,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<Dictionary> initDictionary() async {
-    Dictionary dicts = Dictionary();
-    await dicts.offlineDatabase.initDatabase();
-
-    dicts.history = await dicts.offlineDatabase.retrieve(tableName: 'history');
-    dicts.favorite =
-        await dicts.offlineDatabase.retrieve(tableName: 'favorite');
-    dicts.review = await dicts.offlineDatabase.retrieve(tableName: 'review');
-    dicts.grammarDict =
-        await dicts.offlineDatabase.retrieveJpGrammarDictionary();
-    return dicts;
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          FutureProvider<Dictionary?>(
-            initialData: null,
-            create: (context) async {
-              return dicts;
-            },
-          ),
           ChangeNotifierProvider<ThemeNotifier>(
             create: (context) => ThemeNotifier(),
           ),
@@ -114,24 +93,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           )
         ],
         builder: (context, child) {
-          return FutureBuilder(
-            future: SharedPref.init(),
-            builder: (context, snapshot) {
-              if (snapshot.data == null ||
-                  Provider.of<Dictionary?>(context) == null)
-                return Center(child: CircularProgressIndicator());
-              else
-                return MaterialApp.router(
-                  title: 'JishoAnki Dictionary',
-                  debugShowCheckedModeBanner: false,
-                  routerConfig: AppRoutes.routes,
-                  localizationsDelegates: AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  locale:
-                      Provider.of<LocalizationNotifier>(context).getLanguage(),
-                  theme: Provider.of<ThemeNotifier>(context).getTheme(),
-                );
-            },
+          return MaterialApp.router(
+            title: 'JishoAnki Dictionary',
+            debugShowCheckedModeBanner: false,
+            routerConfig: AppRoutes.routes,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Provider.of<LocalizationNotifier>(context).getLanguage(),
+            theme: Provider.of<ThemeNotifier>(context).getTheme(),
           );
         });
   }
