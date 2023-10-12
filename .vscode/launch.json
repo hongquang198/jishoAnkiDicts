@@ -7,7 +7,9 @@
         {
             "name": "jishoAnkiDicts",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "flutterMode": "debug"
+
         },
         {
             "name": "jishoAnkiDicts (no-build)",
@@ -15,7 +17,8 @@
             "type": "dart",
             "args": [
                 "--use-application-binary=.vscode/",
-            ]
+            ],
+            "flutterMode": "debug"
         },
         {
             "name": "jishoAnkiDicts (profile mode)",

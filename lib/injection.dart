@@ -20,6 +20,7 @@ Future<void> inject() async {
   getIt.registerSingletonAsync<SharedPref>(() async {
     final sharedPrefsInstance = await SharedPreferences.getInstance();
     final sharedPref = SharedPref(prefs: sharedPrefsInstance);
+    await sharedPref.init();
     return sharedPref;
   });
   getIt.registerSingletonAsync<Dictionary>(() async {

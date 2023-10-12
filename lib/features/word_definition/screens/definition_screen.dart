@@ -81,6 +81,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
   @override
   void initState() {
+    super.initState();
     word = widget.args.vnDefinition?.word ?? '';
     if (word.isEmpty) {
       word = widget.args.jishoDefinition?.word ?? '';
@@ -123,12 +124,13 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
         context: context);
 
     try {
-      if (getIt<SharedPref>().prefs.getString('language')?.contains('English') == true)
+      final lang = getIt<SharedPref>().prefs.getString('language');
+      if (lang?.contains('English') == true)
         exampleSentence = KanjiHelper.getExampleSentence(
             word: word,
             context: context,
             tableName: 'englishExampleDictionary');
-      else if (getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt') {
+      else if (lang == 'Tiếng Việt') {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: word,
             context: context,
@@ -147,7 +149,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
         }
       }
     });
-    super.initState();
   }
 
   @override
