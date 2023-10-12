@@ -1,10 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
-  late SharedPreferences prefs;
+  SharedPreferences prefs;
+  SharedPref({required this.prefs});
 
-  Future<SharedPref> init() async {
-    prefs = await SharedPreferences.getInstance();
+  Future<void> init() async {
     List<int> newCardsSteps = [1, 10];
     List<int> lapsesSteps = [10];
     // Map<String, dynamic> values = {
@@ -54,6 +54,5 @@ class SharedPref {
     prefs.getInt('exampleNumber') ?? prefs.setInt('exampleNumber', 3);
     prefs.getString('theme') ?? prefs.setString('theme', 'light');
     print('${prefs.getString('language')}');
-    return SharedPref();
   }
 }

@@ -7,6 +7,7 @@ import 'package:japanese_ocr/features/main_search/domain/usecases/search_jisho_f
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:japanese_ocr/features/main_search/repository/jisho_repository_impl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/client/http_client.dart';
 import 'core/services/navigation_service.dart';
@@ -16,7 +17,11 @@ import 'core/domain/entities/dictionary.dart';
 final getIt = GetIt.instance;
 
 Future<void> inject() async {
-  getIt.registerSingletonAsync<SharedPref>(SharedPref().init);
+  getIt.registerSingletonAsync<SharedPref>(() async {
+    final sharedPrefsInstance = await SharedPreferences.getInstance();
+    final sharedPref = SharedPref(prefs: sharedPrefsInstance);
+    return sharedPref;
+  });
   getIt.registerSingletonAsync<Dictionary>(() async {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();
@@ -36,16 +41,10 @@ Future<void> inject() async {
 
   // BLoC
   getIt
-    ..registerFactoryAsync<MainSearchBloc>(
-      () async {
-        final Dictionary dictionary = getIt();
-        return MainSearchBloc(
-          dictionary: dictionary,
+    ..registerFactory<MainSearchBloc>(() => MainSearchBloc(
           searchJishoForPhrase: getIt(),
           lookForVietnameseDefinition: getIt(),
-        );
-      } 
-    );
+        ));
 
   // Use cases
   getIt

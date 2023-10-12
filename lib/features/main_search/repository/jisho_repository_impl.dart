@@ -13,7 +13,7 @@ class JishoRepositoryImpl extends JishoRepository with ApiErrorParseMixin {
   @override
   Future<Either<Failure, JishoAPIResult>> searchForPhrase({required String phrase}) async {
     try {
-      final response = await jishoRemoteDataSource.searchForPhrase(phrase: phrase);
+      final response = await jishoRemoteDataSource.searchJishoForPhrase(phrase: phrase);
       return Right(response);
     } catch (e) {
       return Left(ServerFailure(

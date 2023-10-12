@@ -8,7 +8,6 @@ import 'package:japanese_ocr/features/main_search/domain/usecases/search_jisho_f
 
 import 'package:collection/collection.dart';
 
-import '../../../../core/domain/entities/dictionary.dart';
 import '../../../../injection.dart';
 import '../../../../models/vietnameseDefinition.dart';
 
@@ -18,18 +17,17 @@ part 'main_search_state.dart';
 class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
   final SearchJishoForPhrase searchJishoForPhrase;
   final LookForVietnameseDefinition lookForVietnameseDefinition;
-  final Dictionary dictionary;
 
   MainSearchBloc({
     required this.searchJishoForPhrase,
     required this.lookForVietnameseDefinition,
-    required this.dictionary,
   }) : super(MainSeachLoadingState(const MainSearchStateData())) {
     on<SearchForPhraseEvent>(_onSearchForPhrase);
   }
 
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
+    print("QPP search for phrase");
     emit(MainSeachLoadingState(state.data));
     final isAppInVietnamese =
         getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt');

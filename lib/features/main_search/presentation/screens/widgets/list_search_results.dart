@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
+import 'package:unofficial_jisho_api/api.dart';
 
 import '../../../../../models/vietnameseDefinition.dart';
 import '../../../../../services/kanjiHelper.dart';
@@ -63,8 +64,7 @@ class ListSearchResultVN extends StatelessWidget {
         jlpt: [],
         word: 'waiting',
         reading: '',
-        senses: jsonDecode(
-            '[{"english_definitions":[],"parts_of_speech":[],"links":[],"tags":[],"restrictions":[],"see_also":[],"antonyms":[],"source":[],"info":[]}]'),
+        senses:[JishoWordSense(englishDefinitions: [], partsOfSpeech: [])],
         isJmnedict: '',
         isDbpedia: '',
         isJmdict: '',
