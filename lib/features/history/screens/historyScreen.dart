@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:unofficial_jisho_api/api.dart';
+
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offlineWordRecord.dart';
@@ -97,6 +99,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget getSearchResultTile(int index) {
+    final senses = (jsonDecode(history[index].senses) as List).map((e) => JishoWordSense.fromJson(e)).toList();
     final offlineWordRecord = history[index];
     final word = offlineWordRecord.word.isEmpty
         ? offlineWordRecord.slug
@@ -121,7 +124,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         jsonDecode(history[index].jlpt).toString()),
                     word: history[index].word,
                     reading: history[index].reading,
-                    senses: jsonDecode(history[index].senses),
+                    senses: senses,
                     isJmdict: [],
                     isDbpedia: [],
                     isJmnedict: [],
@@ -143,7 +146,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         jsonDecode(history[index].jlpt).toString()),
                     word: history[index].word,
                     reading: history[index].reading,
-                    senses: jsonDecode(history[index].senses),
+                    senses: senses,
                     isJmdict: [],
                     isDbpedia: [],
                     isJmnedict: [],
@@ -167,13 +170,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
             jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
             word: history[index].word,
             reading: history[index].reading,
-            senses: jsonDecode(history[index].senses),
+            senses: senses,
             isJmdict: [],
             isDbpedia: [],
             isJmnedict: [],
           ),
         );
-    } else
+    } else {
       return SearchResultTile(
         hanViet: KanjiHelper.getHanvietReading(
             word: word, context: context),
@@ -185,12 +188,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
           jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
           word: history[index].word,
           reading: history[index].reading,
-          senses: jsonDecode(history[index].senses),
+          senses: senses,
           isJmdict: [],
           isDbpedia: [],
           isJmnedict: [],
         ),
       );
+    }
   }
 
 // load kanji dictionary

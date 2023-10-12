@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:unofficial_jisho_api/api.dart';
+
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offlineWordRecord.dart';
@@ -92,6 +94,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 future: getVietnameseDefinition(
                     favorite[index].japaneseWord),
                 builder: (context, snapshot) {
+                  final senses = (jsonDecode(favorite[index].senses) as List)
+                      .map((e) => JishoWordSense.fromJson(e))
+                      .toList();
                   if (snapshot.data == null)
                     return SearchResultTile(
                       hanViet: KanjiHelper.getHanvietReading(
@@ -108,7 +113,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             jsonDecode(favorite[index].jlpt).toString()),
                         word: favorite[index].word,
                         reading: favorite[index].reading,
-                        senses: jsonDecode(favorite[index].senses),
+                        senses: senses,
                         isJmdict: [],
                         isDbpedia: [],
                         isJmnedict: [],
@@ -129,7 +134,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           jsonDecode(favorite[index].jlpt).toString()),
                       word: favorite[index].word,
                       reading: favorite[index].reading,
-                      senses: jsonDecode(favorite[index].senses),
+                      senses: senses,
                       isJmdict: [],
                       isDbpedia: [],
                       isJmnedict: [],

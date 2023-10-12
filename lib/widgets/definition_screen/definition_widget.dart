@@ -1,3 +1,5 @@
+import 'package:unofficial_jisho_api/api.dart';
+
 import '../../injection.dart';
 import '/utils/constants.dart';
 import '../../core/data/datasources/sharedPref.dart';
@@ -8,7 +10,7 @@ import 'package:html/dom.dart' as dom;
 
 class DefinitionWidget extends StatelessWidget {
   final String? vietnameseDefinition;
-  final List<dynamic>? senses;
+  final List<JishoWordSense>? senses;
   DefinitionWidget({this.vietnameseDefinition, this.senses});
 
   getVnDefinitionWidget() {
@@ -108,18 +110,18 @@ class DefinitionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          senses![index]['parts_of_speech']
+          senses![index].partsOfSpeech
               .toString()
               .substring(
-                  1, senses![index]['parts_of_speech'].toString().length - 1)
+                  1, senses![index].partsOfSpeech.toString().length - 1)
               .toUpperCase(),
           style: TextStyle(fontSize: 12),
         ),
         Padding(
           padding: EdgeInsets.only(left: 15, bottom: 10, top: 5),
           child: Text(
-            senses![index]['english_definitions'].toString().substring(
-                1, senses![index]['english_definitions'].toString().length - 1),
+            senses![index].englishDefinitions.toString().substring(
+                1, senses![index].englishDefinitions.toString().length - 1),
             style: TextStyle(
                 fontSize: Constants.definitionTextSize,
                 fontWeight: FontWeight.w500),

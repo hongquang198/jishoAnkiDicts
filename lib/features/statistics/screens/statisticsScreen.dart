@@ -1,10 +1,10 @@
 import '../../../core/domain/entities/dictionary.dart';
+import '../../../injection.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/statistics_screen/predictionChart.dart';
 import '../../../widgets/statistics_screen/todayDueChart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
 class StatisticsScreen extends StatefulWidget {
   @override
@@ -14,8 +14,7 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<Dictionary>(builder: (context, dictionary, child) {
-      return Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text(
             AppLocalizations.of(context)!.statistics,
@@ -35,11 +34,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               ),
               TodayDueChart(
-                newCardNumber: dictionary.getNewCardNumber.toDouble(),
-                youngCardNumber: dictionary.getYoungCardNumber.toDouble(),
-                matureCardNumber: dictionary.getMatureCardNumber.toDouble(),
+                newCardNumber: getIt<Dictionary>().getNewCardNumber.toDouble(),
+                youngCardNumber: getIt<Dictionary>().getYoungCardNumber.toDouble(),
+                matureCardNumber: getIt<Dictionary>().getMatureCardNumber.toDouble(),
                 difficultCardNumber:
-                    dictionary.getDifficultCardNumber.toDouble(),
+                    getIt<Dictionary>().getDifficultCardNumber.toDouble(),
               ),
               SizedBox(height: 10.0),
               Text(
@@ -57,7 +56,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ]),
       );
-    });
   }
 }
 

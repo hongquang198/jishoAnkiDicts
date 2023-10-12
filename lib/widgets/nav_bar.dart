@@ -49,7 +49,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.history),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.history,
+              context.pushNamed(AppRoutesPath.history,
                   extra: textEditingController);
             },
           ),
@@ -61,7 +61,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.favorite),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.favoriteWords,
+              context.pushNamed(AppRoutesPath.favoriteWords,
                   extra: textEditingController);
             },
           ),
@@ -70,7 +70,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.review),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.review,
+              context.pushNamed(AppRoutesPath.review,
                   extra: textEditingController);
             },
           ),
@@ -79,7 +79,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.statistics),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.statistics);
+              context.pushNamed(AppRoutesPath.statistics);
             },
           ),
           ListTile(
@@ -87,7 +87,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.grammar),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.grammar,
+              context.pushNamed(AppRoutesPath.grammar,
                   extra: textEditingController);
             },
           ),
@@ -96,7 +96,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.settings),
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(AppRoutesPath.settings);
+              context.pushNamed(AppRoutesPath.settings);
             },
           ),
           ListTile(
