@@ -104,7 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final word = offlineWordRecord.word.isEmpty
         ? offlineWordRecord.slug
         : offlineWordRecord.word;
-    if (getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')) {
+    if (getIt<SharedPref>().isAppInVietnamese) {
       if (history[index].vietnameseDefinition.isEmpty) {
         return FutureBuilder<VietnameseDefinition>(
             future: getVietnameseDefinition(word),

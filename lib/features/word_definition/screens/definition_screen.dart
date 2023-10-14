@@ -280,7 +280,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   )),
             ],
           ),
-          getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
+          getIt<SharedPref>().isAppInVietnamese
               ? FutureBuilder<List<String>>(
                   future: widget.args.hanViet,
                   builder: (context, snapshot) {

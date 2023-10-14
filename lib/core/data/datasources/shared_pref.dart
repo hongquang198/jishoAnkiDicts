@@ -55,4 +55,7 @@ class SharedPref {
     prefs.getString('theme') ?? prefs.setString('theme', 'light');
     print('${prefs.getString('language')}');
   }
+
+  bool get isAppInVietnamese => prefs.getString('language') == "Tiếng Việt";
+  bool get isAppInEnglish => prefs.getString('language')?.contains("English") == true;
 }

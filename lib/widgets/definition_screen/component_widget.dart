@@ -38,7 +38,7 @@ class _ComponentWidgetState extends State<ComponentWidget> {
               )),
         ),
         title: Text(
-          getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
+          getIt<SharedPref>().isAppInVietnamese
               ? (kanji.kanji ?? '') + ' ' + (kanji.hanViet ?? '')
               : (kanji.kanji ?? ''),
           style: TextStyle(

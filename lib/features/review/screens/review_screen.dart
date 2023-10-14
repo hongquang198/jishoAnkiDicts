@@ -297,7 +297,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           showAll == true &&
-                  getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt'
+                  getIt<SharedPref>().isAppInVietnamese
               ? FutureBuilder(
                   future: hanViet,
                   builder: (context, snapshot) {

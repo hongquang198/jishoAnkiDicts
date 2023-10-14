@@ -97,7 +97,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
           ],
         ),
         SizedBox(height: 10.0),
-        getIt<SharedPref>().prefs.getString('language') == 'English'
+        getIt<SharedPref>().isAppInEnglish
             ? Text(
                 'There are ${(widget.newCardNumber + widget.youngCardNumber + widget.matureCardNumber + widget.difficultCardNumber).toInt()} cards due today.',
                 style: TextStyle(fontSize: Constants.definitionTextSize))

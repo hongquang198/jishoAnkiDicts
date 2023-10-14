@@ -92,10 +92,10 @@ class DefinitionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt')
+        getIt<SharedPref>().isAppInVietnamese
             ? getVnDefinitionWidget()
             : SizedBox(),
-        if ((getIt<SharedPref>().prefs.getString('language')?.contains('English') == true) ||
+        if ((getIt<SharedPref>().isAppInEnglish) ||
             vietnameseDefinition?.isEmpty == true)
           for (int i = 0; i < (senses?.length ?? 0); i++) getDefinitions(i),
       ],

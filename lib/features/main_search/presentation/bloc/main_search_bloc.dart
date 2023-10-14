@@ -30,7 +30,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     print("QPP search for phrase");
     emit(MainSeachLoadingState(state.data));
     final isAppInVietnamese =
-        getIt<SharedPref>().prefs.getString('language') == ('Tiếng Việt');
+        getIt<SharedPref>().isAppInVietnamese;
 
     emit(MainSeachLoadingState(
         state.data.copyWith(isAppInVietnamese: isAppInVietnamese)));

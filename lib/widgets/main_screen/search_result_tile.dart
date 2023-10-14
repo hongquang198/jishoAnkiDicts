@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
+import 'package:japanese_ocr/config/app_routes.dart';
+
 import '../../features/main_search/domain/entities/jisho_definition.dart';
 import '../../injection.dart';
 import '../custom_dialog.dart';
@@ -73,38 +76,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
       return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
   }
 
-  Route _createRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => DefinitionScreen(
-        args: DefinitionScreenArgs(
-          hanViet: widget.hanViet,
-          vnDefinition: widget.vnDefinition,
-          textEditingController: widget.textEditingController,
-          isInFavoriteList: DbHelper.checkDatabaseExist(
-                      offlineListType: OfflineListType.favorite,
-                      word: word,
-                      context: context) ==
-                  true
-              ? true
-              : false,
-          jishoDefinition: widget.jishoDefinition,
-        ),
-      ),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(1.0, 0.0);
-        var end = Offset.zero;
-        var curve = Curves.decelerate;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -124,7 +95,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          getIt<SharedPref>().prefs.getString('language') == ("Tiếng Việt")
+          getIt<SharedPref>().isAppInVietnamese
               ? FutureBuilder(
                   future: widget.hanViet,
                   builder: (context, snapshot) {
@@ -173,14 +144,14 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   ],
                 ),
           if (widget.jishoDefinition?.senses != null &&
-              getIt<SharedPref>().prefs.getString('language') == ("English"))
+              getIt<SharedPref>().isAppInEnglish)
             Text(
                 widget.jishoDefinition!.senses[0].englishDefinitions
                         .toString(),
                 style: TextStyle(fontSize: 13))
           else
             SizedBox(),
-          getIt<SharedPref>().prefs.getString('language') == ("Tiếng Việt")
+          getIt<SharedPref>().isAppInVietnamese
               ? getVnDefinitionSummary()
               : SizedBox(),
         ],
@@ -336,7 +307,22 @@ class _SearchResultTileState extends State<SearchResultTile> {
               deck: 'default',
             ),
             context: context);
-        Navigator.of(context).push(_createRoute());
+        context.pushNamed(
+          AppRoutesPath.wordDefinition,
+          extra: DefinitionScreenArgs(
+            hanViet: widget.hanViet,
+            vnDefinition: widget.vnDefinition,
+            textEditingController: widget.textEditingController,
+            isInFavoriteList: DbHelper.checkDatabaseExist(
+                        offlineListType: OfflineListType.favorite,
+                        word: word,
+                        context: context) ==
+                    true
+                ? true
+                : false,
+            jishoDefinition: widget.jishoDefinition,
+          ),
+        );
       },
       onLongPress: () {
         showDialog(

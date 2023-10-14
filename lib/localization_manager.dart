@@ -5,7 +5,7 @@ import 'injection.dart';
 
 class LocalizationNotifier with ChangeNotifier {
   Locale getLanguage() {
-    if (getIt<SharedPref>().prefs.getString('language') == 'Tiếng Việt') {
+    if (getIt<SharedPref>().isAppInVietnamese) {
       return Locale('vi', '');
     } else {
       return Locale('en', '');
