@@ -1,7 +1,7 @@
-import '../../injection.dart';
-import '../../utils/bar_title_type.dart';
+import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../../injection.dart';
+import '../../../../utils/bar_title_type.dart';
 import '/utils/constants.dart';
-import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 
 import 'bar_line.dart';

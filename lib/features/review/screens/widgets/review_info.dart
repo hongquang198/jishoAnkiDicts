@@ -1,10 +1,11 @@
-import '../../core/domain/entities/dictionary.dart';
-import '../../injection.dart';
-import '../../models/offline_word_record.dart';
-import '../../utils/card_status.dart';
-import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../../core/domain/entities/dictionary.dart';
+import '../../../../injection.dart';
+import '../../../../models/offline_word_record.dart';
+import '../../../../utils/card_status.dart';
 
 class ReviewInfo extends StatefulWidget {
   final OfflineWordRecord offlineWordRecord;

@@ -5,7 +5,7 @@ import '../../../../injection.dart';
 import '../../../../theme_manager.dart';
 import 'dart:async';
 import '../../../../utils/constants.dart';
-import '../../../../widgets/nav_bar.dart';
+import '../../../../common_widgets/nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,6 @@
-import '../../utils/bar_title_type.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../utils/bar_title_type.dart';
 
 class BarLine extends StatelessWidget {
   /// This numner determines the height of the bar line

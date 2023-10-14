@@ -1,7 +1,8 @@
-import '../../injection.dart';
-import '../../models/offline_word_record.dart';
-import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../../injection.dart';
+import '../../../../models/offline_word_record.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({

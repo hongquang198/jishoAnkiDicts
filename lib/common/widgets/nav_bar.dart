@@ -1,12 +1,13 @@
 import 'package:go_router/go_router.dart';
 import 'package:japanese_ocr/config/app_routes.dart';
 
-import '../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../injection.dart';
-import '../theme_manager.dart';
+
+import '../../core/data/datasources/shared_pref.dart';
+import '../../injection.dart';
+import '../../theme_manager.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;

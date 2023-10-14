@@ -1,10 +1,11 @@
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../injection.dart';
 import '../../../utils/constants.dart';
-import '../../../widgets/statistics_screen/prediction_chart.dart';
-import '../../../widgets/statistics_screen/today_due_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'widgets/prediction_chart.dart';
+import 'widgets/today_due_chart.dart';
 
 class StatisticsScreen extends StatefulWidget {
   @override

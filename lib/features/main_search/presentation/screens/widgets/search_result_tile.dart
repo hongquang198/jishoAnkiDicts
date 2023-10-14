@@ -4,13 +4,13 @@ import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 
+import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../word_definition/screens/widgets/definition_tags.dart';
 import '../../../domain/entities/jisho_definition.dart';
 import '../../bloc/main_search_bloc.dart';
 import '../../../../word_definition/screens/definition_screen.dart';
 import '../../../../../injection.dart';
-import '../../../../../widgets/custom_dialog.dart';
 import '../../../../../models/offline_word_record.dart';
 import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
