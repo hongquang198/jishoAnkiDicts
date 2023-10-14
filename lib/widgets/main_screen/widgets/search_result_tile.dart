@@ -1,20 +1,21 @@
-import 'dart:convert';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/config/app_routes.dart';
-
-import '../../features/main_search/domain/entities/jisho_definition.dart';
-import '../../injection.dart';
-import '../custom_dialog.dart';
-import '../../models/offline_word_record.dart';
-import '../../models/vietnamese_definition.dart';
-import '../../features/word_definition/screens/definition_screen.dart';
-import '../../core/data/datasources/shared_pref.dart';
-import 'package:flutter/material.dart';
-import '../../utils/offline_list_type.dart';
-import '../../services/db_helper.dart';
-import '../definition_screen/definition_tags.dart';
 import 'package:html/parser.dart';
+import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
+
+import '../../../config/app_routes.dart';
+import '../../../features/main_search/domain/entities/jisho_definition.dart';
+import '../../../features/main_search/presentation/bloc/main_search_bloc.dart';
+import '../../../features/word_definition/screens/definition_screen.dart';
+import '../../../injection.dart';
+import '../../custom_dialog.dart';
+import '../../../models/offline_word_record.dart';
+import '../../../models/vietnamese_definition.dart';
+import '../../../core/data/datasources/shared_pref.dart';
+import '../../../utils/offline_list_type.dart';
+import '../../../services/db_helper.dart';
+import '../../definition_screen/definition_tags.dart';
 
 class SearchResultTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
@@ -23,12 +24,13 @@ class SearchResultTile extends StatefulWidget {
   final TextEditingController textEditingController;
   final bool loadingDefinition;
 
-  SearchResultTile(
-      {required this.hanViet,
-      this.vnDefinition = const VietnameseDefinition(),
-      this.jishoDefinition,
-      required this.textEditingController,
-      this.loadingDefinition = false});
+  SearchResultTile({
+    required this.hanViet,
+    this.vnDefinition,
+    this.jishoDefinition,
+    required this.textEditingController,
+    this.loadingDefinition = false,
+  });
 
   @override
   _SearchResultTileState createState() => _SearchResultTileState();
@@ -185,11 +187,11 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           slug: word,
                           isCommon:
                               widget.jishoDefinition?.isCommon == true ? 1 : 0,
-                          tags: jsonEncode(widget.jishoDefinition?.tags),
-                          jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+                          tags: widget.jishoDefinition?.tags ?? const [],
+                          jlpt: widget.jishoDefinition?.jlpt ?? const [],
                           word: word,
                           reading: widget.jishoDefinition?.reading ?? '',
-                          senses: jsonEncode(widget.jishoDefinition?.senses),
+                          senses: widget.jishoDefinition?.senses ?? const [],
                           vietnameseDefinition: widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
@@ -245,11 +247,11 @@ class _SearchResultTileState extends State<SearchResultTile> {
                           slug: word,
                           isCommon:
                               widget.jishoDefinition?.isCommon == true ? 1 : 0,
-                          tags: jsonEncode(widget.jishoDefinition?.tags),
-                          jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+                          tags: widget.jishoDefinition?.tags ?? const [],
+                          jlpt: widget.jishoDefinition?.jlpt ?? const [],
                           word: word,
                           reading: widget.jishoDefinition?.reading ?? '',
-                          senses: jsonEncode(widget.jishoDefinition?.senses),
+                          senses: widget.jishoDefinition?.senses ?? const [],
                           vietnameseDefinition: widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
@@ -286,11 +288,11 @@ class _SearchResultTileState extends State<SearchResultTile> {
             offlineWordRecord: OfflineWordRecord(
               slug: word,
               isCommon: widget.jishoDefinition?.isCommon == true ? 1 : 0,
-              tags: jsonEncode(widget.jishoDefinition?.tags),
-              jlpt: jsonEncode(widget.jishoDefinition?.jlpt),
+              tags: widget.jishoDefinition?.tags ?? [],
+              jlpt: widget.jishoDefinition?.jlpt ?? [],
               word: word,
               reading: widget.jishoDefinition?.reading ?? '',
-              senses: jsonEncode(widget.jishoDefinition?.senses),
+              senses: widget.jishoDefinition?.senses ?? [],
               vietnameseDefinition: widget.vnDefinition?.definition ?? '',
               added: DateTime.now().millisecondsSinceEpoch,
               firstReview: null,
@@ -310,7 +312,9 @@ class _SearchResultTileState extends State<SearchResultTile> {
         context.pushNamed(
           AppRoutesPath.wordDefinition,
           extra: DefinitionScreenArgs(
+            mainSearchBloc: context.read<MainSearchBloc>(),
             hanViet: widget.hanViet,
+            jishoDefinition: widget.jishoDefinition,
             vnDefinition: widget.vnDefinition,
             textEditingController: widget.textEditingController,
             isInFavoriteList: DbHelper.checkDatabaseExist(
@@ -320,7 +324,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     true
                 ? true
                 : false,
-            jishoDefinition: widget.jishoDefinition,
           ),
         );
       },
@@ -335,4 +338,5 @@ class _SearchResultTileState extends State<SearchResultTile> {
       },
     );
   }
+
 }

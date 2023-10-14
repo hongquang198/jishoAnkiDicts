@@ -21,19 +21,21 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
   MainSearchBloc({
     required this.searchJishoForPhrase,
     required this.lookForVietnameseDefinition,
-  }) : super(MainSeachLoadingState(const MainSearchStateData())) {
+  }) : super(MainSearchLoadingState(const MainSearchStateData())) {
     on<SearchForPhraseEvent>(_onSearchForPhrase);
   }
 
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
-    print("QPP search for phrase");
-    emit(MainSeachLoadingState(state.data));
     final isAppInVietnamese =
         getIt<SharedPref>().isAppInVietnamese;
 
-    emit(MainSeachLoadingState(
-        state.data.copyWith(isAppInVietnamese: isAppInVietnamese)));
+    emit(MainSearchLoadingState(
+        state.data.copyWith(
+      isAppInVietnamese: isAppInVietnamese,
+      vnDictQuery: [],
+      jishoDefinitionList: [],
+    )));
 
     if (isAppInVietnamese) {
       final resultEither = await lookForVietnameseDefinition.call(event.phrase);
@@ -42,14 +44,13 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
                 state.data,
                 failureMessage: failure.properties.toString(),
               )), (definitionList) {
-        emit(MainSearchLoadedState(
+        emit(MainSearchVNLoadedState(
           state.data.copyWith(vnDictQuery: definitionList),
         ));
       });
     }
 
     final resultEither = await searchJishoForPhrase.call(event.phrase);
-
     resultEither.fold(
         (failure) => emit(
               MainSearchFailureState(
@@ -57,7 +58,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
                 failureMessage: failure.properties.toString(),
               ),
             ),
-        (jishoDefinitionList) => emit(MainSearchLoadedState(state.data.copyWith(
+        (jishoDefinitionList) => emit(MainSearchAllLoadedState(state.data.copyWith(
               jishoDefinitionList: jishoDefinitionList,
             ))));
   }

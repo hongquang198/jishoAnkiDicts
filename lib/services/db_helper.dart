@@ -78,7 +78,7 @@ class DbHelper {
                 (element) =>
                     element.japaneseWord ==
                     offlineWordRecord.japaneseWord);
-        found.reviews++;
+        found = found.copyWith(reviews: found.reviews+1);
         getIt<Dictionary>().history.remove(found);
         getIt<Dictionary>()
             .offlineDatabase

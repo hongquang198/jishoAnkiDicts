@@ -182,18 +182,18 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
       child: BlocBuilder<MainSearchBloc, MainSearchState>(
         builder: (context, state) {
           return switch (state) {
-            MainSeachLoadingState() 
+            MainSearchLoadingState() 
               => Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                     ),
                   ),
-            MainSearchLoadedState(data: var data) when data.isAppInVietnamese &&
+            MainSearchVNLoadedState(data: var data) when data.isAppInVietnamese &&
               state.data.vnDictQuery.isNotEmpty => ListSearchResultVN(
                 vnDictQuery: state.data.vnDictQuery,
                 textEditingController: textEditingController,
               ),
-            MainSearchLoadedState(data: var data) || MainSearchFailureState(data: var data) when data.jishoDefinitionList.isNotEmpty =>
+            MainSearchAllLoadedState(data: var data) || MainSearchFailureState(data: var data) when data.jishoDefinitionList.isNotEmpty =>
                   ListSearchResultEN(
                     jishoDefinitionList: data.jishoDefinitionList,
                     textEditingController: textEditingController,

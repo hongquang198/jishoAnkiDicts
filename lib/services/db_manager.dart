@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
+
 import 'dart:io';
 import '../injection.dart';
 import '../models/grammar_point.dart';
 import '../models/offline_word_record.dart';
 import '../models/pitch_accent.dart';
 import '../core/data/datasources/shared_pref.dart';
-import 'package:flutter/services.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
 import '../models/kanji.dart';
 import '../models/vietnamese_definition.dart';
 import '../models/example_sentence.dart';
@@ -122,29 +123,7 @@ class DbManager {
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return OfflineWordRecord(
-        slug: maps[i]['slug'],
-        isCommon: maps[i]['is_common'],
-        tags: maps[i]['tags'],
-        jlpt: maps[i]['jlpt'],
-        word: maps[i]['word'],
-        reading: maps[i]['reading'],
-        senses: maps[i]['senses'],
-        vietnameseDefinition: maps[i]['vietnamese_definition'],
-        added: maps[i]['added'],
-        firstReview: maps[i]['firstReview'],
-        lastReview: maps[i]['lastReview'],
-        due: maps[i]['due'],
-        interval: maps[i]['interval'],
-        ease: maps[i]['ease'],
-        reviews: maps[i]['reviews'],
-        lapses: maps[i]['lapses'],
-        averageTimeMinute: maps[i]['averageTimeMinute'],
-        totalTimeMinute: maps[i]['totalTimeMinute'],
-        cardType: maps[i]['cardType'],
-        noteType: maps[i]['noteType'],
-        deck: maps[i]['deck'],
-      );
+      return OfflineWordRecord.fromMap(maps[i]);
     });
   }
 

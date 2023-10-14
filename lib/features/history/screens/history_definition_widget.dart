@@ -1,5 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
 
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
@@ -13,26 +16,20 @@ import '../../../utils/offline_list_type.dart';
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../../widgets/definition_screen/component_widget.dart';
 import '../../../widgets/definition_screen/definition_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:async';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
-import '../../main_search/presentation/bloc/main_search_bloc.dart';
-import 'widgets/is_common_tag_and_jlpt.dart';
+import '../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart';
 
-class DefinitionScreenArgs {
-  MainSearchBloc mainSearchBloc;
+class SavedDefinitionScreenArgs {
   final Future<List<String>>? hanViet;
   final VietnameseDefinition? vnDefinition;
+  //  TODO (@hongquang198): Remove textEditingController
   final TextEditingController textEditingController;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
   final bool isOfflineList;
-  DefinitionScreenArgs({
-    required this.mainSearchBloc,
+  SavedDefinitionScreenArgs({
     this.hanViet,
     this.vnDefinition,
     required this.textEditingController,
@@ -42,26 +39,17 @@ class DefinitionScreenArgs {
   });
 }
 
-class DefinitionScreen extends StatefulWidget {
-  final DefinitionScreenArgs args;
-  DefinitionScreen({
+class SavedDefinitionScreen extends StatefulWidget {
+  final SavedDefinitionScreenArgs args;
+  SavedDefinitionScreen({
     required this.args,
   });
 
-  static BlocProvider<MainSearchBloc> provider({
-    required DefinitionScreenArgs args,
-  }) {
-    return BlocProvider.value(
-      value: args.mainSearchBloc,
-      child: DefinitionScreen(args: args),
-    );
-  }
-
   @override
-  _DefinitionScreenState createState() => _DefinitionScreenState();
+  _SavedDefinitionScreenState createState() => _SavedDefinitionScreenState();
 }
 
-class _DefinitionScreenState extends State<DefinitionScreen> {
+class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
   bool isClipboardSet = false;
   late String clipboard;
   late Future<List<Widget>> pitchAccent;
@@ -72,24 +60,10 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   late OfflineWordRecord offlineWordRecord;
   late String currentJapaneseWord;
 
-  Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
-    if (partsOfSpeech.length > 0) {
-      return Text(
-        partsOfSpeech.first.toString().toUpperCase(),
-      );
-    }
-    return SizedBox();
-  }
-
   Future<String> getClipboard() async {
     ClipboardData? data = await Clipboard.getData('text/plain');
     clipboard = data?.text ?? '';
     return clipboard;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -98,9 +72,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     jishoDefinition = widget.args.jishoDefinition ?? JishoDefinition(slug: '');
     vnDefinition = widget.args.vnDefinition ?? VietnameseDefinition();
     currentJapaneseWord = vnDefinition.word;
-    if (widget.args.jishoDefinition != null) {
-      _saveHistoryOfflineWordRecord(context);
-    }
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.word ?? '';
     }
@@ -291,36 +262,12 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   },
                 )
               : SizedBox(),
-          widget.args.jishoDefinition != null
-              ? IsCommonTagsAndJlptWidget(
+          if (widget.args.jishoDefinition != null)
+              IsCommonTagsAndJlptWidget(
                   isCommon: jishoDefinition.isCommon,
                   tags: jishoDefinition.tags,
                   jlpt: jishoDefinition.jlpt,
-                )
-              :  
-          BlocConsumer<MainSearchBloc, MainSearchState>(
-            listener: (context, state) {
-              if (state is MainSearchAllLoadedState) {
-                jishoDefinition = state.data.getSpecificJishoDefinition(
-                        japaneseWord: currentJapaneseWord) ??
-                    JishoDefinition(slug: "");
-                _saveHistoryOfflineWordRecord(context);
-              }
-            },
-            builder: (context, state) {
-              final jishoDefinition = state.data.getSpecificJishoDefinition(
-                  japaneseWord: currentJapaneseWord);
-              final isCommon = jishoDefinition?.isCommon ?? false;
-              final tags = jishoDefinition?.tags ?? [];
-              final jlpt = jishoDefinition?.jlpt ?? [];
-              
-              return IsCommonTagsAndJlptWidget(
-                isCommon: isCommon,
-                tags: tags,
-                jlpt: jlpt,
-              );
-            },
-          ),
+                ),
           SizedBox(height: 8),
           DefinitionWidget(
             senses: jishoDefinition.senses,
@@ -367,35 +314,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
         ]),
       ),
     );
-  }
-
-  void _saveHistoryOfflineWordRecord(BuildContext context) {
-    DbHelper.addToOfflineList(
-        offlineListType: OfflineListType.history,
-        offlineWordRecord: OfflineWordRecord(
-          slug: currentJapaneseWord,
-          isCommon: jishoDefinition.isCommon == true ? 1 : 0,
-          tags: jishoDefinition.tags,
-          jlpt: jishoDefinition.jlpt,
-          word: currentJapaneseWord,
-          reading: jishoDefinition.reading ?? '',
-          senses: jishoDefinition.senses,
-          vietnameseDefinition: vnDefinition.definition,
-          added: DateTime.now().millisecondsSinceEpoch,
-          firstReview: null,
-          lastReview: null,
-          due: -1,
-          interval: 0,
-          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-          reviews: 0,
-          lapses: 0,
-          averageTimeMinute: 0,
-          totalTimeMinute: 0,
-          cardType: 'default',
-          noteType: 'default',
-          deck: 'default',
-        ),
-        context: context);
   }
 
   int getViewCounts() {

@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:unofficial_jisho_api/api.dart';
-
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offline_word_record.dart';
@@ -10,7 +6,7 @@ import '../../../services/kanji_helper.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
-import '../../../widgets/main_screen/search_result_tile.dart';
+import '../../../widgets/main_screen/widgets/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -99,7 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget getSearchResultTile(int index) {
-    final senses = (jsonDecode(history[index].senses) as List).map((e) => JishoWordSense.fromJson(e)).toList();
+    final senses = history[index].senses;
     final offlineWordRecord = history[index];
     final word = offlineWordRecord.word.isEmpty
         ? offlineWordRecord.slug
@@ -118,10 +114,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   jishoDefinition: JishoDefinition(
                     slug: history[index].slug,
                     isCommon: history[index].isCommon == 1 ? true : false,
-                    tags: convertToList(
-                        jsonDecode(history[index].tags).toString()),
-                    jlpt: convertToList(
-                        jsonDecode(history[index].jlpt).toString()),
+                    tags: history[index].tags,
+                    jlpt: history[index].jlpt,
                     word: history[index].word,
                     reading: history[index].reading,
                     senses: senses,
@@ -140,10 +134,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   jishoDefinition: JishoDefinition(
                     slug: history[index].slug,
                     isCommon: history[index].isCommon == 1 ? true : false,
-                    tags: convertToList(
-                        jsonDecode(history[index].tags).toString()),
-                    jlpt: convertToList(
-                        jsonDecode(history[index].jlpt).toString()),
+                    tags: history[index].tags,
+                    jlpt: history[index].jlpt,
                     word: history[index].word,
                     reading: history[index].reading,
                     senses: senses,
@@ -166,8 +158,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
           jishoDefinition: JishoDefinition(
             slug: history[index].slug,
             isCommon: history[index].isCommon == 1 ? true : false,
-            tags: convertToList(jsonDecode(history[index].tags).toString()),
-            jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
+            tags: history[index].tags,
+            jlpt: history[index].jlpt,
             word: history[index].word,
             reading: history[index].reading,
             senses: senses,
@@ -184,8 +176,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         jishoDefinition: JishoDefinition(
           slug: history[index].slug,
           isCommon: history[index].isCommon == 1 ? true : false,
-          tags: convertToList(jsonDecode(history[index].tags).toString()),
-          jlpt: convertToList(jsonDecode(history[index].jlpt).toString()),
+          tags: history[index].tags,
+          jlpt: history[index].jlpt,
           word: history[index].word,
           reading: history[index].reading,
           senses: senses,

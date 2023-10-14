@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   DropdownButton<String>(
                     value: dropdownValue,
-                    hint: Text('${getIt<SharedPref>().isAppInVietnamese}'),
+                    hint: Text('${getIt<SharedPref>().prefs.getString("language")}'),
                     icon: const Icon(Icons.arrow_downward),
                     iconSize: 24,
                     elevation: 16,

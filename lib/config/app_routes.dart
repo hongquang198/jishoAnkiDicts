@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:japanese_ocr/features/card_info/screens/card_info_screen.dart';
 import 'package:japanese_ocr/features/favorite_words/screens/favorite_screen.dart';
 import 'package:japanese_ocr/features/grammar/screens/grammar_screen.dart';
+import 'package:japanese_ocr/features/history/screens/history_definition_widget.dart';
 import 'package:japanese_ocr/features/history/screens/history_screen.dart';
 import 'package:japanese_ocr/features/review/screens/review_screen.dart';
 import 'package:japanese_ocr/features/settings/screens/settings_screen.dart';
@@ -10,7 +11,7 @@ import 'package:japanese_ocr/features/single_grammar_point/screen/grammar_point_
 import 'package:japanese_ocr/features/statistics/screens/statistics_screen.dart';
 import 'package:japanese_ocr/features/word_definition/screens/definition_screen.dart';
 import 'package:japanese_ocr/models/grammar_point.dart';
-import 'package:japanese_ocr/features/main_search/presentation/screens/mainScreen.dart';
+import 'package:japanese_ocr/features/main_search/presentation/screens/main_screen.dart';
 
 import '../core/services/navigation_service.dart';
 import '../injection.dart';
@@ -52,6 +53,12 @@ class AppRoutes {
               textEditingController: state.extra as TextEditingController),
         ),
         GoRoute(
+          path: AppRoutesPath.savedWordDefinition,
+          name: AppRoutesPath.savedWordDefinition,
+          builder: (_, state) => SavedDefinitionScreen(
+              args: state.extra as SavedDefinitionScreenArgs),
+        ),
+        GoRoute(
           path: AppRoutesPath.review,
           name: AppRoutesPath.review,
           builder: (_, state) => ReviewScreen(
@@ -78,7 +85,7 @@ class AppRoutes {
           path: AppRoutesPath.wordDefinition,
           name: AppRoutesPath.wordDefinition,
           builder: (_, state) =>
-              DefinitionScreen(args: state.extra as DefinitionScreenArgs),
+              DefinitionScreen.provider(args: state.extra as DefinitionScreenArgs),
         ),
       ]);
 }
@@ -94,4 +101,5 @@ class AppRoutesPath {
   static const String singleGrammarPoint = '/single-grammar-point';
   static const String statistics = '/statistics';
   static const String wordDefinition = '/word-definition';
+  static const String savedWordDefinition = '/saved-word-definition';
 }

@@ -5,7 +5,7 @@ import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_
 
 import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../services/kanji_helper.dart';
-import '../../../../../widgets/main_screen/search_result_tile.dart';
+import '../../../../../widgets/main_screen/widgets/search_result_tile.dart';
 import '../../../domain/entities/jisho_definition.dart';
 import '../mixins/get_vietnamese_definition_mixin.dart';
 
@@ -22,51 +22,45 @@ class ListSearchResultVN extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      separatorBuilder: (context, index) => Divider(
-        thickness: 0.4,
-      ),
-      itemCount: vnDictQuery.length,
-      itemBuilder: (BuildContext context, int index) {
-        SearchResultTile searchResultTileOldWaiting =
-            _getSearchResultTileOldWaiting(index, context);
-        return BlocBuilder<MainSearchBloc, MainSearchState>(
-            builder: (context, state) {
-              SearchResultTile searchResultTileWithVnFinished =
-                  _getSearchResultTileWithVnFinished(index, context);
-              return switch (state) {
-                MainSeachLoadingState() => const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                    ),
+        separatorBuilder: (context, index) => Divider(
+              thickness: 0.4,
+            ),
+        itemCount: vnDictQuery.length,
+        itemBuilder: (BuildContext context, int index) {
+          SearchResultTile searchResultTileOldWaiting =
+              _getSearchResultTileOldWaiting(index, context);
+          return BlocBuilder<MainSearchBloc, MainSearchState>(
+              builder: (context, state) {
+            SearchResultTile searchResultTileWithVnFinished =
+                _getSearchResultTileWithVnFinished(index, context);
+            return switch (state) {
+              MainSearchLoadingState() => const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                   ),
-                MainSearchLoadedState(data: var data) when data.jishoDefinitionList.any((element) => element.japaneseWord == vnDictQuery[index].word)
-                        => _getSearchResultTileVnEnFinished(
-                          data.jishoDefinitionList.firstWhere((element) => element.japaneseWord == vnDictQuery[index].word), index, context),
-                MainSearchLoadedState(data: var data) when data.vnDictQuery.isNotEmpty || vnDictQuery.isNotEmpty 
-                    => searchResultTileWithVnFinished,
-                MainSearchFailureState() => const SizedBox.shrink(),
-                _ => searchResultTileOldWaiting,
-                };
-              });
-            });
+                ),
+              MainSearchAllLoadedState(data: var data)
+                  when data.jishoDefinitionList.any((element) =>
+                      element.japaneseWord == vnDictQuery[index].word) =>
+                _getSearchResultTileVnEnFinished(
+                    data.jishoDefinitionList.firstWhere((element) =>
+                        element.japaneseWord == vnDictQuery[index].word),
+                    index,
+                    context),
+              MainSearchVNLoadedState(data: var data)
+                  when data.vnDictQuery.isNotEmpty || vnDictQuery.isNotEmpty =>
+                searchResultTileWithVnFinished,
+              MainSearchFailureState() => const SizedBox.shrink(),
+              _ => searchResultTileOldWaiting,
+            };
+          });
+        });
   }
 
   SearchResultTile _getSearchResultTileOldWaiting(
       int index, BuildContext context) {
     return SearchResultTile(
       loadingDefinition: true,
-      jishoDefinition: JishoDefinition(
-        slug: '',
-        isCommon: false,
-        tags: [],
-        jlpt: [],
-        word: 'waiting',
-        reading: '',
-        senses: [],
-        isJmnedict: '',
-        isDbpedia: '',
-        isJmdict: '',
-      ),
       textEditingController: textEditingController,
       hanViet: KanjiHelper.getHanvietReading(
           word: vnDictQuery[index].word, context: context),
@@ -79,18 +73,6 @@ class ListSearchResultVN extends StatelessWidget {
       int index, BuildContext context) {
     return SearchResultTile(
       loadingDefinition: false,
-      jishoDefinition: JishoDefinition(
-        slug: '',
-        isCommon: false,
-        tags: [],
-        jlpt: [],
-        word: 'waiting',
-        reading: '',
-        senses: [],
-        isJmnedict: '',
-        isDbpedia: '',
-        isJmdict: '',
-      ),
       textEditingController: textEditingController,
       hanViet: KanjiHelper.getHanvietReading(
           word: vnDictQuery[index].word, context: context),

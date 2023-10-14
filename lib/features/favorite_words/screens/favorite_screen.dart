@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:unofficial_jisho_api/api.dart';
-
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offline_word_record.dart';
@@ -9,7 +5,7 @@ import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';
-import '../../../widgets/main_screen/search_result_tile.dart';
+import '../../../widgets/main_screen/widgets/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -94,9 +90,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 future: getVietnameseDefinition(
                     favorite[index].japaneseWord),
                 builder: (context, snapshot) {
-                  final senses = (jsonDecode(favorite[index].senses) as List)
-                      .map((e) => JishoWordSense.fromJson(e))
-                      .toList();
+                  final senses = favorite[index].senses;
                   if (snapshot.data == null)
                     return SearchResultTile(
                       hanViet: KanjiHelper.getHanvietReading(
@@ -107,10 +101,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       jishoDefinition: JishoDefinition(
                         slug: favorite[index].slug,
                         isCommon: favorite[index].isCommon == 1 ? true : false,
-                        tags: convertToList(
-                            jsonDecode(favorite[index].tags).toString()),
-                        jlpt: convertToList(
-                            jsonDecode(favorite[index].jlpt).toString()),
+                        tags: favorite[index].tags,
+                        jlpt: favorite[index].jlpt,
                         word: favorite[index].word,
                         reading: favorite[index].reading,
                         senses: senses,
@@ -128,10 +120,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     jishoDefinition: JishoDefinition(
                       slug: favorite[index].slug,
                       isCommon: favorite[index].isCommon == 1 ? true : false,
-                      tags: convertToList(
-                          jsonDecode(favorite[index].tags).toString()),
-                      jlpt: convertToList(
-                          jsonDecode(favorite[index].jlpt).toString()),
+                      tags: favorite[index].tags,
+                      jlpt: favorite[index].jlpt,
                       word: favorite[index].word,
                       reading: favorite[index].reading,
                       senses: senses,

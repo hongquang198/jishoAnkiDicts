@@ -1,4 +1,3 @@
-import 'dart:convert';
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/example_sentence.dart';
@@ -330,9 +329,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     )
                   : SizedBox(),
               DefinitionTags(
-                  tags: jsonDecode(currentCard.tags), color: Color(0xFF909DC0)),
+                  tags: currentCard.tags, color: Color(0xFF909DC0)),
               DefinitionTags(
-                  tags: jsonDecode(currentCard.jlpt), color: Color(0xFF909DC0)),
+                  tags: currentCard.jlpt, color: Color(0xFF909DC0)),
             ],
           ),
           SizedBox(height: 8),
@@ -452,12 +451,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                   // Calculate and update card interval
                   if (currentCard.reviews == 0) {
-                    currentCard.firstReview =
-                        DateTime.now().millisecondsSinceEpoch;
+                    currentCard = currentCard.copyWith(
+                        firstReview: DateTime.now().millisecondsSinceEpoch);
                   } else {
                     // If card is mature
                     if (currentCard.interval > 21 * 24 * 60 * 60 * 1000) {
-                      currentCard.lapses++;
+                      currentCard = currentCard.copyWith(lapses: currentCard.lapses + 1);
                       if (currentCard.lapses ==
                           getIt<SharedPref>().prefs.getInt('leechThreshold')) {
                         print('Card lapses reached. Deleting');
@@ -489,12 +488,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       }
                     }
                   }
-                  currentCard.lastReview =
-                      DateTime.now().millisecondsSinceEpoch;
-                  currentCard.interval = steps[0] * 60 * 1000;
-                  currentCard.due = DateTime.now().millisecondsSinceEpoch +
-                      currentCard.interval;
-                  currentCard.reviews++;
+                  currentCard = currentCard.copyWith(
+                    lastReview: DateTime.now().millisecondsSinceEpoch,
+                    interval: steps[0] * 60 * 1000,
+                    due: DateTime.now().millisecondsSinceEpoch +
+                      currentCard.interval,
+                    reviews: currentCard.reviews + 1
+                  );
 
                   DbHelper.updateWordInfo(
                       offlineListType: OfflineListType.review,
@@ -545,40 +545,49 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   redoType = RedoType.update;
 
                   // Calculate and update card interval
-                  currentCard.lastReview =
-                      DateTime.now().millisecondsSinceEpoch;
-                  if (currentCard.reviews == 0)
-                    currentCard.firstReview =
-                        DateTime.now().millisecondsSinceEpoch;
+                  currentCard = currentCard.copyWith(
+                    lastReview: DateTime.now().millisecondsSinceEpoch
+                  );
+                  if (currentCard.reviews == 0) {
+                    currentCard = currentCard.copyWith(
+                      firstReview: DateTime.now().millisecondsSinceEpoch
+                    );
+                  }
                   if (currentCard.interval <
                       steps[steps.length - 1] * 60 * 1000)
                     for (int i = 0; i < steps.length; i++) {
                       if (currentCard.interval < steps[i] * 60 * 1000) {
-                        currentCard.interval = steps[i] * 60 * 1000;
+                        currentCard = currentCard.copyWith(
+                          interval: steps[i] * 60 * 1000
+                        );
                         break;
                       }
                     }
                   else if (currentCard.interval ==
                       steps[steps.length - 1] * 60 * 1000) {
-                    currentCard.interval =
-                        getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
+                    currentCard = currentCard.copyWith(
+                        interval: getIt<SharedPref>()
+                                .prefs
+                                .getInt('graduatingInterval')! *
                             24 *
                             60 *
                             60 *
-                            1000;
+                            1000);
                   } else if (currentCard.interval >=
                       getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
                           24 *
                           60 *
                           60 *
                           1000) {
-                    currentCard.interval =
-                        (currentCard.interval * currentCard.ease).round();
+                    currentCard = currentCard.copyWith(
+                        interval:
+                            (currentCard.interval * currentCard.ease).round());
                   }
-
-                  currentCard.due = currentCard.interval +
-                      DateTime.now().millisecondsSinceEpoch;
-                  currentCard.reviews++;
+                  currentCard = currentCard.copyWith(
+                    due: currentCard.interval +
+                      DateTime.now().millisecondsSinceEpoch,
+                    reviews: currentCard.reviews + 1
+                  );
 
                   DbHelper.updateWordInfo(
                     offlineListType: OfflineListType.review,
@@ -607,7 +616,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   getDefinitionWidget() {
     if (currentCard.vietnameseDefinition.isNotEmpty)
       return DefinitionWidget(
-        senses: jsonDecode(currentCard.senses),
+        senses: currentCard.senses,
         vietnameseDefinition: currentCard.vietnameseDefinition,
       );
     else
@@ -617,13 +626,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
             if (snapshot.data == null)
               return Center(
                 child: DefinitionWidget(
-                  senses: jsonDecode(currentCard.senses),
+                  senses: currentCard.senses,
                   vietnameseDefinition: null,
                 ),
               );
             return Center(
               child: DefinitionWidget(
-                senses: jsonDecode(currentCard.senses),
+                senses: currentCard.senses,
                 vietnameseDefinition: snapshot.data?.definition,
               ),
             );

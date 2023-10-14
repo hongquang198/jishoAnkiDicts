@@ -10,6 +10,10 @@ class MainSearchStateData {
     this.isAppInVietnamese = false,
   });
 
+  JishoDefinition? getSpecificJishoDefinition({required String japaneseWord}) =>
+      jishoDefinitionList
+          .firstWhereOrNull((element) => element.japaneseWord == japaneseWord);
+
   MainSearchStateData copyWith({
     List<VietnameseDefinition>? vnDictQuery,
     List<JishoDefinition>? jishoDefinitionList,
@@ -46,12 +50,16 @@ sealed class MainSearchState extends Equatable {
   List<Object> get props => [data];
 }
 
-final class MainSeachLoadingState extends MainSearchState {
-  MainSeachLoadingState(super.data);
+final class MainSearchLoadingState extends MainSearchState {
+  MainSearchLoadingState(super.data);
 }
 
-final class MainSearchLoadedState extends MainSearchState {
-  MainSearchLoadedState(super.data);
+final class MainSearchVNLoadedState extends MainSearchState {
+  MainSearchVNLoadedState(super.data);
+}
+
+final class MainSearchAllLoadedState extends MainSearchState {
+  MainSearchAllLoadedState(super.data);
 }
 
 final class MainSearchFailureState extends MainSearchState {
