@@ -1,9 +1,10 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:japanese_ocr/features/main_search/domain/entities/jisho_definition.dart';
+import 'package:unofficial_jisho_api/api.dart';
 import 'dart:convert';
 
-import 'package:unofficial_jisho_api/api.dart';
+import 'i_get_jisho_definition.dart';
 
-class OfflineWordRecord {
+class OfflineWordRecord implements IGetJishoDefinition {
   final String slug; //
   final int isCommon; //
   final List<String> tags; //
@@ -180,6 +181,22 @@ class OfflineWordRecord {
       cardType: cardType ?? this.cardType,
       noteType: noteType ?? this.noteType,
       deck: deck ?? this.deck,
+    );
+  }
+
+  @override
+  JishoDefinition getJishoDefinition() {
+    return JishoDefinition(
+      slug: slug,
+      isCommon: isCommon == 1 ? true : false,
+      tags: tags,
+      jlpt: jlpt,
+      word: word,
+      reading: reading,
+      senses: senses,
+      isDbpedia: [],
+      isJmdict: [],
+      isJmnedict: [],
     );
   }
 }

@@ -11,8 +11,6 @@ import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
 
-import '../../main_search/domain/entities/jisho_definition.dart';
-
 class FavoriteScreen extends StatefulWidget {
   final TextEditingController textEditingController;
   FavoriteScreen({required this.textEditingController});
@@ -91,7 +89,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 future: getVietnameseDefinition(
                     favorite[index].japaneseWord),
                 builder: (context, snapshot) {
-                  final senses = favorite[index].senses;
                   if (snapshot.data == null)
                     return CommonQueryTile(
                       hanViet: KanjiHelper.getHanvietReading(
@@ -99,18 +96,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           context: context),
                       vnDefinition: null,
                       textEditingController: widget.textEditingController,
-                      jishoDefinition: JishoDefinition(
-                        slug: favorite[index].slug,
-                        isCommon: favorite[index].isCommon == 1 ? true : false,
-                        tags: favorite[index].tags,
-                        jlpt: favorite[index].jlpt,
-                        word: favorite[index].word,
-                        reading: favorite[index].reading,
-                        senses: senses,
-                        isJmdict: [],
-                        isDbpedia: [],
-                        isJmnedict: [],
-                      ),
+                      jishoDefinition: favorite[index].getJishoDefinition(),
                     );
                   return CommonQueryTile(
                     hanViet: KanjiHelper.getHanvietReading(
@@ -118,18 +104,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         context: context),
                     vnDefinition: snapshot.data,
                     textEditingController: widget.textEditingController,
-                    jishoDefinition: JishoDefinition(
-                      slug: favorite[index].slug,
-                      isCommon: favorite[index].isCommon == 1 ? true : false,
-                      tags: favorite[index].tags,
-                      jlpt: favorite[index].jlpt,
-                      word: favorite[index].word,
-                      reading: favorite[index].reading,
-                      senses: senses,
-                      isJmdict: [],
-                      isDbpedia: [],
-                      isJmnedict: [],
-                    ),
+                    jishoDefinition: favorite[index].getJishoDefinition(),
                   );
                 });
           },

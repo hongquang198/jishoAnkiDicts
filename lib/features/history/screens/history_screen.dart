@@ -11,7 +11,6 @@ import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
-import '../../main_search/domain/entities/jisho_definition.dart';
 
 class HistoryScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -90,7 +89,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget getCommonQueryTile(int index) {
-    final senses = history[index].senses;
     final offlineWordRecord = history[index];
     final word = offlineWordRecord.word.isEmpty
         ? offlineWordRecord.slug
@@ -106,18 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       word: word,
                       context: context),
                   textEditingController: widget.textEditingController,
-                  jishoDefinition: JishoDefinition(
-                    slug: history[index].slug,
-                    isCommon: history[index].isCommon == 1 ? true : false,
-                    tags: history[index].tags,
-                    jlpt: history[index].jlpt,
-                    word: history[index].word,
-                    reading: history[index].reading,
-                    senses: senses,
-                    isJmdict: [],
-                    isDbpedia: [],
-                    isJmnedict: [],
-                  ),
+                  jishoDefinition: history[index].getJishoDefinition(),
                 );
               else {
                 return CommonQueryTile(
@@ -126,18 +113,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       context: context),
                   vnDefinition: snapshot.data,
                   textEditingController: widget.textEditingController,
-                  jishoDefinition: JishoDefinition(
-                    slug: history[index].slug,
-                    isCommon: history[index].isCommon == 1 ? true : false,
-                    tags: history[index].tags,
-                    jlpt: history[index].jlpt,
-                    word: history[index].word,
-                    reading: history[index].reading,
-                    senses: senses,
-                    isJmdict: [],
-                    isDbpedia: [],
-                    isJmnedict: [],
-                  ),
+                  jishoDefinition: history[index].getJishoDefinition(),
                 );
               }
             });
@@ -150,36 +126,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
               word: word,
               definition: history[index].vietnameseDefinition),
           textEditingController: widget.textEditingController,
-          jishoDefinition: JishoDefinition(
-            slug: history[index].slug,
-            isCommon: history[index].isCommon == 1 ? true : false,
-            tags: history[index].tags,
-            jlpt: history[index].jlpt,
-            word: history[index].word,
-            reading: history[index].reading,
-            senses: senses,
-            isJmdict: [],
-            isDbpedia: [],
-            isJmnedict: [],
-          ),
+          jishoDefinition: history[index].getJishoDefinition(),
         );
     } else {
       return CommonQueryTile(
         hanViet: KanjiHelper.getHanvietReading(
             word: word, context: context),
         textEditingController: widget.textEditingController,
-        jishoDefinition: JishoDefinition(
-          slug: history[index].slug,
-          isCommon: history[index].isCommon == 1 ? true : false,
-          tags: history[index].tags,
-          jlpt: history[index].jlpt,
-          word: history[index].word,
-          reading: history[index].reading,
-          senses: senses,
-          isJmdict: [],
-          isDbpedia: [],
-          isJmnedict: [],
-        ),
+        jishoDefinition: history[index].getJishoDefinition(),
       );
     }
   }
