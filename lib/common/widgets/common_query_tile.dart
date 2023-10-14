@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:japanese_ocr/features/history/screens/history_definition_widget.dart';
+import 'package:japanese_ocr/features/history/screens/saved_definition_screen.dart';
 
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
@@ -271,45 +271,17 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
       ),
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
-        DbHelper.addToOfflineList(
-            offlineListType: OfflineListType.history,
-            offlineWordRecord: OfflineWordRecord(
-              slug: word,
-              isCommon: widget.jishoDefinition?.isCommon == true ? 1 : 0,
-              tags: widget.jishoDefinition?.tags ?? [],
-              jlpt: widget.jishoDefinition?.jlpt ?? [],
-              word: word,
-              reading: widget.jishoDefinition?.reading ?? '',
-              senses: widget.jishoDefinition?.senses ?? [],
-              vietnameseDefinition: widget.vnDefinition?.definition ?? '',
-              added: DateTime.now().millisecondsSinceEpoch,
-              firstReview: null,
-              lastReview: null,
-              due: -1,
-              interval: 0,
-              ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-              reviews: 0,
-              lapses: 0,
-              averageTimeMinute: 0,
-              totalTimeMinute: 0,
-              cardType: 'default',
-              noteType: 'default',
-              deck: 'default',
-            ),
-            context: context);
         context.pushNamed(
           AppRoutesPath.savedWordDefinition,
-          extra: SavedDefinitionScreen(
-            args: SavedDefinitionScreenArgs(
-              hanViet: widget.hanViet,
-              jishoDefinition: widget.jishoDefinition,
-              vnDefinition: widget.vnDefinition,
-              textEditingController: widget.textEditingController,
-              isInFavoriteList: DbHelper.checkDatabaseExist(
-                          offlineListType: OfflineListType.favorite,
-                          word: word,
-                          context: context),
-            ),
+          extra: SavedDefinitionScreenArgs(
+            hanViet: widget.hanViet,
+            jishoDefinition: widget.jishoDefinition,
+            vnDefinition: widget.vnDefinition,
+            textEditingController: widget.textEditingController,
+            isInFavoriteList: DbHelper.checkDatabaseExist(
+                offlineListType: OfflineListType.favorite,
+                word: word,
+                context: context),
           ),
         );
       },

@@ -32,6 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   void initState() {
+    super.initState();
     getClipboard();
     widget.textEditingController.addListener(() {
       if (mounted) {
@@ -46,12 +47,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         .history
         .reversed
         .toList();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   // Convert normal String tags in offline dictionary to match list<dynamic> used by jisho api

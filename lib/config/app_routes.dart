@@ -5,7 +5,7 @@ import '../core/services/navigation_service.dart';
 import '../features/card_info/screens/card_info_screen.dart';
 import '../features/favorite_words/screens/favorite_screen.dart';
 import '../features/grammar/screens/grammar_screen.dart';
-import '../features/history/screens/history_definition_widget.dart';
+import '../features/history/screens/saved_definition_screen.dart';
 import '../features/history/screens/history_screen.dart';
 import '../features/main_search/presentation/screens/main_screen.dart';
 import '../features/review/screens/review_screen.dart';
