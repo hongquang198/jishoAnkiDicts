@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 import '../injection.dart';
-import '../models/grammarPoint.dart';
-import '../models/offlineWordRecord.dart';
-import '../models/pitchAccent.dart';
-import '../core/data/datasources/sharedPref.dart';
+import '../models/grammar_point.dart';
+import '../models/offline_word_record.dart';
+import '../models/pitch_accent.dart';
+import '../core/data/datasources/shared_pref.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/kanji.dart';
-import '../models/vietnameseDefinition.dart';
-import '../models/exampleSentence.dart';
+import '../models/vietnamese_definition.dart';
+import '../models/example_sentence.dart';
 
 class DbManager {
   // Avoid errors caused by flutter upgrade.

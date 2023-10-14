@@ -1,4 +1,4 @@
-import 'core/data/datasources/sharedPref.dart';
+import 'core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 
 import 'injection.dart';

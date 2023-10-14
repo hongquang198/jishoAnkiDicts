@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:japanese_ocr/core/data/datasources/sharedPref.dart';
+import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/domain/entities/jisho_definition.dart';
 import 'package:japanese_ocr/features/main_search/domain/usecases/look_for_vietnamese_definition.dart';
 import 'package:japanese_ocr/features/main_search/domain/usecases/search_jisho_for_phrase.dart';
@@ -9,7 +9,7 @@ import 'package:japanese_ocr/features/main_search/domain/usecases/search_jisho_f
 import 'package:collection/collection.dart';
 
 import '../../../../injection.dart';
-import '../../../../models/vietnameseDefinition.dart';
+import '../../../../models/vietnamese_definition.dart';
 
 part 'main_search_event.dart';
 part 'main_search_state.dart';

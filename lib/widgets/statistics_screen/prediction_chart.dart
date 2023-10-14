@@ -1,11 +1,11 @@
 import '../../injection.dart';
 import '../../core/domain/entities/dictionary.dart';
-import '/models/offlineWordRecord.dart';
-import '/utils/barTitleType.dart';
+import '../../models/offline_word_record.dart';
+import '../../utils/bar_title_type.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'YAxisNumberLine.dart';
-import 'barLine.dart';
+import 'y_axis_number_line.dart';
+import 'bar_line.dart';
 
 class PredictionChart extends StatefulWidget {
   @override

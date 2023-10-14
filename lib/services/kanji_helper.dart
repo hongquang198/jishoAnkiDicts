@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
 
 import '../injection.dart';
-import '../models/exampleSentence.dart';
+import '../models/example_sentence.dart';
 import '../models/kanji.dart';
-import '../models/pitchAccent.dart';
-import '../models/vietnameseDefinition.dart';
-import '../core/data/datasources/sharedPref.dart';
+import '../models/pitch_accent.dart';
+import '../models/vietnamese_definition.dart';
+import '../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 import '../core/domain/entities/dictionary.dart';
 

@@ -1,5 +1,5 @@
-import '../services/dbHelper.dart';
-import '../utils/offlineListType.dart';
+import '../services/db_helper.dart';
+import '../utils/offline_list_type.dart';
 import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {

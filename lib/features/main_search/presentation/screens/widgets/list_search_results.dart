@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 
-import '../../../../../models/vietnameseDefinition.dart';
-import '../../../../../services/kanjiHelper.dart';
+import '../../../../../models/vietnamese_definition.dart';
+import '../../../../../services/kanji_helper.dart';
 import '../../../../../widgets/main_screen/search_result_tile.dart';
 import '../../../domain/entities/jisho_definition.dart';
 import '../mixins/get_vietnamese_definition_mixin.dart';

@@ -1,6 +1,6 @@
 import '../../injection.dart';
-import '/models/offlineWordRecord.dart';
-import '../../core/data/datasources/sharedPref.dart';
+import '../../models/offline_word_record.dart';
+import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 
 class AnswerButton extends StatelessWidget {

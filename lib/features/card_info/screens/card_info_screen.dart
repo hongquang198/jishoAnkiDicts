@@ -1,4 +1,4 @@
-import '/models/offlineWordRecord.dart';
+import '../../../models/offline_word_record.dart';
 import 'package:flutter/material.dart';
 
 class CardInfoScreen extends StatefulWidget {

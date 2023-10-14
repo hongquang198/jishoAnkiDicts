@@ -1,8 +1,8 @@
 import '../../core/domain/entities/dictionary.dart';
 import '../../injection.dart';
-import '/models/offlineWordRecord.dart';
-import '/utils/cardStatus.dart';
-import '../../core/data/datasources/sharedPref.dart';
+import '../../models/offline_word_record.dart';
+import '../../utils/card_status.dart';
+import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

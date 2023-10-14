@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:japanese_ocr/core/data/datasources/sharedPref.dart';
+import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/data/data_sources/jisho_remote_data_source.dart';
 import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repository.dart';
 import 'package:japanese_ocr/features/main_search/domain/usecases/look_for_vietnamese_definition.dart';

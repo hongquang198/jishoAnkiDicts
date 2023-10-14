@@ -4,12 +4,12 @@ import 'package:unofficial_jisho_api/api.dart';
 
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/offlineWordRecord.dart';
-import '../../../models/vietnameseDefinition.dart';
-import '../../../services/kanjiHelper.dart';
+import '../../../models/offline_word_record.dart';
+import '../../../models/vietnamese_definition.dart';
+import '../../../services/kanji_helper.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';
-import '../../../core/data/datasources/sharedPref.dart';
+import '../../../core/data/datasources/shared_pref.dart';
 import '../../../widgets/main_screen/search_result_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

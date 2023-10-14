@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 
 import '../../../../injection.dart';
-import '../../../../themeManager.dart';
+import '../../../../theme_manager.dart';
 import 'dart:async';
 import '../../../../utils/constants.dart';
 import '../../../../widgets/nav_bar.dart';

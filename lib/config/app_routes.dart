@@ -3,18 +3,18 @@ import 'package:go_router/go_router.dart';
 import 'package:japanese_ocr/features/card_info/screens/card_info_screen.dart';
 import 'package:japanese_ocr/features/favorite_words/screens/favorite_screen.dart';
 import 'package:japanese_ocr/features/grammar/screens/grammar_screen.dart';
-import 'package:japanese_ocr/features/history/screens/historyScreen.dart';
-import 'package:japanese_ocr/features/review/screens/reviewScreen.dart';
-import 'package:japanese_ocr/features/settings/screens/settingsScreen.dart';
+import 'package:japanese_ocr/features/history/screens/history_screen.dart';
+import 'package:japanese_ocr/features/review/screens/review_screen.dart';
+import 'package:japanese_ocr/features/settings/screens/settings_screen.dart';
 import 'package:japanese_ocr/features/single_grammar_point/screen/grammar_point_screen.dart';
-import 'package:japanese_ocr/features/statistics/screens/statisticsScreen.dart';
+import 'package:japanese_ocr/features/statistics/screens/statistics_screen.dart';
 import 'package:japanese_ocr/features/word_definition/screens/definition_screen.dart';
-import 'package:japanese_ocr/models/grammarPoint.dart';
+import 'package:japanese_ocr/models/grammar_point.dart';
 import 'package:japanese_ocr/features/main_search/presentation/screens/mainScreen.dart';
 
 import '../core/services/navigation_service.dart';
 import '../injection.dart';
-import '../models/offlineWordRecord.dart';
+import '../models/offline_word_record.dart';
 
 class AppRoutes {
   AppRoutes._();

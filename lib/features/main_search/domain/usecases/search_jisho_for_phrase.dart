@@ -4,7 +4,7 @@ import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repo
 import 'package:unofficial_jisho_api/api.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../../../core/usecases/usecases.dart';
+import '../../../../core/use_cases/use_case.dart';
 
 class SearchJishoForPhrase extends UseCase<List<JishoDefinition>, String> {
   final JishoRepository repository;

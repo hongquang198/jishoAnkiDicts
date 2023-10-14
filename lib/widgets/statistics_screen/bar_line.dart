@@ -1,4 +1,4 @@
-import '/utils/barTitleType.dart';
+import '../../utils/bar_title_type.dart';
 import 'package:flutter/material.dart';
 
 class BarLine extends StatelessWidget {

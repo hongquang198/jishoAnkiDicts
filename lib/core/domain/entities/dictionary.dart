@@ -1,12 +1,12 @@
 import '../../../injection.dart';
-import '/models/exampleSentence.dart';
-import '/models/pitchAccent.dart';
-import '/models/vietnameseDefinition.dart';
-import '/services/dbManager.dart';
-import '../../data/datasources/sharedPref.dart';
-import '../../../models/grammarPoint.dart';
+import '../../../models/example_sentence.dart';
+import '../../../models/pitch_accent.dart';
+import '../../../models/vietnamese_definition.dart';
+import '../../../services/db_manager.dart';
+import '../../data/datasources/shared_pref.dart';
+import '../../../models/grammar_point.dart';
 import '../../../models/kanji.dart';
-import '../../../models/offlineWordRecord.dart';
+import '../../../models/offline_word_record.dart';
 
 class Dictionary {
   late List<VietnameseDefinition> vietnameseDictionary;

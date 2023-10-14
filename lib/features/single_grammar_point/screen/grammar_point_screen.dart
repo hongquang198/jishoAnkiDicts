@@ -1,9 +1,9 @@
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/exampleSentence.dart';
-import '../../../models/grammarPoint.dart';
+import '../../../models/example_sentence.dart';
+import '../../../models/grammar_point.dart';
 import '../../../models/kanji.dart';
-import '../../../services/kanjiHelper.dart';
+import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/definition_screen/component_widget.dart';
 import '../../../widgets/definition_screen/example_sentence_widget.dart';

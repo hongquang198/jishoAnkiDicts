@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '/models/exampleSentence.dart';
+import '../../models/example_sentence.dart';
 import '/utils/constants.dart';
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,6 @@
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/grammarPoint.dart';
+import '../../../models/grammar_point.dart';
 import 'dart:async';
 import '../../../utils/constants.dart';
 import '../../../widgets/grammar_screen/grammar_query_tile.dart';

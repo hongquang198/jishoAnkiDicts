@@ -2,9 +2,9 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/domain/entities/dictionary.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/usecases/usecases.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../../../injection.dart';
-import '../../../../models/vietnameseDefinition.dart';
+import '../../../../models/vietnamese_definition.dart';
 
 class LookForVietnameseDefinition extends UseCase<List<VietnameseDefinition>, String> {
 

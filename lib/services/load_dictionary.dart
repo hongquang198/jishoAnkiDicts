@@ -1,8 +1,8 @@
-import '../models/exampleSentence.dart';
-import '../models/pitchAccent.dart';
-import '../models/vietnameseDefinition.dart';
+import '../models/example_sentence.dart';
+import '../models/pitch_accent.dart';
+import '../models/vietnamese_definition.dart';
 import '../models/kanji.dart';
-import '../services/dbManager.dart';
+import 'db_manager.dart';
 import 'package:flutter/services.dart';
 
 class LoadDictionary {
