@@ -5,9 +5,9 @@ import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_
 
 import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../services/kanji_helper.dart';
-import 'search_result_tile.dart';
 import '../../../domain/entities/jisho_definition.dart';
 import '../mixins/get_vietnamese_definition_mixin.dart';
+import 'search_result_tile.dart';
 
 class ListSearchResultVN extends StatelessWidget {
   const ListSearchResultVN({

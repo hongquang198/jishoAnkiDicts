@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
 
 
 import '../../../injection.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 import '../../../../core/domain/entities/dictionary.dart';
 import '../../../../injection.dart';
 import '../../../../models/offline_word_record.dart';

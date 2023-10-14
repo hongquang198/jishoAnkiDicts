@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
 import '../injection.dart';
@@ -6,7 +7,6 @@ import '../models/kanji.dart';
 import '../models/pitch_accent.dart';
 import '../models/vietnamese_definition.dart';
 import '../core/data/datasources/shared_pref.dart';
-import 'package:flutter/material.dart';
 import '../core/domain/entities/dictionary.dart';
 
 class KanjiHelper {

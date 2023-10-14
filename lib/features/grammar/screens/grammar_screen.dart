@@ -1,12 +1,13 @@
-import '../../../injection.dart';
-import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/grammar_point.dart';
-import 'dart:async';
-import '../../../utils/constants.dart';
-import '../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
+
+import '../../../injection.dart';
+import '../../../core/domain/entities/dictionary.dart';
+import '../../../models/grammar_point.dart';
+import '../../../utils/constants.dart';
+import '../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 
 class GrammarScreen extends StatefulWidget {
   final TextEditingController textEditingController;

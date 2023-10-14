@@ -1,16 +1,16 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
-
-import '../../../../injection.dart';
-import '../../../../theme_manager.dart';
-import 'dart:async';
-import '../../../../utils/constants.dart';
-import '../../../../common_widgets/nav_bar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
+
+import '../../../../common/widgets/nav_bar.dart';
+import '../../../../injection.dart';
+import '../../../../theme_manager.dart';
+import '../../../../utils/constants.dart';
 import '../../../../services/recognizer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'mixins/get_vietnamese_definition_mixin.dart';
 import 'widgets/draw_screen.dart';
 import 'widgets/list_search_results.dart';

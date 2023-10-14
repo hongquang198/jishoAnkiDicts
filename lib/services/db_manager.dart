@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-
 import 'dart:io';
+
 import '../injection.dart';
 import '../models/grammar_point.dart';
 import '../models/offline_word_record.dart';

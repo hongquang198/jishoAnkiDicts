@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
 
 import '../../../common/widgets/custom_dialog.dart';
 import '../../../injection.dart';

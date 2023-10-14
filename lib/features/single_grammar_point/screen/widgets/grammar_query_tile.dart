@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import '../../../../models/grammar_point.dart';
 import '../grammar_point_screen.dart';
-import 'package:flutter/material.dart';
 
 class GrammarQueryTile extends StatefulWidget {
   final GrammarPoint grammarPoint;

@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import '../../../../word_definition/screens/widgets/kanji_drawboard.dart';
 import '/models/kanji.dart';
-import 'package:flutter/material.dart';
 import '/models/prediction.dart';
 import '/services/recognizer.dart';
 import '/utils/constants.dart';

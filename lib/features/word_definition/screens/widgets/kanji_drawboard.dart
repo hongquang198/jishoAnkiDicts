@@ -1,5 +1,6 @@
-import '/models/kanji.dart';
 import 'package:flutter/material.dart';
+
+import '/models/kanji.dart';
 import '/models/prediction.dart';
 
 class PredictionWidget extends StatefulWidget {

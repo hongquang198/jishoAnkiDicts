@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/example_sentence.dart';
@@ -5,9 +8,6 @@ import '../../../models/grammar_point.dart';
 import '../../../models/kanji.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
-import 'package:flutter/material.dart';
-import 'dart:async';
-
 import '../../word_definition/screens/widgets/component_widget.dart';
 import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 

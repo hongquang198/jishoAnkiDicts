@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../injection.dart';
 import '../../../utils/constants.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'widgets/prediction_chart.dart';
 import 'widgets/today_due_chart.dart';

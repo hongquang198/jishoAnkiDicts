@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/features/card_info/screens/card_info_screen.dart';
-import 'package:japanese_ocr/features/favorite_words/screens/favorite_screen.dart';
-import 'package:japanese_ocr/features/grammar/screens/grammar_screen.dart';
-import 'package:japanese_ocr/features/history/screens/history_definition_widget.dart';
-import 'package:japanese_ocr/features/history/screens/history_screen.dart';
-import 'package:japanese_ocr/features/review/screens/review_screen.dart';
-import 'package:japanese_ocr/features/settings/screens/settings_screen.dart';
-import 'package:japanese_ocr/features/single_grammar_point/screen/grammar_point_screen.dart';
-import 'package:japanese_ocr/features/statistics/screens/statistics_screen.dart';
-import 'package:japanese_ocr/features/word_definition/screens/definition_screen.dart';
-import 'package:japanese_ocr/models/grammar_point.dart';
-import 'package:japanese_ocr/features/main_search/presentation/screens/main_screen.dart';
 
 import '../core/services/navigation_service.dart';
+import '../features/card_info/screens/card_info_screen.dart';
+import '../features/favorite_words/screens/favorite_screen.dart';
+import '../features/grammar/screens/grammar_screen.dart';
+import '../features/history/screens/history_definition_widget.dart';
+import '../features/history/screens/history_screen.dart';
+import '../features/main_search/presentation/screens/main_screen.dart';
+import '../features/review/screens/review_screen.dart';
+import '../features/settings/screens/settings_screen.dart';
+import '../features/single_grammar_point/screen/grammar_point_screen.dart';
+import '../features/statistics/screens/statistics_screen.dart';
+import '../features/word_definition/screens/definition_screen.dart';
 import '../injection.dart';
+import '../models/grammar_point.dart';
 import '../models/offline_word_record.dart';
 
 class AppRoutes {

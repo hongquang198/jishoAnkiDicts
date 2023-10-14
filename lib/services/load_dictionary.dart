@@ -1,9 +1,10 @@
+import 'package:flutter/services.dart';
+
 import '../models/example_sentence.dart';
 import '../models/pitch_accent.dart';
 import '../models/vietnamese_definition.dart';
 import '../models/kanji.dart';
 import 'db_manager.dart';
-import 'package:flutter/services.dart';
 
 class LoadDictionary {
   final DbManager dbManager;

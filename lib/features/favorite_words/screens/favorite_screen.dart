@@ -1,14 +1,15 @@
+import 'package:japanese_ocr/common/widgets/common_query_tile.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
+
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offline_word_record.dart';
 import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
-import 'dart:async';
 import '../../../utils/constants.dart';
-import '../../main_search/presentation/screens/widgets/search_result_tile.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../main_search/domain/entities/jisho_definition.dart';
 
@@ -92,7 +93,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 builder: (context, snapshot) {
                   final senses = favorite[index].senses;
                   if (snapshot.data == null)
-                    return SearchResultTile(
+                    return CommonQueryTile(
                       hanViet: KanjiHelper.getHanvietReading(
                           word: favorite[index].japaneseWord,
                           context: context),
@@ -111,7 +112,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         isJmnedict: [],
                       ),
                     );
-                  return SearchResultTile(
+                  return CommonQueryTile(
                     hanViet: KanjiHelper.getHanvietReading(
                         word: favorite[index].japaneseWord,
                         context: context),

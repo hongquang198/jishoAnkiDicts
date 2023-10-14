@@ -1,8 +1,8 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:japanese_ocr/features/history/screens/history_definition_widget.dart';
 
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
@@ -12,19 +12,17 @@ import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../../../../utils/offline_list_type.dart';
 import '../../../../../services/db_helper.dart';
-import '../../../../word_definition/screens/widgets/definition_tags.dart';
-import '../../../../word_definition/screens/definition_screen.dart';
-import '../../../domain/entities/jisho_definition.dart';
-import '../../bloc/main_search_bloc.dart';
+import '../../features/main_search/domain/entities/jisho_definition.dart';
+import '../../features/word_definition/screens/widgets/definition_tags.dart';
 
-class SearchResultTile extends StatefulWidget {
+class CommonQueryTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
   final VietnameseDefinition? vnDefinition;
   final Future<List<String>> hanViet;
   final TextEditingController textEditingController;
   final bool loadingDefinition;
 
-  SearchResultTile({
+  CommonQueryTile({
     required this.hanViet,
     this.vnDefinition,
     this.jishoDefinition,
@@ -33,10 +31,10 @@ class SearchResultTile extends StatefulWidget {
   });
 
   @override
-  _SearchResultTileState createState() => _SearchResultTileState();
+  _CommonQueryTileState createState() => _CommonQueryTileState();
 }
 
-class _SearchResultTileState extends State<SearchResultTile> {
+class _CommonQueryTileState extends State<CommonQueryTile> {
   String get word {
     if (widget.vnDefinition?.word.isNotEmpty == true) {
       return widget.vnDefinition!.word;
@@ -300,17 +298,18 @@ class _SearchResultTileState extends State<SearchResultTile> {
             ),
             context: context);
         context.pushNamed(
-          AppRoutesPath.wordDefinition,
-          extra: DefinitionScreenArgs(
-            mainSearchBloc: context.read<MainSearchBloc>(),
-            hanViet: widget.hanViet,
-            jishoDefinition: widget.jishoDefinition,
-            vnDefinition: widget.vnDefinition,
-            textEditingController: widget.textEditingController,
-            isInFavoriteList: DbHelper.checkDatabaseExist(
-                        offlineListType: OfflineListType.favorite,
-                        word: word,
-                        context: context),
+          AppRoutesPath.savedWordDefinition,
+          extra: SavedDefinitionScreen(
+            args: SavedDefinitionScreenArgs(
+              hanViet: widget.hanViet,
+              jishoDefinition: widget.jishoDefinition,
+              vnDefinition: widget.vnDefinition,
+              textEditingController: widget.textEditingController,
+              isInFavoriteList: DbHelper.checkDatabaseExist(
+                          offlineListType: OfflineListType.favorite,
+                          word: word,
+                          context: context),
+            ),
           ),
         );
       },

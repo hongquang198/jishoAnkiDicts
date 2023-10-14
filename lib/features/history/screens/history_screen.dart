@@ -1,16 +1,16 @@
+import 'package:japanese_ocr/common/widgets/common_query_tile.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
+
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/offline_word_record.dart';
 import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
-import 'dart:async';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
-import '../../main_search/presentation/screens/widgets/search_result_tile.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import '../../main_search/domain/entities/jisho_definition.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -106,7 +106,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             future: getVietnameseDefinition(word),
             builder: (context, snapshot) {
               if (snapshot.data == null)
-                return SearchResultTile(
+                return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
                       word: word,
                       context: context),
@@ -125,7 +125,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 );
               else {
-                return SearchResultTile(
+                return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
                       word: word,
                       context: context),
@@ -147,7 +147,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               }
             });
       } else
-        return SearchResultTile(
+        return CommonQueryTile(
           hanViet: KanjiHelper.getHanvietReading(
               word: word,
               context: context),
@@ -169,7 +169,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         );
     } else {
-      return SearchResultTile(
+      return CommonQueryTile(
         hanViet: KanjiHelper.getHanvietReading(
             word: word, context: context),
         textEditingController: widget.textEditingController,

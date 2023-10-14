@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
 
+import '../utils/constants.dart';
 import 'core/data/datasources/shared_pref.dart';
 import 'injection.dart';
 

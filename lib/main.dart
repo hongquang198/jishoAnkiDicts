@@ -1,15 +1,15 @@
-import 'config/app_routes.dart';
-import 'injection.dart';
-import 'theme_manager.dart';
-import 'core/data/datasources/shared_pref.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:io';
+
+import 'config/app_routes.dart';
+import 'injection.dart';
+import 'theme_manager.dart';
+import 'core/data/datasources/shared_pref.dart';
 import 'localization_manager.dart';
 
 Future<File> getImageFileFromAssets(String path) async {

@@ -1,10 +1,11 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 import '../injection.dart';
 import '../core/domain/entities/dictionary.dart';
 import '../models/offline_word_record.dart';
 import '../utils/offline_list_type.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class DbHelper {
   static bool checkDatabaseExist(

@@ -2,6 +2,7 @@ import '../../../injection.dart';
 import '../../../localization_manager.dart';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
