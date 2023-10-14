@@ -11,23 +11,16 @@ class DbHelper {
   static bool checkDatabaseExist(
       {required OfflineListType offlineListType, required String word, required BuildContext context,}) {
     late List<OfflineWordRecord> table;
-    if (offlineListType == OfflineListType.history)
+    if (offlineListType == OfflineListType.history) {
       table = getIt<Dictionary>().history;
-    else if (offlineListType == OfflineListType.favorite)
-      table = getIt<Dictionary>().favorite;
-    else if (offlineListType == OfflineListType.review)
-      table = getIt<Dictionary>().review;
-    bool inDatabase = false;
-    for (int i = 0; i < table.length; i++) {
-      String tableWord = table[i].word;
-      if (tableWord.isEmpty) {
-        tableWord = table[i].slug;
-      }
-      if (tableWord == word) {
-        inDatabase = true;
-      }
     }
-    return inDatabase;
+    else if (offlineListType == OfflineListType.favorite) {
+      table = getIt<Dictionary>().favorite;
+    }
+    else if (offlineListType == OfflineListType.review) {
+      table = getIt<Dictionary>().review;
+    }
+    return table.any((offlineWordRecord) => offlineWordRecord.japaneseWord == word);
   }
 
   // Remove from history or favorite
@@ -61,11 +54,10 @@ class DbHelper {
       required OfflineWordRecord offlineWordRecord,
       required BuildContext context}) {
     if (offlineListType == OfflineListType.history) {
-      if (checkDatabaseExist(
+      if (!checkDatabaseExist(
               offlineListType: OfflineListType.history,
               word: offlineWordRecord.japaneseWord,
-              context: context) ==
-          false) {
+              context: context)) {
         getIt<Dictionary>()
             .history
             .add(offlineWordRecord);

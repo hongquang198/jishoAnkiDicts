@@ -87,19 +87,18 @@ class _SearchResultTileState extends State<SearchResultTile> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          getIt<SharedPref>().isAppInVietnamese
-              ? FutureBuilder(
-                  future: widget.hanViet,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data!.length == 0)
-                      return SizedBox(height: 0);
-                    return SelectableText(
-                      snapshot.data.toString().toUpperCase(),
-                      style: TextStyle(fontSize: 12),
-                    );
-                  },
-                )
-              : SizedBox(),
+          if (getIt<SharedPref>().isAppInVietnamese)
+            FutureBuilder(
+              future: widget.hanViet,
+              builder: (context, snapshot) {
+                if (snapshot.data == null || snapshot.data!.length == 0)
+                  return SizedBox(height: 0);
+                return SelectableText(
+                  snapshot.data.toString().toUpperCase(),
+                  style: TextStyle(fontSize: 12),
+                );
+              },
+            )
         ],
       ),
       subtitle: Column(
@@ -273,32 +272,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
       ),
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
-        DbHelper.addToOfflineList(
-            offlineListType: OfflineListType.history,
-            offlineWordRecord: OfflineWordRecord(
-              slug: word,
-              isCommon: widget.jishoDefinition?.isCommon == true ? 1 : 0,
-              tags: widget.jishoDefinition?.tags ?? [],
-              jlpt: widget.jishoDefinition?.jlpt ?? [],
-              word: word,
-              reading: widget.jishoDefinition?.reading ?? '',
-              senses: widget.jishoDefinition?.senses ?? [],
-              vietnameseDefinition: widget.vnDefinition?.definition ?? '',
-              added: DateTime.now().millisecondsSinceEpoch,
-              firstReview: null,
-              lastReview: null,
-              due: -1,
-              interval: 0,
-              ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-              reviews: 0,
-              lapses: 0,
-              averageTimeMinute: 0,
-              totalTimeMinute: 0,
-              cardType: 'default',
-              noteType: 'default',
-              deck: 'default',
-            ),
-            context: context);
         context.pushNamed(
           AppRoutesPath.wordDefinition,
           extra: DefinitionScreenArgs(

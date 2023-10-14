@@ -82,14 +82,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
           itemCount: getIt<Dictionary>().history.length,
           itemBuilder: (BuildContext context, int index) {
-            return getSearchResultTile(index);
+            return getCommonQueryTile(index);
           },
         ),
       ),
     );
   }
 
-  Widget getSearchResultTile(int index) {
+  Widget getCommonQueryTile(int index) {
     final senses = history[index].senses;
     final offlineWordRecord = history[index];
     final word = offlineWordRecord.word.isEmpty
