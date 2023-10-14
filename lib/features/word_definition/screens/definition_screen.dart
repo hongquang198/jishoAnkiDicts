@@ -1,5 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
@@ -11,16 +16,11 @@ import '../../../services/db_helper.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/offline_list_type.dart';
 import '../../../core/data/datasources/shared_pref.dart';
-import '../../../widgets/definition_screen/component_widget.dart';
-import '../../../widgets/definition_screen/definition_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:async';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../main_search/presentation/bloc/main_search_bloc.dart';
+import 'widgets/component_widget.dart';
+import 'widgets/definition_widget.dart';
+import 'widgets/example_sentence_widget.dart';
 import 'widgets/is_common_tag_and_jlpt.dart';
 
 class DefinitionScreenArgs {

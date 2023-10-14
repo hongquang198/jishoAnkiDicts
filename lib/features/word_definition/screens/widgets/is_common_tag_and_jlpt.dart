@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../../widgets/definition_screen/definition_tags.dart';
+import 'definition_tags.dart';
 
 class IsCommonTagsAndJlptWidget extends StatelessWidget {
   const IsCommonTagsAndJlptWidget({

@@ -5,10 +5,11 @@ import '../../../models/grammar_point.dart';
 import '../../../models/kanji.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
-import '../../../widgets/definition_screen/component_widget.dart';
-import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+
+import '../../word_definition/screens/widgets/component_widget.dart';
+import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 
 class GrammarPointScreen extends StatefulWidget {
   final GrammarPoint grammarPoint;

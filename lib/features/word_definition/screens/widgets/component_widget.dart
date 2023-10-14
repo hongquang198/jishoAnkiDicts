@@ -1,10 +1,11 @@
-import '../../injection.dart';
-import '/models/kanji.dart';
-import '../../core/data/datasources/shared_pref.dart';
 import 'package:flutter/material.dart';
-import '/utils/constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../../injection.dart';
+import '/models/kanji.dart';
+import '/utils/constants.dart';
 
 class ComponentWidget extends StatefulWidget {
   final Future<List<Kanji>> kanjiComponent;

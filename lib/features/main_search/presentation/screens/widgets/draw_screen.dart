@@ -1,10 +1,10 @@
+import '../../../../word_definition/screens/widgets/kanji_drawboard.dart';
 import '/models/kanji.dart';
 import 'package:flutter/material.dart';
 import '/models/prediction.dart';
-import '/widgets/main_screen/drawing_painter.dart';
 import '/services/recognizer.dart';
 import '/utils/constants.dart';
-import '../definition_screen/kanji_drawboard.dart';
+import 'drawing_painter.dart';
 
 class DrawScreen extends StatefulWidget {
   final TextEditingController textEditingController;

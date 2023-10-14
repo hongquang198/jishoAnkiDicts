@@ -10,18 +10,18 @@ import '../../../services/db_helper.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/offline_list_type.dart';
 import '../../../widgets/custom_dialog.dart';
-import '../../../widgets/definition_screen/component_widget.dart';
-import '../../../widgets/definition_screen/definition_tags.dart';
-import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import '../../../widgets/review_screen/answer_button.dart';
 import '../../../widgets/review_screen/review_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../widgets/definition_screen/definition_widget.dart';
 import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../card_info/screens/card_info_screen.dart';
+import '../../word_definition/screens/widgets/component_widget.dart';
+import '../../word_definition/screens/widgets/definition_tags.dart';
+import '../../word_definition/screens/widgets/definition_widget.dart';
+import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 
 class ReviewScreen extends StatefulWidget {
   final TextEditingController textEditingController;

@@ -4,18 +4,18 @@ import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 
-import '../../../config/app_routes.dart';
-import '../../../features/main_search/domain/entities/jisho_definition.dart';
-import '../../../features/main_search/presentation/bloc/main_search_bloc.dart';
-import '../../../features/word_definition/screens/definition_screen.dart';
-import '../../../injection.dart';
-import '../../custom_dialog.dart';
-import '../../../models/offline_word_record.dart';
-import '../../../models/vietnamese_definition.dart';
-import '../../../core/data/datasources/shared_pref.dart';
-import '../../../utils/offline_list_type.dart';
-import '../../../services/db_helper.dart';
-import '../../definition_screen/definition_tags.dart';
+import '../../../../../config/app_routes.dart';
+import '../../../../word_definition/screens/widgets/definition_tags.dart';
+import '../../../domain/entities/jisho_definition.dart';
+import '../../bloc/main_search_bloc.dart';
+import '../../../../word_definition/screens/definition_screen.dart';
+import '../../../../../injection.dart';
+import '../../../../../widgets/custom_dialog.dart';
+import '../../../../../models/offline_word_record.dart';
+import '../../../../../models/vietnamese_definition.dart';
+import '../../../../../core/data/datasources/shared_pref.dart';
+import '../../../../../utils/offline_list_type.dart';
+import '../../../../../services/db_helper.dart';
 
 class SearchResultTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
@@ -45,16 +45,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
     } else {
       return widget.jishoDefinition?.slug ?? '';
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   parseVnDefHtmlWidget(String htmlString) {

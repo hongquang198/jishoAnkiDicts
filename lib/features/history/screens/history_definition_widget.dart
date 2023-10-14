@@ -14,11 +14,10 @@ import '../../../services/db_helper.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../utils/offline_list_type.dart';
 import '../../../core/data/datasources/shared_pref.dart';
-import '../../../widgets/definition_screen/component_widget.dart';
-import '../../../widgets/definition_screen/definition_widget.dart';
-
-import '../../../widgets/definition_screen/example_sentence_widget.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
+import '../../word_definition/screens/widgets/component_widget.dart';
+import '../../word_definition/screens/widgets/definition_widget.dart';
+import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 import '../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart';
 
 class SavedDefinitionScreenArgs {
