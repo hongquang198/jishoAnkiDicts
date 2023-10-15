@@ -102,29 +102,33 @@ class _SearchResultTileState extends State<SearchResultTile> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          widget.loadingDefinition == true
-              ? SizedBox(
-                  width: 5,
-                  height: 5,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                  ))
-              : IsCommonTagsAndJlptWidget(
-                  isCommon: widget.jishoDefinition?.isCommon == true,
-                  tags: widget.jishoDefinition?.tags ?? [],
-                  jlpt: widget.jishoDefinition?.jlpt ?? [],
-                ),
-          if (widget.jishoDefinition?.senses != null &&
-              getIt<SharedPref>().isAppInEnglish)
-            Text(
-                widget.jishoDefinition!.senses[0].englishDefinitions
+          Wrap(
+            children: [
+              widget.loadingDefinition == true
+                  ? SizedBox(
+                      width: 5,
+                      height: 5,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                      ))
+                  : IsCommonTagsAndJlptWidget(
+                      isCommon: widget.jishoDefinition?.isCommon == true,
+                      tags: widget.jishoDefinition?.tags ?? [],
+                      jlpt: widget.jishoDefinition?.jlpt ?? [],
+                    ),
+              if (widget.jishoDefinition?.senses != null &&
+                  getIt<SharedPref>().isAppInEnglish)
+                Text(
+                    widget.jishoDefinition!.senses[0].englishDefinitions
                         .join(', '),
-                style: TextStyle(fontSize: 13))
-          else
-            SizedBox(),
-          getIt<SharedPref>().isAppInVietnamese
-              ? getVnDefinitionSummary()
-              : SizedBox(),
+                    style: TextStyle(fontSize: 13))
+              else
+                SizedBox(),
+              getIt<SharedPref>().isAppInVietnamese
+                  ? getVnDefinitionSummary()
+                  : SizedBox(),
+            ],
+          )
         ],
       ),
       trailing: Row(
