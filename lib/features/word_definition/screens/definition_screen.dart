@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
@@ -27,7 +26,6 @@ class DefinitionScreenArgs {
   MainSearchBloc mainSearchBloc;
   final Future<List<String>>? hanViet;
   final VietnameseDefinition? vnDefinition;
-  final TextEditingController textEditingController;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
   final bool isOfflineList;
@@ -35,7 +33,6 @@ class DefinitionScreenArgs {
     required this.mainSearchBloc,
     this.hanViet,
     this.vnDefinition,
-    required this.textEditingController,
     this.jishoDefinition,
     required this.isInFavoriteList,
     this.isOfflineList = false,
@@ -81,12 +78,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     return SizedBox();
   }
 
-  Future<String> getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
-    clipboard = data?.text ?? '';
-    return clipboard;
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -130,16 +121,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     } catch (e) {
       print('Error getting example sentence $e');
     }
-    getClipboard();
-    widget.args.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.args.textEditingController.text) {
-          clipboard = widget.args.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
@@ -23,15 +22,12 @@ import '../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart';
 class SavedDefinitionScreenArgs {
   final Future<List<String>>? hanViet;
   final VietnameseDefinition? vnDefinition;
-  //  TODO (@hongquang198): Remove textEditingController
-  final TextEditingController textEditingController;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
   final bool isOfflineList;
   SavedDefinitionScreenArgs({
     this.hanViet,
     this.vnDefinition,
-    required this.textEditingController,
     this.jishoDefinition,
     required this.isInFavoriteList,
     this.isOfflineList = false,
@@ -40,8 +36,9 @@ class SavedDefinitionScreenArgs {
 
 class SavedDefinitionScreen extends StatefulWidget {
   final SavedDefinitionScreenArgs args;
-  SavedDefinitionScreen({
+  const SavedDefinitionScreen({
     required this.args,
+    super.key,
   });
 
   @override
@@ -58,12 +55,6 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
   late VietnameseDefinition vnDefinition;
   late OfflineWordRecord offlineWordRecord;
   late String currentJapaneseWord;
-
-  Future<String> getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
-    clipboard = data?.text ?? '';
-    return clipboard;
-  }
 
   @override
   void initState() {
@@ -100,16 +91,6 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
     } catch (e) {
       print('Error getting example sentence $e');
     }
-    getClipboard();
-    widget.args.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.args.textEditingController.text) {
-          clipboard = widget.args.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
   }
 
   @override

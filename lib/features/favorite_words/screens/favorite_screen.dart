@@ -1,6 +1,5 @@
 import 'package:japanese_ocr/common/widgets/common_query_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
@@ -12,9 +11,7 @@ import '../../../services/kanji_helper.dart';
 import '../../../utils/constants.dart';
 
 class FavoriteScreen extends StatefulWidget {
-  final TextEditingController textEditingController;
-  FavoriteScreen({required this.textEditingController});
-
+  const FavoriteScreen({super.key});
   @override
   _FavoriteScreenState createState() => _FavoriteScreenState();
 }
@@ -22,36 +19,10 @@ class FavoriteScreen extends StatefulWidget {
 class _FavoriteScreenState extends State<FavoriteScreen> {
   late String clipboard;
 
-  Future<String> getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
-    clipboard = data?.text ?? '';
-    return clipboard;
-  }
-
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
     List<VietnameseDefinition> vnDefinition =
         await KanjiHelper.getVnDefinition(word: word);
     return vnDefinition[0];
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getClipboard();
-    widget.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.textEditingController.text) {
-          clipboard = widget.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   // Convert normal String tags in offline dictionary to match list<dynamic> used by jisho api
@@ -95,7 +66,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           word: favorite[index].japaneseWord,
                           context: context),
                       vnDefinition: null,
-                      textEditingController: widget.textEditingController,
                       jishoDefinition: favorite[index].toJishoDefinition,
                     );
                   return CommonQueryTile(
@@ -103,7 +73,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         word: favorite[index].japaneseWord,
                         context: context),
                     vnDefinition: snapshot.data,
-                    textEditingController: widget.textEditingController,
                     jishoDefinition: favorite[index].toJishoDefinition,
                   );
                 });

@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }

@@ -9,7 +9,10 @@ import 'drawing_painter.dart';
 
 class DrawScreen extends StatefulWidget {
   final TextEditingController textEditingController;
-  DrawScreen({required this.textEditingController});
+  const DrawScreen({
+    required this.textEditingController,
+    super.key,
+  });
   @override
   _DrawScreenState createState() => _DrawScreenState();
 }

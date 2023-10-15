@@ -21,14 +21,12 @@ class SearchResultTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
   final VietnameseDefinition? vnDefinition;
   final Future<List<String>> hanViet;
-  final TextEditingController textEditingController;
   final bool loadingDefinition;
 
   SearchResultTile({
     required this.hanViet,
     this.vnDefinition,
     this.jishoDefinition,
-    required this.textEditingController,
     this.loadingDefinition = false,
   });
 
@@ -279,7 +277,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
             hanViet: widget.hanViet,
             jishoDefinition: widget.jishoDefinition,
             vnDefinition: widget.vnDefinition,
-            textEditingController: widget.textEditingController,
             isInFavoriteList: DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.favorite,
                         word: word,

@@ -13,7 +13,10 @@ import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 
 class GrammarPointScreen extends StatefulWidget {
   final GrammarPoint grammarPoint;
-  GrammarPointScreen({required this.grammarPoint});
+  const GrammarPointScreen({
+    required this.grammarPoint,
+    super.key,
+  });
 
   @override
   _GrammarPointScreenState createState() => _GrammarPointScreenState();

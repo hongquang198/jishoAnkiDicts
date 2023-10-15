@@ -10,8 +10,7 @@ import '../../../utils/constants.dart';
 import '../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 
 class GrammarScreen extends StatefulWidget {
-  final TextEditingController textEditingController;
-  GrammarScreen({required this.textEditingController});
+  const GrammarScreen({super.key});
   @override
   _GrammarScreenState createState() => _GrammarScreenState();
 }
@@ -35,18 +34,8 @@ class _GrammarScreenState extends State<GrammarScreen> {
 
   @override
   void initState() {
+    super.initState();
     _textController = TextEditingController();
-    widget.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.textEditingController.text) {
-          clipboard = widget.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
-
-    getClipboard();
     grammarAll = getIt<Dictionary>().grammarDict;
     Future.delayed(Duration(milliseconds: 200), () {
       setState(() {
@@ -54,7 +43,6 @@ class _GrammarScreenState extends State<GrammarScreen> {
         _searchForGrammar(_textController.text);
       });
     });
-    super.initState();
   }
 
   @override

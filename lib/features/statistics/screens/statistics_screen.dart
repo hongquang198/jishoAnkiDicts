@@ -9,6 +9,7 @@ import 'widgets/prediction_chart.dart';
 import 'widgets/today_due_chart.dart';
 
 class StatisticsScreen extends StatefulWidget {
+  const StatisticsScreen({super.key});
   @override
   _StatisticsScreenState createState() => _StatisticsScreenState();
 }

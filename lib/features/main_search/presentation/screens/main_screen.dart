@@ -16,6 +16,7 @@ import 'widgets/draw_screen.dart';
 import 'widgets/list_search_results.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -29,7 +30,6 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
   final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
   MainSearchBloc bloc = getIt();
-  late Timer clipboardTriggerTime;
   String clipboard = '';
 
   Future<void> _search() async {
@@ -43,33 +43,9 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
 
   @override
   void initState() {
+    super.initState();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      clipboardTriggerTime =
-          Timer.periodic(const Duration(milliseconds: 120), (timer) {
-        try {
-          Clipboard.getData('text/plain').then((clipboardContent) {
-            if (clipboardContent != null) {
-              if (clipboard != clipboardContent.text && clipboardContent.text != null) {
-                clipboard = clipboardContent.text!;
-                textEditingController.text = clipboard;
-                _search();
-              }
-            }
-          });
-        } catch (e) {
-          print('No clipboard data');
-        }
-      });
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    clipboardTriggerTime.cancel();
-    super.dispose();
   }
 
   @override
@@ -191,12 +167,10 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
             MainSearchVNLoadedState(data: var data) when data.isAppInVietnamese &&
               state.data.vnDictQuery.isNotEmpty => ListSearchResultVN(
                 vnDictQuery: state.data.vnDictQuery,
-                textEditingController: textEditingController,
               ),
             MainSearchAllLoadedState(data: var data) || MainSearchFailureState(data: var data) when data.jishoDefinitionList.isNotEmpty =>
                   ListSearchResultEN(
                     jishoDefinitionList: data.jishoDefinitionList,
-                    textEditingController: textEditingController,
                   ),
             _ => const SizedBox.shrink()
           };

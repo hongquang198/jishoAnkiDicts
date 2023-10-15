@@ -50,8 +50,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.history),
             onTap: () {
               Navigator.pop(context);
-              context.pushNamed(AppRoutesPath.history,
-                  extra: textEditingController);
+              context.pushNamed(AppRoutesPath.history);
             },
           ),
           ListTile(
@@ -62,8 +61,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.favorite),
             onTap: () {
               Navigator.pop(context);
-              context.pushNamed(AppRoutesPath.favoriteWords,
-                  extra: textEditingController);
+              context.pushNamed(AppRoutesPath.favoriteWords);
             },
           ),
           ListTile(
@@ -71,8 +69,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.review),
             onTap: () {
               Navigator.pop(context);
-              context.pushNamed(AppRoutesPath.review,
-                  extra: textEditingController);
+              context.pushNamed(AppRoutesPath.review);
             },
           ),
           ListTile(
@@ -88,8 +85,7 @@ class NavBar extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.grammar),
             onTap: () {
               Navigator.pop(context);
-              context.pushNamed(AppRoutesPath.grammar,
-                  extra: textEditingController);
+              context.pushNamed(AppRoutesPath.grammar);
             },
           ),
           ListTile(

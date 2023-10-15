@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
@@ -24,9 +23,7 @@ import 'widgets/answer_button.dart';
 import 'widgets/review_info.dart';
 
 class ReviewScreen extends StatefulWidget {
-  final TextEditingController textEditingController;
-  ReviewScreen({required this.textEditingController});
-
+  const ReviewScreen({super.key});
   @override
   _ReviewScreenState createState() => _ReviewScreenState();
 }
@@ -52,12 +49,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
         );
     }
     return SizedBox();
-  }
-
-  Future<String> getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
-    clipboard = data?.text ?? '';
-    return clipboard;
   }
 
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
@@ -104,22 +95,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   void initState() {
+    super.initState();
     // Get steps from settings to calculate card's next interval
     steps = getIt<SharedPref>().prefs
         .getStringList('newCardsSteps')
         ?.map((i) => int.parse(i))
         .toList() ?? [];
-
-    // Add listener to listen to clipboard change to look up fast
-    widget.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.textEditingController.text) {
-          clipboard = widget.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
 
     // Review list maybe empty so try catch
     try {
@@ -129,9 +110,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
     } catch (e) {
       print('Card empty. $e');
     }
-
-    getClipboard();
-    super.initState();
   }
   String get word => currentCard.word.isEmpty ? currentCard.slug : currentCard.word;
 

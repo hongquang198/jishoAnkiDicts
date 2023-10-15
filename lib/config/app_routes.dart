@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/services/navigation_service.dart';
@@ -37,20 +36,17 @@ class AppRoutes {
         GoRoute(
           path: AppRoutesPath.favoriteWords,
           name: AppRoutesPath.favoriteWords,
-          builder: (_, state) => FavoriteScreen(
-              textEditingController: state.extra as TextEditingController),
+          builder: (_, state) => const FavoriteScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.grammar,
           name: AppRoutesPath.grammar,
-          builder: (_, state) => GrammarScreen(
-              textEditingController: state.extra as TextEditingController),
+          builder: (_, state) => const GrammarScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.history,
           name: AppRoutesPath.history,
-          builder: (_, state) => HistoryScreen(
-              textEditingController: state.extra as TextEditingController),
+          builder: (_, state) => const HistoryScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.savedWordDefinition,
@@ -61,13 +57,12 @@ class AppRoutes {
         GoRoute(
           path: AppRoutesPath.review,
           name: AppRoutesPath.review,
-          builder: (_, state) => ReviewScreen(
-              textEditingController: state.extra as TextEditingController),
+          builder: (_, state) => const ReviewScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.settings,
           name: AppRoutesPath.settings,
-          builder: (_, state) => SettingsScreen(),
+          builder: (_, state) => const SettingsScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.singleGrammarPoint,

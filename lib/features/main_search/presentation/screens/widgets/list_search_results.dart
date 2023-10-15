@@ -13,11 +13,9 @@ class ListSearchResultVN extends StatelessWidget {
   const ListSearchResultVN({
     super.key,
     required this.vnDictQuery,
-    required this.textEditingController,
   });
 
   final List<VietnameseDefinition> vnDictQuery;
-  final TextEditingController textEditingController;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,6 @@ class ListSearchResultVN extends StatelessWidget {
       int index, BuildContext context) {
     return SearchResultTile(
       loadingDefinition: true,
-      textEditingController: textEditingController,
       hanViet: KanjiHelper.getHanvietReading(
           word: vnDictQuery[index].word, context: context),
       vnDefinition: vnDictQuery[index],
@@ -73,7 +70,6 @@ class ListSearchResultVN extends StatelessWidget {
       int index, BuildContext context) {
     return SearchResultTile(
       loadingDefinition: false,
-      textEditingController: textEditingController,
       hanViet: KanjiHelper.getHanvietReading(
           word: vnDictQuery[index].word, context: context),
       vnDefinition: vnDictQuery[index],
@@ -88,7 +84,6 @@ class ListSearchResultVN extends StatelessWidget {
     return SearchResultTile(
       loadingDefinition: false,
       jishoDefinition: jishoDefinition,
-      textEditingController: textEditingController,
       hanViet: KanjiHelper.getHanvietReading(
           word: vnDictQuery[index].word, context: context),
       vnDefinition: vnDictQuery[index],
@@ -100,12 +95,10 @@ class ListSearchResultEN extends StatelessWidget
     with GetVietnameseDefinitionMixin {
   const ListSearchResultEN({
     required this.jishoDefinitionList,
-    required this.textEditingController,
     super.key,
   });
 
   final List<JishoDefinition> jishoDefinitionList;
-  final TextEditingController textEditingController;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +116,6 @@ class ListSearchResultEN extends StatelessWidget
                   return SearchResultTile(
                     jishoDefinition:
                         jishoDefinitionList[index],
-                    textEditingController: textEditingController,
                     hanViet: KanjiHelper.getHanvietReading(
                         word: jishoDefinitionList[index].japaneseWord,
                         context: context),
@@ -132,7 +124,6 @@ class ListSearchResultEN extends StatelessWidget
                 } else
                   return SearchResultTile(
                     jishoDefinition: jishoDefinitionList[index],
-                    textEditingController: textEditingController,
                     hanViet: KanjiHelper.getHanvietReading(
                         word: jishoDefinitionList[index].japaneseWord,
                         context: context),

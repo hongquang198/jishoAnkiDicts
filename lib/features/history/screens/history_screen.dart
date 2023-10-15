@@ -1,7 +1,6 @@
 import 'package:japanese_ocr/common/widgets/common_query_tile.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
 
 import '../../../injection.dart';
@@ -13,35 +12,18 @@ import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
 
 class HistoryScreen extends StatefulWidget {
-  final TextEditingController textEditingController;
-  HistoryScreen({required this.textEditingController});
+  const HistoryScreen({super.key});
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
   late String clipboard;
-  Future<String> getClipboard() async {
-    ClipboardData? data = await Clipboard.getData('text/plain');
-    clipboard = data?.text ?? '';
-    return clipboard;
-  }
-
   late List<OfflineWordRecord> history;
 
   @override
   void initState() {
     super.initState();
-    getClipboard();
-    widget.textEditingController.addListener(() {
-      if (mounted) {
-        if (clipboard != widget.textEditingController.text) {
-          clipboard = widget.textEditingController.text;
-          Navigator.of(context).popUntil((route) => route.isFirst);
-          print('Definition screen popped');
-        }
-      }
-    });
     history = getIt<Dictionary>()
         .history
         .reversed
@@ -103,7 +85,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   hanViet: KanjiHelper.getHanvietReading(
                       word: word,
                       context: context),
-                  textEditingController: widget.textEditingController,
                   jishoDefinition: history[index].toJishoDefinition,
                 );
               else {
@@ -112,7 +93,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       word: word,
                       context: context),
                   vnDefinition: snapshot.data,
-                  textEditingController: widget.textEditingController,
                   jishoDefinition: history[index].toJishoDefinition,
                 );
               }
@@ -125,14 +105,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
           vnDefinition: VietnameseDefinition(
               word: word,
               definition: history[index].vietnameseDefinition),
-          textEditingController: widget.textEditingController,
           jishoDefinition: history[index].toJishoDefinition,
         );
     } else {
       return CommonQueryTile(
         hanViet: KanjiHelper.getHanvietReading(
             word: word, context: context),
-        textEditingController: widget.textEditingController,
         jishoDefinition: history[index].toJishoDefinition,
       );
     }
