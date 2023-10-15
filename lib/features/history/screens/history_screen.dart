@@ -104,7 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       word: word,
                       context: context),
                   textEditingController: widget.textEditingController,
-                  jishoDefinition: history[index].getJishoDefinition(),
+                  jishoDefinition: history[index].toJishoDefinition,
                 );
               else {
                 return CommonQueryTile(
@@ -113,7 +113,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       context: context),
                   vnDefinition: snapshot.data,
                   textEditingController: widget.textEditingController,
-                  jishoDefinition: history[index].getJishoDefinition(),
+                  jishoDefinition: history[index].toJishoDefinition,
                 );
               }
             });
@@ -126,14 +126,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
               word: word,
               definition: history[index].vietnameseDefinition),
           textEditingController: widget.textEditingController,
-          jishoDefinition: history[index].getJishoDefinition(),
+          jishoDefinition: history[index].toJishoDefinition,
         );
     } else {
       return CommonQueryTile(
         hanViet: KanjiHelper.getHanvietReading(
             word: word, context: context),
         textEditingController: widget.textEditingController,
-        jishoDefinition: history[index].getJishoDefinition(),
+        jishoDefinition: history[index].toJishoDefinition,
       );
     }
   }

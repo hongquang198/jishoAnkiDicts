@@ -2,9 +2,7 @@ import 'package:japanese_ocr/features/main_search/domain/entities/jisho_definiti
 import 'package:unofficial_jisho_api/api.dart';
 import 'dart:convert';
 
-import 'i_get_jisho_definition.dart';
-
-class OfflineWordRecord implements IGetJishoDefinition {
+class OfflineWordRecord {
   final String slug; //
   final int isCommon; //
   final List<String> tags; //
@@ -184,19 +182,16 @@ class OfflineWordRecord implements IGetJishoDefinition {
     );
   }
 
-  @override
-  JishoDefinition getJishoDefinition() {
-    return JishoDefinition(
-      slug: slug,
-      isCommon: isCommon == 1 ? true : false,
-      tags: tags,
-      jlpt: jlpt,
-      word: word,
-      reading: reading,
-      senses: senses,
-      isDbpedia: [],
-      isJmdict: [],
-      isJmnedict: [],
-    );
-  }
+  JishoDefinition get toJishoDefinition => JishoDefinition(
+        slug: slug,
+        isCommon: isCommon == 1 ? true : false,
+        tags: tags,
+        jlpt: jlpt,
+        word: word,
+        reading: reading,
+        senses: senses,
+        isDbpedia: [],
+        isJmdict: [],
+        isJmnedict: [],
+      );
 }

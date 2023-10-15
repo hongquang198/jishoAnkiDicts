@@ -96,7 +96,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           context: context),
                       vnDefinition: null,
                       textEditingController: widget.textEditingController,
-                      jishoDefinition: favorite[index].getJishoDefinition(),
+                      jishoDefinition: favorite[index].toJishoDefinition,
                     );
                   return CommonQueryTile(
                     hanViet: KanjiHelper.getHanvietReading(
@@ -104,7 +104,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         context: context),
                     vnDefinition: snapshot.data,
                     textEditingController: widget.textEditingController,
-                    jishoDefinition: favorite[index].getJishoDefinition(),
+                    jishoDefinition: favorite[index].toJishoDefinition,
                   );
                 });
           },
