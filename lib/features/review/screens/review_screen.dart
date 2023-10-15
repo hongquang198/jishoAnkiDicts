@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
@@ -138,8 +137,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Dictionary>(builder: (context, dictionary, child) {
-      return Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.review),
           actions: [
@@ -158,7 +156,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         context: context);
                   }
                   showAll = false;
-                  dictionary.getCards;
                   updateAdditionalInfo();
                   setState(() {});
                 },
@@ -168,7 +165,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 )),
             GestureDetector(
                 onTap: () async {
-                  if (dictionary.getCards.length > 0) {
+                  if (getIt<Dictionary>().getCards.length > 0) {
                     redo = OfflineWordRecord(
                       slug: currentCard.slug,
                       isCommon: currentCard.isCommon,
@@ -199,8 +196,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         offlineListType: OfflineListType.review,
                         context: context,
                         word: currentCard.word);
-                    if (dictionary.getCards.length != 0) {
-                      currentCard = dictionary.getCards[0];
+                    if (getIt<Dictionary>().getCards.length != 0) {
+                      currentCard = getIt<Dictionary>().getCards[0];
                       updateAdditionalInfo();
                     }
                     setState(() {
@@ -215,7 +212,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 )),
             GestureDetector(
                 onTap: () {
-                  dictionary.getCards.length > 0
+                  getIt<Dictionary>().getCards.length > 0
                       ? Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -229,7 +226,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: Icon(Icons.info),
                 ))
           ],
-          bottom: dictionary.getCards.length > 0
+          bottom: getIt<Dictionary>().getCards.length > 0
               ? PreferredSize(
                   preferredSize: Size.fromHeight(24),
                   child: Container(
@@ -243,13 +240,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
               : PreferredSize(
                   child: SizedBox(), preferredSize: Size.fromHeight(0)),
         ),
-        body: dictionary.getCards.length > 0
-            ? buildCard(dictionary, context)
+        body: getIt<Dictionary>().getCards.length > 0
+            ? buildCard(getIt<Dictionary>(), context)
             : Center(
                 child: Text(AppLocalizations.of(context)!.reviewComplete),
               ),
       );
-    });
   }
 
   // How to decide which card is shown first ? use a list = dictionary.getCards at index 0 since every review updates cards position

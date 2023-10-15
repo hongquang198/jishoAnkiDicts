@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../core/data/datasources/shared_pref.dart';
 import '../../../../core/domain/entities/dictionary.dart';
@@ -41,8 +40,7 @@ class _ReviewInfoState extends State<ReviewInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Dictionary>(builder: (context, dictionary, child) {
-      return Row(
+    return Row(
         children: [
           Container(
             decoration: BoxDecoration(
@@ -54,7 +52,7 @@ class _ReviewInfoState extends State<ReviewInfo> {
                   : BorderSide(color: Colors.white),
             )),
             child: Text(
-              '${dictionary.getNewCardNumber}',
+              '${getIt<Dictionary>().getNewCardNumber}',
               style: TextStyle(color: Colors.blue),
             ),
           ),
@@ -69,7 +67,7 @@ class _ReviewInfoState extends State<ReviewInfo> {
                   : BorderSide(color: Colors.white),
             )),
             child: Text(
-              '${dictionary.getLearnedCardNumber}',
+              '${getIt<Dictionary>().getLearnedCardNumber}',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -84,12 +82,11 @@ class _ReviewInfoState extends State<ReviewInfo> {
                   : BorderSide(color: Colors.white),
             )),
             child: Text(
-              '${dictionary.getDueCardNumber}',
+              '${getIt<Dictionary>().getDueCardNumber}',
               style: TextStyle(color: Colors.green),
             ),
           ),
         ],
       );
-    });
   }
 }
