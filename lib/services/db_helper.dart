@@ -54,7 +54,7 @@ class DbHelper {
       required OfflineWordRecord offlineWordRecord,
       required BuildContext context}) {
     if (offlineListType == OfflineListType.history) {
-      if (!checkDatabaseExist(
+      if (!checkDatabaseExist(  
               offlineListType: OfflineListType.history,
               word: offlineWordRecord.japaneseWord,
               context: context)) {
@@ -71,22 +71,21 @@ class DbHelper {
                 (element) =>
                     element.japaneseWord ==
                     offlineWordRecord.japaneseWord);
-        found = found.copyWith(reviews: found.reviews+1);
         getIt<Dictionary>().history.remove(found);
         getIt<Dictionary>()
             .offlineDatabase
             .delete(word: found.japaneseWord, tableName: 'history');
+        found = found.copyWith(reviews: found.reviews+1);
         getIt<Dictionary>().history.add(found);
         getIt<Dictionary>()
             .offlineDatabase
             .insertWord(offlineWordRecord: found, tableName: 'history');
       }
     } else if (offlineListType == OfflineListType.favorite) {
-      if (checkDatabaseExist(
+      if (!checkDatabaseExist(
               offlineListType: OfflineListType.favorite,
               word: offlineWordRecord.japaneseWord,
-              context: context) ==
-          false) {
+              context: context)) {
         getIt<Dictionary>()
             .favorite
             .add(offlineWordRecord);
@@ -97,11 +96,10 @@ class DbHelper {
         print('Added to favorite list successfully');
       }
     } else if (offlineListType == OfflineListType.review) {
-      if (checkDatabaseExist(
+      if (!checkDatabaseExist(
               offlineListType: OfflineListType.review,
               word: offlineWordRecord.japaneseWord,
-              context: context) ==
-          false) {
+              context: context)) {
         getIt<Dictionary>()
             .review
             .add(offlineWordRecord);
