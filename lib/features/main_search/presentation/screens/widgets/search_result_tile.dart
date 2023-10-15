@@ -12,8 +12,8 @@ import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../../../../utils/offline_list_type.dart';
 import '../../../../../services/db_helper.dart';
-import '../../../../word_definition/screens/widgets/definition_tags.dart';
 import '../../../../word_definition/screens/definition_screen.dart';
+import '../../../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart';
 import '../../../domain/entities/jisho_definition.dart';
 import '../../bloc/main_search_bloc.dart';
 
@@ -69,16 +69,16 @@ class _SearchResultTileState extends State<SearchResultTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: EdgeInsets.only(left: 16.0, right: 0.0),
+      isThreeLine: true,
+      contentPadding: EdgeInsets.zero,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          widget.jishoDefinition?.reading != null
-              ? Text(
-                  widget.jishoDefinition?.reading ?? '',
-                  style: TextStyle(fontSize: 13),
-                )
-              : SizedBox(),
+          if (widget.jishoDefinition?.reading != null)
+            Text(
+              widget.jishoDefinition?.reading ?? '',
+              style: TextStyle(fontSize: 11),
+            ),
           Text(
             word,
             style: TextStyle(
@@ -109,34 +109,16 @@ class _SearchResultTileState extends State<SearchResultTile> {
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                   ))
-              : Row(
-                  children: [
-                    widget.jishoDefinition?.isCommon == true
-                        ? Card(
-                            color: Color(0xFF8ABC82),
-                            child: Text(
-                              'common word',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                        : SizedBox(),
-                    DefinitionTags(
-                        tags: widget.jishoDefinition?.tags ?? [],
-                        color: Color(0xFF909DC0)),
-                    DefinitionTags(
-                        tags: widget.jishoDefinition?.jlpt ?? [],
-                        color: Color(0xFF909DC0)),
-                  ],
+              : IsCommonTagsAndJlptWidget(
+                  isCommon: widget.jishoDefinition?.isCommon == true,
+                  tags: widget.jishoDefinition?.tags ?? [],
+                  jlpt: widget.jishoDefinition?.jlpt ?? [],
                 ),
           if (widget.jishoDefinition?.senses != null &&
               getIt<SharedPref>().isAppInEnglish)
             Text(
                 widget.jishoDefinition!.senses[0].englishDefinitions
-                        .toString(),
+                        .join(', '),
                 style: TextStyle(fontSize: 13))
           else
             SizedBox(),

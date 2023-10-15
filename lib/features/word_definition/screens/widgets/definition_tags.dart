@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DefinitionTags extends StatelessWidget {
-  final List<dynamic> tags;
+  final List<String> tags;
   final Color color;
   DefinitionTags({required this.tags, required this.color});
 
@@ -9,14 +9,19 @@ class DefinitionTags extends StatelessWidget {
   Widget build(BuildContext context) {
     if (tags.length > 0) {
       for (int i = 0; i < tags.length;) {
-        return tags[i] != null && tags[i].length > 0
+        return tags[i].length > 0
             ? Card(
+                margin: const EdgeInsets.only(
+                  left: 4.0,
+                  top: 3.0,
+                  bottom: 3.0,
+                ),
                 color: color,
                 child: Text(
-                  tags[i] == null ? '' : tags[i].toString(),
+                  " ${tags[i]} ",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 15.0,
+                    fontSize: 13.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

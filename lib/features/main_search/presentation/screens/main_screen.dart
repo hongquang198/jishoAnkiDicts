@@ -1,8 +1,6 @@
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -64,89 +62,60 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                             Scaffold.of(context).openDrawer();
                           },
                         )),
-                title: Text(
-                  AppLocalizations.of(context)!.appTitle,
+                title: TextField(
+                  onSubmitted: (valueChanged) async {
+                    await _search();
+                    setState(() {});
+                  },
                   style: TextStyle(color: Constants.appBarTextColor),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(48.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          margin:
-                              const EdgeInsets.only(left: 12.0, bottom: 8.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: TextField(
-                            onSubmitted: (valueChanged) async {
-                              await _search();
-                              setState(() {});
-                            },
-                            style: TextStyle(color: Constants.appBarTextColor),
-                            controller: textEditingController,
-                            decoration: InputDecoration(
-                              prefixIcon: IconButton(
-                                icon: Icon(Icons.search),
-                                color: Constants.appBarTextColor,
-                                onPressed: () async {
-                                  await _search();
-                                  setState(() {});
-                                },
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  Icons.cancel,
-                                  color: Constants.appBarIconColor,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    textEditingController.text = '';
-                                  });
-                                },
-                              ),
-                              hintText: "Search for a word",
-                              hintStyle:
-                                  TextStyle(color: Constants.appBarTextColor),
-                              labelStyle:
-                                  TextStyle(color: Constants.appBarTextColor),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        padding: EdgeInsets.only(bottom: 10),
-                        icon: Icon(Icons.brush),
-                        color: Constants.appBarIconColor,
-                        onPressed: () {
-                          setState(() {
-                            textEditingController.text = '';
-                          });
-                          showModalBottomSheet(
-                              isScrollControlled: true,
-                              enableDrag: false,
-                              context: context,
-                              builder: (ctx) {
-                                return Wrap(children: <Widget>[
-                                  Container(
-                                    color: Color(0xFFf8f1f1),
-                                    height: 400,
-                                    child: DrawScreen(
-                                        textEditingController:
-                                            textEditingController),
-                                  ),
-                                ]);
-                              });
-                        },
-                      ),
-                    ],
+                  controller: textEditingController,
+                  decoration: InputDecoration(
+                    hintText: "Search for a word",
+                    hintStyle: TextStyle(color: Constants.appBarTextColor),
+                    labelStyle: TextStyle(color: Constants.appBarTextColor),
+                    border: InputBorder.none,
                   ),
                 ),
+                actions: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.cancel,
+                      color: Constants.appBarIconColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        textEditingController.text = '';
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.brush),
+                    color: Constants.appBarIconColor,
+                    onPressed: () {
+                      setState(() {
+                        textEditingController.text = '';
+                      });
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          enableDrag: false,
+                          context: context,
+                          builder: (ctx) {
+                            return Wrap(children: <Widget>[
+                              Container(
+                                color: Color(0xFFf8f1f1),
+                                height: 400,
+                                child: DrawScreen(
+                                    textEditingController:
+                                        textEditingController),
+                              ),
+                            ]);
+                          });
+                    },
+                  ),
+                ],
               ),
               body: Container(
-                margin: EdgeInsets.all(8),
+                margin: EdgeInsets.only(left: 10, top: 8.0),
                 child: buildBody(),
               ),
             ));

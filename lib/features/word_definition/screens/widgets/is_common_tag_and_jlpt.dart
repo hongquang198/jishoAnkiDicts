@@ -24,7 +24,7 @@ class IsCommonTagsAndJlptWidget extends StatelessWidget {
                   'common word',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 15.0,
+                    fontSize: 13.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
