@@ -12,7 +12,7 @@ import '../core/domain/entities/dictionary.dart';
 class KanjiHelper {
   // Extract kanji from word
   static Future<List<Kanji>> getKanjiComponent(
-      {required String word, required BuildContext context}) async {
+      {required String word}) async {
     List<Kanji> kanjiExtracted = [];
     List<Kanji> kanjiFound = [];
     for (int i = 0; i < word.length; i++) {
@@ -33,11 +33,11 @@ class KanjiHelper {
   }
 
   static Future<List<String>> getHanvietReading(
-      {required String word, required BuildContext context}) async {
+      {required String word}) async {
     List<String> hanViet = [];
     List<String> array = [];
     List<Kanji> kanjiComponent =
-        await getKanjiComponent(word: word, context: context);
+        await getKanjiComponent(word: word);
     // print('kanji component length is ${kanjiComponent.length}');
     for (int i = 0; i < kanjiComponent.length; i++) {
       try {

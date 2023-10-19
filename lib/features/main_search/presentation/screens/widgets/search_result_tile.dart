@@ -20,7 +20,7 @@ import '../../bloc/main_search_bloc.dart';
 class SearchResultTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
   final VietnameseDefinition? vnDefinition;
-  final Future<List<String>> hanViet;
+  final List<String> hanViet;
   final bool loadingDefinition;
 
   SearchResultTile({
@@ -79,24 +79,22 @@ class _SearchResultTileState extends State<SearchResultTile> {
               widget.jishoDefinition?.reading ?? '',
               style: TextStyle(fontSize: 11),
             ),
-          Text(
-            word,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (getIt<SharedPref>().isAppInVietnamese)
-            FutureBuilder(
-              future: widget.hanViet,
-              builder: (context, snapshot) {
-                if (snapshot.data == null || snapshot.data!.length == 0)
-                  return SizedBox(height: 0);
-                return SelectableText(
-                  snapshot.data.toString().toUpperCase(),
+          Row(
+            children: [
+              Text(
+                word,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8.0,),
+              if (getIt<SharedPref>().isAppInVietnamese)
+                SelectableText(
+                  widget.hanViet.toString().toUpperCase(),
                   style: TextStyle(fontSize: 12),
-                );
-              },
-            )
+                ),
+            ],
+          ),
         ],
       ),
       subtitle: Column(

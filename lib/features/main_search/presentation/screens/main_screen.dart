@@ -65,7 +65,6 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 title: TextField(
                   onSubmitted: (valueChanged) async {
                     await _search();
-                    setState(() {});
                   },
                   style: TextStyle(color: Constants.appBarTextColor),
                   controller: textEditingController,
@@ -83,18 +82,14 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                       color: Constants.appBarIconColor,
                     ),
                     onPressed: () {
-                      setState(() {
-                        textEditingController.text = '';
-                      });
+                      textEditingController.text = '';
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.brush),
                     color: Constants.appBarIconColor,
                     onPressed: () {
-                      setState(() {
-                        textEditingController.text = '';
-                      });
+                      textEditingController.text = '';
                       showModalBottomSheet(
                           isScrollControlled: true,
                           enableDrag: false,
@@ -114,8 +109,12 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                   ),
                 ],
               ),
-              body: Container(
-                margin: EdgeInsets.only(left: 10, top: 8.0),
+              body: Padding(
+                padding: EdgeInsets.only(
+                  left: 15.0,
+                  top: 15.0,
+                  right: 8.0,
+                ),
                 child: buildBody(),
               ),
             ));
@@ -138,8 +137,9 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 vnDictQuery: state.data.vnDictQuery,
               ),
             MainSearchAllLoadedState(data: var data) || MainSearchFailureState(data: var data) when data.jishoDefinitionList.isNotEmpty =>
-                  ListSearchResultEN(
+                  ListSearchResultAllLoaded(
                     jishoDefinitionList: data.jishoDefinitionList,
+                    wordToHanVietMap: data.wordToHanVietMap,
                   ),
             _ => const SizedBox.shrink()
           };

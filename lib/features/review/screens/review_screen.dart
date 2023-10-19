@@ -361,7 +361,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: ComponentWidget(
                     kanjiComponent: KanjiHelper.getKanjiComponent(
                       word: currentCard.japaneseWord,
-                      context: context,
                     ),
                   ),
                 )
@@ -617,7 +616,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   void updateAdditionalInfo() {
     getVietnameseDefinition(word);
     hanViet =
-        KanjiHelper.getHanvietReading(word: currentCard.word, context: context);
+        KanjiHelper.getHanvietReading(word: currentCard.word);
     enExampleSentence = KanjiHelper.getExampleSentence(
         word: currentCard.word,
         context: context,

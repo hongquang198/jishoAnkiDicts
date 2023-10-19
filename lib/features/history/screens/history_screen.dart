@@ -84,14 +84,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
                       word: word,
-                      context: context),
+                    ),
                   jishoDefinition: history[index].toJishoDefinition,
                 );
               else {
                 return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
                       word: word,
-                      context: context),
+                    ),
                   vnDefinition: snapshot.data,
                   jishoDefinition: history[index].toJishoDefinition,
                 );
@@ -99,9 +99,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             });
       } else
         return CommonQueryTile(
-          hanViet: KanjiHelper.getHanvietReading(
-              word: word,
-              context: context),
+          hanViet: KanjiHelper.getHanvietReading(word: word),
           vnDefinition: VietnameseDefinition(
               word: word,
               definition: history[index].vietnameseDefinition),
@@ -109,8 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         );
     } else {
       return CommonQueryTile(
-        hanViet: KanjiHelper.getHanvietReading(
-            word: word, context: context),
+        hanViet: KanjiHelper.getHanvietReading(word: word),
         jishoDefinition: history[index].toJishoDefinition,
       );
     }

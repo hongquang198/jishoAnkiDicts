@@ -53,7 +53,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
     super.initState();
 
     kanjiList = KanjiHelper.getKanjiComponent(
-        word: widget.grammarPoint.grammarPoint!, context: context);
+        word: widget.grammarPoint.grammarPoint!);
   }
 
   @override

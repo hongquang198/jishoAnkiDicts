@@ -64,14 +64,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     return CommonQueryTile(
                       hanViet: KanjiHelper.getHanvietReading(
                           word: favorite[index].japaneseWord,
-                          context: context),
+                        ),
                       vnDefinition: null,
                       jishoDefinition: favorite[index].toJishoDefinition,
                     );
                   return CommonQueryTile(
                     hanViet: KanjiHelper.getHanvietReading(
                         word: favorite[index].japaneseWord,
-                        context: context),
+                      ),
                     vnDefinition: snapshot.data,
                     jishoDefinition: favorite[index].toJishoDefinition,
                   );

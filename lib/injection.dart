@@ -3,6 +3,7 @@ import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/data/data_sources/jisho_remote_data_source.dart';
 import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repository.dart';
 import 'package:japanese_ocr/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
+import 'package:japanese_ocr/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
 import 'package:japanese_ocr/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:japanese_ocr/features/main_search/repository/jisho_repository_impl.dart';
@@ -45,6 +46,7 @@ Future<void> inject() async {
     ..registerFactory<MainSearchBloc>(() => MainSearchBloc(
           searchJishoForPhrase: getIt(),
           lookForVietnameseDefinition: getIt(),
+          lookupHanVietReading: getIt(),
         ));
 
   // Use cases
@@ -52,7 +54,9 @@ Future<void> inject() async {
     ..registerLazySingleton<SearchJishoForPhrase>(
         () => SearchJishoForPhrase(getIt()))
     ..registerLazySingleton<LookForVietnameseDefinition>(
-        () => LookForVietnameseDefinition());
+        () => LookForVietnameseDefinition())
+    ..registerLazySingleton<LookupHanVietReading>(
+        () => LookupHanVietReading());
 
   // Repository
   getIt.registerLazySingleton<JishoRepository>(() => JishoRepositoryImpl(

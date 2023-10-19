@@ -75,7 +75,7 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
       context: context,
     );
 
-    kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord, context: context);
+    kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
 
     try {
       final lang = getIt<SharedPref>().prefs.getString('language');

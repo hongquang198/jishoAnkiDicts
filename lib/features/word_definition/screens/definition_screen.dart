@@ -24,7 +24,7 @@ import 'widgets/is_common_tag_and_jlpt.dart';
 
 class DefinitionScreenArgs {
   MainSearchBloc mainSearchBloc;
-  final Future<List<String>>? hanViet;
+  final List<String>? hanViet;
   final VietnameseDefinition? vnDefinition;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
@@ -105,7 +105,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
       context: context,
     );
 
-    kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord, context: context);
+    kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
 
     try {
       final lang = getIt<SharedPref>().prefs.getString('language');
@@ -252,26 +252,18 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   )),
             ],
           ),
-          getIt<SharedPref>().isAppInVietnamese
-              ? FutureBuilder<List<String>>(
-                  future: widget.args.hanViet,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data!.length == 0)
-                      return SizedBox();
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          snapshot.data.toString().toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 22,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                )
-              : SizedBox(),
+          if (getIt<SharedPref>().isAppInVietnamese)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.args.hanViet.toString().toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 22,
+                  ),
+                ),
+              ],
+            ),
           widget.args.jishoDefinition != null
               ? IsCommonTagsAndJlptWidget(
                   isCommon: jishoDefinition.isCommon,
