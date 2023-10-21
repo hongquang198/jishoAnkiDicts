@@ -38,6 +38,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMixin {
   late TextEditingController textEditingController;
+  late FocusNode focusNode;
   late Timer searchOnStoppedTyping;
   final _recognizer = Recognizer();
   final modelFilePath1 = "assets/model806.tflite";
@@ -46,10 +47,10 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
   final labelFilePath2 = "assets/label3036.txt";
   late MainSearchBloc bloc;
   String clipboard = '';
-
   @override
   void initState() {
     super.initState();
+    focusNode = FocusNode();
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
@@ -81,6 +82,7 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                           },
                         )),
                 title: TextField(
+                  focusNode: focusNode,
                   onSubmitted: (valueChanged) async {
                     await _search();
                   },
@@ -131,6 +133,11 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 padding: MainScreenConst.bodyPadding,
                 child: const _Body(),
               ),
+              floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.search),
+                onPressed: () {
+                  focusNode.requestFocus();
+              }),
             ));
   }
 
