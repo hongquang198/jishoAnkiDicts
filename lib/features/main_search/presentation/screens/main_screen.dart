@@ -1,6 +1,8 @@
+import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:japanese_ocr/features/main_search/presentation/screens/widgets/vn_search_result_list_view.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -11,10 +13,25 @@ import '../../../../utils/constants.dart';
 import '../../../../services/recognizer.dart';
 import 'mixins/get_vietnamese_definition_mixin.dart';
 import 'widgets/draw_screen.dart';
-import 'widgets/list_search_results.dart';
+import 'widgets/en_search_result_list_view.dart';
+
+class MainScreenConst {
+  static const bodyPadding = EdgeInsets.only(
+    left: 15.0,
+    top: 15.0,
+    right: 8.0,
+  );
+}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
+
+  static provider() {
+    return BlocProvider<MainSearchBloc>(
+      create: (context) => getIt()..add(SearchForPhraseEvent('辞書')),
+      child: MainScreen(),
+    );
+  }
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -27,11 +44,15 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
   final labelFilePath1 = "assets/label806.txt";
   final modelFilePath2 = "assets/model3036.tflite";
   final labelFilePath2 = "assets/label3036.txt";
-  MainSearchBloc bloc = getIt();
+  late MainSearchBloc bloc;
   String clipboard = '';
 
-  Future<void> _search() async {
-    bloc.add(SearchForPhraseEvent(textEditingController.text));
+  @override
+  void initState() {
+    super.initState();
+    bloc = context.read<MainSearchBloc>();
+    textEditingController = TextEditingController();
+    _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
   }
 
   Future _initModel({required String modelFilePath, required String labelFilePath}) async {
@@ -39,11 +60,8 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    textEditingController = TextEditingController();
-    _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+  Future<void> _search() async {
+    bloc.add(SearchForPhraseEvent(textEditingController.text));
   }
 
   @override
@@ -110,41 +128,42 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 ],
               ),
               body: Padding(
-                padding: EdgeInsets.only(
-                  left: 15.0,
-                  top: 15.0,
-                  right: 8.0,
-                ),
-                child: buildBody(),
+                padding: MainScreenConst.bodyPadding,
+                child: const _Body(),
               ),
             ));
   }
 
-  BlocProvider<MainSearchBloc> buildBody() {
-    return BlocProvider<MainSearchBloc>(
-      create: (context) => bloc..add(SearchForPhraseEvent('辞書')),
-      child: BlocBuilder<MainSearchBloc, MainSearchState>(
-        builder: (context, state) {
-          return switch (state) {
-            MainSearchLoadingState() 
-              => Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                    ),
-                  ),
-            MainSearchVNLoadedState(data: var data) when data.isAppInVietnamese &&
-              state.data.vnDictQuery.isNotEmpty => ListSearchResultVN(
-                vnDictQuery: state.data.vnDictQuery,
+}
+
+class _Body extends StatelessWidget {
+  const _Body();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<MainSearchBloc, MainSearchState>(
+      builder: (context, state) {
+        return switch (state) {
+          MainSearchLoadingState() => Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
               ),
-            MainSearchAllLoadedState(data: var data) || MainSearchFailureState(data: var data) when data.jishoDefinitionList.isNotEmpty =>
-                  ListSearchResultAllLoaded(
-                    jishoDefinitionList: data.jishoDefinitionList,
-                    wordToHanVietMap: data.wordToHanVietMap,
-                  ),
-            _ => const SizedBox.shrink()
-          };
-        },
-      ),
+            ),
+          _ => const SearchResultListView()
+        };
+      },
     );
+  }
+}
+
+class SearchResultListView extends StatelessWidget {
+  const SearchResultListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (getIt<SharedPref>().isAppInVietnamese) {
+      return const VnSearchResultListView();
+    }
+    return const EnSearchResultListView();
   }
 }

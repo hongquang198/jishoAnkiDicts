@@ -21,13 +21,11 @@ class SearchResultTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
   final VietnameseDefinition? vnDefinition;
   final List<String> hanViet;
-  final bool loadingDefinition;
 
   SearchResultTile({
-    required this.hanViet,
+    this.hanViet = const [],
     this.vnDefinition,
     this.jishoDefinition,
-    this.loadingDefinition = false,
   });
 
   @override
@@ -88,7 +86,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                 ),
               ),
               const SizedBox(width: 8.0,),
-              if (getIt<SharedPref>().isAppInVietnamese)
+              if (getIt<SharedPref>().isAppInVietnamese && widget.hanViet.isNotEmpty)
                 SelectableText(
                   widget.hanViet.toString().toUpperCase(),
                   style: TextStyle(fontSize: 12),
@@ -102,14 +100,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
         children: <Widget>[
           Wrap(
             children: [
-              widget.loadingDefinition == true
-                  ? SizedBox(
-                      width: 5,
-                      height: 5,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                      ))
-                  : IsCommonTagsAndJlptWidget(
+              IsCommonTagsAndJlptWidget(
                       isCommon: widget.jishoDefinition?.isCommon == true,
                       tags: widget.jishoDefinition?.tags ?? [],
                       jlpt: widget.jishoDefinition?.jlpt ?? [],

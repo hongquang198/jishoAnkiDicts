@@ -50,8 +50,8 @@ dependencies:
   go_router: ^11.1.2
   # Network
   dio: ^5.3.3
-  unofficial_jisho_api:
-    path: dependencies/unofficial_jisho_api-3.0.0
+  unofficial_jisho_api: ^3.0.0
+    # path: dependencies/unofficial_jisho_api-3.0.0
   # Dependency injection
   get_it: ^7.6.4
   bloc: ^8.1.2

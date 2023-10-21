@@ -731,9 +731,10 @@ packages:
   unofficial_jisho_api:
     dependency: "direct main"
     description:
-      path: "dependencies/unofficial_jisho_api-3.0.0"
-      relative: true
-    source: path
+      name: unofficial_jisho_api
+      sha256: "29065e010f9ea57eae59c6114e25d50ca33d7525383243f7ce205e86b803aa39"
+      url: "https://pub.dev"
+    source: hosted
     version: "3.0.0"
   url_launcher:
     dependency: transitive

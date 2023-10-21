@@ -25,7 +25,7 @@ class AppRoutes {
         GoRoute(
           path: '/',
           name: AppRoutesPath.mainScreen,
-          builder: (context, state) => MainScreen(),
+          builder: (context, state) => MainScreen.provider(),
         ),
         GoRoute(
           path: AppRoutesPath.cardInfo,
