@@ -202,7 +202,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           FutureBuilder<List<Widget>>(
             future: pitchAccent,
             builder: (context, snapshot) {
-              if (snapshot.data == null)
+              if (snapshot.data == null || snapshot.data?.isEmpty == true)
                 return Text(
                   jishoDefinition.reading ?? '',
                   style: TextStyle(
