@@ -87,9 +87,15 @@ class _SearchResultTileState extends State<SearchResultTile> {
               ),
               const SizedBox(width: 8.0,),
               if (getIt<SharedPref>().isAppInVietnamese && widget.hanViet.isNotEmpty)
-                SelectableText(
-                  widget.hanViet.toString().toUpperCase(),
-                  style: TextStyle(fontSize: 12),
+                SizedBox(
+                  width: 110,
+                  child: SelectableText(
+                    widget.hanViet.toString().toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
             ],
           ),
