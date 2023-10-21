@@ -15,24 +15,44 @@ class VnSearchResultListView extends StatelessWidget {
     return BlocBuilder<MainSearchBloc, MainSearchState>(
         builder: (context, state) {
       final stateData = state.data;
+      if (stateData.vnDictQuery.isNotEmpty) {
+        return ListView.separated(
+            separatorBuilder: (context, index) => Divider(
+                  thickness: 0.4,
+                ),
+            itemCount: state.data.vnDictQuery.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SearchResultTile(
+                vnDefinition: stateData.vnDictQuery[index],
+                hanViet: _getHanViet(stateData, index),
+                jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
+                    (element) =>
+                        element.japaneseWord ==
+                        stateData.vnDictQuery[index].word),
+              );
+            });
+      }
       return ListView.separated(
           separatorBuilder: (context, index) => Divider(
                 thickness: 0.4,
               ),
-          itemCount: state.data.vnDictQuery.length,
+          itemCount: state.data.jishoDefinitionList.length,
           itemBuilder: (BuildContext context, int index) {
             return SearchResultTile(
-              vnDefinition: stateData.vnDictQuery[index],
               hanViet: _getHanViet(stateData, index),
-              jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
-                  (element) =>
-                      element.japaneseWord ==
-                      stateData.vnDictQuery[index].word),
+              jishoDefinition: stateData.jishoDefinitionList[index],
             );
           });
     });
   }
 
-  List<String> _getHanViet(MainSearchStateData stateData, int index) =>
-      stateData.wordToHanVietMap[stateData.vnDictQuery[index].word] ?? [];
+  List<String> _getHanViet(MainSearchStateData stateData, int index) {
+    if (stateData.vnDictQuery.isNotEmpty) {
+      return stateData.wordToHanVietMap[stateData.vnDictQuery[index].word] ??
+          [];
+    }
+    return stateData.wordToHanVietMap[
+            stateData.jishoDefinitionList[index].japaneseWord] ??
+        [];
+  }
 }

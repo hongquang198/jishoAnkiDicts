@@ -47,15 +47,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
           (failure) => emit(MainSearchFailureState(
                 state.data,
                 failureMessage: failure.properties.toString(),
-              )), (definitionList) async {
-        for (var definition in definitionList) {
-          final hanVietResultEither =
-              await lookupHanVietReading.call(definition.word);
-          hanVietResultEither.fold(
-            (l) => null,
-            (hanViet) => wordToHanVietMap[definition.word] = hanViet,
-          );
-        }
+              )), (definitionList) {
         emit(MainSearchVNLoadedState(
           state.data.copyWith(
             vnDictQuery: definitionList,
@@ -65,6 +57,17 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       });
     }
 
+    for (var definition in state.data.vnDictQuery) {
+      final hanVietResultEither =
+          await lookupHanVietReading.call(definition.word);
+      hanVietResultEither.fold(
+        (l) => null,
+        (hanViet) => wordToHanVietMap[definition.word] = hanViet,
+      );
+    }
+    emit(MainSearchVNLoadedState(
+        state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
+
     final jishoResultEither = await searchJishoForPhrase.call(event.phrase);
     jishoResultEither.fold(
         (failure) => emit(
@@ -72,9 +75,23 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
                 state.data,
                 failureMessage: failure.properties.toString(),
               ),
-            ),
-        (jishoDefinitionList) => emit(MainSearchAllLoadedState(state.data.copyWith(
-              jishoDefinitionList: jishoDefinitionList,
-            ))));
+            ), (jishoDefinitionList) {
+      emit(MainSearchAllLoadedState(state.data.copyWith(
+        jishoDefinitionList: jishoDefinitionList,
+      )));
+    });
+
+    for (var definition in state.data.jishoDefinitionList.sublist(0, 5)) {
+      final hanVietResultEither =
+          await lookupHanVietReading.call(definition.japaneseWord);
+      hanVietResultEither.fold(
+        (l) => null,
+        (hanViet) {
+          wordToHanVietMap[definition.japaneseWord] = hanViet;
+          emit(MainSearchAllLoadedState(
+              state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
+        },
+      );
+    }
   }
 }

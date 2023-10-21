@@ -252,7 +252,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   )),
             ],
           ),
-          if (getIt<SharedPref>().isAppInVietnamese)
+          if (getIt<SharedPref>().isAppInVietnamese &&
+              widget.args.hanViet?.isNotEmpty == true)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

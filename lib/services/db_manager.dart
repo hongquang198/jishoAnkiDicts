@@ -327,7 +327,9 @@ class DbManager {
     final List<Map<String, dynamic>> maps = await db.query('jpvnDictionary',
         where: "word LIKE ?",
         whereArgs: ['%$word%'],
-        orderBy: 'length(word) ASC');
+        orderBy: 'length(word) ASC',
+        limit: 15,
+    );
     return List.generate(maps.length, (i) {
       return VietnameseDefinition(
         word: maps[i]['word'],
