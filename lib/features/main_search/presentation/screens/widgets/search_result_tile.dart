@@ -68,7 +68,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
   Widget build(BuildContext context) {
     return ListTile(
       isThreeLine: true,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.only(left: 5, right: 5),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -126,128 +126,65 @@ class _SearchResultTileState extends State<SearchResultTile> {
           )
         ],
       ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          //state of word : bookmarked or not
-          SizedBox(
-            width: 45,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-              ),
-              child: DbHelper.checkDatabaseExist(
-                      offlineListType: OfflineListType.favorite,
-                      word: word,
-                      context: context)
-                  ? Icon(Icons.favorite, color: Color(0xffff8882))
-                  : Icon(Icons.favorite, color: Colors.grey),
-              onPressed: () {
-                if (DbHelper.checkDatabaseExist(
-                        offlineListType: OfflineListType.favorite,
-                        word: word,
-                        context: context) ==
-                    false) {
-                  setState(() {
-                    DbHelper.addToOfflineList(
-                        offlineListType: OfflineListType.favorite,
-                        offlineWordRecord: OfflineWordRecord(
-                          slug: word,
-                          isCommon:
-                              widget.jishoDefinition?.isCommon == true ? 1 : 0,
-                          tags: widget.jishoDefinition?.tags ?? const [],
-                          jlpt: widget.jishoDefinition?.jlpt ?? const [],
-                          word: word,
-                          reading: widget.jishoDefinition?.reading ?? '',
-                          senses: widget.jishoDefinition?.senses ?? const [],
-                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
-                          added: DateTime.now().millisecondsSinceEpoch,
-                          firstReview: null,
-                          lastReview: null,
-                          due: -1,
-                          interval: 0,
-                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-                          reviews: 0,
-                          lapses: 0,
-                          averageTimeMinute: 0,
-                          totalTimeMinute: 0,
-                          cardType: 'default',
-                          noteType: 'default',
-                          deck: 'default',
-                        ),
-                        context: context);
-                  });
-                } else
-                  setState(() {
-                    DbHelper.removeFromOfflineList(
-                        offlineListType: OfflineListType.favorite,
-                        context: context,
-                        word: widget.jishoDefinition?.japaneseWord ?? '');
-                  });
-              },
-            ),
+      trailing: SizedBox(
+        width: 45,
+        child: TextButton(
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
           ),
-
-          // Add button to review list
-          SizedBox(
-            width: 45,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-              ),
-              child: DbHelper.checkDatabaseExist(
-                      offlineListType: OfflineListType.review,
+          child: DbHelper.checkDatabaseExist(
+                  offlineListType: OfflineListType.favorite,
+                  word: word,
+                  context: context)
+              ? Icon(Icons.bookmark, color: Color(0xffff8882))
+              : Icon(Icons.bookmark, color: Colors.grey),
+          onPressed: () {
+            if (DbHelper.checkDatabaseExist(
+                    offlineListType: OfflineListType.favorite,
+                    word: word,
+                    context: context) ==
+                false) {
+              setState(() {
+                DbHelper.addToOfflineList(
+                    offlineListType: OfflineListType.favorite,
+                    offlineWordRecord: OfflineWordRecord(
+                      slug: word,
+                      isCommon:
+                          widget.jishoDefinition?.isCommon == true ? 1 : 0,
+                      tags: widget.jishoDefinition?.tags ?? const [],
+                      jlpt: widget.jishoDefinition?.jlpt ?? const [],
                       word: word,
-                      context: context)
-                  ? Icon(Icons.alarm_on, color: Color(0xffff8882))
-                  : Icon(Icons.alarm_add),
-              onPressed: () {
-                print(widget.vnDefinition?.word);
-                if (DbHelper.checkDatabaseExist(
-                        offlineListType: OfflineListType.review,
-                        word: word,
-                        context: context) ==
-                    false) {
-                  setState(() {
-                    DbHelper.addToOfflineList(
-                        offlineListType: OfflineListType.review,
-                        offlineWordRecord: OfflineWordRecord(
-                          slug: word,
-                          isCommon:
-                              widget.jishoDefinition?.isCommon == true ? 1 : 0,
-                          tags: widget.jishoDefinition?.tags ?? const [],
-                          jlpt: widget.jishoDefinition?.jlpt ?? const [],
-                          word: word,
-                          reading: widget.jishoDefinition?.reading ?? '',
-                          senses: widget.jishoDefinition?.senses ?? const [],
-                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
-                          added: DateTime.now().millisecondsSinceEpoch,
-                          firstReview: null,
-                          lastReview: null,
-                          due: -1,
-                          interval: 0,
-                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-                          reviews: 0,
-                          lapses: 0,
-                          averageTimeMinute: 0,
-                          totalTimeMinute: 0,
-                          cardType: 'default',
-                          noteType: 'default',
-                          deck: 'default',
-                        ),
-                        context: context);
-                  });
-                } else
-                  setState(() {
-                    DbHelper.removeFromOfflineList(
-                        offlineListType: OfflineListType.review,
-                        context: context,
-                        word: word);
-                  });
-              },
-            ),
-          ),
-        ],
+                      reading: widget.jishoDefinition?.reading ?? '',
+                      senses: widget.jishoDefinition?.senses ?? const [],
+                      vietnameseDefinition:
+                          widget.vnDefinition?.definition ?? '',
+                      added: DateTime.now().millisecondsSinceEpoch,
+                      firstReview: null,
+                      lastReview: null,
+                      due: -1,
+                      interval: 0,
+                      ease:
+                          getIt<SharedPref>().prefs.getDouble('startingEase') ??
+                              -1,
+                      reviews: 0,
+                      lapses: 0,
+                      averageTimeMinute: 0,
+                      totalTimeMinute: 0,
+                      cardType: 'default',
+                      noteType: 'default',
+                      deck: 'default',
+                    ),
+                    context: context);
+              });
+            } else
+              setState(() {
+                DbHelper.removeFromOfflineList(
+                    offlineListType: OfflineListType.favorite,
+                    context: context,
+                    word: widget.jishoDefinition?.japaneseWord ?? '');
+              });
+          },
+        ),
       ),
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();

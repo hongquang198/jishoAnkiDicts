@@ -55,7 +55,7 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(
-              Icons.favorite,
+              Icons.bookmark,
               color: Colors.red,
             ),
             title: Text(AppLocalizations.of(context)!.favorite),

@@ -134,8 +134,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                     offlineListType: OfflineListType.favorite,
                     word: currentJapaneseWord,
                     context: context)
-                ? Icon(Icons.favorite, color: Colors.white)
-                : Icon(Icons.favorite_border),
+                ? Icon(Icons.bookmark, color: Colors.white)
+                : Icon(Icons.bookmark_border),
             onPressed: () {
               if (DbHelper.checkDatabaseExist(
                       offlineListType: OfflineListType.favorite,

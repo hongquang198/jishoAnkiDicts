@@ -49,5 +49,6 @@
     "invalidRequest": "Invalid request",
     "unauthorised": "Unauthorised",
     "fetchDataError": "Fetch data error",
-    "connectionError": "Connection error"
+    "connectionError": "Connection error",
+    "menu": "Tùy chọn"
 }

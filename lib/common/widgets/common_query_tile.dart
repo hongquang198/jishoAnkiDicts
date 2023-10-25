@@ -158,8 +158,8 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                       offlineListType: OfflineListType.favorite,
                       word: word,
                       context: context)
-                  ? Icon(Icons.favorite, color: Color(0xffff8882))
-                  : Icon(Icons.favorite, color: Colors.grey),
+                  ? Icon(Icons.bookmark, color: Color(0xffff8882))
+                  : Icon(Icons.bookmark, color: Colors.grey),
               onPressed: () {
                 if (DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.favorite,

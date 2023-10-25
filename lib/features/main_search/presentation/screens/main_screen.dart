@@ -1,3 +1,6 @@
+import 'package:go_router/go_router.dart';
+import 'package:japanese_ocr/common/extensions/build_context_extension.dart';
+import 'package:japanese_ocr/config/app_routes.dart';
 import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,8 +39,9 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMixin {
+class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
   late TextEditingController textEditingController;
+  late TabController tabController;
   late FocusNode focusNode;
   late Timer searchOnStoppedTyping;
   final _recognizer = Recognizer();
@@ -50,6 +54,11 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
   @override
   void initState() {
     super.initState();
+    tabController = TabController(
+      initialIndex: 0,
+      length: 2,
+      vsync: this,
+    );
     focusNode = FocusNode();
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
@@ -74,13 +83,7 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
               ),
               appBar: AppBar(
                 leading: Builder(
-                    builder: (context) => IconButton(
-                          icon: Icon(Icons.menu_rounded),
-                          color: Constants.appBarIconColor,
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        )),
+                    builder: (context) => Icon(Icons.search)),
                 title: TextField(
                   focusNode: focusNode,
                   onSubmitted: (valueChanged) async {
@@ -133,11 +136,33 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 padding: MainScreenConst.bodyPadding,
                 child: const _Body(),
               ),
-              floatingActionButton: FloatingActionButton(
-                child: Icon(Icons.search),
-                onPressed: () {
-                  focusNode.requestFocus();
-              }),
+              bottomNavigationBar: Container(
+                margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
+                decoration: BoxDecoration(
+                  color: Color(0xffDB8C8A).withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: TabBar(
+                  controller: tabController,
+                  indicatorColor: Colors.black,
+                  // unselectedLabelColor: Colors.grey,
+                  // labelColor: Colors.blue,
+                  onTap: (index) async {
+                    if (index == 0) {
+                      await context.pushNamed(AppRoutesPath.history);
+                      tabController.animateTo(1);
+                      return;
+                    }
+                    if (index == 1) {
+                      focusNode.requestFocus();
+                    }
+                  },
+                  tabs: const [
+                    Tab(icon: Icon(Icons.history)),
+                    Tab(icon: Icon(Icons.search)),
+                  ],
+                ),
+              ),
             ));
   }
 
