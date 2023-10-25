@@ -89,14 +89,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     jishoDefinition = widget.args.jishoDefinition ?? JishoDefinition(slug: '');
     vnDefinition = widget.args.vnDefinition ?? VietnameseDefinition();
     currentJapaneseWord = vnDefinition.word;
-    if (widget.args.jishoDefinition != null) {
-      _saveHistoryOfflineWordRecord(context);
-    }
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.word ?? '';
     }
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.slug;
+    }
+    if (widget.args.jishoDefinition != null) {
+      _saveHistoryOfflineWordRecord(context);
     }
     pitchAccent = KanjiHelper.getPitchAccent(
       word: jishoDefinition.word,
