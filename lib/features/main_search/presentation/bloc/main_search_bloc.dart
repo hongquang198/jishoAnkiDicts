@@ -10,7 +10,9 @@ import 'package:japanese_ocr/features/main_search/domain/use_cases/search_jisho_
 import 'package:collection/collection.dart';
 
 import '../../../../injection.dart';
+import '../../../../models/grammar_point.dart';
 import '../../../../models/vietnamese_definition.dart';
+import '../../domain/use_cases/look_up_grammar_point.dart';
 
 part 'main_search_event.dart';
 part 'main_search_state.dart';
@@ -19,11 +21,13 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
   final SearchJishoForPhrase searchJishoForPhrase;
   final LookForVietnameseDefinition lookForVietnameseDefinition;
   final LookupHanVietReading lookupHanVietReading;
+  final LookUpGrammarPoint lookupGrammarPoint;
 
   MainSearchBloc({
     required this.searchJishoForPhrase,
     required this.lookForVietnameseDefinition,
     required this.lookupHanVietReading,
+    required this.lookupGrammarPoint,
   }) : super(MainSearchLoadingState(const MainSearchStateData())) {
     on<SearchForPhraseEvent>(_onSearchForPhrase);
   }
@@ -40,6 +44,16 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       vnDictQuery: [],
       jishoDefinitionList: [],
     )));
+
+    final grammarResult = await lookupGrammarPoint.call(event.phrase);
+    grammarResult.fold(
+        (failure) => emit(MainSearchFailureState(
+              state.data,
+              failureMessage: failure.properties.toString(),
+            )),
+        (grammarList) => emit(MainSearchGrammarLoadedState(state.data.copyWith(
+              grammarPointList: grammarList,
+            ))));
 
     if (isAppInVietnamese) {
       final resultEither = await lookForVietnameseDefinition.call(event.phrase);

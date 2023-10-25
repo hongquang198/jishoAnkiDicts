@@ -68,7 +68,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
   Widget build(BuildContext context) {
     return ListTile(
       isThreeLine: true,
-      contentPadding: EdgeInsets.only(left: 5, right: 5),
+      contentPadding: EdgeInsets.only(left: 5, right: 3),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -127,7 +127,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
         ],
       ),
       trailing: SizedBox(
-        width: 45,
+        width: 35,
         child: TextButton(
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero,

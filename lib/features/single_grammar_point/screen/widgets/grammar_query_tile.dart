@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:japanese_ocr/common/extensions/build_context_extension.dart';
 
 import '../../../../models/grammar_point.dart';
 import '../grammar_point_screen.dart';
 
 class GrammarQueryTile extends StatefulWidget {
   final GrammarPoint grammarPoint;
-  GrammarQueryTile({required this.grammarPoint});
+  final bool showGrammarBadge;
+  GrammarQueryTile({
+    required this.grammarPoint,
+    this.showGrammarBadge = false,
+  });
 
   @override
   _GrammarQueryTileState createState() => _GrammarQueryTileState();
@@ -20,7 +25,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: EdgeInsets.only(left: 16.0, right: 0.0),
+      contentPadding: EdgeInsets.only(left: 5.0, right: 5),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -29,11 +34,26 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
                 'HeroTag${widget.grammarPoint.grammarPoint}${widget.grammarPoint.jpSentence}',
             child: Material(
               color: Colors.transparent,
-              child: Text(
-                widget.grammarPoint.grammarPoint!,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Text.rich(TextSpan(
+                  text: widget.grammarPoint.grammarPoint!,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: widget.showGrammarBadge
+                          ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Icon(Icons.collections_bookmark_outlined),
+                          )
+                          : const SizedBox.shrink(),
+                    ),
+                    TextSpan(
+                      text: context.localizations.grammar,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    )
+                  ])
               ),
             ),
           ),
@@ -57,6 +77,7 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          if (widget.grammarPoint.grammarMeaning != null)
           Text(widget.grammarPoint.grammarMeaning!,
               style: TextStyle(fontSize: 13)),
         ],

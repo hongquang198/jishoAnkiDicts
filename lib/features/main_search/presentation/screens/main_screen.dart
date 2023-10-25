@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/common/extensions/build_context_extension.dart';
 import 'package:japanese_ocr/config/app_routes.dart';
 import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
@@ -83,7 +82,12 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
               ),
               appBar: AppBar(
                 leading: Builder(
-                    builder: (context) => Icon(Icons.search)),
+                    builder: (context) => IconButton(
+                          icon: Icon(Icons.menu),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                        )),
                 title: TextField(
                   focusNode: focusNode,
                   onSubmitted: (valueChanged) async {

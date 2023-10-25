@@ -1,12 +1,14 @@
 part of 'main_search_bloc.dart';
 
 class MainSearchStateData {
+  final List<GrammarPoint> grammarPointList;
   final List<VietnameseDefinition> vnDictQuery;
   final List<JishoDefinition> jishoDefinitionList;
   final bool isAppInVietnamese;
   final Map<String, List<String>> wordToHanVietMap;
 
   const MainSearchStateData({
+    this.grammarPointList = const [],
     this.vnDictQuery = const [],
     this.jishoDefinitionList = const [],
     this.isAppInVietnamese = false,
@@ -19,12 +21,14 @@ class MainSearchStateData {
 
 
   MainSearchStateData copyWith({
+    List<GrammarPoint>? grammarPointList,
     List<VietnameseDefinition>? vnDictQuery,
     List<JishoDefinition>? jishoDefinitionList,
     bool? isAppInVietnamese,
     Map<String, List<String>>? wordToHanVietMap,
   }) {
     return MainSearchStateData(
+      grammarPointList: grammarPointList ?? this.grammarPointList,
       vnDictQuery: vnDictQuery ?? this.vnDictQuery,
       jishoDefinitionList: jishoDefinitionList ?? this.jishoDefinitionList,
       isAppInVietnamese: isAppInVietnamese ?? this.isAppInVietnamese,
@@ -37,6 +41,7 @@ class MainSearchStateData {
     if (identical(this, other)) return true;
   
     return 
+      listEquals(other.grammarPointList, grammarPointList) &&
       listEquals(other.vnDictQuery, vnDictQuery) &&
       listEquals(other.jishoDefinitionList, jishoDefinitionList) &&
       other.isAppInVietnamese == isAppInVietnamese &&
@@ -45,7 +50,8 @@ class MainSearchStateData {
 
   @override
   int get hashCode {
-    return vnDictQuery.hashCode ^
+    return grammarPointList.hashCode ^ 
+      vnDictQuery.hashCode ^
       jishoDefinitionList.hashCode ^
       isAppInVietnamese.hashCode ^
       wordToHanVietMap.hashCode;
@@ -63,6 +69,10 @@ sealed class MainSearchState extends Equatable {
 
 final class MainSearchLoadingState extends MainSearchState {
   MainSearchLoadingState(super.data);
+}
+
+final class MainSearchGrammarLoadedState extends MainSearchState {
+  MainSearchGrammarLoadedState(super.data);
 }
 
 final class MainSearchVNLoadedState extends MainSearchState {
