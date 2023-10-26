@@ -1,14 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
-import 'package:html/dom.dart' as dom;
 
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
 import '../../../../../models/offline_word_record.dart';
-import '../../../../../models/vietnamese_definition.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../../../../utils/offline_list_type.dart';
 import '../../../../../services/db_helper.dart';
@@ -17,51 +14,24 @@ import '../../../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart'
 import '../../../domain/entities/jisho_definition.dart';
 import '../../bloc/main_search_bloc.dart';
 
-class SearchResultTile extends StatefulWidget {
+class SearchResultTileEn extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
-  final VietnameseDefinition? vnDefinition;
-  final List<String> hanViet;
 
-  SearchResultTile({
-    this.hanViet = const [],
-    this.vnDefinition,
+  SearchResultTileEn({
     this.jishoDefinition,
   });
 
   @override
-  _SearchResultTileState createState() => _SearchResultTileState();
+  _SearchResultTileEnState createState() => _SearchResultTileEnState();
 }
 
-class _SearchResultTileState extends State<SearchResultTile> {
+class _SearchResultTileEnState extends State<SearchResultTileEn> {
   String get word {
-    if (widget.vnDefinition?.word.isNotEmpty == true) {
-      return widget.vnDefinition!.word;
-    } else if (widget.jishoDefinition?.word?.isNotEmpty == true) {
+    if (widget.jishoDefinition?.word?.isNotEmpty == true) {
       return widget.jishoDefinition!.word!;
     } else {
       return widget.jishoDefinition?.slug ?? '';
     }
-  }
-
-  parseVnDefHtmlWidget(String htmlString) {
-    var document = parse(htmlString);
-    var listList = document.querySelectorAll("li");
-
-    for (dom.Element list in listList) {
-      if (list.attributes["class"] == "nv_a") {
-        return Text(
-            list.text.length > 150 ? list.text.substring(0, 150) : list.text,
-            style: TextStyle(fontSize: 12));
-      }
-    }
-    return SizedBox();
-  }
-
-  getVnDefinitionSummary() {
-    if (widget.vnDefinition?.definition == null) {
-      return SizedBox();
-    } else
-      return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
   }
 
   @override
@@ -86,17 +56,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
                 ),
               ),
               const SizedBox(width: 8.0,),
-              if (getIt<SharedPref>().isAppInVietnamese && widget.hanViet.isNotEmpty)
-                SizedBox(
-                  width: 110,
-                  child: SelectableText(
-                    widget.hanViet.toString().toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
             ],
           ),
         ],
@@ -111,17 +70,11 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       tags: widget.jishoDefinition?.tags ?? [],
                       jlpt: widget.jishoDefinition?.jlpt ?? [],
                     ),
-              if (widget.jishoDefinition?.senses != null &&
-                  getIt<SharedPref>().isAppInEnglish)
+              if (widget.jishoDefinition?.senses != null)
                 Text(
                     widget.jishoDefinition!.senses[0].englishDefinitions
                         .join(', '),
                     style: TextStyle(fontSize: 13))
-              else
-                SizedBox(),
-              getIt<SharedPref>().isAppInVietnamese
-                  ? getVnDefinitionSummary()
-                  : SizedBox(),
             ],
           )
         ],
@@ -156,8 +109,6 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       word: word,
                       reading: widget.jishoDefinition?.reading ?? '',
                       senses: widget.jishoDefinition?.senses ?? const [],
-                      vietnameseDefinition:
-                          widget.vnDefinition?.definition ?? '',
                       added: DateTime.now().millisecondsSinceEpoch,
                       firstReview: null,
                       lastReview: null,
@@ -192,9 +143,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
           AppRoutesPath.wordDefinition,
           extra: DefinitionScreenArgs(
             mainSearchBloc: context.read<MainSearchBloc>(),
-            hanViet: widget.hanViet,
             jishoDefinition: widget.jishoDefinition,
-            vnDefinition: widget.vnDefinition,
             isInFavoriteList: DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.favorite,
                         word: word,

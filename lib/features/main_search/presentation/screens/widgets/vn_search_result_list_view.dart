@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
 
 import '../../../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
-import 'search_result_tile.dart';
+import 'search_result_tile_vn.dart';
 
 class VnSearchResultListView extends StatelessWidget {
   const VnSearchResultListView({
@@ -32,7 +32,7 @@ class VnSearchResultListView extends StatelessWidget {
           ...stateData.vnDictQuery.mapIndexed(
             (index, vnDefinition) => Column(
               children: [
-                SearchResultTile(
+                SearchResultTileVn(
                   vnDefinition: vnDefinition,
                   hanViet: _getHanViet(stateData, vnDefinition.word),
                   jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
@@ -45,7 +45,7 @@ class VnSearchResultListView extends StatelessWidget {
           ...stateData.jishoDefinitionList
               .mapIndexed((index, jishoDefintiion) => Column(
                 children: [
-                  SearchResultTile(
+                  SearchResultTileVn(
                         hanViet: _getHanViet(stateData, jishoDefintiion.japaneseWord),
                         jishoDefinition: jishoDefintiion,
                       ),

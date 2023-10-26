@@ -17,19 +17,17 @@ class IsCommonTagsAndJlptWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        isCommon == true
-            ? Card(
-                color: Color(0xFF8ABC82),
-                child: Text(
-                  'common word',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            : SizedBox(),
+        Card(
+          color: Color(0xFF8ABC82).withOpacity(isCommon ? 1 : 0.02),
+          child: Text(
+            'common word',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         DefinitionTags(
             tags: tags,
             color: Color(0xFF909DC0)),

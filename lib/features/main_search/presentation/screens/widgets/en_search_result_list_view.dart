@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/main_search_bloc.dart';
 import '../mixins/get_vietnamese_definition_mixin.dart';
-import 'search_result_tile.dart';
+import 'search_result_tile_en.dart';
 
 class EnSearchResultListView extends StatelessWidget
     with GetVietnameseDefinitionMixin {
@@ -22,11 +22,8 @@ class EnSearchResultListView extends StatelessWidget
                 ),
             itemCount: stateData.jishoDefinitionList.length,
             itemBuilder: (BuildContext context, int index) {
-              return SearchResultTile(
+              return SearchResultTileEn(
                 jishoDefinition: stateData.jishoDefinitionList[index],
-                hanViet: stateData.wordToHanVietMap[
-                        stateData.jishoDefinitionList[index].japaneseWord] ??
-                    [],
               );
             });
       },
