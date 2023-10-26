@@ -1,10 +1,10 @@
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/config/app_routes.dart';
-import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
-import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
+import 'package:jisho_anki/config/app_routes.dart';
+import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:japanese_ocr/features/main_search/presentation/screens/widgets/vn_search_result_list_view.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/widgets/vn_search_result_list_view.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 

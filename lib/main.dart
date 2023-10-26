@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           activityName: 'MainActivity',
           notificationText: "Floating icon",
           notificationTitle: 'JishoAnki Dictionary',
-          packageName: 'com.quangpham.japaneseOCR',
+          packageName: 'com.quangpham.JishoAnki',
           iconPath: file.path,
           showTransparentCircle: true,
           iconWidth: 120,

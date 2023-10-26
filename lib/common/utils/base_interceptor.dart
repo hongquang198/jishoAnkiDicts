@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/common/extensions/build_context_extension.dart';
+import 'package:jisho_anki/common/extensions/build_context_extension.dart';
 import '../../config/app_routes.dart';
 import '../../core/services/navigation_service.dart';
 import '../../l10n/localization.dart';

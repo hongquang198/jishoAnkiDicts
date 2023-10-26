@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:japanese_ocr/features/main_search/domain/entities/jisho_definition.dart';
-import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repository.dart';
+import 'package:jisho_anki/features/main_search/domain/entities/jisho_definition.dart';
+import 'package:jisho_anki/features/main_search/domain/repositories/jisho_repository.dart';
 import 'package:unofficial_jisho_api/api.dart';
 
 import '../../../../core/error/failures.dart';

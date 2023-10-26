@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:japanese_ocr/config/app_routes.dart';
+import 'package:jisho_anki/config/app_routes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

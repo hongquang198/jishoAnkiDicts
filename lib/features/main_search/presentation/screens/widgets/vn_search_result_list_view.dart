@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
+import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 
 import '../../../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 import 'search_result_tile_vn.dart';

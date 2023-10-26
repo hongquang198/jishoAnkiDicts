@@ -1,4 +1,4 @@
-package com.quang.japaneseOCR;
+package com.quang.JishoAnki;
 
 import io.flutter.embedding.android.FlutterActivity;
 

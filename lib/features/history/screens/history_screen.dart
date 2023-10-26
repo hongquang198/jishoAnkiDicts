@@ -1,4 +1,4 @@
-import 'package:japanese_ocr/common/widgets/common_query_tile.dart';
+import 'package:jisho_anki/common/widgets/common_query_tile.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';

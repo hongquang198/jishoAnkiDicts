@@ -1,13 +1,13 @@
 import 'package:get_it/get_it.dart';
-import 'package:japanese_ocr/core/data/datasources/shared_pref.dart';
-import 'package:japanese_ocr/features/main_search/data/data_sources/jisho_remote_data_source.dart';
-import 'package:japanese_ocr/features/main_search/domain/repositories/jisho_repository.dart';
-import 'package:japanese_ocr/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
-import 'package:japanese_ocr/features/main_search/domain/use_cases/look_up_grammar_point.dart';
-import 'package:japanese_ocr/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
-import 'package:japanese_ocr/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
-import 'package:japanese_ocr/features/main_search/presentation/bloc/main_search_bloc.dart';
-import 'package:japanese_ocr/features/main_search/repository/jisho_repository_impl.dart';
+import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/features/main_search/data/data_sources/jisho_remote_data_source.dart';
+import 'package:jisho_anki/features/main_search/domain/repositories/jisho_repository.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_grammar_point.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
+import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
+import 'package:jisho_anki/features/main_search/repository/jisho_repository_impl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

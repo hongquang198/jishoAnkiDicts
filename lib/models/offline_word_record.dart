@@ -1,4 +1,4 @@
-import 'package:japanese_ocr/features/main_search/domain/entities/jisho_definition.dart';
+import 'package:jisho_anki/features/main_search/domain/entities/jisho_definition.dart';
 import 'package:unofficial_jisho_api/api.dart';
 import 'dart:convert';
 

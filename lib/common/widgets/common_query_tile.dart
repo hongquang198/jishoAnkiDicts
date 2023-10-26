@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:japanese_ocr/features/history/screens/saved_definition_screen.dart';
+import 'package:jisho_anki/features/history/screens/saved_definition_screen.dart';
 
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';

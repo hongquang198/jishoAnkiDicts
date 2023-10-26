@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:japanese_ocr/common/extensions/build_context_extension.dart';
+import 'package:jisho_anki/common/extensions/build_context_extension.dart';
 
 import '../../../../models/grammar_point.dart';
 import '../grammar_point_screen.dart';
