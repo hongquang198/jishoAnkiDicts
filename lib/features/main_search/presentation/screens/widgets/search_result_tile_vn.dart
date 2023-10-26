@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
@@ -77,20 +79,38 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> {
               widget.jishoDefinition?.reading ?? '',
               style: TextStyle(fontSize: 11),
             ),
+          if (widget.hanViet.length > 5)
+            SizedBox(
+              width: 150,
+              child: SelectableText(
+                widget.hanViet
+                    .sublist(0, min(widget.hanViet.length, 4))
+                    .toString()
+                    .toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+
           Row(
             children: [
               Text(
-                word,
+                word.substring(0, min(word.length,12)),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis
                 ),
               ),
               const SizedBox(width: 8.0,),
-              if (widget.hanViet.isNotEmpty)
+              if (widget.hanViet.length <= 5)
                 SizedBox(
-                  width: 110,
+                  width: 150,
                   child: SelectableText(
-                    widget.hanViet.toString().toUpperCase(),
+                    widget.hanViet
+                        .toString()
+                        .toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       overflow: TextOverflow.ellipsis,

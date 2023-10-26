@@ -3,7 +3,9 @@ import 'package:tflite/tflite.dart';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import '../injection.dart';
 import '../utils/constants.dart';
+import 'media_query_size.dart';
 
 final _canvasCullRect = Rect.fromPoints(
   Offset(0, 0),
@@ -71,7 +73,7 @@ class Recognizer {
   Picture _pointsToPicture(List<Offset?> points) {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder, _canvasCullRect)
-      ..scale(Constants.writingImageSize / Constants.canvasSize);
+      ..scale(Constants.writingImageSize / getIt<MediaQuerySize>().canvasSize);
 
     canvas.drawRect(
         Rect.fromLTWH(0, 0, Constants.imageSize, Constants.imageSize),

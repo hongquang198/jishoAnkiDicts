@@ -97,8 +97,6 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
         },
       );
     }
-    emit(MainSearchLoadedState(
-        state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
   }
 
   FutureOr<void> _onSearchForJishoDefinition(

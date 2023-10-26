@@ -15,10 +15,12 @@ import 'core/client/http_client.dart';
 import 'core/services/navigation_service.dart';
 import 'l10n/localization.dart';
 import 'core/domain/entities/dictionary.dart';
+import 'services/media_query_size.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> inject() async {
+  getIt.registerSingleton<MediaQuerySize>(MediaQuerySize());
   getIt.registerSingletonAsync<SharedPref>(() async {
     final sharedPrefsInstance = await SharedPreferences.getInstance();
     final sharedPref = SharedPref(prefs: sharedPrefsInstance);

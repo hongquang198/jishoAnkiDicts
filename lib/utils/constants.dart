@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static double canvasSize = 320;
+  // static double canvasSize = 320;
   static double borderSize = 2;
 
   static double imageSize = 320;

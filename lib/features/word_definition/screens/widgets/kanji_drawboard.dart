@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/widgets/draw_screen.dart';
 
 import '/models/kanji.dart';
 import '/models/prediction.dart';
@@ -29,8 +30,8 @@ class _PredictionWidgetState extends State<PredictionWidget> {
         widget.clearStrokes();
       },
       child: Container(
-        width: 35,
-        height: 35,
+        width: DrawScreenConst.canvasOptionMaxSize,
+        height: DrawScreenConst.canvasOptionMaxSize,
         decoration: BoxDecoration(
           color: widget.predictions[0] == prediction
               ? Color(0xFFDB8C8A)

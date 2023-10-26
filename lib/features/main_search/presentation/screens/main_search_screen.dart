@@ -30,7 +30,7 @@ class MainSearchScreen extends StatefulWidget {
 
   static provider() {
     return BlocProvider<MainSearchBloc>(
-      create: (context) => getIt()..add(SearchForPhraseEvent('辞書')),
+      create: (context) => getIt()..add(SearchForPhraseEvent('時点')),
       child: MainSearchScreen(),
     );
   }
@@ -109,14 +109,15 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
                       color: Constants.appBarIconColor,
                     ),
                     onPressed: () {
-                      textEditingController.text = '';
+                      textEditingController.clear();
+                      focusNode.requestFocus();
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.brush),
                     color: Constants.appBarIconColor,
                     onPressed: () {
-                      textEditingController.text = '';
+                      textEditingController.clear();
                       showModalBottomSheet(
                           isScrollControlled: true,
                           enableDrag: false,
@@ -158,6 +159,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
                       return;
                     }
                     if (index == 1) {
+                      textEditingController.clear();
                       focusNode.requestFocus();
                     }
                   },

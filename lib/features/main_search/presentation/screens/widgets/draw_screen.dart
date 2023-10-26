@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/services/media_query_size.dart';
 
+import '../../../../../injection.dart';
 import '../../../../word_definition/screens/widgets/kanji_drawboard.dart';
 import '/models/kanji.dart';
 import '/models/prediction.dart';
 import '/services/recognizer.dart';
 import '/utils/constants.dart';
 import 'drawing_painter.dart';
+
+class DrawScreenConst {
+  static const double canvasOptionMaxSize = 35;
+  static const EdgeInsets canvasPadding = EdgeInsets.only(left: 10.0);
+}
 
 class DrawScreen extends StatefulWidget {
   final TextEditingController textEditingController;
@@ -65,12 +72,12 @@ class _DrawScreenState extends State<DrawScreen> {
                 predictions: allPredictions(),
                 kanjiAll: kanjiDict,
               )
-            : SizedBox(),
+            : SizedBox(height: DrawScreenConst.canvasOptionMaxSize),
         Expanded(
           child: Row(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(left: 20.0),
+                padding: DrawScreenConst.canvasPadding,
                 child: _drawCanvasWidget(),
               ),
               canvasOptions(context),
@@ -129,8 +136,8 @@ class _DrawScreenState extends State<DrawScreen> {
                     .substring(0, widget.textEditingController.text.length - 1);
             },
             child: Container(
-              width: 35,
-              height: 35,
+              width: DrawScreenConst.canvasOptionMaxSize,
+              height: DrawScreenConst.canvasOptionMaxSize,
               decoration: BoxDecoration(
                 color: Color(0xFFDB8C8A),
                 shape: BoxShape.circle,
@@ -160,8 +167,10 @@ class _DrawScreenState extends State<DrawScreen> {
 
   Widget _drawCanvasWidget() {
     return Container(
-      width: Constants.canvasSize + Constants.borderSize * 2,
-      height: Constants.canvasSize + Constants.borderSize * 2,
+      width: getIt<MediaQuerySize>().canvasSize +
+          Constants.borderSize * 2,
+      height: getIt<MediaQuerySize>().canvasSize +
+          Constants.borderSize * 2,
       decoration: BoxDecoration(
         color: Color(0xFFF7E7E6),
         border: Border.all(
@@ -174,9 +183,9 @@ class _DrawScreenState extends State<DrawScreen> {
         onPanUpdate: (DragUpdateDetails details) {
           Offset _localPosition = details.localPosition;
           if (_localPosition.dx >= 0 &&
-              _localPosition.dx <= Constants.canvasSize &&
+              _localPosition.dx <= getIt<MediaQuerySize>().canvasSize &&
               _localPosition.dy >= 0 &&
-              _localPosition.dy <= Constants.canvasSize) {
+              _localPosition.dy <= getIt<MediaQuerySize>().canvasSize) {
             setState(() {
               lastStrokes.add(_localPosition);
               _points.add(_localPosition);

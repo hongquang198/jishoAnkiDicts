@@ -1,6 +1,7 @@
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -68,10 +69,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    super.initState();
     // Add observer in order to use didChangeAppLifeCycle
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+      final mediaQuerySize = getIt<MediaQuerySize>();
+      mediaQuerySize
+        ..setMaxHeight(MediaQuery.of(context).size.height)
+        ..setMaxWidth(MediaQuery.of(context).size.width);
+    });
     initPlatformState();
-    super.initState();
   }
 
   @override
