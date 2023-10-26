@@ -71,16 +71,12 @@ final class MainSearchLoadingState extends MainSearchState {
   MainSearchLoadingState(super.data);
 }
 
-final class MainSearchGrammarLoadedState extends MainSearchState {
-  MainSearchGrammarLoadedState(super.data);
+final class MainSearchLoadedState extends MainSearchState {
+  MainSearchLoadedState(super.data);
 }
 
-final class MainSearchVNLoadedState extends MainSearchState {
-  MainSearchVNLoadedState(super.data);
-}
-
-final class MainSearchAllLoadedState extends MainSearchState {
-  MainSearchAllLoadedState(super.data);
+final class MainSearchJishoLoadedState extends MainSearchState {
+  MainSearchJishoLoadedState(super.data);
 }
 
 final class MainSearchFailureState extends MainSearchState {

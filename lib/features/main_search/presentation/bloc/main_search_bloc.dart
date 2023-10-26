@@ -30,58 +30,80 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     required this.lookupGrammarPoint,
   }) : super(MainSearchLoadingState(const MainSearchStateData())) {
     on<SearchForPhraseEvent>(_onSearchForPhrase);
+    on<SearchForGrammarPointEvent>(_onSearchForGrammarPoint);
+    on<SearchForVnDefinitionEvent>(_onSearchForVnDefinition);
+    on<SearchForHanVietEvent>(_onSearchForHanViet);
+    on<SearchForJishoDefinitionEvent>(_onSearchForJishoDefinition);
   }
 
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
-    Map<String, List<String>> wordToHanVietMap = {};
     final isAppInVietnamese =
         getIt<SharedPref>().isAppInVietnamese;
-
-    emit(MainSearchLoadingState(
-        state.data.copyWith(
+    emit(MainSearchLoadingState(state.data.copyWith(
       isAppInVietnamese: isAppInVietnamese,
-      vnDictQuery: [],
-      jishoDefinitionList: [],
     )));
 
+    add(SearchForGrammarPointEvent(event.phrase));
+    if (isAppInVietnamese) {
+      add(SearchForVnDefinitionEvent(event.phrase));
+    }
+    add(SearchForJishoDefinitionEvent(event.phrase));
+  }
+
+  FutureOr<void> _onSearchForGrammarPoint(
+      SearchForGrammarPointEvent event, Emitter<MainSearchState> emit) async {
     final grammarResult = await lookupGrammarPoint.call(event.phrase);
     grammarResult.fold(
         (failure) => emit(MainSearchFailureState(
               state.data,
               failureMessage: failure.properties.toString(),
             )),
-        (grammarList) => emit(MainSearchGrammarLoadedState(state.data.copyWith(
+        (grammarList) => emit(MainSearchLoadedState(state.data.copyWith(
               grammarPointList: grammarList,
             ))));
+  }
 
-    if (isAppInVietnamese) {
-      final resultEither = await lookForVietnameseDefinition.call(event.phrase);
-      resultEither.fold(
+  FutureOr<void> _onSearchForVnDefinition(
+      SearchForVnDefinitionEvent event, Emitter<MainSearchState> emit) async {
+      final vnDefinitionEither = await lookForVietnameseDefinition.call(event.phrase);
+      vnDefinitionEither.fold(
           (failure) => emit(MainSearchFailureState(
                 state.data,
                 failureMessage: failure.properties.toString(),
               )), (definitionList) {
-        emit(MainSearchVNLoadedState(
+        emit(MainSearchLoadedState(
           state.data.copyWith(
             vnDictQuery: definitionList,
-            wordToHanVietMap: wordToHanVietMap,
           ),
         ));
       });
-    }
+      add(SearchForHanVietEvent(event.phrase));
+  }
 
+  FutureOr<void> _onSearchForHanViet(
+      SearchForHanVietEvent event, Emitter<MainSearchState> emit) async {
+    Map<String, List<String>> wordToHanVietMap = {}
+      ..addAll(state.data.wordToHanVietMap);
     for (var definition in state.data.vnDictQuery) {
       final hanVietResultEither =
           await lookupHanVietReading.call(definition.word);
       hanVietResultEither.fold(
         (l) => null,
-        (hanViet) => wordToHanVietMap[definition.word] = hanViet,
+        (hanViet) {
+          wordToHanVietMap[definition.word] = hanViet;
+          emit(MainSearchLoadedState(
+              state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
+        },
       );
     }
-    emit(MainSearchVNLoadedState(
+    emit(MainSearchLoadedState(
         state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
+  }
 
+  FutureOr<void> _onSearchForJishoDefinition(
+      SearchForJishoDefinitionEvent event,
+      Emitter<MainSearchState> emit) async {
     final jishoResultEither = await searchJishoForPhrase.call(event.phrase);
     jishoResultEither.fold(
         (failure) => emit(
@@ -90,22 +112,26 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
                 failureMessage: failure.properties.toString(),
               ),
             ), (jishoDefinitionList) {
-      emit(MainSearchAllLoadedState(state.data.copyWith(
+      emit(MainSearchJishoLoadedState(state.data.copyWith(
         jishoDefinitionList: jishoDefinitionList,
       )));
     });
 
-    for (var definition in state.data.jishoDefinitionList.sublist(0, 5)) {
-      final hanVietResultEither =
-          await lookupHanVietReading.call(definition.japaneseWord);
-      hanVietResultEither.fold(
-        (l) => null,
-        (hanViet) {
-          wordToHanVietMap[definition.japaneseWord] = hanViet;
-          emit(MainSearchAllLoadedState(
-              state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
-        },
-      );
+    if (state.data.isAppInVietnamese) {
+      Map<String, List<String>> wordToHanVietMap = {}
+        ..addAll(state.data.wordToHanVietMap);
+      for (var definition in state.data.jishoDefinitionList.sublist(0, 5)) {
+        final hanVietResultEither =
+            await lookupHanVietReading.call(definition.japaneseWord);
+        hanVietResultEither.fold(
+          (l) => null,
+          (hanViet) {
+            wordToHanVietMap[definition.japaneseWord] = hanViet;
+            emit(MainSearchLoadedState(
+                state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
+          },
+        );
+      }
     }
   }
 }

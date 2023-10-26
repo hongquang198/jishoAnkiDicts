@@ -274,7 +274,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
               :  
           BlocConsumer<MainSearchBloc, MainSearchState>(
             listener: (context, state) {
-              if (state is MainSearchAllLoadedState) {
+              if (state is MainSearchJishoLoadedState) {
                 jishoDefinition = state.data.getSpecificJishoDefinition(
                         japaneseWord: currentJapaneseWord) ??
                     JishoDefinition(slug: "");
