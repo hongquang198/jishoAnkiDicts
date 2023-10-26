@@ -17,7 +17,7 @@ import 'mixins/get_vietnamese_definition_mixin.dart';
 import 'widgets/draw_screen.dart';
 import 'widgets/en_search_result_list_view.dart';
 
-class MainScreenConst {
+class MainSearchScreenConst {
   static const bodyPadding = EdgeInsets.only(
     left: 15.0,
     top: 15.0,
@@ -25,20 +25,20 @@ class MainScreenConst {
   );
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class MainSearchScreen extends StatefulWidget {
+  const MainSearchScreen({super.key});
 
   static provider() {
     return BlocProvider<MainSearchBloc>(
       create: (context) => getIt()..add(SearchForPhraseEvent('辞書')),
-      child: MainScreen(),
+      child: MainSearchScreen(),
     );
   }
   @override
-  _MainScreenState createState() => _MainScreenState();
+  _MainSearchScreenState createState() => _MainSearchScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
+class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
   late TextEditingController textEditingController;
   late TabController tabController;
   late FocusNode focusNode;
@@ -137,7 +137,7 @@ class _MainScreenState extends State<MainScreen> with GetVietnameseDefinitionMix
                 ],
               ),
               body: Padding(
-                padding: MainScreenConst.bodyPadding,
+                padding: MainSearchScreenConst.bodyPadding,
                 child: const _Body(),
               ),
               bottomNavigationBar: Container(

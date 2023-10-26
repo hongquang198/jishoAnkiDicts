@@ -6,7 +6,7 @@ import '../features/favorite_words/screens/favorite_screen.dart';
 import '../features/grammar/screens/grammar_screen.dart';
 import '../features/history/screens/saved_definition_screen.dart';
 import '../features/history/screens/history_screen.dart';
-import '../features/main_search/presentation/screens/main_screen.dart';
+import '../features/main_search/presentation/screens/main_search_screen.dart';
 import '../features/review/screens/review_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../features/single_grammar_point/screen/grammar_point_screen.dart';
@@ -25,7 +25,7 @@ class AppRoutes {
         GoRoute(
           path: '/',
           name: AppRoutesPath.mainScreen,
-          builder: (context, state) => MainScreen.provider(),
+          builder: (context, state) => MainSearchScreen.provider(),
         ),
         GoRoute(
           path: AppRoutesPath.cardInfo,
