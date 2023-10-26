@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -118,7 +119,9 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     if (state.data.isAppInVietnamese) {
       Map<String, List<String>> wordToHanVietMap = {}
         ..addAll(state.data.wordToHanVietMap);
-      for (var definition in state.data.jishoDefinitionList.sublist(0, 5)) {
+      final jishoDefinitionList = state.data.jishoDefinitionList;
+      for (var definition in jishoDefinitionList
+          .sublist(0, min(jishoDefinitionList.length, 5))) {
         final hanVietResultEither =
             await lookupHanVietReading.call(definition.japaneseWord);
         hanVietResultEither.fold(

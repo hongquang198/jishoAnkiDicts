@@ -127,6 +127,35 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: widget.args.jishoDefinition != null
+            ? IsCommonTagsAndJlptWidget(
+                isCommon: jishoDefinition.isCommon,
+                tags: jishoDefinition.tags,
+                jlpt: jishoDefinition.jlpt,
+              )
+            : BlocConsumer<MainSearchBloc, MainSearchState>(
+                listener: (context, state) {
+                  if (state is MainSearchJishoLoadedState) {
+                    jishoDefinition = state.data.getSpecificJishoDefinition(
+                            japaneseWord: currentJapaneseWord) ??
+                        JishoDefinition(slug: "");
+                    _saveHistoryOfflineWordRecord(context);
+                  }
+                },
+                builder: (context, state) {
+                  final jishoDefinition = state.data.getSpecificJishoDefinition(
+                      japaneseWord: currentJapaneseWord);
+                  final isCommon = jishoDefinition?.isCommon ?? false;
+                  final tags = jishoDefinition?.tags ?? [];
+                  final jlpt = jishoDefinition?.jlpt ?? [];
+
+                  return IsCommonTagsAndJlptWidget(
+                    isCommon: isCommon,
+                    tags: tags,
+                    jlpt: jlpt,
+                  );
+                },
+              ),
         actions: [
           IconButton(
             padding: EdgeInsets.all(0),
@@ -265,36 +294,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                 ),
               ],
             ),
-          widget.args.jishoDefinition != null
-              ? IsCommonTagsAndJlptWidget(
-                  isCommon: jishoDefinition.isCommon,
-                  tags: jishoDefinition.tags,
-                  jlpt: jishoDefinition.jlpt,
-                )
-              :  
-          BlocConsumer<MainSearchBloc, MainSearchState>(
-            listener: (context, state) {
-              if (state is MainSearchJishoLoadedState) {
-                jishoDefinition = state.data.getSpecificJishoDefinition(
-                        japaneseWord: currentJapaneseWord) ??
-                    JishoDefinition(slug: "");
-                _saveHistoryOfflineWordRecord(context);
-              }
-            },
-            builder: (context, state) {
-              final jishoDefinition = state.data.getSpecificJishoDefinition(
-                  japaneseWord: currentJapaneseWord);
-              final isCommon = jishoDefinition?.isCommon ?? false;
-              final tags = jishoDefinition?.tags ?? [];
-              final jlpt = jishoDefinition?.jlpt ?? [];
-              
-              return IsCommonTagsAndJlptWidget(
-                isCommon: isCommon,
-                tags: tags,
-                jlpt: jlpt,
-              );
-            },
-          ),
           SizedBox(height: 8),
           DefinitionWidget(
             senses: jishoDefinition.senses,
