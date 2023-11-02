@@ -10,6 +10,9 @@ import '../utils/offline_list_type.dart';
 class DbHelper {
   static bool checkDatabaseExist(
       {required OfflineListType offlineListType, required String word, required BuildContext context,}) {
+    if (word.isEmpty) {
+      return false;
+    }
     late List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.history) {
       table = getIt<Dictionary>().history;

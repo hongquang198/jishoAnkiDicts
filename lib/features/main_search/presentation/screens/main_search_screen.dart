@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/config/app_routes.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
@@ -50,6 +51,8 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   final labelFilePath2 = "assets/label3036.txt";
   late MainSearchBloc bloc;
   String clipboard = '';
+  bool keyboardListened = false;
+
   @override
   void initState() {
     super.initState();
@@ -59,9 +62,49 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
       vsync: this,
     );
     focusNode = FocusNode();
+    focusNode.addListener(_onFocusChange);
+    RawKeyboard.instance.addListener(_handleKeyEvent);
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+  }
+
+  void _onFocusChange() {
+    if (!focusNode.hasFocus) {
+      textEditingController.clear();
+    }
+  }
+
+
+  void _handleKeyEvent(RawKeyEvent event) {
+    final logicalKey = event.logicalKey;
+    final keyLabel = logicalKey.keyLabel;
+    if (event is RawKeyDownEvent) {
+      return;
+    }
+    
+    if (keyLabel.isNotEmpty &&
+        !isNumericCharacter(keyLabel) &&
+        !['backspace', 'enter'].contains(keyLabel.toLowerCase())) {
+      // If a key with a printable label is pressed, navigate to the search screen and update the text field.
+      if (context.canPop()) {
+        Navigator.of(context).popUntil(
+            (route) => route.settings.name == AppRoutesPath.mainScreen);
+      }
+      focusNode.requestFocus();
+      return;
+    }
+  }
+
+  bool isNumericCharacter(String input) {
+    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(_onFocusChange);
+    focusNode.dispose();
+    super.dispose();
   }
 
   Future _initModel({required String modelFilePath, required String labelFilePath}) async {
@@ -76,100 +119,102 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
-        builder: (context, theme, child) => Scaffold(
-              drawer: NavBar(
-                textEditingController: textEditingController,
-              ),
-              appBar: AppBar(
-                leading: Builder(
-                    builder: (context) => IconButton(
-                          icon: Icon(Icons.menu),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        )),
-                title: TextField(
-                  focusNode: focusNode,
-                  onSubmitted: (valueChanged) async {
-                    await _search();
-                  },
-                  style: TextStyle(color: Constants.appBarTextColor),
-                  controller: textEditingController,
-                  decoration: InputDecoration(
-                    hintText: "Search for a word",
-                    hintStyle: TextStyle(color: Constants.appBarTextColor),
-                    labelStyle: TextStyle(color: Constants.appBarTextColor),
-                    border: InputBorder.none,
-                  ),
+        builder: (context, theme, child) => SafeArea(
+          child: Scaffold(
+                drawer: NavBar(
+                  textEditingController: textEditingController,
                 ),
-                actions: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.cancel,
-                      color: Constants.appBarIconColor,
+                appBar: AppBar(
+                  leading: Builder(
+                      builder: (context) => IconButton(
+                            icon: Icon(Icons.menu),
+                            onPressed: () {
+                              Scaffold.of(context).openDrawer();
+                            },
+                          )),
+                  title: TextField(
+                    focusNode: focusNode,
+                    controller: textEditingController,
+                    onSubmitted: (valueChanged) async {
+                      await _search();
+                    },
+                    style: TextStyle(color: Constants.appBarTextColor),
+                    decoration: InputDecoration(
+                      hintText: "Search for a word",
+                      hintStyle: TextStyle(color: Constants.appBarTextColor),
+                      labelStyle: TextStyle(color: Constants.appBarTextColor),
+                      border: InputBorder.none,
                     ),
-                    onPressed: () {
-                      textEditingController.clear();
-                      focusNode.requestFocus();
-                    },
                   ),
-                  IconButton(
-                    icon: Icon(Icons.brush),
-                    color: Constants.appBarIconColor,
-                    onPressed: () {
-                      textEditingController.clear();
-                      showModalBottomSheet(
-                          isScrollControlled: true,
-                          enableDrag: false,
-                          context: context,
-                          builder: (ctx) {
-                            return Wrap(children: <Widget>[
-                              Container(
-                                color: Color(0xFFf8f1f1),
-                                height: 400,
-                                child: DrawScreen(
-                                    textEditingController:
-                                        textEditingController),
-                              ),
-                            ]);
-                          });
-                    },
-                  ),
-                ],
-              ),
-              body: Padding(
-                padding: MainSearchScreenConst.bodyPadding,
-                child: const _Body(),
-              ),
-              bottomNavigationBar: Container(
-                margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
-                decoration: BoxDecoration(
-                  color: Color(0xffDB8C8A).withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: TabBar(
-                  controller: tabController,
-                  indicatorColor: Colors.black,
-                  // unselectedLabelColor: Colors.grey,
-                  // labelColor: Colors.blue,
-                  onTap: (index) async {
-                    if (index == 0) {
-                      await context.pushNamed(AppRoutesPath.history);
-                      tabController.animateTo(1);
-                      return;
-                    }
-                    if (index == 1) {
-                      textEditingController.clear();
-                      focusNode.requestFocus();
-                    }
-                  },
-                  tabs: const [
-                    Tab(icon: Icon(Icons.history)),
-                    Tab(icon: Icon(Icons.search)),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.cancel,
+                        color: Constants.appBarIconColor,
+                      ),
+                      onPressed: () {
+                        textEditingController.clear();
+                        focusNode.requestFocus();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.brush),
+                      color: Constants.appBarIconColor,
+                      onPressed: () {
+                        textEditingController.clear();
+                        showModalBottomSheet(
+                            isScrollControlled: true,
+                            enableDrag: false,
+                            context: context,
+                            builder: (ctx) {
+                              return Wrap(children: <Widget>[
+                                Container(
+                                  color: Color(0xFFf8f1f1),
+                                  height: 400,
+                                  child: DrawScreen(
+                                      textEditingController:
+                                          textEditingController),
+                                ),
+                              ]);
+                            });
+                      },
+                    ),
                   ],
                 ),
+                body: Padding(
+                  padding: MainSearchScreenConst.bodyPadding,
+                  child: const _Body(),
+                ),
+                bottomNavigationBar: SafeArea(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
+                    decoration: BoxDecoration(
+                      color: Color(0xffDB8C8A).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: TabBar(
+                      controller: tabController,
+                      indicatorColor: Colors.black,
+                      onTap: (index) async {
+                        if (index == 0) {
+                          await context.pushNamed(AppRoutesPath.history);
+                          tabController.animateTo(1);
+                          return;
+                        }
+                        if (index == 1) {
+                          textEditingController.clear();
+                          focusNode.requestFocus();
+                        }
+                      },
+                      tabs: const [
+                        Tab(icon: Icon(Icons.history)),
+                        Tab(icon: Icon(Icons.search)),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ));
+        ));
   }
 
 }

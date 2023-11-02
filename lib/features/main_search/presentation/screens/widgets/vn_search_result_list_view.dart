@@ -1,23 +1,49 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 
+import '../../../../../config/app_routes.dart';
+import '../../../../../services/db_helper.dart';
+import '../../../../../utils/offline_list_type.dart';
 import '../../../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
+import '../../../../word_definition/screens/definition_screen.dart';
 import 'search_result_tile_vn.dart';
 
-class VnSearchResultListView extends StatelessWidget {
+part 'vn_search_result_list_view.children.dart';
+
+class VnSearchResultListView extends StatefulWidget {
   const VnSearchResultListView({
     super.key,
   });
+
+  @override
+  State<VnSearchResultListView> createState() => _VnSearchResultListViewState();
+}
+
+class _VnSearchResultListViewState extends State<VnSearchResultListView> {
+  List<Widget> searchResults = [];
+  @override
+  void initState() {
+    super.initState();
+    RawKeyboard.instance.addListener(_handleKeyEvent);
+  }
+
+  @override
+  void dispose() {
+    RawKeyboard.instance.removeListener(_handleKeyEvent);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MainSearchBloc, MainSearchState>(
         builder: (context, state) {
       final stateData = state.data;
-      return SingleChildScrollView(
-        child: Column(children: [
+      searchResults.clear();
+      searchResults.addAll([
           ...stateData.grammarPointList
               .map((e) => Column(
                 children: [
@@ -53,7 +79,9 @@ class VnSearchResultListView extends StatelessWidget {
                 ],
               ))
               .toList(),
-        ]),
+        ]);
+      return SingleChildScrollView(
+        child: Column(children: searchResults),
       );
     });
   }
