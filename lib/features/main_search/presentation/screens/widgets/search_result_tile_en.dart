@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
 import '../../../../../models/offline_word_record.dart';
@@ -150,15 +149,6 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
                         context: context),
           ),
         );
-      },
-      onLongPress: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-                  word: word,
-                  message: 'You are about to delete a word from history',
-                ));
-        setState(() {});
       },
     );
   }

@@ -6,7 +6,6 @@ import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 
-import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
 import '../../../../../models/offline_word_record.dart';
@@ -83,15 +82,6 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> {
                 context: context),
           ),
         );
-      },
-      onLongPress: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-                  word: word,
-                  message: 'You are about to delete a word from history',
-                ));
-        setState(() {});
       },
       child: Container(
         padding: EdgeInsets.only(left: 5, right: 3),
