@@ -85,7 +85,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     
     if (keyLabel.isNotEmpty &&
         !isNumericCharacter(keyLabel) &&
-        !['backspace', 'enter'].contains(keyLabel.toLowerCase())) {
+        !['backspace', 'enter'].contains(keyLabel.toLowerCase()) && keyLabel.toLowerCase() != 'go back') {
       // If a key with a printable label is pressed, navigate to the search screen and update the text field.
       if (context.canPop()) {
         Navigator.of(context).popUntil(

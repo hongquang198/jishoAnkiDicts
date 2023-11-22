@@ -1,0 +1,69 @@
+{
+  "query": "車",
+  "found": true,
+  "data": {
+    "kanji": "車",
+    "taughtIn": "grade 1",
+    "jlptLevel": "N5",
+    "newspaperFrequencyRank": 333,
+    "strokeCount": 7,
+    "meaning": "car",
+    "kunyomi": [
+      "くるま"
+    ],
+    "onyomi": [
+      "シャ"
+    ],
+    "onyomiExamples": [
+      {
+        "example": "車",
+        "reading": "シャ",
+        "meaning": "car, vehicle"
+      },
+      {
+        "example": "車庫",
+        "reading": "シャコ",
+        "meaning": "garage, carport, depot (trains, buses, etc.)"
+      },
+      {
+        "example": "駐車",
+        "reading": "チュウシャ",
+        "meaning": "parking (e.g. car)"
+      },
+      {
+        "example": "発車",
+        "reading": "ハッシャ",
+        "meaning": "departure (of a train, car, etc.), starting, leaving"
+      }
+    ],
+    "kunyomiExamples": [
+      {
+        "example": "車",
+        "reading": "くるま",
+        "meaning": "car, automobile, vehicle, wheel, castor, caster"
+      },
+      {
+        "example": "車椅子",
+        "reading": "くるまいす",
+        "meaning": "wheelchair"
+      },
+      {
+        "example": "火の車",
+        "reading": "ひのくるま",
+        "meaning": "fiery chariot (which carries the souls of sinners into hell), desperate financial situation, dire straits"
+      }
+    ],
+    "radical": {
+      "symbol": "車",
+      "forms": [],
+      "meaning": "cart, car"
+    },
+    "parts": [
+      "車"
+    ],
+    "strokeOrderDiagramUri": "https://classic.jisho.org/static/images/stroke_diagrams/36554_frames.png",
+    "strokeOrderSvgUri": "https://d1w6u4xc3l95km.cloudfront.net/kanji-2015-03/08eca.svg",
+    "strokeOrderGifUri": "https://raw.githubusercontent.com/mistval/kanji_images/master/gifs/8eca.gif",
+    "uri": "https://jisho.org/search/%E8%BB%8A%23kanji"
+  }
+}
