@@ -1,12 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
 
 import '../../../injection.dart';
-import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/offline_word_record.dart';
@@ -17,10 +14,12 @@ import '../../../utils/offline_list_type.dart';
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../main_search/presentation/bloc/main_search_bloc.dart';
+import '../mixins/get_word_view_count_mixin.dart';
 import 'widgets/component_widget.dart';
 import 'widgets/definition_widget.dart';
 import 'widgets/example_sentence_widget.dart';
 import 'widgets/is_common_tag_and_jlpt.dart';
+import 'widgets/word_view_count_widget.dart';
 
 class DefinitionScreenArgs {
   MainSearchBloc mainSearchBloc;
@@ -58,7 +57,7 @@ class DefinitionScreen extends StatefulWidget {
   _DefinitionScreenState createState() => _DefinitionScreenState();
 }
 
-class _DefinitionScreenState extends State<DefinitionScreen> {
+class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCountMixin {
   bool isClipboardSet = false;
   late String clipboard;
   late Future<List<Widget>> pitchAccent;
@@ -255,30 +254,10 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   ),
                 ),
               ),
-              Container(
-                  width: 60,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: Colors.blueGrey,
-                      borderRadius: BorderRadius.all(Radius.circular(6))),
-                  child: Center(
-                    child: FittedBox(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text('${getViewCounts()}',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold)),
-                          Text(
-                            AppLocalizations.of(context)!.views,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )),
+              WordViewCountWidget(
+                  viewCounts:
+                      getViewCounts(currentJapaneseWord: currentJapaneseWord)
+              )
             ],
           ),
           if (getIt<SharedPref>().isAppInVietnamese &&
@@ -369,25 +348,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
           deck: 'default',
         ),
         context: context);
-  }
-
-  int getViewCounts() {
-    OfflineWordRecord? found;
-    try {
-      found = getIt<Dictionary>().history.firstWhereOrNull((element) {
-        String elementWord = element.word;
-        if (elementWord.isEmpty) {
-          elementWord = element.slug;
-        }
-        return elementWord == currentJapaneseWord;
-      });
-    } catch (e) {
-      print('Word not in history: $e');
-    }
-    if (found == null)
-      return 0;
-    else
-      return found.reviews;
   }
 }
 

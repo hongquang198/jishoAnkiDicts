@@ -20,7 +20,7 @@ import 'widgets/en_search_result_list_view.dart';
 
 class MainSearchScreenConst {
   static const bodyPadding = EdgeInsets.only(
-    left: 15.0,
+    left: 8.0,
     top: 15.0,
     right: 8.0,
   );

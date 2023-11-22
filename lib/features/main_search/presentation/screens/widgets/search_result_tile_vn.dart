@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:jisho_anki/features/word_definition/mixins/get_word_view_count_mixin.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/word_view_count_widget.dart';
 
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
@@ -32,7 +34,7 @@ class SearchResultTileVn extends StatefulWidget {
   _SearchResultTileVnState createState() => _SearchResultTileVnState();
 }
 
-class _SearchResultTileVnState extends State<SearchResultTileVn> {
+class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordViewCountMixin {
   String get word {
     if (widget.vnDefinition?.word.isNotEmpty == true) {
       return widget.vnDefinition!.word;
@@ -83,10 +85,15 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> {
           ),
         );
       },
-      child: Container(
-        padding: EdgeInsets.only(left: 5, right: 3),
+      child: Padding(
+        padding: EdgeInsets.only(left: 3, right: 3),
         child: Row(
           children: [
+            WordViewCountWidget(
+              margin: const EdgeInsets.only(right: 10.0),
+              viewCounts: getViewCounts(currentJapaneseWord: word),
+              onlyShowNumber: true,
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,11 +128,17 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> {
                         width: 8.0,
                       ),
                       if (widget.hanViet.length <= 5)
-                        SizedBox(
-                          width: 150,
+                        ConstrainedBox(
+                          constraints: BoxConstraints.loose(Size(
+                            150,
+                            double.infinity,
+                          )),
                           child: SelectableText(
                             widget.hanViet.join(' ').toUpperCase(),
-                            style: Theme.of(context).textTheme.labelSmall,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(overflow: TextOverflow.ellipsis),
                           ),
                         ),
                     ],
