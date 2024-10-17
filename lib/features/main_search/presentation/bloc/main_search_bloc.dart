@@ -35,6 +35,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     on<SearchForVnDefinitionEvent>(_onSearchForVnDefinition);
     on<SearchForHanVietEvent>(_onSearchForHanViet);
     on<SearchForJishoDefinitionEvent>(_onSearchForJishoDefinition);
+    on<TriggerAnimationEvent>(_onTriggerAnimation);
   }
 
   FutureOr<void> _onSearchForPhrase(
@@ -134,5 +135,15 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
         );
       }
     }
+  }
+
+  FutureOr<void> _onTriggerAnimation(
+    TriggerAnimationEvent event,
+    Emitter<MainSearchState> emit,
+  ) async {
+    final oldStateData = state.data;
+    emit(MainSearchLoadingState(const MainSearchStateData()));
+    await Future.delayed(const Duration(milliseconds: 40));
+    emit(MainSearchLoadedState(oldStateData));
   }
 }

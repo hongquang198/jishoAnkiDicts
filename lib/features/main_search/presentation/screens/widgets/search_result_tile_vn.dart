@@ -23,11 +23,13 @@ class SearchResultTileVn extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
   final VietnameseDefinition? vnDefinition;
   final List<String> hanViet;
+  final Duration animationDuration;
 
   SearchResultTileVn({
     this.hanViet = const [],
     this.vnDefinition,
     this.jishoDefinition,
+    this.animationDuration = const Duration(milliseconds: 300),
   });
 
   @override
@@ -35,6 +37,16 @@ class SearchResultTileVn extends StatefulWidget {
 }
 
 class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordViewCountMixin {
+  bool postFrame = false;
+  Divider get divider => Divider(thickness: 0.4);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+          postFrame = true;
+        }));
+  }
   String get word {
     if (widget.vnDefinition?.word.isNotEmpty == true) {
       return widget.vnDefinition!.word;
@@ -68,153 +80,238 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-        context.pushNamed(
-          AppRoutesPath.wordDefinition,
-          extra: DefinitionScreenArgs(
-            mainSearchBloc: context.read<MainSearchBloc>(),
-            hanViet: widget.hanViet,
-            jishoDefinition: widget.jishoDefinition,
-            vnDefinition: widget.vnDefinition,
-            isInFavoriteList: DbHelper.checkDatabaseExist(
-                offlineListType: OfflineListType.favorite,
-                word: word,
-                context: context),
-          ),
-        );
-      },
-      child: Padding(
-        padding: EdgeInsets.only(left: 3, right: 3),
-        child: Row(
-          children: [
-            WordViewCountWidget(
-              margin: const EdgeInsets.only(right: 10.0),
-              viewCounts: getViewCounts(currentJapaneseWord: word),
-              onlyShowNumber: true,
+    return AnimatedContainer(
+      duration: widget.animationDuration,
+      height: postFrame ? 64 : 0,
+      curve: Curves.elasticOut,
+      child: InkWell(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          context.pushNamed(
+            AppRoutesPath.wordDefinition,
+            extra: DefinitionScreenArgs(
+              mainSearchBloc: context.read<MainSearchBloc>(),
+              hanViet: widget.hanViet,
+              jishoDefinition: widget.jishoDefinition,
+              vnDefinition: widget.vnDefinition,
+              isInFavoriteList: DbHelper.checkDatabaseExist(
+                  offlineListType: OfflineListType.favorite,
+                  word: word,
+                  context: context),
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (widget.jishoDefinition?.reading != null)
-                    Text(
-                      widget.jishoDefinition?.reading ?? '',
-                      style: TextStyle(fontSize: 11),
-                    ),
-                  if (widget.hanViet.length > 5)
-                    SizedBox(
-                      width: 150,
-                      child: SelectableText(
-                        widget.hanViet
-                            .sublist(0, min(widget.hanViet.length, 4))
-                            .join(' ')
-                            .toUpperCase(),
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Text(
-                        word.substring(0, min(word.length, 12)),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                            fontSize: 18,
-                          ),
-                      ),
-                      const SizedBox(
-                        width: 8.0,
-                      ),
-                      if (widget.hanViet.length <= 5)
-                        ConstrainedBox(
-                          constraints: BoxConstraints.loose(Size(
-                            150,
-                            double.infinity,
-                          )),
-                          child: SelectableText(
-                            widget.hanViet.join(' ').toUpperCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(overflow: TextOverflow.ellipsis),
-                          ),
-                        ),
-                    ],
+          );
+        },
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 3, right: 3),
+              child: Row(
+                children: [
+                  WordViewCountWidget(
+                    margin: const EdgeInsets.only(right: 10.0),
+                    viewCounts: getViewCounts(currentJapaneseWord: word),
+                    onlyShowNumber: true,
                   ),
-                  Wrap(
-                    children: [getVnDefinitionSummary()],
-                  )
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        HiraganaReadingWidget(
+                          key: Key(widget.jishoDefinition.hashCode.toString()),
+                            jishoDefinition: widget.jishoDefinition),
+                        if (widget.hanViet.length > 5)
+                        WordHanVietReadingWidget(hanViet: widget.hanViet),
+                        Row(
+                          children: [
+                            Text(
+                              word.substring(0, min(word.length, 12)),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontSize: 18,
+                                ),
+                            ),
+                            const SizedBox(
+                              width: 8.0,
+                            ),
+                            if (widget.hanViet.length <= 5)
+                              WordHanVietReadingWidget(hanViet: widget.hanViet),
+                          ],
+                        ),
+                        Wrap(
+                          children: [getVnDefinitionSummary()],
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 35,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: DbHelper.checkDatabaseExist(
+                              offlineListType: OfflineListType.favorite,
+                              word: word,
+                              context: context)
+                          ? Icon(Icons.bookmark, color: Color(0xffff8882))
+                          : Icon(Icons.bookmark, color: Colors.grey),
+                      onPressed: () {
+                        if (DbHelper.checkDatabaseExist(
+                                offlineListType: OfflineListType.favorite,
+                                word: word,
+                                context: context) ==
+                            false) {
+                          setState(() {
+                            DbHelper.addToOfflineList(
+                                offlineListType: OfflineListType.favorite,
+                                offlineWordRecord: OfflineWordRecord(
+                                  slug: word,
+                                  isCommon: widget.jishoDefinition?.isCommon == true
+                                      ? 1
+                                      : 0,
+                                  tags: widget.jishoDefinition?.tags ?? const [],
+                                  jlpt: widget.jishoDefinition?.jlpt ?? const [],
+                                  word: word,
+                                  reading: widget.jishoDefinition?.reading ?? '',
+                                  senses: widget.jishoDefinition?.senses ?? const [],
+                                  vietnameseDefinition:
+                                      widget.vnDefinition?.definition ?? '',
+                                  added: DateTime.now().millisecondsSinceEpoch,
+                                  firstReview: null,
+                                  lastReview: null,
+                                  due: -1,
+                                  interval: 0,
+                                  ease: getIt<SharedPref>()
+                                          .prefs
+                                          .getDouble('startingEase') ??
+                                      -1,
+                                  reviews: 0,
+                                  lapses: 0,
+                                  averageTimeMinute: 0,
+                                  totalTimeMinute: 0,
+                                  cardType: 'default',
+                                  noteType: 'default',
+                                  deck: 'default',
+                                ),
+                                context: context);
+                          });
+                        } else
+                          setState(() {
+                            DbHelper.removeFromOfflineList(
+                                offlineListType: OfflineListType.favorite,
+                                context: context,
+                                word: widget.jishoDefinition?.japaneseWord ?? '');
+                          });
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
-            SizedBox(
-              width: 35,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                ),
-                child: DbHelper.checkDatabaseExist(
-                        offlineListType: OfflineListType.favorite,
-                        word: word,
-                        context: context)
-                    ? Icon(Icons.bookmark, color: Color(0xffff8882))
-                    : Icon(Icons.bookmark, color: Colors.grey),
-                onPressed: () {
-                  if (DbHelper.checkDatabaseExist(
-                          offlineListType: OfflineListType.favorite,
-                          word: word,
-                          context: context) ==
-                      false) {
-                    setState(() {
-                      DbHelper.addToOfflineList(
-                          offlineListType: OfflineListType.favorite,
-                          offlineWordRecord: OfflineWordRecord(
-                            slug: word,
-                            isCommon: widget.jishoDefinition?.isCommon == true
-                                ? 1
-                                : 0,
-                            tags: widget.jishoDefinition?.tags ?? const [],
-                            jlpt: widget.jishoDefinition?.jlpt ?? const [],
-                            word: word,
-                            reading: widget.jishoDefinition?.reading ?? '',
-                            senses: widget.jishoDefinition?.senses ?? const [],
-                            vietnameseDefinition:
-                                widget.vnDefinition?.definition ?? '',
-                            added: DateTime.now().millisecondsSinceEpoch,
-                            firstReview: null,
-                            lastReview: null,
-                            due: -1,
-                            interval: 0,
-                            ease: getIt<SharedPref>()
-                                    .prefs
-                                    .getDouble('startingEase') ??
-                                -1,
-                            reviews: 0,
-                            lapses: 0,
-                            averageTimeMinute: 0,
-                            totalTimeMinute: 0,
-                            cardType: 'default',
-                            noteType: 'default',
-                            deck: 'default',
-                          ),
-                          context: context);
-                    });
-                  } else
-                    setState(() {
-                      DbHelper.removeFromOfflineList(
-                          offlineListType: OfflineListType.favorite,
-                          context: context,
-                          word: widget.jishoDefinition?.japaneseWord ?? '');
-                    });
-                },
-              ),
-            ),
+            divider,
           ],
         ),
       ),
     );
   }
 
+}
+
+class WordHanVietReadingWidget extends StatefulWidget {
+  final List<String> hanViet;
+  const WordHanVietReadingWidget({super.key, required this.hanViet});
+
+  @override
+  State<WordHanVietReadingWidget> createState() => _WordHanVietReadingWidgetState();
+}
+
+class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
+  bool postFrame = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+          postFrame = true;
+        }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.hanViet.length > 5) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.elasticOut,
+            height: postFrame ? 12 : 0,
+            child: SelectableText(
+              widget.hanViet
+                  .sublist(0, min(widget.hanViet.length, 4))
+                  .join(' ')
+                  .toUpperCase(),
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          );
+        }
+      );
+    }
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.elasticOut,
+            height: postFrame ? 12 : 0,
+            child: SelectableText(
+              widget.hanViet.join(' ').toUpperCase(),
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall
+                  ?.copyWith(overflow: TextOverflow.ellipsis),
+            ),
+          );
+        }
+      ),
+    );
+  }
+}
+
+class HiraganaReadingWidget extends StatefulWidget {
+  final JishoDefinition? jishoDefinition;
+  const HiraganaReadingWidget({
+    super.key,
+    required this.jishoDefinition,
+  });
+
+  @override
+  State<HiraganaReadingWidget> createState() => _HiraganaReadingWidgetState();
+}
+
+class _HiraganaReadingWidgetState extends State<HiraganaReadingWidget> {
+  bool postFrame = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) => setState(() {
+      postFrame = true;
+    }));
+  }
+  @override
+  Widget build(BuildContext context) {
+    if (widget.jishoDefinition?.reading == null) {
+      return const SizedBox.shrink();
+    }
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      height: postFrame ? 16 : 0,
+      child: Text(
+        widget.jishoDefinition?.reading ?? '',
+        style: TextStyle(fontSize: 11),
+      ),
+    );
+  }
 }

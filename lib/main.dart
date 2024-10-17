@@ -1,5 +1,6 @@
 import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  late ThemeNotifier themeNotifier;
   // Process floating application icon when exit.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -70,6 +72,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    themeNotifier = ThemeNotifier();
+    var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    bool isDarkMode = brightness == Brightness.dark;
+    if (isDarkMode) {
+      themeNotifier.setDarkMode();
+    }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,
+        overlays: [SystemUiOverlay.bottom]);
+
     // Add observer in order to use didChangeAppLifeCycle
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
@@ -85,6 +96,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
     // Remove observer when we don't need didChangeAppLifeCycle anymore
     WidgetsBinding.instance.removeObserver(this);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values); // to re-show bars
     super.dispose();
   }
 
@@ -93,7 +106,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<ThemeNotifier>(
-            create: (context) => ThemeNotifier(),
+            create: (context) => themeNotifier,
           ),
           ChangeNotifierProvider<LocalizationNotifier>(
             create: (context) => LocalizationNotifier(),

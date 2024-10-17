@@ -15,7 +15,7 @@
             "request": "launch",
             "type": "dart",
             "args": [
-                "--use-application-binary=.vscode/",
+                "--use-application-binary=.vscode/app-debug.apk",
             ],
             "flutterMode": "debug"
         },

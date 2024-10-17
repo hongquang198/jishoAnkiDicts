@@ -1,4 +1,5 @@
 {
   "editor.formatOnSave": false,
-  "dart.flutterSdkPath": "C:\\development\\flutter_windows_3.7.12-stable\\flutter"
+  "dart.flutterSdkPath": "C:\\src\\flutter_windows_3.13.6-stable\\flutter",
+  "autoHide.autoHideSideBar": false
 }

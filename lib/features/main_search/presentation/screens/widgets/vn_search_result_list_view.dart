@@ -23,8 +23,10 @@ class VnSearchResultListView extends StatefulWidget {
   State<VnSearchResultListView> createState() => _VnSearchResultListViewState();
 }
 
-class _VnSearchResultListViewState extends State<VnSearchResultListView> {
+class _VnSearchResultListViewState extends State<VnSearchResultListView> with RouteAware {
   List<Widget> searchResults = [];
+  Divider get divider => Divider(thickness: 0.4);
+
   @override
   void initState() {
     super.initState();
@@ -32,8 +34,22 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+
+  @override
+  void didPopNext() {
+    context.read<MainSearchBloc>().add(TriggerAnimationEvent());
+    super.didPopNext();
+  }
+
+  @override
   void dispose() {
     RawKeyboard.instance.removeListener(_handleKeyEvent);
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
@@ -42,52 +58,53 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView> {
     return BlocBuilder<MainSearchBloc, MainSearchState>(
         builder: (context, state) {
       final stateData = state.data;
+      final grammarPointList = stateData.grammarPointList;
+      final vnDictQuery = stateData.vnDictQuery;
+      final jishoDefinitionList = stateData.jishoDefinitionList;
       searchResults.clear();
       searchResults.addAll([
-          ...stateData.grammarPointList
-              .map((e) => Column(
-                children: [
+          ...grammarPointList
+              .mapIndexed((index, e) => 
                   GrammarQueryTile(
+                    animationDuration:  Duration(
+                    milliseconds:
+                        (index + 1 % 10) * 300),
                         grammarPoint: e,
                         showGrammarBadge: true,
                       ),
-                  divider,
-                ],
-              ))
+              )
               .toList(),
-          ...stateData.vnDictQuery.mapIndexed(
-            (index, vnDefinition) => Column(
-              children: [
+          ...vnDictQuery.mapIndexed(
+            (index, vnDefinition) =>
                 SearchResultTileVn(
+                animationDuration: Duration(
+                    milliseconds:
+                        ((grammarPointList.length + index + 1) % 10) * 300),
                   vnDefinition: vnDefinition,
                   hanViet: _getHanViet(stateData, vnDefinition.word),
                   jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
                       (element) => element.japaneseWord == vnDefinition.word),
-                ),
-                divider,
-              ],
             ),
           ),
-          ...stateData.jishoDefinitionList
-              .mapIndexed((index, jishoDefintiion) => Column(
-                children: [
+          ...jishoDefinitionList
+              .mapIndexed((index, jishoDefintiion) =>
                   SearchResultTileVn(
-                        hanViet: _getHanViet(stateData, jishoDefintiion.japaneseWord),
-                        jishoDefinition: jishoDefintiion,
-                      ),
-                  divider,
-                ],
-              ))
-              .toList(),
+                    animationDuration: Duration(
+                        milliseconds: ((grammarPointList.length +
+                                vnDictQuery.length +
+                                index + 1) % 10) *
+                            300),
+                    hanViet:
+                        _getHanViet(stateData, jishoDefintiion.japaneseWord),
+                    jishoDefinition: jishoDefintiion,
+                  ))
+          .toList(),
         ]);
       return SingleChildScrollView(
         child: Column(children: searchResults),
       );
     });
   }
-
-  Divider get divider => Divider(thickness: 0.4);
-
   List<String> _getHanViet(MainSearchStateData stateData, String word) {
     return stateData.wordToHanVietMap[word] ?? [];
   }

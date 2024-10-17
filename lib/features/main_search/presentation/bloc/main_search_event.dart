@@ -31,3 +31,5 @@ class SearchForJishoDefinitionEvent extends MainSearchEvent {
   final String phrase;
   SearchForJishoDefinitionEvent(this.phrase);
 }
+
+class TriggerAnimationEvent extends MainSearchEvent {}

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/services/navigation_service.dart';
@@ -16,10 +17,13 @@ import '../injection.dart';
 import '../models/grammar_point.dart';
 import '../models/offline_word_record.dart';
 
+final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
+
 class AppRoutes {
   AppRoutes._();
 
   static final routes = GoRouter(
+      observers: [routeObserver],
       navigatorKey: getIt<NavigationService>().navigatorKey,
       routes: <GoRoute>[
         GoRoute(
