@@ -12,10 +12,7 @@ extension _VnSearchResultListViewStateExt on _VnSearchResultListViewState {
     }
 
     final searchResultChildren =
-        searchResults
-        .expand((e) => (e as Column).children
-          ..removeWhere((element) => element is Divider))
-        .toList();
+        searchResults;
     final number = int.tryParse(keyLabel)!;
     if (searchResultChildren.isEmpty || number > searchResultChildren.length) {
       return;
@@ -48,6 +45,7 @@ extension _VnSearchResultListViewStateExt on _VnSearchResultListViewState {
   }
 
   bool isNumericCharacter(String input) {
-    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+    final result = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+    return result;
   }
 }
