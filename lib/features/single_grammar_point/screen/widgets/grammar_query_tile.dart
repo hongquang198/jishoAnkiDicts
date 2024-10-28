@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/common/extensions/build_context_extension.dart';
 
+import '../../../../common/widgets/common_animated_list_item.dart';
 import '../../../../models/grammar_point.dart';
 import '../grammar_point_screen.dart';
 
@@ -32,11 +33,9 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: widget.animationDuration,
-      height: postFrame ? 64 : 0,
-      curve: Curves.elasticOut,
-      child: Column(
+    return CommonAnimatedListItem(
+        animationDuration: const Duration(milliseconds: 400),
+        child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.only(left: 5.0, right: 5),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:jisho_anki/common/widgets/common_animated_list_item.dart';
 import 'package:jisho_anki/features/word_definition/mixins/get_word_view_count_mixin.dart';
 import 'package:jisho_anki/features/word_definition/screens/widgets/word_view_count_widget.dart';
 
@@ -80,11 +81,9 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: widget.animationDuration,
-      height: postFrame ? 64 : 0,
-      curve: Curves.elasticOut,
-      child: InkWell(
+    return CommonAnimatedListItem(
+        animationDuration: widget.animationDuration,
+        child: InkWell(
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
           context.pushNamed(
@@ -242,10 +241,8 @@ class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
     if (widget.hanViet.length > 5) {
       return LayoutBuilder(
         builder: (context, constraints) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.elasticOut,
-            height: postFrame ? 12 : 0,
+          return CommonAnimatedListItem(
+            animationDuration: const Duration(milliseconds: 400),
             child: SelectableText(
               widget.hanViet
                   .sublist(0, min(widget.hanViet.length, 4))
@@ -260,10 +257,8 @@ class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
     return Expanded(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.elasticOut,
-            height: postFrame ? 12 : 0,
+          return CommonAnimatedListItem(
+            animationDuration: const Duration(milliseconds: 400),
             child: SelectableText(
               widget.hanViet.join(' ').toUpperCase(),
               style: Theme.of(context)
@@ -304,11 +299,9 @@ class _HiraganaReadingWidgetState extends State<HiraganaReadingWidget> {
     if (widget.jishoDefinition?.reading == null) {
       return const SizedBox.shrink();
     }
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.elasticOut,
-      height: postFrame ? 16 : 0,
-      child: Text(
+    return CommonAnimatedListItem(
+        animationDuration: const Duration(milliseconds: 600),
+        child: Text(
         widget.jishoDefinition?.reading ?? '',
         style: TextStyle(fontSize: 11),
       ),
