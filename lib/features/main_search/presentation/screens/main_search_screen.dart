@@ -44,6 +44,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   late TabController tabController;
   late FocusNode focusNode;
   late Timer searchOnStoppedTyping;
+  late Timer clipboardTimer;
   final _recognizer = Recognizer();
   final modelFilePath1 = "assets/model806.tflite";
   final labelFilePath1 = "assets/label806.txt";
@@ -67,6 +68,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
+    _startClipboardMonitoring();
   }
 
   void _onFocusChange() {
@@ -100,8 +102,21 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
   }
 
+  void _startClipboardMonitoring() {
+    clipboardTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) async {
+      final newClipboard = await Clipboard.getData(Clipboard.kTextPlain);
+      if (newClipboard?.text != null && newClipboard!.text != clipboard) {
+        clipboard = newClipboard.text!;
+        textEditingController.text = clipboard;
+        print(clipboard);
+        await _search();
+      }
+    });
+  }
+
   @override
   void dispose() {
+    clipboardTimer.cancel();
     focusNode.removeListener(_onFocusChange);
     focusNode.dispose();
     super.dispose();
