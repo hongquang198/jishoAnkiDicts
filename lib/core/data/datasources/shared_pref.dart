@@ -68,12 +68,56 @@ class SharedPref {
         prefs.setInt(_SharedPreferenceKeys.exampleNumber, 3);
     prefs.getString(_SharedPreferenceKeys.theme) ??
         prefs.setString(_SharedPreferenceKeys.theme, 'light');
+    prefs.getBool(_SharedPreferenceKeys.llmEnable) ??
+        prefs.setBool(_SharedPreferenceKeys.llmEnable, true);
+    prefs.getString(_SharedPreferenceKeys.llmApiKey) ??
+        prefs.setString(_SharedPreferenceKeys.llmApiKey, '');
+    prefs.getString(_SharedPreferenceKeys.llmCustomPrompt) ??
+        prefs.setString(_SharedPreferenceKeys.llmCustomPrompt, '');
+    prefs.getString(_SharedPreferenceKeys.llmModel) ??
+        prefs.setString(_SharedPreferenceKeys.llmModel, 'gemini-2.0-flash');
     print('${prefs.getString('language')}');
   }
 
   bool get isAppInVietnamese => prefs.getString('language') == "Tiếng Việt";
   bool get isAppInEnglish =>
       prefs.getString('language')?.contains("English") == true;
+
+  bool get llmEnable => prefs.getBool(_SharedPreferenceKeys.llmEnable) ?? true;
+  set llmEnable(bool value) => prefs.setBool(_SharedPreferenceKeys.llmEnable, value);
+
+  String get llmApiKey => prefs.getString(_SharedPreferenceKeys.llmApiKey) ?? '';
+  set llmApiKey(String value) => prefs.setString(_SharedPreferenceKeys.llmApiKey, value);
+
+  String get llmCustomPrompt => prefs.getString(_SharedPreferenceKeys.llmCustomPrompt) ?? '';
+  set llmCustomPrompt(String value) => prefs.setString(_SharedPreferenceKeys.llmCustomPrompt, value);
+
+  String get llmModel {
+    final model = prefs.getString(_SharedPreferenceKeys.llmModel);
+    return (model != null && model.trim().isNotEmpty) ? model.trim() : 'gemini-2.0-flash';
+  }
+  set llmModel(String value) => prefs.setString(_SharedPreferenceKeys.llmModel, value);
+
+  static const String defaultPromptVn =
+      "Phân tích từ vựng và ngữ pháp cho cụm từ/câu '%search_words%' bằng Tiếng Việt. "
+      "Nếu có nhiều từ (danh từ + động từ), người dùng đang tìm kiếm mẫu ngữ pháp. "
+      "Trong trường hợp này, hãy hiển thị mẫu ngữ pháp và dịch nghĩa của cụm từ/câu. "
+      "Nếu từ đầu tiên là động từ, hãy đưa ra ví dụ để phân biệt rõ Tự động từ (Intransitive) hay Tha động từ (Transitive). "
+      "Trình bày ngắn gọn, rõ ràng, dễ đọc.";
+
+  static const String defaultPromptEn =
+      "Analyze the words and grammar for this lookup '%search_words%' in English. "
+      "If there are multiple words (nouns+verbs), user must be definitely looking for a grammar pattern. "
+      "In this case, show only the grammar pattern and the translated version of the lookup. "
+      "If the first word you find is a verb, then show examples to clearly understand if the verb is Intransitive or Transitive. "
+      "Keep the answer concise and easy to read.";
+
+  String get activeDefaultPrompt => isAppInVietnamese ? defaultPromptVn : defaultPromptEn;
+
+  String get effectivePrompt {
+    final custom = llmCustomPrompt.trim();
+    return custom.isNotEmpty ? custom : activeDefaultPrompt;
+  }
 }
 
 class _SharedPreferenceKeys {
@@ -97,4 +141,8 @@ class _SharedPreferenceKeys {
   static const String language = "language";
   static const String exampleNumber = "exampleNumber";
   static const String theme = "theme";
+  static const String llmEnable = "llmEnable";
+  static const String llmApiKey = "llmApiKey";
+  static const String llmCustomPrompt = "llmCustomPrompt";
+  static const String llmModel = "llmModel";
 }

@@ -15,6 +15,7 @@ import 'core/client/http_client.dart';
 import 'core/services/navigation_service.dart';
 import 'l10n/localization.dart';
 import 'core/domain/entities/dictionary.dart';
+import 'services/llm_service.dart';
 import 'services/media_query_size.dart';
 
 final getIt = GetIt.instance;
@@ -27,6 +28,9 @@ Future<void> inject() async {
     await sharedPref.init();
     return sharedPref;
   });
+  getIt.registerSingletonWithDependencies<LlmService>(
+      () => LlmService(sharedPref: getIt<SharedPref>()),
+      dependsOn: [SharedPref]);
   getIt.registerSingletonAsync<Dictionary>(() async {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();

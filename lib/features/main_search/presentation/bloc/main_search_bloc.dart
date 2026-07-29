@@ -44,6 +44,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
         getIt<SharedPref>().isAppInVietnamese;
     emit(MainSearchLoadingState(state.data.copyWith(
       isAppInVietnamese: isAppInVietnamese,
+      searchedPhrase: event.phrase,
     )));
 
     add(SearchForGrammarPointEvent(event.phrase));

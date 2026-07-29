@@ -10,6 +10,7 @@ import '../../../../../services/db_helper.dart';
 import '../../../../../utils/offline_list_type.dart';
 import '../../../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 import '../../../../word_definition/screens/definition_screen.dart';
+import 'llm_search_result_tile.dart';
 import 'search_result_tile_vn.dart';
 
 part 'vn_search_result_list_view.children.dart';
@@ -63,6 +64,8 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView> with Ro
       final jishoDefinitionList = stateData.jishoDefinitionList;
       searchResults.clear();
       searchResults.addAll([
+          if (stateData.searchedPhrase.trim().isNotEmpty)
+            LlmSearchResultTile(query: stateData.searchedPhrase.trim()),
           ...grammarPointList
               .mapIndexed((index, e) => 
                   GrammarQueryTile(

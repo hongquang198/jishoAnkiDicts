@@ -6,6 +6,7 @@ class MainSearchStateData {
   final List<JishoDefinition> jishoDefinitionList;
   final bool isAppInVietnamese;
   final Map<String, List<String>> wordToHanVietMap;
+  final String searchedPhrase;
 
   const MainSearchStateData({
     this.grammarPointList = const [],
@@ -13,6 +14,7 @@ class MainSearchStateData {
     this.jishoDefinitionList = const [],
     this.isAppInVietnamese = false,
     this.wordToHanVietMap = const {},
+    this.searchedPhrase = '',
   });
 
   JishoDefinition? getSpecificJishoDefinition({required String japaneseWord}) =>
@@ -26,6 +28,7 @@ class MainSearchStateData {
     List<JishoDefinition>? jishoDefinitionList,
     bool? isAppInVietnamese,
     Map<String, List<String>>? wordToHanVietMap,
+    String? searchedPhrase,
   }) {
     return MainSearchStateData(
       grammarPointList: grammarPointList ?? this.grammarPointList,
@@ -33,6 +36,7 @@ class MainSearchStateData {
       jishoDefinitionList: jishoDefinitionList ?? this.jishoDefinitionList,
       isAppInVietnamese: isAppInVietnamese ?? this.isAppInVietnamese,
       wordToHanVietMap: wordToHanVietMap ?? this.wordToHanVietMap,
+      searchedPhrase: searchedPhrase ?? this.searchedPhrase,
     );
   }
 

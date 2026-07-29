@@ -75,7 +75,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     themeNotifier = ThemeNotifier();
-    var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    var brightness =
+        SchedulerBinding.instance.platformDispatcher.platformBrightness;
     bool isDarkMode = brightness == Brightness.dark;
     if (isDarkMode) {
       themeNotifier.setDarkMode();
@@ -117,7 +118,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         builder: (context, child) {
           return MaterialApp.router(
             title: 'JishoAnki Dictionary',
-            debugShowCheckedModeBanner: false,
+            // debugShowCheckedModeBanner: false,
             routerConfig: AppRoutes.routes,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

@@ -2,8 +2,12 @@ import '../../../injection.dart';
 import '../../../localization_manager.dart';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
+import '../../../services/llm_service.dart';
+import '../bloc/llm_settings_bloc.dart';
+import 'widgets/llm_settings_section.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -20,16 +24,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   GlobalKey _toolTipLeechThresholdKey = GlobalKey();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Consumer<LocalizationNotifier>(
       builder: (context, localization, child) {
@@ -40,10 +34,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(color: Constants.appBarTextColor),
             ),
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          body: ListView(
+            padding: const EdgeInsets.only(bottom: 30),
             children: [
               SizedBox(height: 15),
+              // Enable Floating
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -53,31 +48,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      getIt<SharedPref>().prefs.getBool('enableFloating') == true
-                          ? getIt<SharedPref>().prefs.setBool('enableFloating', false)
-                          : getIt<SharedPref>().prefs.setBool('enableFloating', true);
+                      setState(() {
+                        getIt<SharedPref>().prefs.getBool('enableFloating') ==
+                                true
+                            ? getIt<SharedPref>()
+                                .prefs
+                                .setBool('enableFloating', false)
+                            : getIt<SharedPref>()
+                                .prefs
+                                .setBool('enableFloating', true);
+                      });
                     },
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          getIt<SharedPref>().prefs.getBool('enableFloating') == true
-                              ? getIt<SharedPref>().prefs
-                                  .setBool('enableFloating', false)
-                              : getIt<SharedPref>().prefs
-                                  .setBool('enableFloating', true);
-                        });
-                      },
-                      child: getIt<SharedPref>().prefs.getBool('enableFloating') == true
-                          ? Icon(
-                              Icons.check_box_outlined,
-                              color: Colors.blue,
-                            )
-                          : Icon(Icons.check_box_outline_blank_outlined,
-                              color: Colors.grey),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 15.0),
+                      child:
+                          getIt<SharedPref>().prefs.getBool('enableFloating') ==
+                                  true
+                              ? Icon(
+                                  Icons.check_box_outlined,
+                                  color: Colors.blue,
+                                )
+                              : Icon(Icons.check_box_outline_blank_outlined,
+                                  color: Colors.grey),
                     ),
                   ),
                 ],
               ),
+              // Language
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -85,41 +82,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: const EdgeInsets.only(left: 15.0),
                     child: Text(AppLocalizations.of(context)!.language),
                   ),
-                  DropdownButton<String>(
-                    value: dropdownValue,
-                    hint: Text('${getIt<SharedPref>().prefs.getString("language")}'),
-                    icon: const Icon(Icons.arrow_downward),
-                    iconSize: 24,
-                    elevation: 16,
-                    underline: Container(
-                      height: 2,
-                      color: Color(0xffDB8C8A),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15.0),
+                    child: DropdownButton<String>(
+                      value: dropdownValue,
+                      hint: Text(
+                          '${getIt<SharedPref>().prefs.getString("language")}'),
+                      icon: const Icon(Icons.arrow_downward),
+                      iconSize: 24,
+                      elevation: 16,
+                      underline: Container(
+                        height: 2,
+                        color: Color(0xffDB8C8A),
+                      ),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            localization.setLanguage(language: newValue);
+                          });
+                        }
+                      },
+                      items: <String>[
+                        'English',
+                        'Tiếng Việt',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          localization.setLanguage(language: newValue);
-                        });
-                      }
-                    },
-                    items: <String>[
-                      'English',
-                      'Tiếng Việt',
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
                   ),
                 ],
               ),
+              // New Cards Per Day
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
                       padding: const EdgeInsets.only(left: 15.0),
-                      child: Text(AppLocalizations.of(context)!.newCardsPerDay)),
+                      child:
+                          Text(AppLocalizations.of(context)!.newCardsPerDay)),
                   Padding(
                     padding: const EdgeInsets.only(right: 15.0),
                     child: SizedBox(
@@ -127,13 +130,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            getIt<SharedPref>().prefs
+                            getIt<SharedPref>()
+                                .prefs
                                 .setInt('newCardsPerDay', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: getIt<SharedPref>().prefs
+                            hintText: getIt<SharedPref>()
+                                .prefs
                                 .getInt('newCardsPerDay')
                                 .toString(),
                           ),
@@ -141,6 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              // Graduating Interval
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -148,7 +154,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(left: 15.0),
                       child: Row(
                         children: [
-                          Text(AppLocalizations.of(context)!.graduatingInterval),
+                          Text(
+                              AppLocalizations.of(context)!.graduatingInterval),
                           GestureDetector(
                             onTap: () {
                               final dynamic _toolTip =
@@ -179,7 +186,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: getIt<SharedPref>().prefs
+                            hintText: getIt<SharedPref>()
+                                .prefs
                                 .getInt('graduatingInterval')
                                 .toString(),
                           ),
@@ -187,6 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              // Starting Ease
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -225,7 +234,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: getIt<SharedPref>().prefs
+                            hintText: getIt<SharedPref>()
+                                .prefs
                                 .getDouble('startingEase')
                                 .toString(),
                           ),
@@ -233,6 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              // Leech Threshold
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -265,13 +276,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            getIt<SharedPref>().prefs
+                            getIt<SharedPref>()
+                                .prefs
                                 .setInt('leechThreshold', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: getIt<SharedPref>().prefs
+                            hintText: getIt<SharedPref>()
+                                .prefs
                                 .getInt('leechThreshold')
                                 .toString(),
                           ),
@@ -279,6 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              // Example Number
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -296,13 +310,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 50,
                         child: TextField(
                           onChanged: (string) {
-                            getIt<SharedPref>().prefs
+                            getIt<SharedPref>()
+                                .prefs
                                 .setInt('exampleNumber', int.parse(string));
                           },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: getIt<SharedPref>().prefs
+                            hintText: getIt<SharedPref>()
+                                .prefs
                                 .getInt('exampleNumber')
                                 .toString(),
                           ),
@@ -310,12 +326,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              // LLM Settings Section (Bloc-powered)
+              BlocProvider(
+                create: (_) => LlmSettingsBloc(
+                  sharedPref: getIt<SharedPref>(),
+                  llmService: getIt<LlmService>(),
+                ),
+                child: const LlmSettingsSection(),
+              ),
             ],
           ),
         );
       },
     );
   }
+}
 
 // load kanji dictionary
-}

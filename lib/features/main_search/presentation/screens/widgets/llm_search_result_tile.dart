@@ -1,0 +1,355 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../config/app_routes.dart';
+import '../../../../../core/data/datasources/shared_pref.dart';
+import '../../../../../injection.dart';
+import '../../../../../services/llm_service.dart';
+
+class LlmSearchResultTile extends StatefulWidget {
+  final String query;
+
+  const LlmSearchResultTile({
+    super.key,
+    required this.query,
+  });
+
+  @override
+  State<LlmSearchResultTile> createState() => _LlmSearchResultTileState();
+}
+
+class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
+  bool _isExpanded = false;
+  bool _hasStartedStream = false;
+  String _accumulatedText = '';
+  bool _isStreaming = false;
+  String? _errorMessage;
+  StreamSubscription<String>? _subscription;
+
+  @override
+  void didUpdateWidget(covariant LlmSearchResultTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.query != widget.query) {
+      _resetStreamState();
+      if (_isExpanded) {
+        _startStreaming();
+      }
+    }
+  }
+
+  void _resetStreamState() {
+    _subscription?.cancel();
+    _subscription = null;
+    _hasStartedStream = false;
+    _accumulatedText = '';
+    _isStreaming = false;
+    _errorMessage = null;
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded && !_hasStartedStream) {
+        _startStreaming();
+      }
+    });
+  }
+
+  void _startStreaming() {
+    final sharedPref = getIt<SharedPref>();
+    final llmService = getIt<LlmService>();
+
+    if (!sharedPref.llmEnable) return;
+    if (sharedPref.llmApiKey.trim().isEmpty) {
+      setState(() {
+        _hasStartedStream = true;
+        _errorMessage = 'missing_key';
+      });
+      return;
+    }
+
+    if (widget.query.trim().isEmpty) return;
+
+    _resetStreamState();
+
+    setState(() {
+      _hasStartedStream = true;
+      _isStreaming = true;
+    });
+
+    final stream = llmService.generateExplanationStream(widget.query);
+    _subscription = stream.listen(
+      (chunk) {
+        if (mounted) {
+          setState(() {
+            _accumulatedText += chunk;
+          });
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() {
+            _isStreaming = false;
+            _errorMessage = error.toString();
+          });
+        }
+      },
+      onDone: () {
+        if (mounted) {
+          setState(() {
+            _isStreaming = false;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sharedPref = getIt<SharedPref>();
+    if (!sharedPref.llmEnable) {
+      return SizedBox.shrink();
+    }
+
+    final isVn = sharedPref.isAppInVietnamese;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFDB8C8A).withOpacity(0.5),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: _toggleExpanded,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDB8C8A).withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Color(0xFFDB8C8A),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      isVn
+                          ? '✨ AI Giải thích: "${widget.query}"'
+                          : '✨ AI Explanation: "${widget.query}"',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (_isStreaming)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFDB8C8A),
+                        ),
+                      ),
+                    ),
+                  Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Colors.grey[600],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isExpanded) ...[
+            const Divider(height: 1, thickness: 0.5),
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: _buildBodyContent(context, isVn),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBodyContent(BuildContext context, bool isVn) {
+    if (_errorMessage == 'missing_key') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isVn
+                      ? 'Chưa cấu hình Gemini API Key.'
+                      : 'Gemini API Key is not set.',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isVn
+                ? 'Vui lòng truy cập Cài đặt để thêm Gemini API Key cá nhân của bạn.'
+                : 'Please go to Settings to configure your personal Gemini API Key.',
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDB8C8A),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              GoRouter.of(context).push(AppRoutesPath.settings);
+            },
+            icon: const Icon(Icons.settings, size: 16),
+            label: Text(isVn ? 'Mở Cài đặt' : 'Open Settings'),
+          ),
+        ],
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isVn
+                ? 'Đã xảy ra lỗi khi kết nối AI:'
+                : 'An error occurred while connecting to AI:',
+            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _errorMessage!,
+            style: const TextStyle(fontSize: 12, color: Colors.redAccent),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _startStreaming,
+            icon: const Icon(Icons.refresh, size: 16),
+            label: Text(isVn ? 'Thử lại' : 'Retry'),
+          ),
+        ],
+      );
+    }
+
+    if (_isStreaming && _accumulatedText.isEmpty) {
+      return Row(
+        children: [
+          const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFDB8C8A)),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
+            style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+          ),
+        ],
+      );
+    }
+
+    if (_accumulatedText.isEmpty && !_isStreaming) {
+      return Text(
+        isVn ? 'Không có câu trả lời.' : 'No output received.',
+        style: const TextStyle(color: Colors.grey),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HtmlWidget(
+          _markdownToSimpleHtml(_accumulatedText),
+          textStyle: const TextStyle(fontSize: 14, height: 1.5),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.copy, size: 18),
+              tooltip: isVn ? 'Sao chép' : 'Copy',
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: _accumulatedText));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isVn ? 'Đã sao chép vào bộ nhớ tạm!' : 'Copied to clipboard!',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 18),
+              tooltip: isVn ? 'Tạo lại' : 'Regenerate',
+              onPressed: _startStreaming,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Simple converter to format markdown headers/bold text into HTML for HtmlWidget
+  String _markdownToSimpleHtml(String markdown) {
+    String text = markdown
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+
+    text = text.replaceAllMapped(RegExp(r'\*\*(.*?)\*\*'), (match) => '<b>${match[1]}</b>');
+    text = text.replaceAllMapped(RegExp(r'\*(.*?)\*'), (match) => '<i>${match[1]}</i>');
+    text = text.replaceAllMapped(RegExp(r'`(.*?)`'), (match) => '<code>${match[1]}</code>');
+    text = text.replaceAll('\n', '<br/>');
+    return text;
+  }
+}
