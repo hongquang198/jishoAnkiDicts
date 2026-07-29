@@ -13,6 +13,7 @@ import 'injection.dart';
 import 'theme_manager.dart';
 import 'core/data/datasources/shared_pref.dart';
 import 'localization_manager.dart';
+import 'services/share_intent_service.dart';
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('assets/$path');
@@ -30,6 +31,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   file = await getImageFileFromAssets('floatingicon.png');
   await inject();
+  await ShareIntentService.instance.init();
   runApp(MyApp());
 }
 

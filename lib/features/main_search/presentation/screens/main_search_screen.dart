@@ -14,6 +14,7 @@ import '../../../../injection.dart';
 import '../../../../theme_manager.dart';
 import '../../../../utils/constants.dart';
 import '../../../../services/recognizer.dart';
+import '../../../../services/share_intent_service.dart';
 import 'mixins/get_vietnamese_definition_mixin.dart';
 import 'widgets/draw_screen.dart';
 import 'widgets/en_search_result_list_view.dart';
@@ -53,6 +54,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   late MainSearchBloc bloc;
   String clipboard = '';
   bool keyboardListened = false;
+  StreamSubscription<String>? _shareIntentSubscription;
 
   @override
   void initState() {
@@ -69,6 +71,22 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
     _startClipboardMonitoring();
+    _listenForSharedText();
+  }
+
+  void _listenForSharedText() {
+    _shareIntentSubscription =
+        ShareIntentService.instance.sharedTextStream.listen((sharedText) {
+      if (!mounted) return;
+
+      textEditingController.text = sharedText;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shared text received: $sharedText'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    });
   }
 
   void _onFocusChange() {
@@ -116,6 +134,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
 
   @override
   void dispose() {
+    _shareIntentSubscription?.cancel();
     clipboardTimer.cancel();
     focusNode.removeListener(_onFocusChange);
     focusNode.dispose();
