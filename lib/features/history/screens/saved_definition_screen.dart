@@ -1,6 +1,7 @@
+import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'dart:async';
 
 import '../../../injection.dart';
@@ -42,7 +43,7 @@ class SavedDefinitionScreen extends StatefulWidget {
   });
 
   @override
-  _SavedDefinitionScreenState createState() => _SavedDefinitionScreenState();
+  State<SavedDefinitionScreen> createState() => _SavedDefinitionScreenState();
 }
 
 class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
@@ -79,17 +80,19 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
 
     try {
       final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true)
+      if (lang?.contains('English') == true) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,
             tableName: 'englishExampleDictionary');
-      else if (lang == 'Tiếng Việt') {
+      } else if (lang == 'Tiếng Việt') {
         exampleSentence = KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord, context: context, tableName: 'exampleDictionary');
+            word: currentJapaneseWord,
+            context: context,
+            tableName: 'exampleDictionary');
       }
     } catch (e) {
-      print('Error getting example sentence $e');
+      log('Error getting example sentence $e');
     }
   }
 
@@ -118,13 +121,14 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
                       offlineWordRecord: offlineWordRecord,
                       context: context);
                 });
-              } else
+              } else {
                 setState(() {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.favorite,
                       context: context,
                       word: currentJapaneseWord);
                 });
+              }
             },
           ),
           IconButton(
@@ -152,13 +156,14 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
                       offlineWordRecord: offlineWordRecord,
                       context: context);
                 });
-              } else
+              } else {
                 setState(() {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.review,
                       context: context,
                       word: currentJapaneseWord);
                 });
+              }
             },
           ),
         ],
@@ -172,7 +177,7 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
           FutureBuilder<List<Widget>>(
             future: pitchAccent,
             builder: (context, snapshot) {
-              if (snapshot.data == null)
+              if (snapshot.data == null) {
                 return Text(
                   jishoDefinition.reading ?? '',
                   style: TextStyle(
@@ -180,6 +185,7 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
                     color: Colors.grey,
                   ),
                 );
+              }
               return Row(
                 children: snapshot.data!,
               );
@@ -226,8 +232,9 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
               ? FutureBuilder<List<String>>(
                   future: widget.args.hanViet,
                   builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data!.length == 0)
+                    if (snapshot.data == null || snapshot.data!.isEmpty) {
                       return SizedBox();
+                    }
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -243,11 +250,11 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
                 )
               : SizedBox(),
           if (widget.args.jishoDefinition != null)
-              IsCommonTagsAndJlptWidget(
-                  isCommon: jishoDefinition.isCommon,
-                  tags: jishoDefinition.tags,
-                  jlpt: jishoDefinition.jlpt,
-                ),
+            IsCommonTagsAndJlptWidget(
+              isCommon: jishoDefinition.isCommon,
+              tags: jishoDefinition.tags,
+              jlpt: jishoDefinition.jlpt,
+            ),
           SizedBox(height: 8),
           DefinitionWidget(
             senses: jishoDefinition.senses,
@@ -266,18 +273,20 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
               future: exampleSentence,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data?.length == 0)
+                  if (snapshot.data?.isEmpty ?? true) {
                     return ExampleSentenceWidget(
                       exampleSentence: KanjiHelper.getExampleSentence(
                           word: currentJapaneseWord,
                           context: context,
                           tableName: 'englishExampleDictionary'),
                     );
+                  }
                   return ExampleSentenceWidget(
                     exampleSentence: exampleSentence,
                   );
-                } else
+                } else {
                   return SizedBox();
+                }
               }),
           Divider(),
           Text(
@@ -307,12 +316,12 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
         return elementWord == currentJapaneseWord;
       });
     } catch (e) {
-      print('Word not in history: $e');
+      log('Word not in history: $e');
     }
-    if (found == null)
+    if (found == null) {
       return 0;
-    else
+    } else {
       return found.reviews;
+    }
   }
 }
-

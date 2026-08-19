@@ -5,7 +5,7 @@ import '../../../../injection.dart';
 import '../../../../utils/bar_title_type.dart';
 import '/utils/constants.dart';
 
-import 'bar_line.dart';
+import 'package:jisho_anki/features/statistics/screens/widgets/bar_line.dart';
 
 class TodayDueChart extends StatefulWidget {
   final double newCardNumber;
@@ -14,15 +14,14 @@ class TodayDueChart extends StatefulWidget {
   final double difficultCardNumber;
 
   const TodayDueChart(
-      {Key? key,
+      {super.key,
       this.newCardNumber = 0,
       this.youngCardNumber = 0,
       this.difficultCardNumber = 0,
-      this.matureCardNumber = 0})
-      : super(key: key);
+      this.matureCardNumber = 0});
 
   @override
-  _TodayDueChartState createState() => _TodayDueChartState();
+  State<TodayDueChart> createState() => _TodayDueChartState();
 }
 
 class _TodayDueChartState extends State<TodayDueChart> {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 
-import '../../../../../injection.dart';
-import '../../../../word_definition/screens/widgets/kanji_drawboard.dart';
-import '/models/kanji.dart';
-import '/models/prediction.dart';
-import '/services/recognizer.dart';
-import '/utils/constants.dart';
-import 'drawing_painter.dart';
+import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/kanji_drawboard.dart';
+import 'package:jisho_anki/models/kanji.dart';
+import 'package:jisho_anki/models/prediction.dart';
+import 'package:jisho_anki/services/recognizer.dart';
+import 'package:jisho_anki/utils/constants.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/widgets/drawing_painter.dart';
 
 class DrawScreenConst {
   static const double canvasOptionMaxSize = 35;
@@ -21,20 +21,20 @@ class DrawScreen extends StatefulWidget {
     super.key,
   });
   @override
-  _DrawScreenState createState() => _DrawScreenState();
+  State<DrawScreen> createState() => _DrawScreenState();
 }
 
 class _DrawScreenState extends State<DrawScreen> {
-  List<Offset?> _points = [];
+  final List<Offset?> _points = [];
   final _recognizer = Recognizer();
   late List<Prediction> _prediction;
   late List<Prediction> _prediction2;
   bool initialize = false;
   bool firstModelPredictionHasFinished = true;
-  final modelFilePath1 = "assets/model806.tflite";
-  final labelFilePath1 = "assets/label806.txt";
-  final modelFilePath2 = "assets/model3036.tflite";
-  final labelFilePath2 = "assets/label3036.txt";
+  final modelFilePath1 = 'assets/model806.tflite';
+  final labelFilePath1 = 'assets/label806.txt';
+  final modelFilePath2 = 'assets/model3036.tflite';
+  final labelFilePath2 = 'assets/label3036.txt';
   List<Offset> lastStrokes = [];
   List<Kanji> kanjiDict = [];
 
@@ -97,12 +97,12 @@ class _DrawScreenState extends State<DrawScreen> {
             onTap: () {
               setState(() {
                 // Goal is to remove all points between last 2 null values in _points array
-                if (_points.length > 0) {
+                if (_points.isNotEmpty) {
                   _points.removeAt(_points.length - 1);
                   for (int i = _points.length - 1; i > 0; i--) {
-                    if (_points[i] != null)
+                    if (_points[i] != null) {
                       _points.removeAt(i);
-                    else {
+                    } else {
                       recognizePoints();
                       return;
                     }
@@ -130,10 +130,11 @@ class _DrawScreenState extends State<DrawScreen> {
           ),
           GestureDetector(
             onTap: () {
-              if (widget.textEditingController.text.length != 0)
+              if (widget.textEditingController.text.isNotEmpty) {
                 widget.textEditingController.text = widget
                     .textEditingController.text
                     .substring(0, widget.textEditingController.text.length - 1);
+              }
             },
             child: Container(
               width: DrawScreenConst.canvasOptionMaxSize,
@@ -167,10 +168,8 @@ class _DrawScreenState extends State<DrawScreen> {
 
   Widget _drawCanvasWidget() {
     return Container(
-      width: getIt<MediaQuerySize>().canvasSize +
-          Constants.borderSize * 2,
-      height: getIt<MediaQuerySize>().canvasSize +
-          Constants.borderSize * 2,
+      width: getIt<MediaQuerySize>().canvasSize + Constants.borderSize * 2,
+      height: getIt<MediaQuerySize>().canvasSize + Constants.borderSize * 2,
       decoration: BoxDecoration(
         color: Color(0xFFF7E7E6),
         border: Border.all(
@@ -181,14 +180,14 @@ class _DrawScreenState extends State<DrawScreen> {
       ),
       child: GestureDetector(
         onPanUpdate: (DragUpdateDetails details) {
-          Offset _localPosition = details.localPosition;
-          if (_localPosition.dx >= 0 &&
-              _localPosition.dx <= getIt<MediaQuerySize>().canvasSize &&
-              _localPosition.dy >= 0 &&
-              _localPosition.dy <= getIt<MediaQuerySize>().canvasSize) {
+          Offset localPosition = details.localPosition;
+          if (localPosition.dx >= 0 &&
+              localPosition.dx <= getIt<MediaQuerySize>().canvasSize &&
+              localPosition.dy >= 0 &&
+              localPosition.dy <= getIt<MediaQuerySize>().canvasSize) {
             setState(() {
-              lastStrokes.add(_localPosition);
-              _points.add(_localPosition);
+              lastStrokes.add(localPosition);
+              _points.add(localPosition);
             });
           }
         },
@@ -203,18 +202,18 @@ class _DrawScreenState extends State<DrawScreen> {
     );
   }
 
-  Future _initModel({required String modelFilePath, required String labelFilePath}) async {
+  Future _initModel(
+      {required String modelFilePath, required String labelFilePath}) async {
     await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
 
-
   Future _recognize({bool isForSecondModel = false}) async {
     List<dynamic> pred = await _recognizer.recognize(_points);
     setState(() {
-      if (!isForSecondModel)
+      if (!isForSecondModel) {
         _prediction = pred.map((json) => Prediction.fromJson(json)).toList();
-      else {
+      } else {
         _prediction2 = pred.map((json) => Prediction.fromJson(json)).toList();
       }
     });
@@ -233,8 +232,8 @@ class _DrawScreenState extends State<DrawScreen> {
 
 class InputSelectionBar extends StatelessWidget {
   const InputSelectionBar({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +244,7 @@ class InputSelectionBar extends StatelessWidget {
             Navigator.pop(context);
           },
           child: Container(
-            width: MediaQuery.of(context).size.width / 2,
+            width: MediaQuery.sizeOf(context).width / 2,
             height: 40,
             color: Color(0xFFDB8C8A),
             child: Center(
@@ -263,7 +262,7 @@ class InputSelectionBar extends StatelessWidget {
               bottom: BorderSide(color: Colors.white, width: 4.5),
             ),
           ),
-          width: MediaQuery.of(context).size.width / 2,
+          width: MediaQuery.sizeOf(context).width / 2,
           height: 40,
           child: Center(
             child: Icon(

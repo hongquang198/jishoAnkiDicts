@@ -11,12 +11,12 @@ class HttpsClient {
         receiveDataWhenStatusError: true,
         sendTimeout: const Duration(milliseconds: 600 * 1000), //60 seconds
         connectTimeout: const Duration(milliseconds: 600 * 1000), // 60 seconds
-        receiveTimeout: const Duration(milliseconds: 600 * 1000)
-    );
+        receiveTimeout: const Duration(milliseconds: 600 * 1000));
 
     dio = Dio(options);
 
-    dio.interceptors..add(LogInterceptor(
+    dio.interceptors
+      ..add(LogInterceptor(
         requestBody: !kReleaseMode,
         responseBody: !kReleaseMode,
       ))
@@ -74,7 +74,7 @@ class HttpsClient {
     return result;
   }
 
-  Future<Response<Map<String, dynamic>> > patch(
+  Future<Response<Map<String, dynamic>>> patch(
     String endPoint, {
     Map<String, dynamic> body = const {},
     Map<String, String> path = const {},
@@ -90,7 +90,7 @@ class HttpsClient {
     return result;
   }
 
-  Future<Response<Map<String, dynamic>> > delete(
+  Future<Response<Map<String, dynamic>>> delete(
     String endPoint, {
     Map<String, dynamic> body = const {},
     Map<String, String> path = const {},

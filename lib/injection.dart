@@ -11,12 +11,12 @@ import 'package:jisho_anki/features/main_search/repository/jisho_repository_impl
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/client/http_client.dart';
-import 'core/services/navigation_service.dart';
-import 'l10n/localization.dart';
-import 'core/domain/entities/dictionary.dart';
-import 'services/llm_service.dart';
-import 'services/media_query_size.dart';
+import 'package:jisho_anki/core/client/http_client.dart';
+import 'package:jisho_anki/core/services/navigation_service.dart';
+import 'package:jisho_anki/l10n/localization.dart';
+import 'package:jisho_anki/core/domain/entities/dictionary.dart';
+import 'package:jisho_anki/services/llm_service.dart';
+import 'package:jisho_anki/services/media_query_size.dart';
 
 final getIt = GetIt.instance;
 
@@ -49,13 +49,12 @@ Future<void> inject() async {
   getIt.registerLazySingleton<NavigationService>(() => NavigationServiceImpl());
 
   // BLoC
-  getIt
-    ..registerFactory<MainSearchBloc>(() => MainSearchBloc(
-          lookupGrammarPoint: getIt(),
-          searchJishoForPhrase: getIt(),
-          lookForVietnameseDefinition: getIt(),
-          lookupHanVietReading: getIt(),
-        ));
+  getIt.registerFactory<MainSearchBloc>(() => MainSearchBloc(
+        lookupGrammarPoint: getIt(),
+        searchJishoForPhrase: getIt(),
+        lookForVietnameseDefinition: getIt(),
+        lookupHanVietReading: getIt(),
+      ));
 
   // Use cases
   getIt
@@ -63,10 +62,8 @@ Future<void> inject() async {
         () => SearchJishoForPhrase(getIt()))
     ..registerLazySingleton<LookForVietnameseDefinition>(
         () => LookForVietnameseDefinition())
-    ..registerLazySingleton<LookupHanVietReading>(
-        () => LookupHanVietReading())
-    ..registerLazySingleton<LookUpGrammarPoint>(
-        () => LookUpGrammarPoint());
+    ..registerLazySingleton<LookupHanVietReading>(() => LookupHanVietReading())
+    ..registerLazySingleton<LookUpGrammarPoint>(() => LookUpGrammarPoint());
 
   // Repository
   getIt.registerLazySingleton<JishoRepository>(() => JishoRepositoryImpl(

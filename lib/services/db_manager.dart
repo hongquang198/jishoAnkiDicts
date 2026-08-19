@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,13 +24,13 @@ class DbManager {
   Future<Database> initDatabase() async {
     // Open the database and store the reference.
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "offlineDatabase.db");
+    String path = join(documentsDirectory.path, 'offlineDatabase.db');
 
     var exists = await databaseExists(path);
 
     if (!exists) {
       // Should happen only the first time you launch your application
-      print("Creating new copy from asset");
+      log('Creating new copy from asset');
       // Make sure the parent directory exists
       try {
         await Directory(dirname(path)).create(recursive: true);
@@ -37,7 +38,7 @@ class DbManager {
 
       // Copy from asset
       ByteData data =
-          await rootBundle.load(join("assets", "offlineDatabase.db"));
+          await rootBundle.load(join('assets', 'offlineDatabase.db'));
       List<int> bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 
@@ -49,19 +50,18 @@ class DbManager {
 // open the database
     Database db = await openDatabase(path, readOnly: false);
     return db;
-
   }
 
   Future<void> batchInsertKanjiDictionary(List<Kanji> kanjiDictionary) async {
     Database db = await initDatabase();
     Batch batch = db.batch();
-    kanjiDictionary.forEach((element) {
+    for (var element in kanjiDictionary) {
       batch.insert(
         'kanjiDictionary',
         element.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-    });
+    }
     await batch.commit();
   }
 
@@ -69,13 +69,13 @@ class DbManager {
       List<PitchAccent> pitchDictionary) async {
     Database db = await initDatabase();
     Batch batch = db.batch();
-    pitchDictionary.forEach((element) {
+    for (var element in pitchDictionary) {
       batch.insert(
         'pitchDictionary',
         element.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-    });
+    }
     await batch.commit();
   }
 
@@ -83,10 +83,10 @@ class DbManager {
       List<VietnameseDefinition> vietnameseDict) async {
     Database db = await initDatabase();
     Batch batch = db.batch();
-    vietnameseDict.forEach((element) {
+    for (var element in vietnameseDict) {
       batch.insert('jpvnDictionary', element.toMap(),
           conflictAlgorithm: ConflictAlgorithm.replace);
-    });
+    }
     await batch.commit();
   }
 
@@ -94,32 +94,33 @@ class DbManager {
       List<ExampleSentence> exampleDictionary) async {
     Database db = await initDatabase();
     Batch batch = db.batch();
-    exampleDictionary.forEach((element) {
+    for (var element in exampleDictionary) {
       batch.insert('exampleDictionary', element.toMap(),
           conflictAlgorithm: ConflictAlgorithm.replace);
-    });
+    }
     await batch.commit();
   }
 
   Future<void> insertWord(
-      {required OfflineWordRecord offlineWordRecord, required String tableName}) async {
+      {required OfflineWordRecord offlineWordRecord,
+      required String tableName}) async {
     Database db = await initDatabase();
     try {
       await db.insert(
-        '$tableName',
+        tableName,
         offlineWordRecord.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      print('Added to history database');
+      log('Added to history database');
     } catch (e) {
-      print('error inserting to database: $e');
+      log('error inserting to database: $e');
     }
   }
 
   Future<List<OfflineWordRecord>> retrieve({required String tableName}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('$tableName');
+    final List<Map<String, dynamic>> maps = await db.query(tableName);
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
@@ -210,7 +211,7 @@ class DbManager {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('pitchDictionary',
-        where: "orths_txt LIKE ? AND hira = ?",
+        where: 'orths_txt LIKE ? AND hira = ?',
         whereArgs: ['%$word%', reading]);
     return List.generate(maps.length, (i) {
       return PitchAccent(
@@ -227,7 +228,7 @@ class DbManager {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db
-        .query('kanjiDictionary', where: "kanji = ?", whereArgs: [kanji]);
+        .query('kanjiDictionary', where: 'kanji = ?', whereArgs: [kanji]);
     return List.generate(maps.length, (i) {
       return Kanji(
         id: maps[i]['id'],
@@ -256,7 +257,7 @@ class DbManager {
     Database db = await initDatabase();
     // Query the table for all The Dogs
     final List<Map<String, dynamic>> maps = await db.query(tableName,
-        where: "jpSentence LIKE ?",
+        where: 'jpSentence LIKE ?',
         whereArgs: ['%$word%'],
         limit: getIt<SharedPref>().prefs.getInt('exampleNumber') ?? 3);
     if (tableName == 'exampleDictionary') {
@@ -291,7 +292,7 @@ class DbManager {
       whereArgs: [grammarPoint],
     );
     return List.generate(maps.length, (i) {
-      print(maps[i]['enSentence']);
+      log('${maps[i]['enSentence']}');
       return ExampleSentence(
         targetSentence: maps[i]['enSentence'],
         jpSentence: maps[i]['jpSentence'],
@@ -301,7 +302,8 @@ class DbManager {
     });
   }
 
-  Future<List<GrammarPoint>> searchForGrammar({required String grammarPoint}) async {
+  Future<List<GrammarPoint>> searchForGrammar(
+      {required String grammarPoint}) async {
     Database db = await initDatabase();
     // Query the table for all The Dogs
     final List<Map<String, dynamic>> maps = await db.query('japaneseGrammar',
@@ -321,14 +323,16 @@ class DbManager {
     });
   }
 
-  Future<List<VietnameseDefinition>> searchForVnMeaning({required String word}) async {
+  Future<List<VietnameseDefinition>> searchForVnMeaning(
+      {required String word}) async {
     Database db = await initDatabase();
     // Don't input limit parameter because this search function is using LIKE function
-    final List<Map<String, dynamic>> maps = await db.query('jpvnDictionary',
-        where: "word LIKE ?",
-        whereArgs: ['%$word%'],
-        orderBy: 'length(word) ASC',
-        limit: 15,
+    final List<Map<String, dynamic>> maps = await db.query(
+      'jpvnDictionary',
+      where: 'word LIKE ?',
+      whereArgs: ['%$word%'],
+      orderBy: 'length(word) ASC',
+      limit: 15,
     );
     return List.generate(maps.length, (i) {
       return VietnameseDefinition(
@@ -355,15 +359,16 @@ class DbManager {
   }
 
   Future<void> update(
-      {required OfflineWordRecord offlineWordRecord, required String tableName}) async {
+      {required OfflineWordRecord offlineWordRecord,
+      required String tableName}) async {
     // Get a reference to the database.
     final db = await initDatabase();
     try {
       await db.update(
-        '$tableName',
+        tableName,
         offlineWordRecord.toMap(),
         // Ensure that the Dog has a matching id.
-        where: "slug = ? OR word = ? OR reading = ?",
+        where: 'slug = ? OR word = ? OR reading = ?',
         // Pass the Dog's id as a whereArg to prevent SQL injection.
         whereArgs: [
           offlineWordRecord.slug.isEmpty
@@ -371,9 +376,9 @@ class DbManager {
               : offlineWordRecord.slug
         ],
       );
-      print('Updated successfully');
+      log('Updated successfully');
     } catch (e) {
-      print('Error updating to database: $e');
+      log('Error updating to database: $e');
     }
   }
 
@@ -383,9 +388,9 @@ class DbManager {
 
     // Remove the Dog from the database.
     await db.delete(
-      '$tableName',
+      tableName,
       // Use a `where` clause to delete a specific dog.
-      where: "slug = ? OR word = ? OR reading = ?",
+      where: 'slug = ? OR word = ? OR reading = ?',
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [word],
     );

@@ -9,14 +9,15 @@ class GrammarQueryTile extends StatefulWidget {
   final GrammarPoint grammarPoint;
   final bool showGrammarBadge;
   final Duration animationDuration;
-  GrammarQueryTile({
+  const GrammarQueryTile({
+    super.key,
     required this.grammarPoint,
     this.showGrammarBadge = false,
     this.animationDuration = const Duration(milliseconds: 300),
   });
 
   @override
-  _GrammarQueryTileState createState() => _GrammarQueryTileState();
+  State<GrammarQueryTile> createState() => _GrammarQueryTileState();
 }
 
 class _GrammarQueryTileState extends State<GrammarQueryTile> {
@@ -34,8 +35,8 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
   @override
   Widget build(BuildContext context) {
     return CommonAnimatedListItem(
-        animationDuration: const Duration(milliseconds: 400),
-        child: Column(
+      animationDuration: const Duration(milliseconds: 400),
+      child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.only(left: 5.0, right: 5),
@@ -57,17 +58,18 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
                             alignment: PlaceholderAlignment.middle,
                             child: widget.showGrammarBadge
                                 ? Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Icon(Icons.collections_bookmark_outlined),
-                                )
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Icon(
+                                        Icons.collections_bookmark_outlined),
+                                  )
                                 : const SizedBox.shrink(),
                           ),
                           TextSpan(
                             text: context.localizations.grammar,
                             style: Theme.of(context).textTheme.labelSmall,
                           )
-                        ])
-                    ),
+                        ])),
                   ),
                 ),
                 Row(
@@ -91,8 +93,8 @@ class _GrammarQueryTileState extends State<GrammarQueryTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (widget.grammarPoint.grammarMeaning != null)
-                Text(widget.grammarPoint.grammarMeaning!,
-                    style: TextStyle(fontSize: 13)),
+                  Text(widget.grammarPoint.grammarMeaning!,
+                      style: TextStyle(fontSize: 13)),
               ],
             ),
             onTap: () {

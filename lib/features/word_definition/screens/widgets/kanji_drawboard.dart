@@ -10,15 +10,14 @@ class PredictionWidget extends StatefulWidget {
   final TextEditingController textEditingController;
   final Function clearStrokes;
   const PredictionWidget(
-      {Key? key,
+      {super.key,
       required this.predictions,
       required this.kanjiAll,
       required this.textEditingController,
-      required this.clearStrokes})
-      : super(key: key);
+      required this.clearStrokes});
 
   @override
-  _PredictionWidgetState createState() => _PredictionWidgetState();
+  State<PredictionWidget> createState() => _PredictionWidgetState();
 }
 
 class _PredictionWidgetState extends State<PredictionWidget> {

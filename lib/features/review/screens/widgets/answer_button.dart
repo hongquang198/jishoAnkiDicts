@@ -6,12 +6,12 @@ import '../../../../models/offline_word_record.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
-    Key? key,
+    super.key,
     required this.steps,
     required this.color,
     required this.buttonText,
     required this.offlineWordRecord,
-  }) : super(key: key);
+  });
   final OfflineWordRecord offlineWordRecord;
   final List<int> steps;
   final Color color;
@@ -20,7 +20,7 @@ class AnswerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width / 2,
+      width: MediaQuery.sizeOf(context).width / 2,
       height: 50,
       color: color,
       child: Center(
@@ -39,17 +39,24 @@ class AnswerButton extends StatelessWidget {
   }
 
   Widget getInterval() {
-    if (offlineWordRecord.interval < steps[steps.length - 1] * 60 * 1000)
+    if (offlineWordRecord.interval < steps[steps.length - 1] * 60 * 1000) {
+
       for (int i = 0; i < steps.length; i++) {
         if (offlineWordRecord.interval < steps[i] * 60 * 1000) {
           return Text('${steps[i]}min');
         }
       }
+    }
     else if (offlineWordRecord.interval ==
         steps[steps.length - 1] * 60 * 1000) {
-      return Text('${getIt<SharedPref>().prefs.getInt('graduatingInterval')}day');
+      return Text(
+          '${getIt<SharedPref>().prefs.getInt('graduatingInterval')}day');
     } else if (offlineWordRecord.interval >=
-        getIt<SharedPref>().prefs.getInt('graduatingInterval')! * 24 * 60 * 60 * 1000) {
+        getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
+            24 *
+            60 *
+            60 *
+            1000) {
       if (offlineWordRecord.interval * offlineWordRecord.ease <=
           31 * 24 * 60 * 60 * 1000) {
         return Text(

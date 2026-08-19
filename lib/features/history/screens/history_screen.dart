@@ -1,5 +1,5 @@
 import 'package:jisho_anki/common/widgets/common_query_tile.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -14,7 +14,7 @@ import '../../../core/data/datasources/shared_pref.dart';
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
   @override
-  _HistoryScreenState createState() => _HistoryScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
@@ -24,10 +24,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    history = getIt<Dictionary>()
-        .history
-        .reversed
-        .toList();
+    history = getIt<Dictionary>().history.reversed.toList();
   }
 
   // Convert normal String tags in offline dictionary to match list<dynamic> used by jisho api
@@ -42,7 +39,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
     List<VietnameseDefinition> vnDefinition =
         await KanjiHelper.getVnDefinition(word: word);
-    print(vnDefinition[0].word);
     return vnDefinition[0];
   }
 
@@ -80,31 +76,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return FutureBuilder<VietnameseDefinition>(
             future: getVietnameseDefinition(word),
             builder: (context, snapshot) {
-              if (snapshot.data == null)
+              if (snapshot.data == null) {
                 return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
-                      word: word,
-                    ),
+                    word: word,
+                  ),
                   jishoDefinition: history[index].toJishoDefinition,
                 );
-              else {
+              } else {
                 return CommonQueryTile(
                   hanViet: KanjiHelper.getHanvietReading(
-                      word: word,
-                    ),
+                    word: word,
+                  ),
                   vnDefinition: snapshot.data,
                   jishoDefinition: history[index].toJishoDefinition,
                 );
               }
             });
-      } else
+      } else {
         return CommonQueryTile(
           hanViet: KanjiHelper.getHanvietReading(word: word),
           vnDefinition: VietnameseDefinition(
-              word: word,
-              definition: history[index].vietnameseDefinition),
+              word: word, definition: history[index].vietnameseDefinition),
           jishoDefinition: history[index].toJishoDefinition,
         );
+      }
     } else {
       return CommonQueryTile(
         hanViet: KanjiHelper.getHanvietReading(word: word),

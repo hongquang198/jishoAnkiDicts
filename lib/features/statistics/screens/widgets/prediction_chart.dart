@@ -9,8 +9,10 @@ import 'y_axis_number_line.dart';
 import 'bar_line.dart';
 
 class PredictionChart extends StatefulWidget {
+  const PredictionChart({super.key});
+
   @override
-  _PredictionChartState createState() => _PredictionChartState();
+  State<PredictionChart> createState() => _PredictionChartState();
 }
 
 class _PredictionChartState extends State<PredictionChart> {
@@ -46,27 +48,36 @@ class _PredictionChartState extends State<PredictionChart> {
     newCardNumber = 0;
     difficultCardNumber = 0;
 
-    review.forEach((element) {
+    for (var element in review) {
       // Find number of new cards
-      if (element.reviews == 0) newCardNumber++;
+      if (element.reviews == 0) {
+        newCardNumber++;
+      }
       // Find number of young cards
       if (element.reviews != 0) {
-        if (element.interval <= 21 * 24 * 60 * 60 * 1000)
+        if (element.interval <= 21 * 24 * 60 * 60 * 1000) {
           for (int i = 0; i < 7; i++) {
             if (element.due <
-                DateTime.now().millisecondsSinceEpoch + i * 24 * 60 * 60 * 1000)
+                DateTime.now().millisecondsSinceEpoch +
+                    i * 24 * 60 * 60 * 1000) {
               youngCardNumber[i]++;
+            }
           }
+        }
       }
 
-      if (element.interval > 21 * 24 * 60 * 60 * 1000)
+      if (element.interval > 21 * 24 * 60 * 60 * 1000) {
         for (int i = 0; i < 7; i++) {
           if (element.due <
-              i * 24 * 60 * 60 * 1000 + DateTime.now().millisecondsSinceEpoch)
+              i * 24 * 60 * 60 * 1000 + DateTime.now().millisecondsSinceEpoch) {
             matureCardNumber[i]++;
+          }
         }
-      if (element.lapses > 5) difficultCardNumber++;
-    });
+      }
+      if (element.lapses > 5) {
+        difficultCardNumber++;
+      }
+    }
   }
 
   @override
@@ -177,8 +188,8 @@ class PredictionLineBar extends StatelessWidget {
     this.newCardNumber = 0,
     this.youngCardNumber = 0,
     this.maxNumber = 0,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

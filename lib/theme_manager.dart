@@ -10,9 +10,7 @@ class ThemeNotifier with ChangeNotifier {
     primarySwatch: Colors.grey,
     primaryColor: Color(0xFF212121),
     brightness: Brightness.dark,
-    colorScheme: ColorScheme.dark(
-      background: const Color(0xFF212121)
-    ),
+    colorScheme: ColorScheme.dark(surface: const Color(0xFF212121)),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       foregroundColor: Color(0xFF212121),
     ),
@@ -28,10 +26,10 @@ class ThemeNotifier with ChangeNotifier {
       titleLarge: TextStyle(color: Constants.appBarTextColor),
     ),
     appBarTheme: AppBarTheme(
-      color: Color(0xffDB8C8A),
+      backgroundColor: Color(0xffDB8C8A),
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: Colors.white.withOpacity(0),
+      backgroundColor: Colors.white.withValues(alpha: 0),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: Color(0xffDB8C8A),

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-typedef OnClickListener(String tag);
+typedef OnClickListener = Function(String tag);
 
 class FloatButtonOverlay {
   static const MethodChannel _channel =
-      const MethodChannel('br.ndz.float_button_overlay');
+      MethodChannel('br.ndz.float_button_overlay');
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -45,7 +45,7 @@ class FloatButtonOverlay {
 
   static Future<String> get closeOverlay async {
     final String retorno = await _channel.invokeMethod('closeOverlay');
-    print("PlatformChannel returns: $retorno");
+    print('PlatformChannel returns: $retorno');
     return retorno;
   }
 
@@ -54,12 +54,13 @@ class FloatButtonOverlay {
     _channel.setMethodCallHandler(
       (MethodCall call) async {
         switch (call.method) {
-          case "callback":
+          case 'callback':
             callBackFunction('openOverlayCallback');
             break;
-          case "onClickCallback":
-            if (onClickCallback != null)
-            onClickCallback("onClickCallback");
+          case 'onClickCallback':
+            if (onClickCallback != null) {
+              onClickCallback('onClickCallback');
+            }
             break;
         }
       },

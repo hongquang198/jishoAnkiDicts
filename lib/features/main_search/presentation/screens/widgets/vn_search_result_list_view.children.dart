@@ -1,24 +1,23 @@
 part of 'vn_search_result_list_view.dart';
 
 extension _VnSearchResultListViewStateExt on _VnSearchResultListViewState {
-  void _handleKeyEvent(RawKeyEvent event) {
+  bool _handleKeyEvent(KeyEvent event) {
     final logicalKey = event.logicalKey;
     final keyLabel = logicalKey.keyLabel;
-    if (event is RawKeyDownEvent) {
-      return;
+    if (event is KeyDownEvent) {
+      return false;
     }
     if (keyLabel.isEmpty || !isNumericCharacter(keyLabel)) {
-      return;
+      return false;
     }
 
-    final searchResultChildren =
-        searchResults;
+    final searchResultChildren = searchResults;
     final number = int.tryParse(keyLabel)!;
     if (searchResultChildren.isEmpty || number > searchResultChildren.length) {
-      return;
+      return false;
     }
 
-    final searchResultChild = searchResultChildren[number-1];
+    final searchResultChild = searchResultChildren[number - 1];
     if (searchResultChild is SearchResultTileVn) {
       context.pushNamed(
         AppRoutesPath.wordDefinition,
@@ -35,13 +34,15 @@ extension _VnSearchResultListViewStateExt on _VnSearchResultListViewState {
               context: context),
         ),
       );
-      return;
+      return true;
     }
 
     if (searchResultChild is GrammarQueryTile) {
       context.pushNamed(AppRoutesPath.singleGrammarPoint,
           extra: searchResultChild.grammarPoint);
+      return true;
     }
+    return false;
   }
 
   bool isNumericCharacter(String input) {

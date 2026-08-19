@@ -11,16 +11,17 @@ import '/utils/constants.dart';
 class ExampleSentenceWidget extends StatelessWidget {
   final Future<List<ExampleSentence>> exampleSentence;
   const ExampleSentenceWidget({
-    Key? key,
+    super.key,
     required this.exampleSentence,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ExampleSentence>>(
         future: exampleSentence,
         builder: (context, snapshot) {
-          if (snapshot.data == null || snapshot.connectionState != ConnectionState.done) {
+          if (snapshot.data == null ||
+              snapshot.connectionState != ConnectionState.done) {
             return const SizedBox.shrink();
           }
           return _ExampleSentenceWidget(
@@ -70,7 +71,6 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -93,14 +93,14 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
         }
         var prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonList);
         exampleSentence[i].jpSentence = prettyJsonString
-            .replaceAll('  ', "")
-            .replaceAll("[\n", "")
-            .replaceAll("]\n", "")
-            .replaceAll("]", "");
+            .replaceAll('  ', '')
+            .replaceAll('[\n', '')
+            .replaceAll(']\n', '')
+            .replaceAll(']', '');
       }
       if (i == 5) break;
       sentence.add(CommonAnimatedListItem(
-        animationDuration: Duration(milliseconds: 300 * (i+1)),
+        animationDuration: Duration(milliseconds: 300 * (i + 1)),
         child: Padding(
           padding: EdgeInsets.only(right: 10, top: 9),
           child: Text(
@@ -111,10 +111,10 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
           ),
         ),
       ));
-      if (exampleSentence[i].targetSentence != null)
+      if (exampleSentence[i].targetSentence != null) {
         sentence.add(CommonAnimatedListItem(
-        animationDuration: Duration(milliseconds: 300 * (i+1)),
-        child: Padding(
+          animationDuration: Duration(milliseconds: 300 * (i + 1)),
+          child: Padding(
             padding: EdgeInsets.only(left: 10, right: 10, top: 2),
             child: Text(
               exampleSentence[i].targetSentence ?? '',
@@ -122,6 +122,7 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
             ),
           ),
         ));
+      }
     }
     return sentence;
   }

@@ -127,12 +127,12 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFDB8C8A).withOpacity(0.5),
+          color: const Color(0xFFDB8C8A).withValues(alpha: 0.5),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),
@@ -151,7 +151,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFDB8C8A).withOpacity(0.15),
+                      color: const Color(0xFFDB8C8A).withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -261,7 +261,8 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             isVn
                 ? 'Đã xảy ra lỗi khi kết nối AI:'
                 : 'An error occurred while connecting to AI:',
-            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            style:
+                const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
@@ -284,12 +285,14 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
           const SizedBox(
             width: 18,
             height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFDB8C8A)),
+            child: CircularProgressIndicator(
+                strokeWidth: 2, color: Color(0xFFDB8C8A)),
           ),
           const SizedBox(width: 12),
           Text(
             isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
-            style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+            style: const TextStyle(
+                fontStyle: FontStyle.italic, color: Colors.grey),
           ),
         ],
       );
@@ -321,7 +324,9 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      isVn ? 'Đã sao chép vào bộ nhớ tạm!' : 'Copied to clipboard!',
+                      isVn
+                          ? 'Đã sao chép vào bộ nhớ tạm!'
+                          : 'Copied to clipboard!',
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -346,9 +351,12 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;');
 
-    text = text.replaceAllMapped(RegExp(r'\*\*(.*?)\*\*'), (match) => '<b>${match[1]}</b>');
-    text = text.replaceAllMapped(RegExp(r'\*(.*?)\*'), (match) => '<i>${match[1]}</i>');
-    text = text.replaceAllMapped(RegExp(r'`(.*?)`'), (match) => '<code>${match[1]}</code>');
+    text = text.replaceAllMapped(
+        RegExp(r'\*\*(.*?)\*\*'), (match) => '<b>${match[1]}</b>');
+    text = text.replaceAllMapped(
+        RegExp(r'\*(.*?)\*'), (match) => '<i>${match[1]}</i>');
+    text = text.replaceAllMapped(
+        RegExp(r'`(.*?)`'), (match) => '<code>${match[1]}</code>');
     text = text.replaceAll('\n', '<br/>');
     return text;
   }

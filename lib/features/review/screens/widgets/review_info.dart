@@ -8,10 +8,10 @@ import '../../../../utils/card_status.dart';
 
 class ReviewInfo extends StatefulWidget {
   final OfflineWordRecord offlineWordRecord;
-  ReviewInfo({required this.offlineWordRecord});
+  const ReviewInfo({super.key, required this.offlineWordRecord});
 
   @override
-  _ReviewInfoState createState() => _ReviewInfoState();
+  State<ReviewInfo> createState() => _ReviewInfoState();
 }
 
 class _ReviewInfoState extends State<ReviewInfo> {
@@ -20,73 +20,77 @@ class _ReviewInfoState extends State<ReviewInfo> {
 
   @override
   void initState() {
-    steps = getIt<SharedPref>().prefs
-        .getStringList('newCardsSteps')
-        ?.map((e) => int.parse(e))
-        .toList() ?? [];
+    steps = getIt<SharedPref>()
+            .prefs
+            .getStringList('newCardsSteps')
+            ?.map((e) => int.parse(e))
+            .toList() ??
+        [];
     super.initState();
   }
 
   CardStatus getCardStatus() {
-    if (widget.offlineWordRecord.reviews == 0)
+    if (widget.offlineWordRecord.reviews == 0) {
       return CardStatus.isNew;
-    else if (widget.offlineWordRecord.interval <=
-        steps[steps.length - 1] * 60 * 1000)
+    } else if (widget.offlineWordRecord.interval <=
+        steps[steps.length - 1] * 60 * 1000) {
       return CardStatus.isLearned;
-    else if (widget.offlineWordRecord.due <
-        DateTime.now().millisecondsSinceEpoch) return CardStatus.isDue;
+    } else if (widget.offlineWordRecord.due <
+        DateTime.now().millisecondsSinceEpoch) {
+      return CardStatus.isDue;
+    }
     return CardStatus.isNew;
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                border: Border(
-              bottom: getCardStatus() == CardStatus.isNew
-                  ? BorderSide(
-                      color: Colors.blue,
-                    )
-                  : BorderSide(color: Colors.white),
-            )),
-            child: Text(
-              '${getIt<Dictionary>().getNewCardNumber}',
-              style: TextStyle(color: Colors.blue),
-            ),
+      children: [
+        Container(
+          decoration: BoxDecoration(
+              border: Border(
+            bottom: getCardStatus() == CardStatus.isNew
+                ? BorderSide(
+                    color: Colors.blue,
+                  )
+                : BorderSide(color: Colors.white),
+          )),
+          child: Text(
+            '${getIt<Dictionary>().getNewCardNumber}',
+            style: TextStyle(color: Colors.blue),
           ),
-          SizedBox(width: 5),
-          Container(
-            decoration: BoxDecoration(
-                border: Border(
-              bottom: getCardStatus() == CardStatus.isLearned
-                  ? BorderSide(
-                      color: Colors.red,
-                    )
-                  : BorderSide(color: Colors.white),
-            )),
-            child: Text(
-              '${getIt<Dictionary>().getLearnedCardNumber}',
-              style: TextStyle(color: Colors.red),
-            ),
+        ),
+        SizedBox(width: 5),
+        Container(
+          decoration: BoxDecoration(
+              border: Border(
+            bottom: getCardStatus() == CardStatus.isLearned
+                ? BorderSide(
+                    color: Colors.red,
+                  )
+                : BorderSide(color: Colors.white),
+          )),
+          child: Text(
+            '${getIt<Dictionary>().getLearnedCardNumber}',
+            style: TextStyle(color: Colors.red),
           ),
-          SizedBox(width: 5),
-          Container(
-            decoration: BoxDecoration(
-                border: Border(
-              bottom: getCardStatus() == CardStatus.isDue
-                  ? BorderSide(
-                      color: Colors.green,
-                    )
-                  : BorderSide(color: Colors.white),
-            )),
-            child: Text(
-              '${getIt<Dictionary>().getDueCardNumber}',
-              style: TextStyle(color: Colors.green),
-            ),
+        ),
+        SizedBox(width: 5),
+        Container(
+          decoration: BoxDecoration(
+              border: Border(
+            bottom: getCardStatus() == CardStatus.isDue
+                ? BorderSide(
+                    color: Colors.green,
+                  )
+                : BorderSide(color: Colors.white),
+          )),
+          child: Text(
+            '${getIt<Dictionary>().getDueCardNumber}',
+            style: TextStyle(color: Colors.green),
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 }

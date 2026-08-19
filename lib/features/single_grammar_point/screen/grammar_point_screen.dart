@@ -19,27 +19,26 @@ class GrammarPointScreen extends StatefulWidget {
   });
 
   @override
-  _GrammarPointScreenState createState() => _GrammarPointScreenState();
+  State<GrammarPointScreen> createState() => _GrammarPointScreenState();
 }
 
 class _GrammarPointScreenState extends State<GrammarPointScreen> {
   late Future<List<Kanji>> kanjiList;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
-    if (partsOfSpeech.length > 0) {
-        return Text(
-          partsOfSpeech.first.toString().toUpperCase(),
-        );
+    if (partsOfSpeech.isNotEmpty) {
+      return Text(
+        partsOfSpeech.first.toString().toUpperCase(),
+      );
     }
     return SizedBox();
   }
 
   Future<List<ExampleSentence>> getGrammarExamples() async {
-    List<ExampleSentence> query =
-        await getIt<Dictionary>()
-            .offlineDatabase
-            .searchForGrammarExample(
-                grammarPoint: widget.grammarPoint.grammarPoint!);
+    List<ExampleSentence> query = await getIt<Dictionary>()
+        .offlineDatabase
+        .searchForGrammarExample(
+            grammarPoint: widget.grammarPoint.grammarPoint!);
     return query;
   }
 
@@ -52,8 +51,8 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
   void initState() {
     super.initState();
 
-    kanjiList = KanjiHelper.getKanjiComponent(
-        word: widget.grammarPoint.grammarPoint!);
+    kanjiList =
+        KanjiHelper.getKanjiComponent(word: widget.grammarPoint.grammarPoint!);
   }
 
   @override

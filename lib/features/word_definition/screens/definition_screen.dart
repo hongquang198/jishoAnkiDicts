@@ -1,5 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
 
@@ -40,7 +41,8 @@ class DefinitionScreenArgs {
 
 class DefinitionScreen extends StatefulWidget {
   final DefinitionScreenArgs args;
-  DefinitionScreen({
+  const DefinitionScreen({
+    super.key,
     required this.args,
   });
 
@@ -54,10 +56,11 @@ class DefinitionScreen extends StatefulWidget {
   }
 
   @override
-  _DefinitionScreenState createState() => _DefinitionScreenState();
+  State<DefinitionScreen> createState() => _DefinitionScreenState();
 }
 
-class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCountMixin {
+class _DefinitionScreenState extends State<DefinitionScreen>
+    with GetWordViewCountMixin {
   bool isClipboardSet = false;
   late String clipboard;
   late Future<List<Widget>> pitchAccent;
@@ -69,7 +72,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
   late String currentJapaneseWord;
 
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
-    if (partsOfSpeech.length > 0) {
+    if (partsOfSpeech.isNotEmpty) {
       return Text(
         partsOfSpeech.first.toString().toUpperCase(),
       );
@@ -108,17 +111,19 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
 
     try {
       final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true)
+      if (lang?.contains('English') == true) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,
             tableName: 'englishExampleDictionary');
-      else if (lang == 'Tiếng Việt') {
+      } else if (lang == 'Tiếng Việt') {
         exampleSentence = KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord, context: context, tableName: 'exampleDictionary');
+            word: currentJapaneseWord,
+            context: context,
+            tableName: 'exampleDictionary');
       }
     } catch (e) {
-      print('Error getting example sentence $e');
+      log('Error getting example sentence $e');
     }
   }
 
@@ -137,7 +142,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
                   if (state is MainSearchJishoLoadedState) {
                     jishoDefinition = state.data.getSpecificJishoDefinition(
                             japaneseWord: currentJapaneseWord) ??
-                        JishoDefinition(slug: "");
+                        JishoDefinition(slug: '');
                     _saveHistoryOfflineWordRecord(context);
                   }
                 },
@@ -176,13 +181,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
                       offlineWordRecord: offlineWordRecord,
                       context: context);
                 });
-              } else
+              } else {
                 setState(() {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.favorite,
                       context: context,
                       word: currentJapaneseWord);
                 });
+              }
             },
           ),
           IconButton(
@@ -210,13 +216,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
                       offlineWordRecord: offlineWordRecord,
                       context: context);
                 });
-              } else
+              } else {
                 setState(() {
                   DbHelper.removeFromOfflineList(
                       offlineListType: OfflineListType.review,
                       context: context,
                       word: currentJapaneseWord);
                 });
+              }
             },
           ),
         ],
@@ -230,7 +237,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
           FutureBuilder<List<Widget>>(
             future: pitchAccent,
             builder: (context, snapshot) {
-              if (snapshot.data == null || snapshot.data?.isEmpty == true)
+              if (snapshot.data == null || snapshot.data?.isEmpty == true) {
                 return Text(
                   jishoDefinition.reading ?? '',
                   style: TextStyle(
@@ -238,6 +245,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
                     color: Colors.grey,
                   ),
                 );
+              }
               return Row(
                 children: snapshot.data!,
               );
@@ -256,8 +264,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
               ),
               WordViewCountWidget(
                   viewCounts:
-                      getViewCounts(currentJapaneseWord: currentJapaneseWord)
-              )
+                      getViewCounts(currentJapaneseWord: currentJapaneseWord))
             ],
           ),
           if (getIt<SharedPref>().isAppInVietnamese &&
@@ -291,18 +298,20 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
               future: exampleSentence,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data?.length == 0)
+                  if (snapshot.data?.isEmpty ?? true) {
                     return ExampleSentenceWidget(
                       exampleSentence: KanjiHelper.getExampleSentence(
                           word: currentJapaneseWord,
                           context: context,
                           tableName: 'englishExampleDictionary'),
                     );
+                  }
                   return ExampleSentenceWidget(
                     exampleSentence: exampleSentence,
                   );
-                } else
+                } else {
                   return SizedBox();
+                }
               }),
           Divider(),
           Text(
@@ -350,4 +359,3 @@ class _DefinitionScreenState extends State<DefinitionScreen> with GetWordViewCou
         context: context);
   }
 }
-

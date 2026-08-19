@@ -9,27 +9,27 @@ sealed class MainSearchEvent extends Equatable {
 
 class SearchForPhraseEvent extends MainSearchEvent {
   final String phrase;
-  SearchForPhraseEvent(this.phrase);
+  const SearchForPhraseEvent(this.phrase);
 }
 
 class SearchForGrammarPointEvent extends MainSearchEvent {
   final String phrase;
-  SearchForGrammarPointEvent(this.phrase);
+  const SearchForGrammarPointEvent(this.phrase);
 }
 
 class SearchForVnDefinitionEvent extends MainSearchEvent {
   final String phrase;
-  SearchForVnDefinitionEvent(this.phrase);
+  const SearchForVnDefinitionEvent(this.phrase);
 }
 
 class SearchForHanVietEvent extends MainSearchEvent {
   final String phrase;
-  SearchForHanVietEvent(this.phrase);
+  const SearchForHanVietEvent(this.phrase);
 }
 
 class SearchForJishoDefinitionEvent extends MainSearchEvent {
   final String phrase;
-  SearchForJishoDefinitionEvent(this.phrase);
+  const SearchForJishoDefinitionEvent(this.phrase);
 }
 
 class TriggerAnimationEvent extends MainSearchEvent {}

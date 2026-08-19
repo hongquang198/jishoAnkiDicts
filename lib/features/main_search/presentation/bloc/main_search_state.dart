@@ -21,7 +21,6 @@ class MainSearchStateData {
       jishoDefinitionList
           .firstWhereOrNull((element) => element.japaneseWord == japaneseWord);
 
-
   MainSearchStateData copyWith({
     List<GrammarPoint>? grammarPointList,
     List<VietnameseDefinition>? vnDictQuery,
@@ -43,28 +42,27 @@ class MainSearchStateData {
   @override
   bool operator ==(covariant MainSearchStateData other) {
     if (identical(this, other)) return true;
-  
-    return 
-      listEquals(other.grammarPointList, grammarPointList) &&
-      listEquals(other.vnDictQuery, vnDictQuery) &&
-      listEquals(other.jishoDefinitionList, jishoDefinitionList) &&
-      other.isAppInVietnamese == isAppInVietnamese &&
-      mapEquals(other.wordToHanVietMap, wordToHanVietMap);
+
+    return listEquals(other.grammarPointList, grammarPointList) &&
+        listEquals(other.vnDictQuery, vnDictQuery) &&
+        listEquals(other.jishoDefinitionList, jishoDefinitionList) &&
+        other.isAppInVietnamese == isAppInVietnamese &&
+        mapEquals(other.wordToHanVietMap, wordToHanVietMap);
   }
 
   @override
   int get hashCode {
-    return grammarPointList.hashCode ^ 
-      vnDictQuery.hashCode ^
-      jishoDefinitionList.hashCode ^
-      isAppInVietnamese.hashCode ^
-      wordToHanVietMap.hashCode;
+    return grammarPointList.hashCode ^
+        vnDictQuery.hashCode ^
+        jishoDefinitionList.hashCode ^
+        isAppInVietnamese.hashCode ^
+        wordToHanVietMap.hashCode;
   }
 }
 
 sealed class MainSearchState extends Equatable {
   final MainSearchStateData data;
-  
+
   const MainSearchState(this.data);
 
   @override
@@ -72,20 +70,21 @@ sealed class MainSearchState extends Equatable {
 }
 
 final class MainSearchLoadingState extends MainSearchState {
-  MainSearchLoadingState(super.data);
+  const MainSearchLoadingState(super.data);
 }
 
 final class MainSearchLoadedState extends MainSearchState {
-  MainSearchLoadedState(super.data);
+  const MainSearchLoadedState(super.data);
 }
 
 final class MainSearchJishoLoadedState extends MainSearchState {
-  MainSearchJishoLoadedState(super.data);
+  const MainSearchJishoLoadedState(super.data);
 }
 
 final class MainSearchFailureState extends MainSearchState {
   final String failureMessage;
-  MainSearchFailureState(super.data, {
+  const MainSearchFailureState(
+    super.data, {
     required this.failureMessage,
   });
 

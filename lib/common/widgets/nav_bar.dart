@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/config/app_routes.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/data/datasources/shared_pref.dart';
@@ -11,7 +11,7 @@ import '../../theme_manager.dart';
 
 class NavBar extends StatelessWidget {
   final TextEditingController textEditingController;
-  NavBar({required this.textEditingController});
+  const NavBar({super.key, required this.textEditingController});
 
   @override
   Widget build(BuildContext context) {
@@ -98,15 +98,17 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             trailing: Switch(
-              value:
-                  getIt<SharedPref>().prefs.getString('theme') == 'dark' ? true : false,
+              value: getIt<SharedPref>().prefs.getString('theme') == 'dark'
+                  ? true
+                  : false,
               onChanged: (valueChanged) {
-                if (valueChanged == true)
+                if (valueChanged == true) {
                   Provider.of<ThemeNotifier>(context, listen: false)
                       .setDarkMode();
-                else
+                } else {
                   Provider.of<ThemeNotifier>(context, listen: false)
                       .setLightMode();
+                }
               },
             ),
             leading: Icon(Icons.nightlight_round),

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'dart:io';
 
 import 'config/app_routes.dart';
@@ -36,8 +36,10 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
@@ -49,7 +51,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (AppLifecycleState.paused == state) {
         FloatButtonOverlay.openOverlay(
           activityName: 'MainActivity',
-          notificationText: "Floating icon",
+          notificationText: 'Floating icon',
           notificationTitle: 'JishoAnki Dictionary',
           packageName: 'com.quangpham.JishoAnki',
           iconPath: file.path,
@@ -68,7 +70,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> initPlatformState() async {
     try {
       FloatButtonOverlay.checkPermissions;
-    } on PlatformException {}
+    } on PlatformException {
+      // Permission check failed or not supported on this platform.
+    }
   }
 
   @override
@@ -89,8 +93,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
       final mediaQuerySize = getIt<MediaQuerySize>();
       mediaQuerySize
-        ..setMaxHeight(MediaQuery.of(context).size.height)
-        ..setMaxWidth(MediaQuery.of(context).size.width);
+        ..setMaxHeight(MediaQuery.sizeOf(context).height)
+        ..setMaxWidth(MediaQuery.sizeOf(context).width);
     });
     initPlatformState();
   }

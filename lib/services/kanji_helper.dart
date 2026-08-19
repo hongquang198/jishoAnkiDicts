@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
@@ -11,8 +12,7 @@ import '../core/domain/entities/dictionary.dart';
 
 class KanjiHelper {
   // Extract kanji from word
-  static Future<List<Kanji>> getKanjiComponent(
-      {required String word}) async {
+  static Future<List<Kanji>> getKanjiComponent({required String word}) async {
     List<Kanji> kanjiExtracted = [];
     List<Kanji> kanjiFound = [];
     for (int i = 0; i < word.length; i++) {
@@ -32,20 +32,18 @@ class KanjiHelper {
     return kanjiExtracted;
   }
 
-  static Future<List<String>> getHanvietReading(
-      {required String word}) async {
+  static Future<List<String>> getHanvietReading({required String word}) async {
     List<String> hanViet = [];
     List<String> array = [];
-    List<Kanji> kanjiComponent =
-        await getKanjiComponent(word: word);
+    List<Kanji> kanjiComponent = await getKanjiComponent(word: word);
     // print('kanji component length is ${kanjiComponent.length}');
     for (int i = 0; i < kanjiComponent.length; i++) {
       try {
-        array = kanjiComponent[i].hanViet?.split(" ") ?? [];
-        array = array[0].split(",");
+        array = kanjiComponent[i].hanViet?.split(' ') ?? [];
+        array = array[0].split(',');
         hanViet.add(array[0].toUpperCase());
       } catch (e) {
-        print('error adding kanji extracted $e');
+        log('error adding kanji extracted $e');
       }
     }
     return hanViet;
@@ -54,7 +52,9 @@ class KanjiHelper {
   // Draw a box with border corresponding to its pitch
   // For example, if the pitch is low, bottom border will be drawn, side border is dependent on the next character pitch
   static Container getPitchForChar(
-      {required String character, required int position, required String pitchAccent}) {
+      {required String character,
+      required int position,
+      required String pitchAccent}) {
     if (pitchAccent[position] == 'L' || pitchAccent[position] == 'l') {
       return Container(
         decoration: BoxDecoration(
@@ -68,9 +68,10 @@ class KanjiHelper {
             right: pitchAccent[position + 1] == 'H' ||
                     pitchAccent[position + 1] == 'h'
                 ? BorderSide(
-                    color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
-                        ? Colors.white
-                        : Colors.black,
+                    color:
+                        getIt<SharedPref>().prefs.getString('theme') == 'dark'
+                            ? Colors.white
+                            : Colors.black,
                     width: 1.0,
                   )
                 : BorderSide(
@@ -83,7 +84,7 @@ class KanjiHelper {
           character,
         ),
       );
-    } else
+    } else {
       return Container(
         decoration: BoxDecoration(
           border: Border(
@@ -96,9 +97,10 @@ class KanjiHelper {
             right: pitchAccent[position + 1] == 'L' ||
                     pitchAccent[position + 1] == 'l'
                 ? BorderSide(
-                    color: getIt<SharedPref>().prefs.getString('theme') == 'dark'
-                        ? Colors.white
-                        : Colors.black,
+                    color:
+                        getIt<SharedPref>().prefs.getString('theme') == 'dark'
+                            ? Colors.white
+                            : Colors.black,
                     width: 1.0,
                   )
                 : BorderSide(
@@ -111,6 +113,7 @@ class KanjiHelper {
           character,
         ),
       );
+    }
   }
 
   static Future<List<Widget>> getPitchAccent({
@@ -120,10 +123,9 @@ class KanjiHelper {
     required BuildContext context,
   }) async {
     List<Widget> widgetList = [];
-    List<PitchAccent> pitchFound =
-        await getIt<Dictionary>()
-            .offlineDatabase
-            .searchForPitchAccent(word: slug ?? word ?? '', reading: reading ?? '');
+    List<PitchAccent> pitchFound = await getIt<Dictionary>()
+        .offlineDatabase
+        .searchForPitchAccent(word: slug ?? word ?? '', reading: reading ?? '');
     String pitchAccent;
     PitchAccent pitch;
     try {
@@ -131,14 +133,18 @@ class KanjiHelper {
           element.orthsTxt.contains(word ?? slug ?? reading ?? '') &&
           element.hira == reading);
     } catch (e) {
-      print(e);
+      log('$e');
       return [];
     }
     pitchAccent = pitch.pattsTxt;
-    if ((reading?.length ?? 0) + 1 == pitchAccent.length)
-      for (int i = 0; i < (reading?.length ?? 0); i++)
+    if ((reading?.length ?? 0) + 1 == pitchAccent.length) {
+      for (int i = 0; i < (reading?.length ?? 0); i++) {
         widgetList.add(getPitchForChar(
-            character: reading?[i] ?? '', position: i, pitchAccent: pitchAccent));
+            character: reading?[i] ?? '',
+            position: i,
+            pitchAccent: pitchAccent));
+      }
+    }
     return widgetList;
   }
 
@@ -146,25 +152,26 @@ class KanjiHelper {
       {required String word}) async {
     late List<VietnameseDefinition> vietnameseDefinition;
     try {
-      vietnameseDefinition =
-          await getIt<Dictionary>()
-              .offlineDatabase
-              .searchForVnMeaning(word: word);
+      vietnameseDefinition = await getIt<Dictionary>()
+          .offlineDatabase
+          .searchForVnMeaning(word: word);
     } catch (e) {
-      print('Error searching for vn definition $e');
+      log('Error searching for vn definition $e');
     }
     return vietnameseDefinition;
   }
 
   static Future<List<ExampleSentence>> getExampleSentence(
-      {required String word, required BuildContext context, required String tableName}) async {
+      {required String word,
+      required BuildContext context,
+      required String tableName}) async {
     late List<ExampleSentence> exampleSentence;
     try {
       exampleSentence = await getIt<Dictionary>()
           .offlineDatabase
           .searchForExample(word: word, tableName: tableName);
     } catch (e) {
-      print('Error searching for example $e');
+      log('Error searching for example $e');
     }
     return exampleSentence;
   }

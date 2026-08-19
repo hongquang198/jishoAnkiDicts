@@ -6,14 +6,14 @@ import '../../utils/offline_list_type.dart';
 class CustomDialog extends StatelessWidget {
   final String word;
   final String message;
-  CustomDialog({required this.word, required this.message});
+  const CustomDialog({super.key, required this.word, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0)), //this right here
-      child: Container(
+      child: SizedBox(
         height: 220.0,
         width: 300.0,
         child: Column(

@@ -4,10 +4,10 @@ import '../../../models/offline_word_record.dart';
 
 class CardInfoScreen extends StatefulWidget {
   final OfflineWordRecord offlineWordRecord;
-  CardInfoScreen({required this.offlineWordRecord});
+  const CardInfoScreen({super.key, required this.offlineWordRecord});
 
   @override
-  _CardInfoScreenState createState() => _CardInfoScreenState();
+  State<CardInfoScreen> createState() => _CardInfoScreenState();
 }
 
 class _CardInfoScreenState extends State<CardInfoScreen> {
@@ -43,8 +43,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                  'Word: ${widget.offlineWordRecord.word}'),
+              Text('Word: ${widget.offlineWordRecord.word}'),
             ],
           ),
           Row(
@@ -122,19 +121,19 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Card Type'),
-              Text('${widget.offlineWordRecord.cardType}')
+              Text(widget.offlineWordRecord.cardType)
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Note type'),
-              Text('${widget.offlineWordRecord.noteType}')
+              Text(widget.offlineWordRecord.noteType)
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Deck'), Text('${widget.offlineWordRecord.deck}')],
+            children: [Text('Deck'), Text(widget.offlineWordRecord.deck)],
           ),
         ],
       ),
