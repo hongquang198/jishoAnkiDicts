@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../../../../injection.dart';
 import '../../../../../services/llm_service.dart';
+import '../../bloc/main_search_bloc.dart';
 
 class LlmSearchResultTile extends StatefulWidget {
   final String query;
@@ -49,6 +51,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
   }
 
   void _toggleExpanded() {
+    context.read<MainSearchBloc>().add(ExpandLlmTileEvent(!_isExpanded));
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded && !_hasStartedStream) {

@@ -33,3 +33,8 @@ class SearchForJishoDefinitionEvent extends MainSearchEvent {
 }
 
 class TriggerAnimationEvent extends MainSearchEvent {}
+
+class ExpandLlmTileEvent extends MainSearchEvent {
+  final bool expanded;
+  const ExpandLlmTileEvent(this.expanded);
+}

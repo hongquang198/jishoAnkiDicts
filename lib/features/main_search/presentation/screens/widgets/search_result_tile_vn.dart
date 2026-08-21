@@ -87,7 +87,8 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
   Widget build(BuildContext context) {
     return CommonAnimatedListItem(
       animationDuration: widget.animationDuration,
-      child: InkWell(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
           context.pushNamed(
@@ -239,10 +240,17 @@ class WordHanVietReadingWidget extends StatefulWidget {
 
 class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
   bool postFrame = false;
+  late String hanvietDisplayStr;
 
   @override
   void initState() {
     super.initState();
+    hanvietDisplayStr = widget.hanViet.length > 5
+        ? widget.hanViet
+            .sublist(0, min(widget.hanViet.length, 4))
+            .join(' ')
+            .toUpperCase()
+        : widget.hanViet.join(' ').toUpperCase();
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
           postFrame = true;
         }));
@@ -250,34 +258,17 @@ class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.hanViet.length > 5) {
-      return LayoutBuilder(builder: (context, constraints) {
-        return CommonAnimatedListItem(
-          animationDuration: const Duration(milliseconds: 400),
-          child: SelectableText(
-            widget.hanViet
-                .sublist(0, min(widget.hanViet.length, 4))
-                .join(' ')
-                .toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-        );
-      });
-    }
     return Expanded(
-      child: LayoutBuilder(builder: (context, constraints) {
-        return CommonAnimatedListItem(
-          animationDuration: const Duration(milliseconds: 400),
-          child: SelectableText(
-            widget.hanViet.join(' ').toUpperCase(),
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(overflow: TextOverflow.ellipsis),
-          ),
-        );
-      }),
-    );
+        child: CommonAnimatedListItem(
+      animationDuration: const Duration(milliseconds: 400),
+      child: Text(
+        hanvietDisplayStr,
+        style: Theme.of(context)
+            .textTheme
+            .labelSmall
+            ?.copyWith(overflow: TextOverflow.ellipsis),
+      ),
+    ));
   }
 }
 

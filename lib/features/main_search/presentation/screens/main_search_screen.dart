@@ -22,7 +22,7 @@ import 'package:jisho_anki/features/main_search/presentation/screens/widgets/en_
 class MainSearchScreenConst {
   static const bodyPadding = EdgeInsets.only(
     left: 8.0,
-    top: 15.0,
+    top: 4.0,
     right: 8.0,
   );
 }
@@ -61,6 +61,7 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     tabController = TabController(
       initialIndex: 0,
       length: 2,
@@ -125,8 +126,7 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   }
 
   bool isNumericCharacter(String input) {
-    final result =
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+    final result = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
     return result;
   }
 
@@ -166,6 +166,7 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
         builder: (context, theme, child) => SafeArea(
+              bottom: false,
               child: Scaffold(
                 drawer: NavBar(
                   textEditingController: textEditingController,
@@ -231,34 +232,42 @@ class _MainSearchScreenState extends State<MainSearchScreen>
                   padding: MainSearchScreenConst.bodyPadding,
                   child: const _Body(),
                 ),
-                bottomNavigationBar: SafeArea(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
-                    decoration: BoxDecoration(
-                      color: Color(0xffDB8C8A).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(15.0),
+                bottomNavigationBar:
+                    BlocBuilder<MainSearchBloc, MainSearchState>(
+                        builder: (context, state) {
+                  if (state.data.llmTileExpanded) {
+                    return const SizedBox.shrink();
+                  }
+                  return SafeArea(
+                    bottom: false,
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
+                      decoration: BoxDecoration(
+                        color: Color(0xffDB8C8A).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: TabBar(
+                        controller: tabController,
+                        indicatorColor: Colors.black,
+                        onTap: (index) async {
+                          if (index == 0) {
+                            await context.pushNamed(AppRoutesPath.history);
+                            tabController.animateTo(1);
+                            return;
+                          }
+                          if (index == 1) {
+                            textEditingController.clear();
+                            focusNode.requestFocus();
+                          }
+                        },
+                        tabs: const [
+                          Tab(icon: Icon(Icons.history)),
+                          Tab(icon: Icon(Icons.search)),
+                        ],
+                      ),
                     ),
-                    child: TabBar(
-                      controller: tabController,
-                      indicatorColor: Colors.black,
-                      onTap: (index) async {
-                        if (index == 0) {
-                          await context.pushNamed(AppRoutesPath.history);
-                          tabController.animateTo(1);
-                          return;
-                        }
-                        if (index == 1) {
-                          textEditingController.clear();
-                          focusNode.requestFocus();
-                        }
-                      },
-                      tabs: const [
-                        Tab(icon: Icon(Icons.history)),
-                        Tab(icon: Icon(Icons.search)),
-                      ],
-                    ),
-                  ),
-                ),
+                  );
+                }),
               ),
             ));
   }

@@ -5,28 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "jishoAnkiDicts (debug)",
+            "name": "debug",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "jishoAnkiDicts (no-build)",
+            "name": "debug no-buil",
             "request": "launch",
             "type": "dart",
             "args": [
-                "--use-application-binary=.vscode/app-debug.apk",
+                "--use-application-binary=build/app/outputs/apk/debug/app-debug.apk",
             ],
             "flutterMode": "debug"
         },
         {
-            "name": "jishoAnkiDicts (profile mode)",
+            "name": "profile",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "jishoAnkiDicts (release mode)",
+            "name": "release mode",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

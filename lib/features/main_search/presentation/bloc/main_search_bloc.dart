@@ -36,12 +36,12 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     on<SearchForHanVietEvent>(_onSearchForHanViet);
     on<SearchForJishoDefinitionEvent>(_onSearchForJishoDefinition);
     on<TriggerAnimationEvent>(_onTriggerAnimation);
+    on<ExpandLlmTileEvent>(_onExpandLlmTile);
   }
 
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
-    final isAppInVietnamese =
-        getIt<SharedPref>().isAppInVietnamese;
+    final isAppInVietnamese = getIt<SharedPref>().isAppInVietnamese;
     emit(MainSearchLoadingState(state.data.copyWith(
       isAppInVietnamese: isAppInVietnamese,
       searchedPhrase: event.phrase,
@@ -69,19 +69,20 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
 
   FutureOr<void> _onSearchForVnDefinition(
       SearchForVnDefinitionEvent event, Emitter<MainSearchState> emit) async {
-      final vnDefinitionEither = await lookForVietnameseDefinition.call(event.phrase);
-      vnDefinitionEither.fold(
-          (failure) => emit(MainSearchFailureState(
-                state.data,
-                failureMessage: failure.properties.toString(),
-              )), (definitionList) {
-        emit(MainSearchLoadedState(
-          state.data.copyWith(
-            vnDictQuery: definitionList,
-          ),
-        ));
-      });
-      add(SearchForHanVietEvent(event.phrase));
+    final vnDefinitionEither =
+        await lookForVietnameseDefinition.call(event.phrase);
+    vnDefinitionEither.fold(
+        (failure) => emit(MainSearchFailureState(
+              state.data,
+              failureMessage: failure.properties.toString(),
+            )), (definitionList) {
+      emit(MainSearchLoadedState(
+        state.data.copyWith(
+          vnDictQuery: definitionList,
+        ),
+      ));
+    });
+    add(SearchForHanVietEvent(event.phrase));
   }
 
   FutureOr<void> _onSearchForHanViet(
@@ -122,8 +123,8 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       Map<String, List<String>> wordToHanVietMap = {}
         ..addAll(state.data.wordToHanVietMap);
       final jishoDefinitionList = state.data.jishoDefinitionList;
-      for (var definition in jishoDefinitionList
-          .sublist(0, min(jishoDefinitionList.length, 5))) {
+      for (var definition in jishoDefinitionList.sublist(
+          0, min(jishoDefinitionList.length, 5))) {
         final hanVietResultEither =
             await lookupHanVietReading.call(definition.japaneseWord);
         hanVietResultEither.fold(
@@ -146,5 +147,13 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     emit(MainSearchLoadingState(const MainSearchStateData()));
     await Future.delayed(const Duration(milliseconds: 40));
     emit(MainSearchLoadedState(oldStateData));
+  }
+
+  FutureOr<void> _onExpandLlmTile(
+    ExpandLlmTileEvent event,
+    Emitter<MainSearchState> emit,
+  ) async {
+    emit(MainSearchLoadedState(
+        state.data.copyWith(llmTileExpanded: event.expanded)));
   }
 }

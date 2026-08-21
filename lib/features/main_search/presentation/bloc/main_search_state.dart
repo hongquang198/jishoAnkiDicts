@@ -7,7 +7,7 @@ class MainSearchStateData {
   final bool isAppInVietnamese;
   final Map<String, List<String>> wordToHanVietMap;
   final String searchedPhrase;
-
+  final bool llmTileExpanded;
   const MainSearchStateData({
     this.grammarPointList = const [],
     this.vnDictQuery = const [],
@@ -15,6 +15,7 @@ class MainSearchStateData {
     this.isAppInVietnamese = false,
     this.wordToHanVietMap = const {},
     this.searchedPhrase = '',
+    this.llmTileExpanded = false,
   });
 
   JishoDefinition? getSpecificJishoDefinition({required String japaneseWord}) =>
@@ -28,6 +29,7 @@ class MainSearchStateData {
     bool? isAppInVietnamese,
     Map<String, List<String>>? wordToHanVietMap,
     String? searchedPhrase,
+    bool? llmTileExpanded,
   }) {
     return MainSearchStateData(
       grammarPointList: grammarPointList ?? this.grammarPointList,
@@ -36,6 +38,7 @@ class MainSearchStateData {
       isAppInVietnamese: isAppInVietnamese ?? this.isAppInVietnamese,
       wordToHanVietMap: wordToHanVietMap ?? this.wordToHanVietMap,
       searchedPhrase: searchedPhrase ?? this.searchedPhrase,
+      llmTileExpanded: llmTileExpanded ?? this.llmTileExpanded,
     );
   }
 
@@ -47,6 +50,7 @@ class MainSearchStateData {
         listEquals(other.vnDictQuery, vnDictQuery) &&
         listEquals(other.jishoDefinitionList, jishoDefinitionList) &&
         other.isAppInVietnamese == isAppInVietnamese &&
+        other.llmTileExpanded == llmTileExpanded &&
         mapEquals(other.wordToHanVietMap, wordToHanVietMap);
   }
 
