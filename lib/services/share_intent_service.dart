@@ -18,14 +18,14 @@ class ShareIntentService {
   Future<void> init() async {
     if (!Platform.isAndroid) return;
 
-    final initialMedia = await ReceiveSharingIntent.getInitialMedia();
+    final initialMedia = await ReceiveSharingIntent.instance.getInitialMedia();
     _emitSharedText(initialMedia);
-    await ReceiveSharingIntent.reset();
+    await ReceiveSharingIntent.instance.reset();
 
     _mediaSubscription =
-        ReceiveSharingIntent.getMediaStream().listen((media) async {
+        ReceiveSharingIntent.instance.getMediaStream().listen((media) async {
       _emitSharedText(media);
-      await ReceiveSharingIntent.reset();
+      await ReceiveSharingIntent.instance.reset();
     });
   }
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tflite/tflite.dart';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -20,16 +19,19 @@ final _whitePaint = Paint()
 final _bgPaint = Paint()..color = Colors.black;
 
 class Recognizer {
-  Future loadModel({required String modelPath, required String labelPath}) {
-    Tflite.close();
-    return Tflite.loadModel(
-      model: modelPath,
-      labels: labelPath,
-    );
+  Future loadModel(
+      {required String modelPath, required String labelPath}) async {
+    // TODO migrate to tflite_flutter
+    // Tflite.close();
+    // return Tflite.loadModel(
+    //   model: modelPath,
+    //   labels: labelPath,
+    // );
   }
 
   dispose() {
-    Tflite.close();
+    // TODO migrate to tflite_flutter
+    // Tflite.close();
   }
 
   Future<Uint8List> previewImage(List<Offset> points) async {
@@ -48,8 +50,9 @@ class Recognizer {
     return _predict(bytes);
   }
 
-  Future _predict(Uint8List bytes) {
-    return Tflite.runModelOnBinary(binary: bytes);
+  Future _predict(Uint8List bytes) async {
+    // TODO migrate to tflite_flutter
+    // return Tflite.runModelOnBinary(binary: bytes);
   }
 
   Future<Uint8List> _imageToByteListUint8(Picture pic, int size) async {

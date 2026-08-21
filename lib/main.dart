@@ -1,4 +1,3 @@
-import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -49,27 +48,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (getIt<SharedPref>().prefs.getBool('enableFloating') == true) {
       if (AppLifecycleState.paused == state) {
-        FloatButtonOverlay.openOverlay(
-          activityName: 'MainActivity',
-          notificationText: 'Floating icon',
-          notificationTitle: 'JishoAnki Dictionary',
-          packageName: 'com.quangpham.JishoAnki',
-          iconPath: file.path,
-          showTransparentCircle: true,
-          iconWidth: 120,
-          iconHeight: 120,
-          transpCircleHeight: 130,
-          transpCircleWidth: 130,
-        );
+        // Open overlay
       } else {
-        FloatButtonOverlay.closeOverlay;
+        // Close overlay
       }
     }
   }
 
   Future<void> initPlatformState() async {
     try {
-      FloatButtonOverlay.checkPermissions;
+      // Check float button overlay permission
     } on PlatformException {
       // Permission check failed or not supported on this platform.
     }

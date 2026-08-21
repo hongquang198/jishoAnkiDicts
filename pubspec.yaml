@@ -34,17 +34,16 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  tflite:
-    path: dependencies/tflite-1.1.2
+  # TODO: Migrate to tflite_flutter
+  # tflite:
+    # path: dependencies/tflite-1.1.2
   modal_bottom_sheet: 3.0.0-pre
   provider: ^6.0.5
-  float_button_overlay:
-    path: dependencies/float_button_overlay-0.3.4
-  shared_preferences: ^2.0.5
+  shared_preferences: ^2.5.5
   flutter_localizations: # Add this line
     sdk: flutter         # Add this line
   intl: ^0.20.3 # Add this line
-  flutter_widget_from_html: ^0.10.5+3
+  flutter_widget_from_html: ^0.17.2
 
   # Navigation
   go_router: ^11.1.2
@@ -58,10 +57,10 @@ dependencies:
   flutter_bloc: ^8.1.3
   # LLM Integration
   google_generative_ai: ^0.4.0
-  receive_sharing_intent: ^1.6.8
+  receive_sharing_intent: ^1.9.0
 
   html: any
-  package_info_plus: any
+  package_info_plus: ^10.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
