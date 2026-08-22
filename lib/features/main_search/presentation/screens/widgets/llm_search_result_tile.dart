@@ -35,9 +35,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.query != widget.query) {
       _resetStreamState();
-      if (_isExpanded) {
-        _startStreaming();
-      }
+      _startStreaming();
     }
   }
 
@@ -107,6 +105,12 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
         }
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startStreaming());
   }
 
   @override

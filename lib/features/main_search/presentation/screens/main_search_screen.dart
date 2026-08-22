@@ -83,12 +83,6 @@ class _MainSearchScreenState extends State<MainSearchScreen>
       if (!mounted) return;
 
       textEditingController.text = sharedText;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Shared text received: $sharedText'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
     });
   }
 
@@ -135,6 +129,10 @@ class _MainSearchScreenState extends State<MainSearchScreen>
         Timer.periodic(const Duration(milliseconds: 300), (timer) async {
       final newClipboard = await Clipboard.getData(Clipboard.kTextPlain);
       if (newClipboard?.text != null && newClipboard!.text != clipboard) {
+        if (mounted) {
+          Navigator.of(context).popUntil(
+              (route) => route.settings.name == AppRoutesPath.mainScreen);
+        }
         clipboard = newClipboard.text!;
         textEditingController.text = clipboard;
         await _search();

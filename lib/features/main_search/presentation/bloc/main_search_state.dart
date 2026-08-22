@@ -51,6 +51,7 @@ class MainSearchStateData {
         listEquals(other.jishoDefinitionList, jishoDefinitionList) &&
         other.isAppInVietnamese == isAppInVietnamese &&
         other.llmTileExpanded == llmTileExpanded &&
+        other.searchedPhrase == searchedPhrase &&
         mapEquals(other.wordToHanVietMap, wordToHanVietMap);
   }
 
@@ -60,6 +61,7 @@ class MainSearchStateData {
         vnDictQuery.hashCode ^
         jishoDefinitionList.hashCode ^
         isAppInVietnamese.hashCode ^
+        searchedPhrase.hashCode ^
         wordToHanVietMap.hashCode;
   }
 }

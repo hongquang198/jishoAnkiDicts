@@ -143,6 +143,9 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
     TriggerAnimationEvent event,
     Emitter<MainSearchState> emit,
   ) async {
+    // When popping screen from clipboard trigger
+    // Triggering both search event and animation causing race condition
+    await Future.delayed(const Duration(milliseconds: 40));
     final oldStateData = state.data;
     emit(MainSearchLoadingState(const MainSearchStateData()));
     await Future.delayed(const Duration(milliseconds: 40));
