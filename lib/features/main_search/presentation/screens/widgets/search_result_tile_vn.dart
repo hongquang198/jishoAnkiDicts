@@ -240,21 +240,21 @@ class WordHanVietReadingWidget extends StatefulWidget {
 
 class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
   bool postFrame = false;
-  late String hanvietDisplayStr;
 
   @override
   void initState() {
     super.initState();
-    hanvietDisplayStr = widget.hanViet.length > 5
-        ? widget.hanViet
-            .sublist(0, min(widget.hanViet.length, 4))
-            .join(' ')
-            .toUpperCase()
-        : widget.hanViet.join(' ').toUpperCase();
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
           postFrame = true;
         }));
   }
+
+  String get hanvietDisplayStr => widget.hanViet.length > 5
+      ? widget.hanViet
+          .sublist(0, min(widget.hanViet.length, 4))
+          .join(' ')
+          .toUpperCase()
+      : widget.hanViet.join(' ').toUpperCase();
 
   @override
   Widget build(BuildContext context) {
