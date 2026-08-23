@@ -25,6 +25,9 @@ class GrammarPointScreen extends StatefulWidget {
 class _GrammarPointScreenState extends State<GrammarPointScreen> {
   late Future<List<Kanji>> kanjiList;
 
+  Divider get divider =>
+      Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
+
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.isNotEmpty) {
       return Text(
@@ -101,7 +104,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
               style: TextStyle(fontSize: Constants.definitionTextSize),
             ),
           ),
-          Divider(),
+          divider,
           Text(
             'Examples',
             style: TextStyle(
@@ -113,7 +116,7 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           ExampleSentenceWidget(
             exampleSentence: getGrammarExamples(),
           ),
-          Divider(),
+          divider,
           Text(
             'Components',
             style: TextStyle(

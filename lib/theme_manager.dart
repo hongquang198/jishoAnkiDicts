@@ -20,7 +20,7 @@ class ThemeNotifier with ChangeNotifier {
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       foregroundColor: Color(0xFF212121),
     ),
-    dividerColor: Colors.black12,
+    dividerColor: Colors.white12,
   );
 
   final lightTheme = ThemeData(

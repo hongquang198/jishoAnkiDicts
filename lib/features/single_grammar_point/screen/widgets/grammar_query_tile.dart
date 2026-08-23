@@ -22,7 +22,7 @@ class GrammarQueryTile extends StatefulWidget {
 
 class _GrammarQueryTileState extends State<GrammarQueryTile> {
   bool postFrame = false;
-  Divider get divider => Divider(thickness: 0.4);
+  Divider get divider => Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
   @override
   void initState() {

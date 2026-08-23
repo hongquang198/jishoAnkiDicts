@@ -56,7 +56,8 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
   late VietnameseDefinition vnDefinition;
   late OfflineWordRecord offlineWordRecord;
   late String currentJapaneseWord;
-
+  Divider get divider =>
+      Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
   @override
   void initState() {
     super.initState();
@@ -260,7 +261,7 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
             senses: jishoDefinition.senses,
             vietnameseDefinition: vnDefinition.definition,
           ),
-          Divider(),
+          divider,
           Text(
             'Examples',
             style: TextStyle(
@@ -288,7 +289,7 @@ class _SavedDefinitionScreenState extends State<SavedDefinitionScreen> {
                   return SizedBox();
                 }
               }),
-          Divider(),
+          divider,
           Text(
             'Components',
             style: TextStyle(

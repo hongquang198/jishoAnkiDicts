@@ -43,6 +43,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
   late Future<List<ExampleSentence>> enExampleSentence;
   late Future<List<ExampleSentence>> vnExampleSentence;
 
+  Divider get divider =>
+      Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
+
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.isNotEmpty) {
       return Text(
@@ -315,7 +318,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           ),
           SizedBox(height: 8),
           if (showAll == true) getDefinitionWidget(),
-          Divider(),
+          divider,
           showAll == true
               ? Center(
                   child: Text(
@@ -349,7 +352,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       }),
                 )
               : SizedBox(),
-          Divider(),
+          divider,
           showAll == true
               ? Center(
                   child: Text(
@@ -534,7 +537,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   }
                   if (currentCard.interval <
                       steps[steps.length - 1] * 60 * 1000) {
-
                     for (int i = 0; i < steps.length; i++) {
                       if (currentCard.interval < steps[i] * 60 * 1000) {
                         currentCard = currentCard.copyWith(

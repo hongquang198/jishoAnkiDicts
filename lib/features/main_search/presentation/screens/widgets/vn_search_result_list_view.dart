@@ -27,7 +27,7 @@ class VnSearchResultListView extends StatefulWidget {
 class _VnSearchResultListViewState extends State<VnSearchResultListView>
     with RouteAware {
   List<Widget> searchResults = [];
-  Divider get divider => Divider(thickness: 0.4);
+  Divider get divider => Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
   @override
   void initState() {

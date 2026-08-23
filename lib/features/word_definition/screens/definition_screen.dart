@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
-
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
@@ -71,6 +70,8 @@ class _DefinitionScreenState extends State<DefinitionScreen>
   late OfflineWordRecord offlineWordRecord;
   late String currentJapaneseWord;
 
+  Divider get divider =>
+      Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
   Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
     if (partsOfSpeech.isNotEmpty) {
       return Text(
@@ -285,7 +286,7 @@ class _DefinitionScreenState extends State<DefinitionScreen>
             senses: jishoDefinition.senses,
             vietnameseDefinition: vnDefinition.definition,
           ),
-          Divider(),
+          divider,
           Text(
             'Examples',
             style: TextStyle(
@@ -313,7 +314,7 @@ class _DefinitionScreenState extends State<DefinitionScreen>
                   return SizedBox();
                 }
               }),
-          Divider(),
+          divider,
           Text(
             'Components',
             style: TextStyle(

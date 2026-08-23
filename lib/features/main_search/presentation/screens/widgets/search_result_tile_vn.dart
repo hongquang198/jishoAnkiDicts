@@ -41,7 +41,7 @@ class SearchResultTileVn extends StatefulWidget {
 class _SearchResultTileVnState extends State<SearchResultTileVn>
     with GetWordViewCountMixin {
   bool postFrame = false;
-  Divider get divider => Divider(thickness: 0.4);
+  Divider get divider => Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
   @override
   void initState() {
