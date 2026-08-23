@@ -1,6 +1,6 @@
 import 'package:jisho_anki/common/widgets/common_query_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'dart:async';
 
 import '../../../injection.dart';
@@ -13,7 +13,7 @@ import '../../../utils/constants.dart';
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
   @override
-  _FavoriteScreenState createState() => _FavoriteScreenState();
+  State<FavoriteScreen> createState() => _FavoriteScreenState();
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
@@ -52,26 +52,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           ),
           itemCount: getIt<Dictionary>().favorite.length,
           itemBuilder: (BuildContext context, int index) {
-            List<OfflineWordRecord> favorite =
-                getIt<Dictionary>().favorite;
+            List<OfflineWordRecord> favorite = getIt<Dictionary>().favorite;
             favorite = favorite.reversed.toList();
 
             return FutureBuilder<VietnameseDefinition>(
-                future: getVietnameseDefinition(
-                    favorite[index].japaneseWord),
+                future: getVietnameseDefinition(favorite[index].japaneseWord),
                 builder: (context, snapshot) {
-                  if (snapshot.data == null)
+                  if (snapshot.data == null) {
                     return CommonQueryTile(
                       hanViet: KanjiHelper.getHanvietReading(
-                          word: favorite[index].japaneseWord,
-                        ),
+                        word: favorite[index].japaneseWord,
+                      ),
                       vnDefinition: null,
                       jishoDefinition: favorite[index].toJishoDefinition,
                     );
+                  }
                   return CommonQueryTile(
                     hanViet: KanjiHelper.getHanvietReading(
-                        word: favorite[index].japaneseWord,
-                      ),
+                      word: favorite[index].japaneseWord,
+                    ),
                     vnDefinition: snapshot.data,
                     jishoDefinition: favorite[index].toJishoDefinition,
                   );

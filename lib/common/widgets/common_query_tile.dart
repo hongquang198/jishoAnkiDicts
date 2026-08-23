@@ -21,7 +21,8 @@ class CommonQueryTile extends StatefulWidget {
   final Future<List<String>> hanViet;
   final bool loadingDefinition;
 
-  CommonQueryTile({
+  const CommonQueryTile({
+    super.key,
     required this.hanViet,
     this.vnDefinition,
     this.jishoDefinition,
@@ -29,7 +30,7 @@ class CommonQueryTile extends StatefulWidget {
   });
 
   @override
-  _CommonQueryTileState createState() => _CommonQueryTileState();
+  State<CommonQueryTile> createState() => _CommonQueryTileState();
 }
 
 class _CommonQueryTileState extends State<CommonQueryTile> {
@@ -45,10 +46,10 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
 
   parseVnDefHtmlWidget(String htmlString) {
     var document = parse(htmlString);
-    var listList = document.querySelectorAll("li");
+    var listList = document.querySelectorAll('li');
 
     for (dom.Element list in listList) {
-      if (list.attributes["class"] == "nv_a") {
+      if (list.attributes['class'] == 'nv_a') {
         return Text(
             list.text.length > 150 ? list.text.substring(0, 150) : list.text,
             style: TextStyle(fontSize: 12));
@@ -60,8 +61,9 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
   getVnDefinitionSummary() {
     if (widget.vnDefinition?.definition == null) {
       return SizedBox();
-    } else
+    } else {
       return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
+    }
   }
 
   @override
@@ -87,8 +89,9 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
               ? FutureBuilder(
                   future: widget.hanViet,
                   builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data!.length == 0)
+                    if (snapshot.data == null || snapshot.data!.isEmpty) {
                       return SizedBox(height: 0);
+                    }
                     return SelectableText(
                       snapshot.data.toString().toUpperCase(),
                       style: TextStyle(fontSize: 12),
@@ -134,8 +137,7 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
           if (widget.jishoDefinition?.senses != null &&
               getIt<SharedPref>().isAppInEnglish)
             Text(
-                widget.jishoDefinition!.senses[0].englishDefinitions
-                        .toString(),
+                widget.jishoDefinition!.senses[0].englishDefinitions.toString(),
                 style: TextStyle(fontSize: 13))
           else
             SizedBox(),
@@ -178,13 +180,17 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                           word: word,
                           reading: widget.jishoDefinition?.reading ?? '',
                           senses: widget.jishoDefinition?.senses ?? const [],
-                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
+                          vietnameseDefinition:
+                              widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
                           due: -1,
                           interval: 0,
-                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
+                          ease: getIt<SharedPref>()
+                                  .prefs
+                                  .getDouble('startingEase') ??
+                              -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -195,13 +201,14 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                         ),
                         context: context);
                   });
-                } else
+                } else {
                   setState(() {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.favorite,
                         context: context,
                         word: widget.jishoDefinition?.japaneseWord ?? '');
                   });
+                }
               },
             ),
           ),
@@ -220,7 +227,6 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                   ? Icon(Icons.alarm_on, color: Color(0xffff8882))
                   : Icon(Icons.alarm_add),
               onPressed: () {
-                print(widget.vnDefinition?.word);
                 if (DbHelper.checkDatabaseExist(
                         offlineListType: OfflineListType.review,
                         word: word,
@@ -238,13 +244,17 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                           word: word,
                           reading: widget.jishoDefinition?.reading ?? '',
                           senses: widget.jishoDefinition?.senses ?? const [],
-                          vietnameseDefinition: widget.vnDefinition?.definition ?? '',
+                          vietnameseDefinition:
+                              widget.vnDefinition?.definition ?? '',
                           added: DateTime.now().millisecondsSinceEpoch,
                           firstReview: null,
                           lastReview: null,
                           due: -1,
                           interval: 0,
-                          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
+                          ease: getIt<SharedPref>()
+                                  .prefs
+                                  .getDouble('startingEase') ??
+                              -1,
                           reviews: 0,
                           lapses: 0,
                           averageTimeMinute: 0,
@@ -255,13 +265,14 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                         ),
                         context: context);
                   });
-                } else
+                } else {
                   setState(() {
                     DbHelper.removeFromOfflineList(
                         offlineListType: OfflineListType.review,
                         context: context,
                         word: word);
                   });
+                }
               },
             ),
           ),
@@ -293,5 +304,4 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
       },
     );
   }
-
 }

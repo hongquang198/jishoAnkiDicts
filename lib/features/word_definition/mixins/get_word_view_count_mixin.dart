@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:collection/collection.dart';
 
 import '../../../core/domain/entities/dictionary.dart';
@@ -16,12 +17,12 @@ mixin GetWordViewCountMixin {
         return elementWord == currentJapaneseWord;
       });
     } catch (e) {
-      print('Word not in history: $e');
+      log('Word not in history: $e');
     }
-    if (found == null)
+    if (found == null) {
       return 0;
-    else
+    } else {
       return found.reviews;
+    }
   }
-
 }

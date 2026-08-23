@@ -36,7 +36,7 @@ class BarLine extends StatelessWidget {
 
   final EdgeInsetsGeometry padding;
   const BarLine(
-      {Key? key,
+      {super.key,
       this.maxHeightPixel = 100,
       this.showNumber = false,
       this.borderRadius,
@@ -47,8 +47,7 @@ class BarLine extends StatelessWidget {
       this.barTitle,
       required this.baseHeight,
       this.barTitleType = BarTitleType.hidden,
-      this.padding = const EdgeInsets.only(left: 15.0, right: 15.0)})
-      : super(key: key);
+      this.padding = const EdgeInsets.only(left: 15.0, right: 15.0)});
   @override
   Widget build(BuildContext context) {
     return Padding(

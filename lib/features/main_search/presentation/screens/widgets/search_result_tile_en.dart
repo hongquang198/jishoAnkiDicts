@@ -16,12 +16,13 @@ import '../../bloc/main_search_bloc.dart';
 class SearchResultTileEn extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
 
-  SearchResultTileEn({
+  const SearchResultTileEn({
+    super.key,
     this.jishoDefinition,
   });
 
   @override
-  _SearchResultTileEnState createState() => _SearchResultTileEnState();
+  State<SearchResultTileEn> createState() => _SearchResultTileEnState();
 }
 
 class _SearchResultTileEnState extends State<SearchResultTileEn> {
@@ -54,7 +55,9 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 8.0,),
+              const SizedBox(
+                width: 8.0,
+              ),
             ],
           ),
         ],
@@ -65,10 +68,10 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
           Wrap(
             children: [
               IsCommonTagsAndJlptWidget(
-                      isCommon: widget.jishoDefinition?.isCommon == true,
-                      tags: widget.jishoDefinition?.tags ?? [],
-                      jlpt: widget.jishoDefinition?.jlpt ?? [],
-                    ),
+                isCommon: widget.jishoDefinition?.isCommon == true,
+                tags: widget.jishoDefinition?.tags ?? [],
+                jlpt: widget.jishoDefinition?.jlpt ?? [],
+              ),
               if (widget.jishoDefinition?.senses != null)
                 Text(
                     widget.jishoDefinition!.senses[0].englishDefinitions
@@ -126,13 +129,14 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
                     ),
                     context: context);
               });
-            } else
+            } else {
               setState(() {
                 DbHelper.removeFromOfflineList(
                     offlineListType: OfflineListType.favorite,
                     context: context,
                     word: widget.jishoDefinition?.japaneseWord ?? '');
               });
+            }
           },
         ),
       ),
@@ -144,13 +148,12 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
             mainSearchBloc: context.read<MainSearchBloc>(),
             jishoDefinition: widget.jishoDefinition,
             isInFavoriteList: DbHelper.checkDatabaseExist(
-                        offlineListType: OfflineListType.favorite,
-                        word: word,
-                        context: context),
+                offlineListType: OfflineListType.favorite,
+                word: word,
+                context: context),
           ),
         );
       },
     );
   }
-
 }

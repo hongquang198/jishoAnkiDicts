@@ -22,86 +22,94 @@ class Dictionary {
 
   int get getNewCardNumber {
     int numberOfNewCards = 0;
-    review.forEach((element) {
+    for (var element in review) {
       if (element.reviews == 0) numberOfNewCards++;
-    });
+    }
     return numberOfNewCards;
   }
 
   int get getLearnedCardNumber {
     int numberOfLearnedCards = 0;
-    List<int> newCardsStep = getIt<SharedPref>().prefs
-        .getStringList('newCardsSteps')
-        ?.map((e) => int.parse(e))
-        .toList() ?? [];
+    List<int> newCardsStep = getIt<SharedPref>()
+            .prefs
+            .getStringList('newCardsSteps')
+            ?.map((e) => int.parse(e))
+            .toList() ??
+        [];
 
-    review.forEach((element) {
+    for (var element in review) {
       if (element.reviews != 0) {
         if (element.interval <=
-            newCardsStep[newCardsStep.length - 1] * 60 * 1000)
+            newCardsStep[newCardsStep.length - 1] * 60 * 1000) {
           numberOfLearnedCards++;
+        }
       }
-    });
+    }
     return numberOfLearnedCards;
   }
 
   int get getYoungCardNumber {
     int numberOfYoungCards = 0;
 
-    review.forEach((element) {
+    for (var element in review) {
       if (element.reviews != 0) {
         if (element.interval <= 21 * 24 * 60 * 60 * 1000 &&
-            element.due < DateTime.now().millisecondsSinceEpoch)
+            element.due < DateTime.now().millisecondsSinceEpoch) {
           numberOfYoungCards++;
+        }
       }
-    });
+    }
     return numberOfYoungCards;
   }
 
   int get getDueCardNumber {
     int numberOfDueCards = 0;
-    List<int> newCardsStep = getIt<SharedPref>().prefs
-        .getStringList('newCardsSteps')
-        ?.map((e) => int.parse(e))
-        .toList() ?? [];
-    review.forEach((element) {
-      print(
-          element.interval - newCardsStep[newCardsStep.length - 1] * 60 * 1000);
+    List<int> newCardsStep = getIt<SharedPref>()
+            .prefs
+            .getStringList('newCardsSteps')
+            ?.map((e) => int.parse(e))
+            .toList() ??
+        [];
+    for (var element in review) {
       if (element.interval >
               newCardsStep[newCardsStep.length - 1] * 60 * 1000 &&
-          element.due < DateTime.now().millisecondsSinceEpoch)
+          element.due < DateTime.now().millisecondsSinceEpoch) {
         numberOfDueCards++;
-    });
+      }
+    }
     return numberOfDueCards;
   }
 
   int get getMatureCardNumber {
     int numberOfMatureCards = 0;
-    review.forEach((element) {
+    for (var element in review) {
       if (element.interval > 21 * 24 * 60 * 60 * 1000 &&
-          element.due < DateTime.now().millisecondsSinceEpoch)
+          element.due < DateTime.now().millisecondsSinceEpoch) {
         numberOfMatureCards++;
-    });
+      }
+    }
     return numberOfMatureCards;
   }
 
   int get getDifficultCardNumber {
     int lapses = 0;
-    review.forEach((element) {
+    for (var element in review) {
       if (element.lapses > 5) lapses++;
-    });
+    }
     return lapses;
   }
 
   List<OfflineWordRecord> get getCards {
-    List<int> newCardsStep = getIt<SharedPref>().prefs
-        .getStringList('newCardsSteps')
-        ?.map((e) => int.parse(e))
-        .toList() ?? [];
+    List<int> newCardsStep = getIt<SharedPref>()
+            .prefs
+            .getStringList('newCardsSteps')
+            ?.map((e) => int.parse(e))
+            .toList() ??
+        [];
     List<OfflineWordRecord> dueCards = [];
     List<OfflineWordRecord> newCards = [];
     int dueNumber = 0;
-    review.forEach((element) {
+    for (var element in review) {
       if (element.reviews == 0) {
         // print('new ${element.word}');
         newCards.add(element);
@@ -114,18 +122,18 @@ class Dictionary {
         dueCards.add(element);
         // print('due-date<steps ${element.word}');
       }
-    });
+    }
 
     dueCards.sort((a, b) => a.due.compareTo(b.due));
     // Add new cards to the end of due cards
-    newCards.forEach((element) {
+    for (var element in newCards) {
       dueCards.add(element);
-    });
+    }
 
     if (dueNumber == 0) {
-      dueCards.forEach((element) {
+      for (var element in dueCards) {
         newCards.add(element);
-      });
+      }
       return newCards;
     }
     return dueCards;

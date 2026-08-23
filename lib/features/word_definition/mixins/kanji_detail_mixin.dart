@@ -4,7 +4,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '../../../models/kanji.dart';
 
 mixin KanjiDetailMixin {
-    Future<dynamic> showKanjiDetails(BuildContext context, {required Kanji kanji}) {
+  Future<dynamic> showKanjiDetails(BuildContext context,
+      {required Kanji kanji}) {
     return showCupertinoModalBottomSheet(
       expand: true,
       context: context,
@@ -24,7 +25,7 @@ mixin KanjiDetailMixin {
                         horizontal: 5.0,
                       ),
                       child: Text(
-                        "${kanji.kanji ?? ''}",
+                        kanji.kanji ?? '',
                         style: TextStyle(
                           fontSize: 120.0,
                         ),
@@ -83,7 +84,7 @@ mixin KanjiDetailMixin {
                 Row(
                   children: [
                     Text(
-                      "Hán việt: ",
+                      'Hán việt: ',
                       style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold,
@@ -92,7 +93,7 @@ mixin KanjiDetailMixin {
                     ),
                     Card(
                       child: Text(
-                        "${kanji.hanViet ?? ''}",
+                        kanji.hanViet ?? '',
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -107,7 +108,7 @@ mixin KanjiDetailMixin {
                 Row(
                   children: [
                     Text(
-                      "Keyword: ",
+                      'Keyword: ',
                       style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold,
@@ -116,7 +117,7 @@ mixin KanjiDetailMixin {
                     ),
                     Card(
                       child: Text(
-                        "${kanji.keyword ?? ''}",
+                        kanji.keyword ?? '',
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,

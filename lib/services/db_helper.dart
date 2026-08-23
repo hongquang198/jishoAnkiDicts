@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -96,7 +98,7 @@ class DbHelper {
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'favorite');
-        print('Added to favorite list successfully');
+        log('Added to favorite list successfully');
       }
     } else if (offlineListType == OfflineListType.review) {
       if (!checkDatabaseExist(
@@ -110,7 +112,7 @@ class DbHelper {
             .offlineDatabase
             .insertWord(
                 offlineWordRecord: offlineWordRecord, tableName: 'review');
-        print('Added to review list successfully');
+        log('Added to review list successfully');
       }
     }
   }

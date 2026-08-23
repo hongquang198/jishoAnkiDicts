@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class DefinitionTags extends StatelessWidget {
   final List<String> tags;
   final Color color;
-  DefinitionTags({required this.tags, required this.color});
+  const DefinitionTags({super.key, required this.tags, required this.color});
 
   @override
   Widget build(BuildContext context) {
-    if (tags.length > 0) {
+    if (tags.isNotEmpty) {
       for (int i = 0; i < tags.length;) {
-        return tags[i].length > 0
+        return tags[i].isNotEmpty
             ? Card(
                 margin: const EdgeInsets.only(
                   left: 4.0,
@@ -18,7 +18,7 @@ class DefinitionTags extends StatelessWidget {
                 ),
                 color: color,
                 child: Text(
-                  " ${tags[i]} ",
+                  ' ${tags[i]} ',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 13.0,

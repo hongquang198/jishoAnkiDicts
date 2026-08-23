@@ -34,5 +34,4 @@ class SqfliteFailure extends Failure {
   }) : super(properties: [code, message]);
 }
 
-
 class CacheFailure extends Failure {}

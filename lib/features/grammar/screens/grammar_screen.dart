@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'dart:async';
 
 import '../../../injection.dart';
@@ -12,7 +12,7 @@ import '../../single_grammar_point/screen/widgets/grammar_query_tile.dart';
 class GrammarScreen extends StatefulWidget {
   const GrammarScreen({super.key});
   @override
-  _GrammarScreenState createState() => _GrammarScreenState();
+  State<GrammarScreen> createState() => _GrammarScreenState();
 }
 
 class _GrammarScreenState extends State<GrammarScreen> {
@@ -91,7 +91,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
                           });
                         },
                       ),
-                      hintText: "Search grammar point",
+                      hintText: 'Search grammar point',
                       hintStyle: TextStyle(color: Constants.appBarTextColor),
                       labelStyle: TextStyle(color: Constants.appBarTextColor),
                       border: InputBorder.none,

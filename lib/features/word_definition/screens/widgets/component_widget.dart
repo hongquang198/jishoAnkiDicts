@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 import '../../../../core/data/datasources/shared_pref.dart';
 import '../../../../injection.dart';
@@ -9,7 +9,7 @@ import '/utils/constants.dart';
 
 class ComponentWidget extends StatelessWidget {
   final Future<List<Kanji>> kanjiComponent;
-  ComponentWidget({required this.kanjiComponent});
+  const ComponentWidget({super.key, required this.kanjiComponent});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,8 @@ class SingleKanjiComponentWidget extends StatefulWidget {
   });
 
   @override
-  State<SingleKanjiComponentWidget> createState() => _SingleKanjiComponentWidgetState();
+  State<SingleKanjiComponentWidget> createState() =>
+      _SingleKanjiComponentWidgetState();
 }
 
 class _SingleKanjiComponentWidgetState extends State<SingleKanjiComponentWidget>
@@ -86,7 +87,7 @@ class _SingleKanjiComponentWidgetState extends State<SingleKanjiComponentWidget>
           ),
           title: Text(
             getIt<SharedPref>().isAppInVietnamese
-                ? (widget.kanji.kanji ?? '') + ' ' + (widget.kanji.hanViet ?? '')
+                ? '${widget.kanji.kanji ?? ''} ${widget.kanji.hanViet ?? ''}'
                 : (widget.kanji.kanji ?? ''),
             style: TextStyle(
               fontWeight: FontWeight.bold,

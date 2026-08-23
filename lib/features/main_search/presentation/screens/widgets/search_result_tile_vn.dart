@@ -26,7 +26,8 @@ class SearchResultTileVn extends StatefulWidget {
   final List<String> hanViet;
   final Duration animationDuration;
 
-  SearchResultTileVn({
+  const SearchResultTileVn({
+    super.key,
     this.hanViet = const [],
     this.vnDefinition,
     this.jishoDefinition,
@@ -34,10 +35,11 @@ class SearchResultTileVn extends StatefulWidget {
   });
 
   @override
-  _SearchResultTileVnState createState() => _SearchResultTileVnState();
+  State<SearchResultTileVn> createState() => _SearchResultTileVnState();
 }
 
-class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordViewCountMixin {
+class _SearchResultTileVnState extends State<SearchResultTileVn>
+    with GetWordViewCountMixin {
   bool postFrame = false;
   Divider get divider => Divider(thickness: 0.4);
 
@@ -48,6 +50,7 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
           postFrame = true;
         }));
   }
+
   String get word {
     if (widget.vnDefinition?.word.isNotEmpty == true) {
       return widget.vnDefinition!.word;
@@ -60,10 +63,10 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
 
   parseVnDefHtmlWidget(String htmlString) {
     var document = parse(htmlString);
-    var listList = document.querySelectorAll("li");
+    var listList = document.querySelectorAll('li');
 
     for (dom.Element list in listList) {
-      if (list.attributes["class"] == "nv_a") {
+      if (list.attributes['class'] == 'nv_a') {
         return Text(
             list.text.length > 150 ? list.text.substring(0, 150) : list.text,
             style: TextStyle(fontSize: 12));
@@ -75,15 +78,17 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
   getVnDefinitionSummary() {
     if (widget.vnDefinition?.definition == null) {
       return SizedBox();
-    } else
+    } else {
       return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return CommonAnimatedListItem(
-        animationDuration: widget.animationDuration,
-        child: InkWell(
+      animationDuration: widget.animationDuration,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
           context.pushNamed(
@@ -116,19 +121,20 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         HiraganaReadingWidget(
-                          key: Key(widget.jishoDefinition.hashCode.toString()),
+                            key:
+                                Key(widget.jishoDefinition.hashCode.toString()),
                             jishoDefinition: widget.jishoDefinition),
                         if (widget.hanViet.length > 5)
-                        WordHanVietReadingWidget(hanViet: widget.hanViet),
+                          WordHanVietReadingWidget(hanViet: widget.hanViet),
                         Row(
                           children: [
                             Text(
                               word.substring(0, min(word.length, 12)),
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  overflow: TextOverflow.ellipsis,
-                                  fontSize: 18,
-                                ),
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 18,
+                              ),
                             ),
                             const SizedBox(
                               width: 8.0,
@@ -166,14 +172,19 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
                                 offlineListType: OfflineListType.favorite,
                                 offlineWordRecord: OfflineWordRecord(
                                   slug: word,
-                                  isCommon: widget.jishoDefinition?.isCommon == true
-                                      ? 1
-                                      : 0,
-                                  tags: widget.jishoDefinition?.tags ?? const [],
-                                  jlpt: widget.jishoDefinition?.jlpt ?? const [],
+                                  isCommon:
+                                      widget.jishoDefinition?.isCommon == true
+                                          ? 1
+                                          : 0,
+                                  tags:
+                                      widget.jishoDefinition?.tags ?? const [],
+                                  jlpt:
+                                      widget.jishoDefinition?.jlpt ?? const [],
                                   word: word,
-                                  reading: widget.jishoDefinition?.reading ?? '',
-                                  senses: widget.jishoDefinition?.senses ?? const [],
+                                  reading:
+                                      widget.jishoDefinition?.reading ?? '',
+                                  senses: widget.jishoDefinition?.senses ??
+                                      const [],
                                   vietnameseDefinition:
                                       widget.vnDefinition?.definition ?? '',
                                   added: DateTime.now().millisecondsSinceEpoch,
@@ -195,13 +206,15 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
                                 ),
                                 context: context);
                           });
-                        } else
+                        } else {
                           setState(() {
                             DbHelper.removeFromOfflineList(
                                 offlineListType: OfflineListType.favorite,
                                 context: context,
-                                word: widget.jishoDefinition?.japaneseWord ?? '');
+                                word:
+                                    widget.jishoDefinition?.japaneseWord ?? '');
                           });
+                        }
                       },
                     ),
                   ),
@@ -214,7 +227,6 @@ class _SearchResultTileVnState extends State<SearchResultTileVn> with GetWordVie
       ),
     );
   }
-
 }
 
 class WordHanVietReadingWidget extends StatefulWidget {
@@ -222,15 +234,23 @@ class WordHanVietReadingWidget extends StatefulWidget {
   const WordHanVietReadingWidget({super.key, required this.hanViet});
 
   @override
-  State<WordHanVietReadingWidget> createState() => _WordHanVietReadingWidgetState();
+  State<WordHanVietReadingWidget> createState() =>
+      _WordHanVietReadingWidgetState();
 }
 
 class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
   bool postFrame = false;
+  late String hanvietDisplayStr;
 
   @override
   void initState() {
     super.initState();
+    hanvietDisplayStr = widget.hanViet.length > 5
+        ? widget.hanViet
+            .sublist(0, min(widget.hanViet.length, 4))
+            .join(' ')
+            .toUpperCase()
+        : widget.hanViet.join(' ').toUpperCase();
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
           postFrame = true;
         }));
@@ -238,38 +258,17 @@ class _WordHanVietReadingWidgetState extends State<WordHanVietReadingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.hanViet.length > 5) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return CommonAnimatedListItem(
-            animationDuration: const Duration(milliseconds: 400),
-            child: SelectableText(
-              widget.hanViet
-                  .sublist(0, min(widget.hanViet.length, 4))
-                  .join(' ')
-                  .toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          );
-        }
-      );
-    }
     return Expanded(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return CommonAnimatedListItem(
-            animationDuration: const Duration(milliseconds: 400),
-            child: SelectableText(
-              widget.hanViet.join(' ').toUpperCase(),
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
-                  ?.copyWith(overflow: TextOverflow.ellipsis),
-            ),
-          );
-        }
+        child: CommonAnimatedListItem(
+      animationDuration: const Duration(milliseconds: 400),
+      child: Text(
+        hanvietDisplayStr,
+        style: Theme.of(context)
+            .textTheme
+            .labelSmall
+            ?.copyWith(overflow: TextOverflow.ellipsis),
       ),
-    );
+    ));
   }
 }
 
@@ -291,17 +290,18 @@ class _HiraganaReadingWidgetState extends State<HiraganaReadingWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) => setState(() {
-      postFrame = true;
-    }));
+          postFrame = true;
+        }));
   }
+
   @override
   Widget build(BuildContext context) {
     if (widget.jishoDefinition?.reading == null) {
       return const SizedBox.shrink();
     }
     return CommonAnimatedListItem(
-        animationDuration: const Duration(milliseconds: 600),
-        child: Text(
+      animationDuration: const Duration(milliseconds: 600),
+      child: Text(
         widget.jishoDefinition?.reading ?? '',
         style: TextStyle(fontSize: 11),
       ),

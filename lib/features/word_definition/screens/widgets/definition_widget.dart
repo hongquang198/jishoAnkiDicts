@@ -11,7 +11,7 @@ import '/utils/constants.dart';
 class DefinitionWidget extends StatelessWidget {
   final String? vietnameseDefinition;
   final List<JishoWordSense>? senses;
-  DefinitionWidget({this.vietnameseDefinition, this.senses});
+  const DefinitionWidget({super.key, this.vietnameseDefinition, this.senses});
 
   getVnDefinitionWidget() {
     List<String> example = [];
@@ -19,13 +19,13 @@ class DefinitionWidget extends StatelessWidget {
 
     var document = parse(vietnameseDefinition);
 
-    var fontList = document.querySelectorAll("font");
+    var fontList = document.querySelectorAll('font');
 
-    var imgList = document.querySelectorAll("img");
+    var imgList = document.querySelectorAll('img');
 
-    var pList = document.querySelectorAll("p");
+    var pList = document.querySelectorAll('p');
 
-    var brList = document.querySelectorAll("br");
+    var brList = document.querySelectorAll('br');
 
     for (dom.Element br in brList) {
       br.remove();
@@ -36,19 +36,19 @@ class DefinitionWidget extends StatelessWidget {
     }
 
     for (dom.Element p in pList) {
-      if (p.attributes["class"] == "nv_a") p.remove();
+      if (p.attributes['class'] == 'nv_a') p.remove();
     }
     for (dom.Element font in fontList) {
       // word type
-      if (font.attributes["color"] == '#0066ff') {
-      }
+      if (font.attributes['color'] == '#0066ff') {}
 
       //Example
-      if (font.attributes["color"] == '#144A14') {
+      if (font.attributes['color'] == '#144A14') {
         example.add(font.text);
       }
-      if (getIt<SharedPref>().prefs.getString('theme') == 'dark')
-        font.attributes["color"] = '0xffffff';
+      if (getIt<SharedPref>().prefs.getString('theme') == 'dark') {
+        font.attributes['color'] = '0xffffff';
+      }
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0, right: 15),
@@ -61,13 +61,14 @@ class DefinitionWidget extends StatelessWidget {
               : null,
         ),
         customStylesBuilder: (element) {
-          if (element.className.contains('nv_b'))
+          if (element.className.contains('nv_b')) {
             return {
-              "list-style-type": "upper-roman",
-              "align": "left",
-              "margin-left": "0px",
-              "padding-left": "0px"
+              'list-style-type': 'upper-roman',
+              'align': 'left',
+              'margin-left': '0px',
+              'padding-left': '0px'
             };
+          }
           return null;
         },
       ),
@@ -79,13 +80,13 @@ class DefinitionWidget extends StatelessWidget {
     String definition = '';
     for (int i = 0; i < (senses?.length ?? 0); i++) {
       String definitionAtIndex = senses?[i].toString() ?? '';
-      if (definitionAtIndex.length > 0) {
+      if (definitionAtIndex.isNotEmpty) {
         definitionAtIndex =
             definitionAtIndex.substring(1, definitionAtIndex.length - 1);
         definition = definition + definitionAtIndex;
       }
       if (i != (senses?.length ?? 0) - 1) {
-        definition = definition + '\n\n';
+        definition = '$definition\n\n';
       }
     }
 
@@ -110,10 +111,10 @@ class DefinitionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          senses![index].partsOfSpeech
+          senses![index]
+              .partsOfSpeech
               .toString()
-              .substring(
-                  1, senses![index].partsOfSpeech.toString().length - 1)
+              .substring(1, senses![index].partsOfSpeech.toString().length - 1)
               .toUpperCase(),
           style: TextStyle(fontSize: 12),
         ),

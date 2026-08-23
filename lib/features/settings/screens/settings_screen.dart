@@ -8,20 +8,20 @@ import 'widgets/llm_settings_section.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
   @override
-  _SettingsScreenState createState() => _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String? dropdownValue;
-  GlobalKey _toolTipGraduatingIntervalKey = GlobalKey();
-  GlobalKey _toolTipStartingEaseKey = GlobalKey();
-  GlobalKey _toolTipLeechThresholdKey = GlobalKey();
+  final GlobalKey _toolTipGraduatingIntervalKey = GlobalKey();
+  final GlobalKey _toolTipStartingEaseKey = GlobalKey();
+  final GlobalKey _toolTipLeechThresholdKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -158,9 +158,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AppLocalizations.of(context)!.graduatingInterval),
                           GestureDetector(
                             onTap: () {
-                              final dynamic _toolTip =
+                              final dynamic toolTip =
                                   _toolTipGraduatingIntervalKey.currentState;
-                              _toolTip.ensureTooltipVisible();
+                              toolTip.ensureTooltipVisible();
                             },
                             child: Tooltip(
                                 key: _toolTipGraduatingIntervalKey,
@@ -206,9 +206,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Text(AppLocalizations.of(context)!.startingEase),
                           GestureDetector(
                             onTap: () {
-                              final dynamic _toolTip =
+                              final dynamic toolTip =
                                   _toolTipStartingEaseKey.currentState;
-                              _toolTip.ensureTooltipVisible();
+                              toolTip.ensureTooltipVisible();
                             },
                             child: Tooltip(
                                 key: _toolTipStartingEaseKey,
@@ -254,9 +254,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Text(AppLocalizations.of(context)!.leechThreshold),
                           GestureDetector(
                             onTap: () {
-                              final dynamic _toolTip =
+                              final dynamic toolTip =
                                   _toolTipLeechThresholdKey.currentState;
-                              _toolTip.ensureTooltipVisible();
+                              toolTip.ensureTooltipVisible();
                             },
                             child: Tooltip(
                                 key: _toolTipLeechThresholdKey,

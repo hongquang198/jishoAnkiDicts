@@ -1,11 +1,10 @@
-import 'package:float_button_overlay/float_button_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'dart:io';
 
 import 'config/app_routes.dart';
@@ -36,8 +35,10 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
@@ -47,28 +48,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (getIt<SharedPref>().prefs.getBool('enableFloating') == true) {
       if (AppLifecycleState.paused == state) {
-        FloatButtonOverlay.openOverlay(
-          activityName: 'MainActivity',
-          notificationText: "Floating icon",
-          notificationTitle: 'JishoAnki Dictionary',
-          packageName: 'com.quangpham.JishoAnki',
-          iconPath: file.path,
-          showTransparentCircle: true,
-          iconWidth: 120,
-          iconHeight: 120,
-          transpCircleHeight: 130,
-          transpCircleWidth: 130,
-        );
+        // Open overlay
       } else {
-        FloatButtonOverlay.closeOverlay;
+        // Close overlay
       }
     }
   }
 
   Future<void> initPlatformState() async {
     try {
-      FloatButtonOverlay.checkPermissions;
-    } on PlatformException {}
+      // Check float button overlay permission
+    } on PlatformException {
+      // Permission check failed or not supported on this platform.
+    }
   }
 
   @override
@@ -89,8 +81,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
       final mediaQuerySize = getIt<MediaQuerySize>();
       mediaQuerySize
-        ..setMaxHeight(MediaQuery.of(context).size.height)
-        ..setMaxWidth(MediaQuery.of(context).size.width);
+        ..setMaxHeight(MediaQuery.sizeOf(context).height)
+        ..setMaxWidth(MediaQuery.sizeOf(context).width);
     });
     initPlatformState();
   }

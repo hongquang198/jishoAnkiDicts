@@ -30,16 +30,22 @@ class _CommonAnimatedListItemState extends State<CommonAnimatedListItem> {
         final box = keyContext.findRenderObject() as RenderBox;
         itsHeight = box.size.height;
       }
+      if (!mounted) {
+        return;
+      }
       setState(() {
         height = 0;
       });
       Future.delayed(const Duration(milliseconds: 50), () {
+        if (!mounted) {
+          return;
+        }
         setState(() {
           postFrame = true;
           height = itsHeight;
         });
       });
-  });
+    });
   }
 
   @override

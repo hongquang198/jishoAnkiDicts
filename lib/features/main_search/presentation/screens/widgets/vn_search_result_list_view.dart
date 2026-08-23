@@ -24,14 +24,15 @@ class VnSearchResultListView extends StatefulWidget {
   State<VnSearchResultListView> createState() => _VnSearchResultListViewState();
 }
 
-class _VnSearchResultListViewState extends State<VnSearchResultListView> with RouteAware {
+class _VnSearchResultListViewState extends State<VnSearchResultListView>
+    with RouteAware {
   List<Widget> searchResults = [];
   Divider get divider => Divider(thickness: 0.4);
 
   @override
   void initState() {
     super.initState();
-    RawKeyboard.instance.addListener(_handleKeyEvent);
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
   @override
@@ -40,16 +41,16 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView> with Ro
     routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 
-
   @override
   void didPopNext() {
-    context.read<MainSearchBloc>().add(TriggerAnimationEvent());
+    // Buggy, causing llm search result to be recalled
+    // context.read<MainSearchBloc>().add(TriggerAnimationEvent());
     super.didPopNext();
   }
 
   @override
   void dispose() {
-    RawKeyboard.instance.removeListener(_handleKeyEvent);
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -64,50 +65,45 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView> with Ro
       final jishoDefinitionList = stateData.jishoDefinitionList;
       searchResults.clear();
       searchResults.addAll([
-          if (stateData.searchedPhrase.trim().isNotEmpty)
-            LlmSearchResultTile(query: stateData.searchedPhrase.trim()),
-          ...grammarPointList
-              .mapIndexed((index, e) => 
-                  GrammarQueryTile(
-                    animationDuration:  Duration(
-                    milliseconds:
-                        (index + 1 % 10) * 300),
-                        grammarPoint: e,
-                        showGrammarBadge: true,
-                      ),
-              )
-              .toList(),
-          ...vnDictQuery.mapIndexed(
-            (index, vnDefinition) =>
-                SearchResultTileVn(
-                animationDuration: Duration(
-                    milliseconds:
-                        ((grammarPointList.length + index + 1) % 10) * 300),
-                  vnDefinition: vnDefinition,
-                  hanViet: _getHanViet(stateData, vnDefinition.word),
-                  jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
-                      (element) => element.japaneseWord == vnDefinition.word),
-            ),
+        if (stateData.searchedPhrase.trim().isNotEmpty)
+          LlmSearchResultTile(query: stateData.searchedPhrase.trim()),
+        ...grammarPointList.mapIndexed(
+          (index, e) => GrammarQueryTile(
+            animationDuration: Duration(milliseconds: (index + 1 % 10) * 300),
+            grammarPoint: e,
+            showGrammarBadge: true,
           ),
-          ...jishoDefinitionList
-              .mapIndexed((index, jishoDefintiion) =>
-                  SearchResultTileVn(
-                    animationDuration: Duration(
-                        milliseconds: ((grammarPointList.length +
-                                vnDictQuery.length +
-                                index + 1) % 10) *
-                            300),
-                    hanViet:
-                        _getHanViet(stateData, jishoDefintiion.japaneseWord),
-                    jishoDefinition: jishoDefintiion,
-                  ))
-          .toList(),
-        ]);
+        ),
+        ...vnDictQuery.mapIndexed(
+          (index, vnDefinition) => SearchResultTileVn(
+            animationDuration: Duration(
+                milliseconds:
+                    ((grammarPointList.length + index + 1) % 10) * 300),
+            vnDefinition: vnDefinition,
+            hanViet: _getHanViet(stateData, vnDefinition.word),
+            jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
+                (element) => element.japaneseWord == vnDefinition.word),
+          ),
+        ),
+        ...jishoDefinitionList
+            .mapIndexed((index, jishoDefintiion) => SearchResultTileVn(
+                  animationDuration: Duration(
+                      milliseconds: ((grammarPointList.length +
+                                  vnDictQuery.length +
+                                  index +
+                                  1) %
+                              10) *
+                          300),
+                  hanViet: _getHanViet(stateData, jishoDefintiion.japaneseWord),
+                  jishoDefinition: jishoDefintiion,
+                )),
+      ]);
       return SingleChildScrollView(
         child: Column(children: searchResults),
       );
     });
   }
+
   List<String> _getHanViet(MainSearchStateData stateData, String word) {
     return stateData.wordToHanVietMap[word] ?? [];
   }

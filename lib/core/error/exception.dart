@@ -8,7 +8,7 @@ class BaseException with Localization implements Exception {
 
   @override
   String toString() {
-    return "$_prefix$_message";
+    return '$_prefix$_message';
   }
 }
 

@@ -9,20 +9,20 @@ import 'package:jisho_anki/features/main_search/presentation/screens/widgets/vn_
 import 'package:provider/provider.dart';
 import 'dart:async';
 
-import '../../../../common/widgets/nav_bar.dart';
-import '../../../../injection.dart';
-import '../../../../theme_manager.dart';
-import '../../../../utils/constants.dart';
-import '../../../../services/recognizer.dart';
-import '../../../../services/share_intent_service.dart';
-import 'mixins/get_vietnamese_definition_mixin.dart';
-import 'widgets/draw_screen.dart';
-import 'widgets/en_search_result_list_view.dart';
+import 'package:jisho_anki/common/widgets/nav_bar.dart';
+import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/theme_manager.dart';
+import 'package:jisho_anki/utils/constants.dart';
+import 'package:jisho_anki/services/recognizer.dart';
+import 'package:jisho_anki/services/share_intent_service.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/mixins/get_vietnamese_definition_mixin.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/widgets/draw_screen.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/widgets/en_search_result_list_view.dart';
 
 class MainSearchScreenConst {
   static const bodyPadding = EdgeInsets.only(
     left: 8.0,
-    top: 15.0,
+    top: 4.0,
     right: 8.0,
   );
 }
@@ -36,21 +36,23 @@ class MainSearchScreen extends StatefulWidget {
       child: MainSearchScreen(),
     );
   }
+
   @override
-  _MainSearchScreenState createState() => _MainSearchScreenState();
+  State<MainSearchScreen> createState() => _MainSearchScreenState();
 }
 
-class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
+class _MainSearchScreenState extends State<MainSearchScreen>
+    with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
   late TextEditingController textEditingController;
   late TabController tabController;
   late FocusNode focusNode;
   late Timer searchOnStoppedTyping;
   late Timer clipboardTimer;
   final _recognizer = Recognizer();
-  final modelFilePath1 = "assets/model806.tflite";
-  final labelFilePath1 = "assets/label806.txt";
-  final modelFilePath2 = "assets/model3036.tflite";
-  final labelFilePath2 = "assets/label3036.txt";
+  final modelFilePath1 = 'assets/model806.tflite';
+  final labelFilePath1 = 'assets/label806.txt';
+  final modelFilePath2 = 'assets/model3036.tflite';
+  final labelFilePath2 = 'assets/label3036.txt';
   late MainSearchBloc bloc;
   String clipboard = '';
   bool keyboardListened = false;
@@ -59,6 +61,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     tabController = TabController(
       initialIndex: 0,
       length: 2,
@@ -66,7 +69,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     );
     focusNode = FocusNode();
     focusNode.addListener(_onFocusChange);
-    RawKeyboard.instance.addListener(_handleKeyEvent);
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
@@ -80,12 +83,6 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
       if (!mounted) return;
 
       textEditingController.text = sharedText;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Shared text received: $sharedText'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
     });
   }
 
@@ -95,38 +92,49 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
     }
   }
 
-
-  void _handleKeyEvent(RawKeyEvent event) {
+  bool _handleKeyEvent(KeyEvent event) {
     final logicalKey = event.logicalKey;
     final keyLabel = logicalKey.keyLabel;
-    if (event is RawKeyDownEvent) {
-      return;
+    if (event is KeyDownEvent) {
+      return false;
     }
-    
+
     if (keyLabel.isNotEmpty &&
         !isNumericCharacter(keyLabel) &&
-        !['backspace', 'enter'].contains(keyLabel.toLowerCase()) && keyLabel.toLowerCase() != 'go back') {
+        !['backspace', 'enter'].contains(keyLabel.toLowerCase()) &&
+        keyLabel.toLowerCase() != 'go back') {
       // If a key with a printable label is pressed, navigate to the search screen and update the text field.
       if (context.canPop()) {
         Navigator.of(context).popUntil(
             (route) => route.settings.name == AppRoutesPath.mainScreen);
       }
+      textEditingController.text = keyLabel;
+      textEditingController.selection = TextSelection.fromPosition(
+        TextPosition(offset: textEditingController.text.length),
+      );
+      _search();
       focusNode.requestFocus();
-      return;
+      return true;
     }
+    return false;
   }
 
   bool isNumericCharacter(String input) {
-    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+    final result = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
+    return result;
   }
 
   void _startClipboardMonitoring() {
-    clipboardTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) async {
+    clipboardTimer =
+        Timer.periodic(const Duration(milliseconds: 300), (timer) async {
       final newClipboard = await Clipboard.getData(Clipboard.kTextPlain);
       if (newClipboard?.text != null && newClipboard!.text != clipboard) {
+        if (mounted) {
+          Navigator.of(context).popUntil(
+              (route) => route.settings.name == AppRoutesPath.mainScreen);
+        }
         clipboard = newClipboard.text!;
         textEditingController.text = clipboard;
-        print(clipboard);
         await _search();
       }
     });
@@ -136,12 +144,14 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   void dispose() {
     _shareIntentSubscription?.cancel();
     clipboardTimer.cancel();
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     focusNode.removeListener(_onFocusChange);
     focusNode.dispose();
     super.dispose();
   }
 
-  Future _initModel({required String modelFilePath, required String labelFilePath}) async {
+  Future _initModel(
+      {required String modelFilePath, required String labelFilePath}) async {
     await _recognizer.loadModel(
         modelPath: modelFilePath, labelPath: labelFilePath);
   }
@@ -154,7 +164,8 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
         builder: (context, theme, child) => SafeArea(
-          child: Scaffold(
+              bottom: false,
+              child: Scaffold(
                 drawer: NavBar(
                   textEditingController: textEditingController,
                 ),
@@ -174,7 +185,7 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
                     },
                     style: TextStyle(color: Constants.appBarTextColor),
                     decoration: InputDecoration(
-                      hintText: "Search for a word",
+                      hintText: 'Search for a word',
                       hintStyle: TextStyle(color: Constants.appBarTextColor),
                       labelStyle: TextStyle(color: Constants.appBarTextColor),
                       border: InputBorder.none,
@@ -219,38 +230,45 @@ class _MainSearchScreenState extends State<MainSearchScreen> with GetVietnameseD
                   padding: MainSearchScreenConst.bodyPadding,
                   child: const _Body(),
                 ),
-                bottomNavigationBar: SafeArea(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
-                    decoration: BoxDecoration(
-                      color: Color(0xffDB8C8A).withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(15.0),
+                bottomNavigationBar:
+                    BlocBuilder<MainSearchBloc, MainSearchState>(
+                        builder: (context, state) {
+                  if (state.data.llmTileExpanded) {
+                    return const SizedBox.shrink();
+                  }
+                  return SafeArea(
+                    bottom: false,
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
+                      decoration: BoxDecoration(
+                        color: Color(0xffDB8C8A).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: TabBar(
+                        controller: tabController,
+                        indicatorColor: Colors.black,
+                        onTap: (index) async {
+                          if (index == 0) {
+                            await context.pushNamed(AppRoutesPath.history);
+                            tabController.animateTo(1);
+                            return;
+                          }
+                          if (index == 1) {
+                            textEditingController.clear();
+                            focusNode.requestFocus();
+                          }
+                        },
+                        tabs: const [
+                          Tab(icon: Icon(Icons.history)),
+                          Tab(icon: Icon(Icons.search)),
+                        ],
+                      ),
                     ),
-                    child: TabBar(
-                      controller: tabController,
-                      indicatorColor: Colors.black,
-                      onTap: (index) async {
-                        if (index == 0) {
-                          await context.pushNamed(AppRoutesPath.history);
-                          tabController.animateTo(1);
-                          return;
-                        }
-                        if (index == 1) {
-                          textEditingController.clear();
-                          focusNode.requestFocus();
-                        }
-                      },
-                      tabs: const [
-                        Tab(icon: Icon(Icons.history)),
-                        Tab(icon: Icon(Icons.search)),
-                      ],
-                    ),
-                  ),
-                ),
+                  );
+                }),
               ),
-        ));
+            ));
   }
-
 }
 
 class _Body extends StatelessWidget {

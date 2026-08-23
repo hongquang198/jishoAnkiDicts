@@ -4,21 +4,19 @@ import 'button_debouncer.dart';
 
 class ButtonCommon extends StatelessWidget {
   ButtonCommon({
-    Key? key,
+    super.key,
     this.title = '',
     this.titleTextColor,
-    this.buttonContainerPadding =
-        const EdgeInsets.symmetric(vertical: 8.0),
+    this.buttonContainerPadding = const EdgeInsets.symmetric(vertical: 8.0),
     BoxDecoration? buttonContainerDecoration,
     this.buttonContainerMargin,
     this.onTap,
     this.width,
     this.height,
-  }) : super(key: key) {
+  }) {
     _buttonContainerDecoration = buttonContainerDecoration ??
         BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all());
+            borderRadius: BorderRadius.circular(8.0), border: Border.all());
   }
 
   final String title;
