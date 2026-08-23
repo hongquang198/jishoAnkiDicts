@@ -11,6 +11,7 @@ In short, the app aims to combine Anki with a smart dictionary to completely rem
 ![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
 
 Main functionality:
+- AI-powered dictionary lookup: Integrated with Google Gemini for intelligent analysis of words, grammar patterns explanations. Thanks to customizable prompts, this feature can be adapted for other languages or study purposes beyond Japanese.
 - Dark mode, beautiful UI, inspired by a great designer I came across on https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
 - Pitch accent dictionary was taken from Wadoku dictionary with more than 111.000 entries.
 - View times on each words to help you decide whether they are worth learning.
