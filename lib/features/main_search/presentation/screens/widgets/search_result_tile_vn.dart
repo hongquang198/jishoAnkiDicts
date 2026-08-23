@@ -41,7 +41,8 @@ class SearchResultTileVn extends StatefulWidget {
 class _SearchResultTileVnState extends State<SearchResultTileVn>
     with GetWordViewCountMixin {
   bool postFrame = false;
-  Divider get divider => Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
+  Divider get divider =>
+      Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
   @override
   void initState() {
@@ -68,8 +69,11 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
     for (dom.Element list in listList) {
       if (list.attributes['class'] == 'nv_a') {
         return Text(
-            list.text.length > 150 ? list.text.substring(0, 150) : list.text,
-            style: TextStyle(fontSize: 12));
+          list.text.length > 150 ? list.text.substring(0, 150) : list.text,
+          style: TextStyle(fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        );
       }
     }
     return SizedBox();
