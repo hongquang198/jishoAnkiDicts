@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../utils/constants.dart';
 import 'core/data/datasources/shared_pref.dart';
@@ -7,6 +8,11 @@ import 'injection.dart';
 class ThemeNotifier with ChangeNotifier {
   final theme = ThemeData();
   final darkTheme = ThemeData(
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      },
+    ),
     primarySwatch: Colors.grey,
     primaryColor: Color(0xFF212121),
     brightness: Brightness.dark,
@@ -18,6 +24,11 @@ class ThemeNotifier with ChangeNotifier {
   );
 
   final lightTheme = ThemeData(
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      },
+    ),
     primaryColor: Color(0xffDB8C8A),
     primaryIconTheme: IconThemeData(color: Constants.appBarIconColor),
     primaryTextTheme: TextTheme(
