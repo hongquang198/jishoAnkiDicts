@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
@@ -60,26 +59,22 @@ class GenUiDefinitionScreenArgs {
 Future<List<ExampleSentence>> loadLocalizedExamples(
   SharedPref sharedPref,
   String query,
-  BuildContext context,
 ) {
   final lang = sharedPref.prefs.getString('language');
   if (lang?.contains('English') == true) {
     return KanjiHelper.getExampleSentence(
       word: query,
-      context: context,
       tableName: 'englishExampleDictionary',
     );
   }
   if (lang != 'Tiếng Việt') return Future.value(const []);
   return KanjiHelper.getExampleSentence(
     word: query,
-    context: context,
     tableName: 'exampleDictionary',
   ).then((vnExamples) {
     if (vnExamples.isNotEmpty) return vnExamples;
     return KanjiHelper.getExampleSentence(
       word: query,
-      context: context,
       tableName: 'englishExampleDictionary',
     );
   });
@@ -89,7 +84,6 @@ Future<List<ExampleSentence>> loadLocalizedExamples(
 /// the search-result tile (tile-appear prewarm) and this screen (deep-link
 /// fallback) so the lane wiring exists exactly once.
 GenUiDataPrefetch startDefaultDataPrefetch({
-  required BuildContext context,
   required String query,
   required JishoDefinition jishoDefinition,
 }) {
@@ -106,9 +100,8 @@ GenUiDataPrefetch startDefaultDataPrefetch({
       word: query,
       slug: jishoDefinition.slug,
       reading: jishoDefinition.reading,
-      context: context,
     ),
-    loadExamples: () => loadLocalizedExamples(sharedPref, query, context),
+    loadExamples: () => loadLocalizedExamples(sharedPref, query),
     loadKanjiComponents: () => KanjiHelper.getKanjiComponent(word: query),
   );
 }
@@ -138,9 +131,6 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   Future<List<ExampleSentence>>? _examplesFuture;
   List<Widget> _pitchWidgets = const [];
   bool _pitchLaneDone = false;
-
-  // Prewarmed lanes (started by the search-result tile when it appeared)
-  GenUiDataPrefetch? _dataPrefetch;
 
   // LLM gap-fill data (used only when local data is missing)
   Map<String, dynamic>? _llmInfo;
@@ -190,14 +180,12 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
     var prefetch = cache.get(query);
     if (prefetch == null) {
       final fresh = startDefaultDataPrefetch(
-        context: context,
         query: query,
         jishoDefinition: _jishoDefinition,
       );
       cache.warm(query, start: () => fresh);
       prefetch = fresh;
     }
-    _dataPrefetch = prefetch;
 
     _kanjiListFuture = prefetch.kanjiComponents;
     prefetch.pitchWidgets.then((widgets) {

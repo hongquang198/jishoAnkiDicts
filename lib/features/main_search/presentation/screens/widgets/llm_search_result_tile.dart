@@ -119,7 +119,6 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     getIt<GenUiDataPrefetchCache>().warm(
       widget.query,
       start: () => startDefaultDataPrefetch(
-        context: context,
         query: widget.query,
         jishoDefinition: resolved.jishoDefinition,
       ),

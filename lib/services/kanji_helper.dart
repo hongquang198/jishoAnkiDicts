@@ -137,7 +137,10 @@ class KanjiHelper {
     String? word,
     String? slug,
     String? reading,
-    required BuildContext context,
+
+    /// Unused today; kept optional so callers may pass it without crossing
+    /// async-gap lints.
+    BuildContext? context,
   }) async {
     List<Widget> widgetList = [];
     List<PitchAccent> pitchFound = await getIt<Dictionary>()
@@ -180,7 +183,10 @@ class KanjiHelper {
 
   static Future<List<ExampleSentence>> getExampleSentence(
       {required String word,
-      required BuildContext context,
+
+      /// Unused today; kept optional so callers may pass it without crossing
+      /// async-gap lints.
+      BuildContext? context,
       required String tableName}) async {
     late List<ExampleSentence> exampleSentence;
     try {
