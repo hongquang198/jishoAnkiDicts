@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/config/app_routes.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
 import 'package:jisho_anki/services/llm_service.dart';
 import '../../bloc/main_search_bloc.dart';
 import '../gen_ui_definition_screen.dart';
@@ -95,6 +96,16 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     });
 
     _startRawTextStream(llmService);
+
+    // Pre-warm the GenUI (A2UI protocol) response so that tapping the sparkle
+    // icon button renders near-instantly instead of waiting for a fresh call.
+    if (sharedPref.llmGenUiEnable) {
+      getIt<GenUiPrefetchCache>().warm(
+        widget.query,
+        startStream: () =>
+            llmService.generateExplanationStream(widget.query, useGenUi: true),
+      );
+    }
   }
 
   void _startRawTextStream(LlmService llmService) {

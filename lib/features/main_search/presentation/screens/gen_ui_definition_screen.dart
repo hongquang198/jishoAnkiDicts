@@ -4,8 +4,6 @@ import 'dart:developer';
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:genui/genui.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +13,7 @@ import '../../../../injection.dart';
 import '../../../../models/example_sentence.dart';
 import '../../../../models/kanji.dart';
 import '../../../../services/kanji_helper.dart';
+import '../../../../services/llm/gen_ui_prefetch.dart';
 import '../../../../services/llm/genui_catalog.dart';
 import '../../../../services/llm_service.dart';
 import '../../../main_search/domain/entities/jisho_definition.dart';
@@ -63,13 +62,11 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   Map<String, dynamic>? _llmInfo;
 
   // AI explanation stream
-  String _accumulatedText = '';
   bool _isStreaming = false;
   bool _receivedA2uiContent = false;
   String? _errorMessage;
   StreamSubscription<String>? _subscription;
   StreamSubscription<core.A2uiMessage>? _messageSubscription;
-  StreamSubscription<String>? _textSubscription;
   SurfaceController? _surfaceController;
   A2uiTransportAdapter? _transportAdapter;
 
@@ -255,12 +252,10 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
     _subscription?.cancel();
     _messageSubscription?.cancel();
-    _textSubscription?.cancel();
     _transportAdapter?.dispose();
     _surfaceController?.dispose();
 
     setState(() {
-      _accumulatedText = '';
       _receivedA2uiContent = false;
       _errorMessage = null;
       _isStreaming = true;
@@ -288,14 +283,6 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
       },
     );
 
-    // Track non-A2UI text so we can fall back to raw rendering if the model
-    // does not produce valid protocol messages.
-    _textSubscription = _transportAdapter!.incomingText.listen((text) {
-      if (mounted) {
-        setState(() => _accumulatedText += text);
-      }
-    });
-
     // Create the surface deterministically on the client so it always exists,
     // regardless of what the model streams. The model only needs to supply
     // the updateComponents payload.
@@ -306,38 +293,53 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
       ),
     );
 
-    final stream =
-        llmService.generateExplanationStream(currentJapaneseWord, useGenUi: true);
-    _subscription = stream.listen(
+    // Attach to the pre-warmed GenUI response for this query (started by the
+    // search-result tile when it appeared). If none exists — e.g. the screen
+    // was opened without passing through the tile — this transparently starts
+    // a fresh stream.
+    final prefetchCache = getIt<GenUiPrefetchCache>();
+    prefetchCache.warm(
+      currentJapaneseWord,
+      startStream: () => llmService
+          .generateExplanationStream(currentJapaneseWord, useGenUi: true),
+    );
+    final prefetch = prefetchCache.get(currentJapaneseWord)!;
+
+    if (prefetch.error != null) {
+      setState(() {
+        _isStreaming = false;
+        _errorMessage = prefetch.error;
+      });
+      return;
+    }
+
+    final attachment = prefetch.attach(
       (chunk) {
-        if (mounted) {
-          _transportAdapter?.addChunk(chunk);
-          setState(() {});
-        }
-      },
-      onError: (error) {
-        if (mounted) {
-          setState(() {
-            _isStreaming = false;
-            _errorMessage = error.toString();
-          });
-        }
+        if (!mounted) return;
+        _transportAdapter?.addChunk(chunk);
+        setState(() {});
       },
       onDone: () {
-        if (mounted) {
-          setState(() {
-            _isStreaming = false;
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          _isStreaming = false;
+          if (prefetch.error != null) _errorMessage = prefetch.error;
+        });
       },
     );
+    _subscription = attachment.sub;
+    if (attachment.snapshot.isNotEmpty) {
+      _transportAdapter?.addChunk(attachment.snapshot);
+    }
+    if (prefetch.isDone) {
+      setState(() => _isStreaming = false);
+    }
   }
 
   @override
   void dispose() {
     _subscription?.cancel();
     _messageSubscription?.cancel();
-    _textSubscription?.cancel();
     _transportAdapter?.dispose();
     _surfaceController?.dispose();
     super.dispose();
@@ -541,12 +543,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
       );
     }
 
-    // The model never produced a valid A2UI payload; fall back to raw text
-    // rendering instead of showing an empty surface.
     if (_isStreaming) return _buildLoadingIndicator(isVn);
-    if (_accumulatedText.trim().isNotEmpty) {
-      return _buildRawTextContent(context);
-    }
     return Text(
       isVn ? 'Không có câu trả lời.' : 'No output received.',
       style: const TextStyle(color: Colors.grey),
@@ -574,57 +571,5 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
         ),
       ],
     );
-  }
-
-  Widget _buildRawTextContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        HtmlWidget(
-          _markdownToSimpleHtml(_accumulatedText),
-          textStyle: const TextStyle(fontSize: 14, height: 1.5),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.copy, size: 18),
-              tooltip: 'Copy',
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: _accumulatedText));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      getIt<SharedPref>().isAppInVietnamese
-                          ? 'Đã sao chép vào bộ nhớ tạm!'
-                          : 'Copied to clipboard!',
-                    ),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  /// Simple converter to format markdown headers/bold text into HTML for HtmlWidget
-  String _markdownToSimpleHtml(String markdown) {
-    String text = markdown
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
-
-    text = text.replaceAllMapped(
-        RegExp(r'\*\*(.*?)\*\*'), (match) => '<b>${match[1]}</b>');
-    text = text.replaceAllMapped(
-        RegExp(r'\*(.*?)\*'), (match) => '<i>${match[1]}</i>');
-    text =
-        text.replaceAllMapped(RegExp(r'`(.*?)`'), (match) => '<code>${match[1]}</code>');
-    text = text.replaceAll('\n', '<br/>');
-    return text;
   }
 }

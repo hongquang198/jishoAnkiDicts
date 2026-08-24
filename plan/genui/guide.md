@@ -89,24 +89,34 @@ the tree. Everything else must be nested inside it via child properties.
 sequenceDiagram
     participant U as User
     participant T as LlmSearchResultTile
-    participant S as GenUiDefinitionScreen
+    participant P as GenUiPrefetchCache
     participant LS as LlmService
     participant G as Gemini API
+    participant S as GenUiDefinitionScreen
     participant TA as A2uiTransportAdapter
     participant SC as SurfaceController
     participant SW as Surface widget
     participant C as genUiCatalog
+
+    Note over T: tile appears — _startStreaming() fires eagerly
+    T->>P: warm(query, useGenUi stream)
+    P->>LS: generateExplanationStream(query, useGenUi: true)
+    LS->>G: buildPrompt(useGenUi:true)<br/>(A2UI wire-format instructions + catalog schemas)
+    G-->>P: text chunks (streaming, buffered in accumulated)
 
     U->>T: taps sparkle IconButton
     T->>S: pushNamed(/gen-ui-definition, args{query, mainSearchBloc})
     Note over S: initState:<br/>1. load local DB data (pitch, hanViet,<br/>examples, kanji components)<br/>2. create SurfaceController(catalogs:[genUiCatalog])<br/>3. create A2uiTransportAdapter<br/>4. listen adapter.messages → controller.handleMessage
     S->>SC: handleMessage(CreateSurfaceMessage(surfaceId, catalogId))
     Note over SC: surface exists immediately —<br/>client-side deterministic creation
-    S->>LS: generateExplanationStream(query, useGenUi: true)
-    LS->>G: prompt = buildPrompt(useGenUi:true)<br/>(A2UI wire-format instructions + catalog schemas)
-    G-->>LS: text chunks (streaming)
-    LS-->>S: Stream<String> chunks
-    S->>TA: addChunk(chunk)  (also accumulates raw text for fallback)
+
+    S->>P: attach(query) — warms if missing
+    alt prefetch already complete
+        P-->>S: full snapshot (renders instantly, no waiting)
+    else prefetch still streaming
+        P-->>S: snapshot + remaining live chunks
+    end
+    S->>TA: addChunk(snapshot & live chunks)
     TA->>TA: buffer → extract fenced JSON → parse
     alt valid A2UI JSON
         TA-->>SC: A2uiMessage (updateComponents)
@@ -116,34 +126,35 @@ sequenceDiagram
         C-->>SW: widgetBuilder(data)
         SW-->>U: renders DefinitionCard / ExampleSentences / KanjiComponents
     else no valid A2UI arrives
-        S-->>U: render accumulated raw text via HtmlWidget<br/>(design.md §4 dual-mode fallback)
+        S-->>U: "No output received" empty state<br/>(strict GenUI — no text fallback on this screen)
     end
 ```
 
 ASCII version (for viewers without Mermaid):
 
 ```
-User tap ──► Tile icon button ──► route /gen-ui-definition ──► Screen.init()
-                                                                  │
-   ┌──────────────────────────────────────────────────────────────┤
-   │ 1. SurfaceController(catalogs: [genUiCatalog])               │
-   │ 2. A2uiTransportAdapter();                                   │
-   │    adapter.incomingMessages.listen(controller.handleMessage) │
+Tile appears ──► _startStreaming() ──► GenUiPrefetchCache.warm(query) ──► Gemini (useGenUi prompt)
+                                                                              │ chunks buffered in `accumulated`
+User tap ──► Tile icon button ──► route /gen-ui-definition ──► Screen.init()  │
+                                                                  │           │
+   ┌──────────────────────────────────────────────────────────────┤           │
+   │ 1. SurfaceController(catalogs: [genUiCatalog])               │           │
+   │ 2. A2uiTransportAdapter();                                   │           │
+   │    adapter.incomingMessages.listen(controller.handleMessage) │           │
    │ 3. controller.handleMessage(CreateSurface(id, catalogId))    │◄─ deterministic
-   │ 4. load local DB data; single fetchWordInfo() gap-fill call  │
-   └──────────────────────────────────────────────────────────────┘
+   │ 4. load local DB data; single fetchWordInfo() gap-fill call  │           │
+   │ 5. prefetch.attach(query) ──► snapshot + live chunks ────────┼───────────┘
+   └──────────────────────────────────────────────────────────────┤
                                   │
                                   ▼
-        Gemini stream ──► addChunk() ──► [buffer|parse|sanitize] ──┬──► A2uiMessage ──► handleMessage()
-                                  │                               │                        │
-                                  └──► raw text accumulator       │                        ▼
-                                       (fallback path)            │          SurfaceDefinition (listenable)
-                                                                  │                        │
-                                                                  ▼                        ▼
-                                                        no messages? ──► HtmlWidget   Surface widget ──► CatalogItem.widgetBuilder()
-                                                                        (raw text)     (root only)         │
-                                                                                                        ▼
-                                                                                          DefinitionWidget / ExampleSentenceWidget / ComponentWidget
+        attach() output ──► addChunk() ──► [buffer|parse|sanitize] ──┬──► A2uiMessage ──► handleMessage()
+                                                                    │                        │
+                                                                    ▼                        ▼
+                                                          no messages? ──► "No output    Surface widget ──► CatalogItem.widgetBuilder()
+                                                                          received"       (root only)         │
+                                                                          (strict mode)                      │
+                                                                                                             ▼
+                                                                                               DefinitionWidget / ExampleSentenceWidget / ComponentWidget
 ```
 
 ---
@@ -251,7 +262,49 @@ component names + property schemas are legal.
   normal **text-based** streaming output (`HtmlWidget` markdown-lite renderer),
   copy/regenerate buttons, missing-key and error states.
 - Streams start eagerly in `initState` (post-frame) so expanded content is
-  usually ready instantly.
+  usually ready instantly. The same hook also pre-warms the GenUI response via
+  `getIt<GenUiPrefetchCache>().warm(...)` when `llmGenUiEnable` is on (see the
+  pre-warm section below).
+
+### `lib/services/llm/gen_ui_prefetch.dart` — pre-warm technique
+Pre-warms the GenUI response so tapping the sparkle button renders with
+minimal delay. Without it, every icon-button tap started a **fresh** Gemini
+request and the user waited for a full streaming round-trip.
+
+**How it works**
+1. The search-result tile calls `_startStreaming()` eagerly in `initState`
+   (post-frame). Besides the inline text-mode stream, when `llmGenUiEnable` is
+   on it also calls:
+   ```dart
+   getIt<GenUiPrefetchCache>().warm(
+     widget.query,
+     startStream: () => llmService.generateExplanationStream(query, useGenUi: true),
+   );
+   ```
+   This starts the A2UI request immediately — before the user ever taps.
+2. `GenUiPrefetch` owns that Gemini subscription, concatenates all chunks into
+   `accumulated`, tracks `isDone`/`error`, and re-emits each chunk on a broadcast
+   `updates` stream.
+3. When the user taps the sparkle button, the GenUI screen's `_startStreaming()`
+   warms-if-missing then **attaches**: `attach(onChunk, onDone)` atomically
+   subscribes to future chunks and returns the current snapshot. The screen
+   feeds the snapshot through its transport adapter in one call, keeps listening
+   for remaining live chunks, and finishes instantly if the stream is already
+   complete. No chunk can be lost or duplicated because snapshot + subscribe
+   happen within a single event-loop turn.
+4. If no prefetch exists (screen opened without going through the tile), the
+   same code path transparently starts a fresh request.
+
+**Design notes**
+- Registered as a lazy singleton via GetIt in `injection.dart`
+  (`getIt<GenUiPrefetchCache>()`); stateful per-app cache, so a singleton is the
+  correct lifetime. Idempotent per query; bounded to 8 entries with FIFO
+  eviction (evicted entries are disposed, cancelling their subscriptions).
+- Prefetch survives tile disposal, so a completed warm stays reusable if the
+  user collapses/re-expands or navigates away and back.
+- Trade-off: while a search result tile is visible in GenUI mode there are two
+  concurrent requests (inline text-mode stream + pre-warmed A2UI stream). That
+  duplication is the price of near-instant results on tap.
 
 ### `lib/config/app_routes.dart`
 - New route `/gen-ui-definition` (`AppRoutesPath.genUiDefinition`); builder casts
@@ -274,13 +327,15 @@ The full-screen page. Lifecycle:
    - Send `CreateSurfaceMessage(surfaceId: 'llm_definition_surface',
      catalogId: genUiCatalogId)` **before** streaming starts — the surface then
      always exists regardless of what (or whether) the model sends.
-   - Stream with `useGenUi: true`; every chunk goes both to
-     `adapter.addChunk()` and a raw-text accumulator.
-4. **Rendering**:
-   - `Surface(surfaceContext: sc.contextFor(surfaceId), defaultBuilder: spinner)`
-     once the controller exists; before that, streaming raw text is shown.
-   - Dual-mode fallback (design.md §4): if the stream finishes with zero parsed
-     A2UI messages, show the accumulated sanitized text instead.
+   - Stream with `useGenUi: true`; every chunk goes to `adapter.addChunk()`.
+4. **Rendering (strict GenUI — no text fallback)**:
+   - While streaming with no A2UI content yet → loading indicator.
+   - As soon as an `UpdateComponentsMessage` arrives (`_receivedA2uiContent`) →
+     `Surface(surfaceContext: sc.contextFor(surfaceId))`.
+   - If the stream finishes with zero parsed A2UI messages → plain
+     "No output received" empty state. The raw-text fallback from design.md §4
+     was intentionally removed once the prompt proved reliable; the inline tile
+     expansion still provides the text-mode experience.
 5. Layout: AppBar title shows `IsCommonTagsAndJlptWidget` when tag/JLPT/common
    data resolves (bloc first, LLM fallback), else plain text. Body: pitch row →
    big word + reading → hanViet row → divider → AI explanation section
@@ -302,7 +357,8 @@ The full-screen page. Lifecycle:
 2. **Only the `root` component renders.** Multi-component outputs appear blank.
 3. **Silent failures.** If the surface stays empty, check, in order:
    `surfaceController.activeSurfaceIds`, whether `createSurface` was sent, the
-   raw accumulated text for a fenced JSON block, and `flutter run` logs for
+   prefetch's `accumulated` string for a fenced JSON block (inspect it via a
+   breakpoint in `GenUiPrefetch._append`), and `flutter run` logs for
    validation warnings.
 4. **Stable catalog id required**, see §5.
 5. **FutureBuilder identity matters.** Widgets like `ExampleSentenceWidget`
