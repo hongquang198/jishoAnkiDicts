@@ -7,8 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/config/app_routes.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/models/example_sentence.dart';
+import 'package:jisho_anki/services/kanji_helper.dart';
+import 'package:jisho_anki/services/llm/gen_ui_data_prefetch.dart';
 import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
 import 'package:jisho_anki/services/llm_service.dart';
+import 'package:jisho_anki/services/wikimedia_image_service.dart';
 import '../../bloc/main_search_bloc.dart';
 import '../gen_ui_definition_screen.dart';
 
@@ -106,6 +110,63 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             llmService.generateExplanationStream(widget.query, useGenUi: true),
       );
     }
+
+    // Pre-warm every other GenUI-screen lane as well: structured gap-fill
+    // (badges fallback, sentences, tutor comment), the descriptive picture
+    // with bytes already decoded, and the local DB sections. Runs regardless
+    // of llmGenUiEnable — only the LLM lane respects enable/key flags.
+    final resolved = resolveMainSearchData(
+      context.read<MainSearchBloc>(),
+      widget.query,
+    );
+    getIt<GenUiDataPrefetchCache>().warm(
+      widget.query,
+      start: () => GenUiDataPrefetch.start(
+        query: widget.query,
+        jishoDefinition: resolved.jishoDefinition,
+        llmEnabled:
+            sharedPref.llmEnable && sharedPref.llmApiKey.trim().isNotEmpty,
+        fetchWordInfo: llmService.fetchWordInfo,
+        searchThumbnailUrl: (term) => getIt<WikimediaImageService>()
+            .fetchThumbnailUrl(term, width: kPrewarmThumbnailWidth),
+        loadPitchWidgets: () => KanjiHelper.getPitchAccent(
+          word: widget.query,
+          slug: resolved.jishoDefinition.slug,
+          reading: resolved.jishoDefinition.reading,
+          context: context,
+        ),
+        loadExamples: () => _loadPrewarmExamples(sharedPref),
+        loadKanjiComponents: () =>
+            KanjiHelper.getKanjiComponent(word: widget.query),
+      ),
+    );
+  }
+
+  /// Mirrors the screen's localized example-sentence selection: English table
+  /// for English, Vietnamese table first (with English fallback) for
+  /// Tiếng Việt, nothing otherwise.
+  Future<List<ExampleSentence>> _loadPrewarmExamples(SharedPref sharedPref) {
+    final lang = sharedPref.prefs.getString('language');
+    if (lang?.contains('English') == true) {
+      return KanjiHelper.getExampleSentence(
+        word: widget.query,
+        context: context,
+        tableName: 'englishExampleDictionary',
+      );
+    }
+    if (lang != 'Tiếng Việt') return Future.value(const []);
+    return KanjiHelper.getExampleSentence(
+      word: widget.query,
+      context: context,
+      tableName: 'exampleDictionary',
+    ).then((vnExamples) {
+      if (vnExamples.isNotEmpty) return vnExamples;
+      return KanjiHelper.getExampleSentence(
+        word: widget.query,
+        context: context,
+        tableName: 'englishExampleDictionary',
+      );
+    });
   }
 
   void _startRawTextStream(LlmService llmService) {

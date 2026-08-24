@@ -33,6 +33,25 @@ class GenUiDefinitionScreenArgs {
   });
 }
 
+/// Resolves the bloc-held jisho definition and Sino-Vietnamese readings for
+/// [query], shared by the search-result tile (prewarm) and this screen so the
+/// matching logic exists exactly once.
+({JishoDefinition jishoDefinition, List<String> hanViet})
+    resolveMainSearchData(MainSearchBloc? mainSearchBloc, String query) {
+  final data = mainSearchBloc?.state.data;
+  final jishoDefinition =
+      data?.getSpecificJishoDefinition(japaneseWord: query) ??
+          data?.jishoDefinitionList.firstWhereOrNull(
+            (element) =>
+                element.reading == query ||
+                element.slug == query ||
+                element.word == query,
+          ) ??
+          JishoDefinition(slug: '');
+  final hanViet = data?.wordToHanVietMap[query] ?? const <String>[];
+  return (jishoDefinition: jishoDefinition, hanViet: hanViet);
+}
+
 class GenUiDefinitionScreen extends StatefulWidget {
   final GenUiDefinitionScreenArgs args;
 
@@ -91,19 +110,12 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   }
 
   void _resolveBlocData() {
-    final data = widget.args.mainSearchBloc?.state.data;
-    final query = currentJapaneseWord;
-    _jishoDefinition = data?.getSpecificJishoDefinition(
-          japaneseWord: query,
-        ) ??
-        data?.jishoDefinitionList.firstWhereOrNull(
-          (element) =>
-              element.reading == query ||
-              element.slug == query ||
-              element.word == query,
-        ) ??
-        JishoDefinition(slug: '');
-    _hanViet = data?.wordToHanVietMap[query] ?? const [];
+    final resolved = resolveMainSearchData(
+      widget.args.mainSearchBloc,
+      currentJapaneseWord,
+    );
+    _jishoDefinition = resolved.jishoDefinition;
+    _hanViet = resolved.hanViet;
   }
 
   /// Loads everything available from the local databases (mirroring
