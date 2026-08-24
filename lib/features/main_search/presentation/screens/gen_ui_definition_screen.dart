@@ -13,9 +13,11 @@ import '../../../../injection.dart';
 import '../../../../models/example_sentence.dart';
 import '../../../../models/kanji.dart';
 import '../../../../services/kanji_helper.dart';
+import '../../../../services/llm/gen_ui_data_prefetch.dart';
 import '../../../../services/llm/gen_ui_prefetch.dart';
 import '../../../../services/llm/genui_catalog.dart';
 import '../../../../services/llm_service.dart';
+import '../../../../services/preloaded_image.dart';
 import '../../../../services/wikimedia_image_service.dart';
 import '../../../main_search/domain/entities/jisho_definition.dart';
 import '../bloc/main_search_bloc.dart';
@@ -52,6 +54,65 @@ class GenUiDefinitionScreenArgs {
   return (jishoDefinition: jishoDefinition, hanViet: hanViet);
 }
 
+/// Loads localized example sentences for [query]: English table for English,
+/// Vietnamese table first (with English fallback) for Tiếng Việt, nothing
+/// otherwise.
+Future<List<ExampleSentence>> loadLocalizedExamples(
+  SharedPref sharedPref,
+  String query,
+  BuildContext context,
+) {
+  final lang = sharedPref.prefs.getString('language');
+  if (lang?.contains('English') == true) {
+    return KanjiHelper.getExampleSentence(
+      word: query,
+      context: context,
+      tableName: 'englishExampleDictionary',
+    );
+  }
+  if (lang != 'Tiếng Việt') return Future.value(const []);
+  return KanjiHelper.getExampleSentence(
+    word: query,
+    context: context,
+    tableName: 'exampleDictionary',
+  ).then((vnExamples) {
+    if (vnExamples.isNotEmpty) return vnExamples;
+    return KanjiHelper.getExampleSentence(
+      word: query,
+      context: context,
+      tableName: 'englishExampleDictionary',
+    );
+  });
+}
+
+/// Wires [GenUiDataPrefetch.start] with the app's real services. Shared by
+/// the search-result tile (tile-appear prewarm) and this screen (deep-link
+/// fallback) so the lane wiring exists exactly once.
+GenUiDataPrefetch startDefaultDataPrefetch({
+  required BuildContext context,
+  required String query,
+  required JishoDefinition jishoDefinition,
+}) {
+  final sharedPref = getIt<SharedPref>();
+  final llmService = getIt<LlmService>();
+  return GenUiDataPrefetch.start(
+    query: query,
+    jishoDefinition: jishoDefinition,
+    llmEnabled: sharedPref.llmEnable && sharedPref.llmApiKey.trim().isNotEmpty,
+    fetchWordInfo: llmService.fetchWordInfo,
+    searchThumbnailUrl: (term) => getIt<WikimediaImageService>()
+        .fetchThumbnailUrl(term, width: kPrewarmThumbnailWidth),
+    loadPitchWidgets: () => KanjiHelper.getPitchAccent(
+      word: query,
+      slug: jishoDefinition.slug,
+      reading: jishoDefinition.reading,
+      context: context,
+    ),
+    loadExamples: () => loadLocalizedExamples(sharedPref, query, context),
+    loadKanjiComponents: () => KanjiHelper.getKanjiComponent(word: query),
+  );
+}
+
 class GenUiDefinitionScreen extends StatefulWidget {
   final GenUiDefinitionScreenArgs args;
 
@@ -76,13 +137,16 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   // (and replay their entry animations) on every streaming rebuild.
   Future<List<ExampleSentence>>? _examplesFuture;
   List<Widget> _pitchWidgets = const [];
-  bool _localDataLoaded = false;
+  bool _pitchLaneDone = false;
+
+  // Prewarmed lanes (started by the search-result tile when it appeared)
+  GenUiDataPrefetch? _dataPrefetch;
 
   // LLM gap-fill data (used only when local data is missing)
   Map<String, dynamic>? _llmInfo;
 
-  // Descriptive picture (Wikimedia) and AI-tutor comment (LLM)
-  String? _descriptiveImageUrl;
+  // Descriptive picture with bytes already decoded, and AI-tutor comment.
+  PreloadedImage? _descriptivePicture;
   String? _aiTutorComment;
 
   // AI explanation stream
@@ -103,10 +167,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   void initState() {
     super.initState();
     _resolveBlocData();
-    _kanjiListFuture = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
+    _attachDataPrefetch();
     _startStreaming();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _loadLocalDictionaryData());
   }
 
   void _resolveBlocData() {
@@ -118,108 +180,58 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
     _hanViet = resolved.hanViet;
   }
 
-  /// Loads everything available from the local databases (mirroring
-  /// [DefinitionScreen]) and fills any gaps via a single structured LLM call.
-  Future<void> _loadLocalDictionaryData() async {
-    // Pitch accent from local database.
-    List<Widget> pitchWidgets = [];
-    try {
-      pitchWidgets = await KanjiHelper.getPitchAccent(
-        word: currentJapaneseWord,
-        slug: _jishoDefinition.slug,
-        reading: _jishoDefinition.reading,
+  /// Attaches to the pre-warmed lanes for this query (started by the
+  /// search-result tile when it appeared). When missing — e.g. deep link —
+  /// starts them fresh through the same wiring. Every future reference is
+  /// assigned exactly once so streamed rebuilds never replay animations.
+  void _attachDataPrefetch() {
+    final query = currentJapaneseWord;
+    final cache = getIt<GenUiDataPrefetchCache>();
+    var prefetch = cache.get(query);
+    if (prefetch == null) {
+      final fresh = startDefaultDataPrefetch(
         context: context,
+        query: query,
+        jishoDefinition: _jishoDefinition,
       );
-    } catch (e) {
-      log('Error getting pitch accent $e');
+      cache.warm(query, start: () => fresh);
+      prefetch = fresh;
     }
+    _dataPrefetch = prefetch;
 
-    // Example sentences from local database (localized table first).
-    if (!mounted) return;
-    List<ExampleSentence> examples = [];
-    try {
-      final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true) {
-        examples = await KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord,
-            context: context,
-            tableName: 'englishExampleDictionary');
-      } else if (lang == 'Tiếng Việt') {
-        if (!mounted) return;
-        examples = await KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord,
-            context: context,
-            tableName: 'exampleDictionary');
-        if (examples.isEmpty) {
-          if (!mounted) return;
-          examples = await KanjiHelper.getExampleSentence(
-              word: currentJapaneseWord,
-              context: context,
-              tableName: 'englishExampleDictionary');
-        }
-      }
-    } catch (e) {
-      log('Error getting example sentence $e');
-    }
-
-    if (!mounted) return;
-    setState(() {
-      _pitchWidgets = pitchWidgets;
-      _examples = examples;
-      _examplesFuture = Future.value(examples);
-      _localDataLoaded = true;
-    });
-
-    await _fillGapsFromLlm(pitchWidgets: pitchWidgets, examples: examples);
-    if (!mounted) return;
-    await _loadTutorSection();
-  }
-
-  Future<void> _fillGapsFromLlm({
-    required List<Widget> pitchWidgets,
-    required List<ExampleSentence> examples,
-  }) async {
-    final sharedPref = getIt<SharedPref>();
-    if (!sharedPref.llmEnable || sharedPref.llmApiKey.trim().isEmpty) return;
-
-    // Always fetched: the AI-tutor comment is only available from the LLM,
-    // even for words the local databases cover completely.
-    final info = await getIt<LlmService>().fetchWordInfo(currentJapaneseWord);
-    if (!mounted || info == null || info['found'] != true) return;
-    setState(() {
-      _llmInfo = info;
-      // Swap the examples future only when the local list was empty and the
-      // LLM actually provided sentences, so animations replay just once.
-      if ((_examples?.isEmpty ?? true) && _effectiveExamples.isNotEmpty) {
-        _examplesFuture = Future.value(_effectiveExamples);
-      }
-    });
-  }
-
-  /// Resolves the descriptive picture and the AI-tutor comment shown under
-  /// the explanation. The picture comes from Wikimedia (keyless, free); the
-  /// model only suggests search terms because generated URLs cannot be
-  /// trusted. The comment arrives inside the structured gap-fill payload.
-  Future<void> _loadTutorSection() async {
-    final comment = _llmString('tutorComment');
-    if (comment.isNotEmpty && mounted) {
-      setState(() => _aiTutorComment = comment);
-    }
-
-    String searchTerm = _llmString('imageQuery');
-    searchTerm = searchTerm.isNotEmpty
-        ? searchTerm
-        : (_jishoDefinition
-                .senses.firstOrNull?.englishDefinitions.firstOrNull ??
-            currentJapaneseWord);
-    try {
-      final url =
-          await getIt<WikimediaImageService>().fetchThumbnailUrl(searchTerm);
+    _kanjiListFuture = prefetch.kanjiComponents;
+    prefetch.pitchWidgets.then((widgets) {
       if (!mounted) return;
-      setState(() => _descriptiveImageUrl = url);
-    } catch (e) {
-      log('Error fetching descriptive image $e');
-    }
+      setState(() {
+        _pitchWidgets = widgets;
+        _pitchLaneDone = true;
+      });
+    });
+    prefetch.examples.then((examples) {
+      if (!mounted) return;
+      setState(() {
+        _examples = examples;
+        _examplesFuture = Future<List<ExampleSentence>>.value(examples);
+      });
+    });
+    prefetch.wordInfo.then((info) {
+      if (!mounted || info == null || info['found'] != true) return;
+      setState(() {
+        _llmInfo = info;
+        final comment = _llmString('tutorComment');
+        if (comment.isNotEmpty) _aiTutorComment = comment;
+        // Swap the examples future only when the local list was empty and
+        // the LLM actually provided sentences, so animations replay once.
+        if ((_examples?.isEmpty ?? true) && _effectiveExamples.isNotEmpty) {
+          _examplesFuture =
+              Future<List<ExampleSentence>>.value(_effectiveExamples);
+        }
+      });
+    });
+    prefetch.image.then((picture) {
+      if (!mounted || picture == null) return;
+      setState(() => _descriptivePicture = picture);
+    });
   }
 
   // --- Effective values (local data preferred over LLM gap-fill) ---
@@ -445,12 +457,12 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                     ],
                   ),
                 ),
-                if (_descriptiveImageUrl != null) ...[
+                if (_descriptivePicture != null) ...[
                   const SizedBox(width: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      _descriptiveImageUrl!,
+                    child: Image(
+                      image: _descriptivePicture!.provider,
                       height: 120,
                       width: 120,
                       fit: BoxFit.contain,
@@ -546,7 +558,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
     if (pitchWidgets.isNotEmpty) {
       return Row(children: pitchWidgets);
     }
-    if (!_localDataLoaded && _llmInfo == null) return const SizedBox.shrink();
+    if (!_pitchLaneDone && _llmInfo == null) return const SizedBox.shrink();
     final reading = _effectiveReading;
     if (reading.isEmpty) return const SizedBox.shrink();
     return Align(
