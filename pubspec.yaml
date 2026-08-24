@@ -61,6 +61,8 @@ dependencies:
 
   html: any
   package_info_plus: ^10.2.1
+  genui: ^0.10.2
+  json_schema_builder: ^0.1.6
 dev_dependencies:
   flutter_test:
     sdk: flutter
