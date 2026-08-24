@@ -253,7 +253,9 @@ component names + property schemas are legal.
   chunks; passes the flag through to `buildPrompt`.
 - `fetchWordInfo(query)` — separate non-streaming structured call
   (`responseMimeType: application/json`) returning reading/hanViet/tags/jlpt/
-  pitchPattern/example sentences. Used only to fill gaps the local DB cannot.
+  pitchPattern/example sentences, an `imageQuery` search term and an AI-tutor
+  comment. Used to fill gaps the local DB cannot provide; the tutor comment is
+  always requested when the LLM is configured.
 
 ### `lib/features/main_search/presentation/screens/widgets/llm_search_result_tile.dart`
 - Sparkle `IconButton` (leading icon) → `_openGenUiScreen()` → pushes
@@ -337,10 +339,37 @@ The full-screen page. Lifecycle:
      was intentionally removed once the prompt proved reliable; the inline tile
      expansion still provides the text-mode experience.
 5. Layout: AppBar title shows `IsCommonTagsAndJlptWidget` when tag/JLPT/common
-   data resolves (bloc first, LLM fallback), else plain text. Body: pitch row →
-   big word + reading → hanViet row → divider → AI explanation section
-   (the `Surface`) → divider → examples (`ExampleSentenceWidget`) → divider →
-   `ComponentWidget(kanjiComponent:)` (strictly local DB, never LLM).
+   data resolves (bloc first, LLM fallback), else plain text. Body: header row
+   (pitch row → big word + reading → hanViet on the left; **descriptive
+   picture** on the right, 120×120 `BoxFit.contain` so nothing is cropped) →
+   AI explanation header + body (the `Surface`) → divider Examples
+   (`ExampleSentenceWidget`) → divider `ComponentWidget(kanjiComponent:)`
+   (strictly local DB, never LLM) → **AI Tutor Notes** card at the bottom.
+
+### Descriptive picture & AI-tutor comment
+
+Two enrichment sections were added to the GenUI screen:
+
+1. **Picture** — sourced from Wikimedia Commons via
+   `lib/services/wikimedia_image_service.dart` (free, keyless API; a custom
+   User-Agent header is mandatory or Wikimedia returns 403). Search-term
+   priority: LLM `imageQuery` from `fetchWordInfo` → first English sense from
+   the local jisho data → raw query.
+   **Never render model-provided image URLs** — LLMs hallucinate plausible-looking
+   URLs that 404. The model may only suggest search *terms*; the actual URL comes
+   from the real image search. Rendered as a compact 120×120 thumbnail beside
+   the word using `BoxFit.contain` (whole image visible, no cropping), with
+   error/loading builders; hidden entirely on failure.
+2. **AI Tutor comment** — a new `tutorComment` field in the `fetchWordInfo`
+   structured JSON: whether the word is worth memorizing (common vs rare),
+   register/formality, usage guidance and common mistakes, written in the app
+   language. Rendered as a tinted card under the AI explanation.
+
+Consequences for `_fillGapsFromLlm`: it no longer early-returns when local data
+covers everything — `fetchWordInfo` now always runs when the LLM is configured,
+because the tutor comment exists only there. The image lookup runs afterwards
+(`_loadTutorSection`) and works even without an API key since the search term
+can come from local jisho senses alone.
 
 ### `pubspec.yaml`
 - Added `a2ui_core: ^0.1.1` as a direct dependency (needed for

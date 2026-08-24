@@ -17,6 +17,7 @@ import 'package:jisho_anki/l10n/localization.dart';
 import 'package:jisho_anki/core/domain/entities/dictionary.dart';
 import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
 import 'package:jisho_anki/services/llm_service.dart';
+import 'package:jisho_anki/services/wikimedia_image_service.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 
 final getIt = GetIt.instance;
@@ -33,6 +34,8 @@ Future<void> inject() async {
       () => LlmService(sharedPref: getIt<SharedPref>()),
       dependsOn: [SharedPref]);
   getIt.registerLazySingleton<GenUiPrefetchCache>(() => GenUiPrefetchCache());
+  getIt.registerLazySingleton<WikimediaImageService>(
+      () => WikimediaImageService());
   getIt.registerSingletonAsync<Dictionary>(() async {
     Dictionary dicts = Dictionary();
     await dicts.offlineDatabase.initDatabase();

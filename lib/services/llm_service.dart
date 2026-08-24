@@ -144,7 +144,10 @@ class LlmService {
   }
 
   /// Fetches dictionary metadata (reading, han viet, pitch accent pattern,
-  /// example sentences, jisho tags) for a word as structured JSON.
+  /// example sentences, jisho tags), an image search term and an AI-tutor
+  /// comment for a word as structured JSON. The image term is resolved
+  /// against Wikimedia Commons by [WikimediaImageService]; model-provided
+  /// URLs are never rendered.
   ///
   /// Used to fill gaps that the local databases cannot provide. Returns null
   /// when the request fails or the model output cannot be parsed.
@@ -167,12 +170,15 @@ class LlmService {
         '  "tags": ["<word category tags>"],\n'
         '  "jlpt": ["<JLPT level(s), e.g. N4>"],\n'
         '  "pitchPattern": "<string of L/H characters exactly one longer than the reading, e.g. LHHH>",\n'
+        '  "imageQuery": "<simple English noun phrase describing what the word looks like, for an image search, e.g. \'cherry blossom\'>",\n'
+        '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes>",\n'
         '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$targetLanguage translation>"}]\n'
         '}\n\n'
         'Rules:\n'
         '- "pitchPattern" describes the pitch accent: L = low, H = high, one '
         'character per mora of the reading plus one trailing character.\n'
         '- "sentences" must contain 2-3 natural example sentences using the word.\n'
+        '- "tutorComment" must be written in $targetLanguage.\n'
         '- Use empty arrays or empty strings for anything unknown. '
         'Set "found" to false if the query is not Japanese.';
 

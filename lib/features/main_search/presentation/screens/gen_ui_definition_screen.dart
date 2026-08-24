@@ -16,6 +16,7 @@ import '../../../../services/kanji_helper.dart';
 import '../../../../services/llm/gen_ui_prefetch.dart';
 import '../../../../services/llm/genui_catalog.dart';
 import '../../../../services/llm_service.dart';
+import '../../../../services/wikimedia_image_service.dart';
 import '../../../main_search/domain/entities/jisho_definition.dart';
 import '../bloc/main_search_bloc.dart';
 import '../../../word_definition/screens/widgets/component_widget.dart';
@@ -61,6 +62,10 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   // LLM gap-fill data (used only when local data is missing)
   Map<String, dynamic>? _llmInfo;
 
+  // Descriptive picture (Wikimedia) and AI-tutor comment (LLM)
+  String? _descriptiveImageUrl;
+  String? _aiTutorComment;
+
   // AI explanation stream
   bool _isStreaming = false;
   bool _receivedA2uiContent = false;
@@ -79,8 +84,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   void initState() {
     super.initState();
     _resolveBlocData();
-    _kanjiListFuture =
-        KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
+    _kanjiListFuture = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
     _startStreaming();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _loadLocalDictionaryData());
@@ -93,11 +97,11 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
           japaneseWord: query,
         ) ??
         data?.jishoDefinitionList.firstWhereOrNull(
-              (element) =>
-                  element.reading == query ||
-                  element.slug == query ||
-                  element.word == query,
-            ) ??
+          (element) =>
+              element.reading == query ||
+              element.slug == query ||
+              element.word == query,
+        ) ??
         JishoDefinition(slug: '');
     _hanViet = data?.wordToHanVietMap[query] ?? const [];
   }
@@ -155,22 +159,19 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
     });
 
     await _fillGapsFromLlm(pitchWidgets: pitchWidgets, examples: examples);
+    if (!mounted) return;
+    await _loadTutorSection();
   }
 
   Future<void> _fillGapsFromLlm({
     required List<Widget> pitchWidgets,
     required List<ExampleSentence> examples,
   }) async {
-    final needsLlm = _jishoDefinition.slug.isEmpty ||
-        (_jishoDefinition.reading ?? '').isEmpty ||
-        _hanViet.isEmpty ||
-        pitchWidgets.isEmpty ||
-        examples.isEmpty;
-    if (!needsLlm) return;
-
     final sharedPref = getIt<SharedPref>();
     if (!sharedPref.llmEnable || sharedPref.llmApiKey.trim().isEmpty) return;
 
+    // Always fetched: the AI-tutor comment is only available from the LLM,
+    // even for words the local databases cover completely.
     final info = await getIt<LlmService>().fetchWordInfo(currentJapaneseWord);
     if (!mounted || info == null || info['found'] != true) return;
     setState(() {
@@ -181,6 +182,32 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
         _examplesFuture = Future.value(_effectiveExamples);
       }
     });
+  }
+
+  /// Resolves the descriptive picture and the AI-tutor comment shown under
+  /// the explanation. The picture comes from Wikimedia (keyless, free); the
+  /// model only suggests search terms because generated URLs cannot be
+  /// trusted. The comment arrives inside the structured gap-fill payload.
+  Future<void> _loadTutorSection() async {
+    final comment = _llmString('tutorComment');
+    if (comment.isNotEmpty && mounted) {
+      setState(() => _aiTutorComment = comment);
+    }
+
+    String searchTerm = _llmString('imageQuery');
+    searchTerm = searchTerm.isNotEmpty
+        ? searchTerm
+        : (_jishoDefinition
+                .senses.firstOrNull?.englishDefinitions.firstOrNull ??
+            currentJapaneseWord);
+    try {
+      final url =
+          await getIt<WikimediaImageService>().fetchThumbnailUrl(searchTerm);
+      if (!mounted) return;
+      setState(() => _descriptiveImageUrl = url);
+    } catch (e) {
+      log('Error fetching descriptive image $e');
+    }
   }
 
   // --- Effective values (local data preferred over LLM gap-fill) ---
@@ -353,8 +380,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
       appBar: AppBar(
         title: _hasTagData
             ? IsCommonTagsAndJlptWidget(
-                isCommon: _jishoDefinition.isCommon ||
-                    _llmInfo?['isCommon'] == true,
+                isCommon:
+                    _jishoDefinition.isCommon || _llmInfo?['isCommon'] == true,
                 tags: _jishoDefinition.tags.isNotEmpty
                     ? _jishoDefinition.tags
                     : _llmStringList('tags'),
@@ -381,32 +408,58 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
         child: ListView(
           children: <Widget>[
             const SizedBox(height: 10),
-            _buildPitchAccentSection(),
             Row(
-              children: <Widget>[
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Expanded(
-                  child: Text(
-                    currentJapaneseWord,
-                    style: const TextStyle(
-                      fontSize: 45.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildPitchAccentSection(),
+                      Text(
+                        currentJapaneseWord,
+                        style: const TextStyle(
+                          fontSize: 45.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (_effectiveHanViet.isNotEmpty)
+                        Text(
+                          _effectiveHanViet.join(' ').toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            if (_effectiveHanViet.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _effectiveHanViet.join(' ').toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 22,
+                if (_descriptiveImageUrl != null) ...[
+                  const SizedBox(width: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      _descriptiveImageUrl!,
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      loadingBuilder: (context, child, progress) =>
+                          progress == null
+                              ? child
+                              : const SizedBox(
+                                  height: 120,
+                                  width: 120,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFFDB8C8A)),
+                                  ),
+                                ),
                     ),
                   ),
                 ],
-              ),
+              ],
+            ),
             const SizedBox(height: 8),
             Text(
               isVn ? 'Giải thích AI' : 'AI Explanation',
@@ -438,6 +491,38 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               ),
             ),
             ComponentWidget(kanjiComponent: _kanjiListFuture),
+            if (_aiTutorComment != null) ...[
+              SizedBox(height: 12),
+              divider,
+              Row(
+                children: [
+                  const Icon(Icons.record_voice_over,
+                      color: Color(0xffDB8C8A), size: 20),
+                  const SizedBox(width: 6),
+                  Text(
+                    isVn ? 'Nhận xét từ AI Tutor' : 'AI Tutor Notes',
+                    style: const TextStyle(
+                      color: Color(0xffDB8C8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _aiTutorComment!,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -525,8 +610,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
             isVn
                 ? 'Đã xảy ra lỗi khi kết nối AI:'
                 : 'An error occurred while connecting to AI:',
-            style: const TextStyle(
-                color: Colors.red, fontWeight: FontWeight.bold),
+            style:
+                const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
