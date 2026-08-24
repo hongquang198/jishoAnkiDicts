@@ -13,8 +13,16 @@ class WikimediaImageService {
       'JishoAnkiDicts/1.0 (Flutter dictionary app; educational use)';
 
   /// Returns a thumbnail URL for the first bitmap match of [searchTerm],
-  /// or null when nothing suitable was found or the request failed.
-  Future<String?> fetchThumbnailUrl(String searchTerm) async {
+  /// requesting a thumbnail [width] pixels wide, or null when nothing suitable
+  /// was found or the request failed.
+  ///
+  /// An explicit [client] can be injected for tests; when omitted a
+  /// short-lived client is created and closed per call.
+  Future<String?> fetchThumbnailUrl(
+    String searchTerm, {
+    int width = 600,
+    http.Client? client,
+  }) async {
     final term = searchTerm.trim();
     if (term.isEmpty) return null;
 
@@ -27,11 +35,13 @@ class WikimediaImageService {
       'gsrlimit': '5',
       'prop': 'imageinfo',
       'iiprop': 'url',
-      'iiurlwidth': '600',
+      'iiurlwidth': '$width',
     });
 
+    final ownedClient = client ?? http.Client();
     try {
-      final response = await http.get(uri, headers: {'User-Agent': _userAgent});
+      final response =
+          await ownedClient.get(uri, headers: {'User-Agent': _userAgent});
       if (response.statusCode != 200) return null;
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -47,6 +57,8 @@ class WikimediaImageService {
       }
     } catch (_) {
       return null;
+    } finally {
+      if (client == null) ownedClient.close();
     }
     return null;
   }
