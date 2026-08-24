@@ -2,6 +2,7 @@ part of 'llm_settings_bloc.dart';
 
 class LlmSettingsState extends Equatable {
   final bool llmEnabled;
+  final bool llmGenUiEnabled;
   final String apiKey;
   final String modelName;
   final String customPrompt;
@@ -12,6 +13,7 @@ class LlmSettingsState extends Equatable {
 
   const LlmSettingsState({
     required this.llmEnabled,
+    required this.llmGenUiEnabled,
     required this.apiKey,
     required this.modelName,
     required this.customPrompt,
@@ -23,6 +25,7 @@ class LlmSettingsState extends Equatable {
 
   LlmSettingsState copyWith({
     bool? llmEnabled,
+    bool? llmGenUiEnabled,
     String? apiKey,
     String? modelName,
     String? customPrompt,
@@ -33,6 +36,7 @@ class LlmSettingsState extends Equatable {
   }) {
     return LlmSettingsState(
       llmEnabled: llmEnabled ?? this.llmEnabled,
+      llmGenUiEnabled: llmGenUiEnabled ?? this.llmGenUiEnabled,
       apiKey: apiKey ?? this.apiKey,
       modelName: modelName ?? this.modelName,
       customPrompt: customPrompt ?? this.customPrompt,
@@ -46,6 +50,7 @@ class LlmSettingsState extends Equatable {
   @override
   List<Object?> get props => [
         llmEnabled,
+        llmGenUiEnabled,
         apiKey,
         modelName,
         customPrompt,

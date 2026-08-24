@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/services/llm/genui_catalog.dart';
 
 class LlmService {
   final SharedPref sharedPref;
@@ -19,7 +20,8 @@ class LlmService {
       return [];
     }
 
-    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$key');
+    final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models?key=$key');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -52,7 +54,54 @@ class LlmService {
 
   /// Formats the prompt template replacing `%search_words%` and `%search_sentence%`
   /// with the provided query string.
-  String buildPrompt(String query) {
+  ///
+  /// When [useGenUi] is true the A2UI protocol prompt is used instead of the
+  /// custom prompt defined in settings.
+  String buildPrompt(String query, {bool useGenUi = false}) {
+    if (useGenUi) {
+      final catalogSchema = const JsonEncoder.withIndent('  ')
+          .convert(genUiCatalog.toCapabilitiesJson());
+      return 'You are a bilingual Japanese dictionary assistant. '
+          'Analyze the query: "$query".\n\n'
+          'Respond by generating a UI card via the A2UI protocol. Your entire '
+          'response MUST be exactly ONE fenced JSON code block and nothing '
+          'else, using EXACTLY this envelope:\n'
+          '```json\n'
+          '{\n'
+          '  "version": "v0.9",\n'
+          '  "updateComponents": {\n'
+          '    "surfaceId": "llm_definition_surface",\n'
+          '    "components": [\n'
+          '      {\n'
+          '        "id": "root",\n'
+          '        "component": "<ComponentName>",\n'
+          '        "<property>": "<value>"\n'
+          '      }\n'
+          '    ]\n'
+          '  }\n'
+          '}\n'
+          '```\n\n'
+          'Strict rules:\n'
+          '- "version" MUST be the exact string "v0.9".\n'
+          '- "surfaceId" MUST be the exact string "llm_definition_surface".\n'
+          '- "catalogId" is not needed.\n'
+          '- There must be exactly one component and its "id" MUST be "root".\n'
+          '- All property values must be inline literals (strings, lists, '
+          'objects). Never use {"path": ...} references.\n'
+          '- Do not output any text outside the JSON code block and do not '
+          'wrap it in another object.\n\n'
+          'Available components (name -> property schema):\n'
+          '$catalogSchema\n\n'
+          'Choose the single most appropriate component for the query '
+          '("DefinitionCard" for words, phrases or grammar points, '
+          '"ExampleSentences" for example sentences, "KanjiComponents" for '
+          'kanji breakdown).\n'
+          'IMPORTANT: Fill ALL structured array properties (e.g. "senses", '
+          '"sentences", "components") with complete, well-organized entries '
+          'using their dedicated fields. Do NOT dump everything into a single '
+          'text property. Provide accurate Japanese content plus Vietnamese '
+          'and English explanations.';
+    }
     String template = sharedPref.effectivePrompt;
     return template
         .replaceAll('%search_words%', query)
@@ -60,17 +109,24 @@ class LlmService {
   }
 
   /// Streams the response from Gemini for the given query.
-  Stream<String> generateExplanationStream(String query) async* {
+  ///
+  /// Pass [useGenUi] to stream the A2UI protocol response instead of the
+  /// custom prompt defined in settings.
+  Stream<String> generateExplanationStream(
+    String query, {
+    bool useGenUi = false,
+  }) async* {
     if (!isLlmEnabled) {
       return;
     }
 
     final apiKey = sharedPref.llmApiKey.trim();
     if (apiKey.isEmpty) {
-      throw Exception('API Key is missing. Please set your Gemini API key in Settings.');
+      throw Exception(
+          'API Key is missing. Please set your Gemini API key in Settings.');
     }
 
-    final prompt = buildPrompt(query);
+    final prompt = buildPrompt(query, useGenUi: useGenUi);
     final selectedModel = sharedPref.llmModel;
     final model = GenerativeModel(
       model: selectedModel,
@@ -85,5 +141,56 @@ class LlmService {
         yield chunk.text!;
       }
     }
+  }
+
+  /// Fetches dictionary metadata (reading, han viet, pitch accent pattern,
+  /// example sentences, jisho tags) for a word as structured JSON.
+  ///
+  /// Used to fill gaps that the local databases cannot provide. Returns null
+  /// when the request fails or the model output cannot be parsed.
+  Future<Map<String, dynamic>?> fetchWordInfo(String query) async {
+    if (!isLlmEnabled || query.trim().isEmpty) return null;
+    final apiKey = sharedPref.llmApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final targetLanguage = sharedPref.isAppInVietnamese ? 'Vietnamese' : 'English';
+    final prompt =
+        'You are a Japanese dictionary data provider. For the query '
+        '"$query", return ONLY a JSON object (no markdown fences, no '
+        'commentary) with exactly this shape:\n'
+        '{\n'
+        '  "found": <bool - whether the query is a valid Japanese word or phrase>,\n'
+        '  "word": "<canonical Japanese word/kanji form>",\n'
+        '  "reading": "<hiragana reading>",\n'
+        '  "hanViet": ["<one Sino-Vietnamese reading per kanji character>"],\n'
+        '  "isCommon": <bool>,\n'
+        '  "tags": ["<word category tags>"],\n'
+        '  "jlpt": ["<JLPT level(s), e.g. N4>"],\n'
+        '  "pitchPattern": "<string of L/H characters exactly one longer than the reading, e.g. LHHH>",\n'
+        '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$targetLanguage translation>"}]\n'
+        '}\n\n'
+        'Rules:\n'
+        '- "pitchPattern" describes the pitch accent: L = low, H = high, one '
+        'character per mora of the reading plus one trailing character.\n'
+        '- "sentences" must contain 2-3 natural example sentences using the word.\n'
+        '- Use empty arrays or empty strings for anything unknown. '
+        'Set "found" to false if the query is not Japanese.';
+
+    try {
+      final model = GenerativeModel(
+        model: sharedPref.llmModel,
+        apiKey: apiKey,
+        generationConfig:
+            GenerationConfig(responseMimeType: 'application/json'),
+      );
+      final response = await model.generateContent([Content.text(prompt)]);
+      final text = response.text;
+      if (text == null || text.trim().isEmpty) return null;
+      final decoded = jsonDecode(text);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 }

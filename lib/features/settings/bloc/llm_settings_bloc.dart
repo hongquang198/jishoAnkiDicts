@@ -16,6 +16,7 @@ class LlmSettingsBloc extends Bloc<LlmSettingsEvent, LlmSettingsState> {
     required this.llmService,
   }) : super(LlmSettingsState(
           llmEnabled: sharedPref.llmEnable,
+          llmGenUiEnabled: sharedPref.llmGenUiEnable,
           apiKey: sharedPref.llmApiKey,
           modelName: sharedPref.llmModel,
           customPrompt: sharedPref.llmCustomPrompt,
@@ -24,6 +25,7 @@ class LlmSettingsBloc extends Bloc<LlmSettingsEvent, LlmSettingsState> {
           isFetchingModels: false,
         )) {
     on<ToggleLlmEnabledEvent>(_onToggleLlmEnabled);
+    on<ToggleLlmGenUiEnabledEvent>(_onToggleLlmGenUiEnabled);
     on<UpdateApiKeyEvent>(_onUpdateApiKey);
     on<UpdateModelNameEvent>(_onUpdateModelName);
     on<UpdateCustomPromptEvent>(_onUpdateCustomPrompt);
@@ -35,6 +37,12 @@ class LlmSettingsBloc extends Bloc<LlmSettingsEvent, LlmSettingsState> {
       ToggleLlmEnabledEvent event, Emitter<LlmSettingsState> emit) {
     sharedPref.llmEnable = event.enabled;
     emit(state.copyWith(llmEnabled: event.enabled));
+  }
+
+  FutureOr<void> _onToggleLlmGenUiEnabled(
+      ToggleLlmGenUiEnabledEvent event, Emitter<LlmSettingsState> emit) {
+    sharedPref.llmGenUiEnable = event.enabled;
+    emit(state.copyWith(llmGenUiEnabled: event.enabled));
   }
 
   FutureOr<void> _onUpdateApiKey(

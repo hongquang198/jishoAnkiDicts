@@ -7,6 +7,7 @@ import '../features/favorite_words/screens/favorite_screen.dart';
 import '../features/grammar/screens/grammar_screen.dart';
 import '../features/history/screens/saved_definition_screen.dart';
 import '../features/history/screens/history_screen.dart';
+import '../features/main_search/presentation/screens/gen_ui_definition_screen.dart';
 import '../features/main_search/presentation/screens/main_search_screen.dart';
 import '../features/review/screens/review_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
@@ -86,6 +87,13 @@ class AppRoutes {
           builder: (_, state) =>
               DefinitionScreen.provider(args: state.extra as DefinitionScreenArgs),
         ),
+        GoRoute(
+          path: AppRoutesPath.genUiDefinition,
+          name: AppRoutesPath.genUiDefinition,
+          builder: (_, state) => GenUiDefinitionScreen(
+            args: state.extra as GenUiDefinitionScreenArgs,
+          ),
+        ),
       ]);
 }
 
@@ -101,4 +109,5 @@ class AppRoutesPath {
   static const String statistics = '/statistics';
   static const String wordDefinition = '/word-definition';
   static const String savedWordDefinition = '/saved-word-definition';
+  static const String genUiDefinition = '/gen-ui-definition';
 }

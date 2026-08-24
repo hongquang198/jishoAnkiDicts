@@ -129,9 +129,13 @@ final kanjiComponentsItem = CatalogItem(
   },
 );
 
+/// Stable identifier for [genUiCatalog]. Used by the client when creating
+/// surfaces and embedded into the GenUI system prompt so the model references
+/// the correct catalog.
+const String genUiCatalogId = 'com.jishoanki.dictionary';
+
 /// The standard GenUI catalog containing all mapping widgets.
-final genUiCatalog = Catalog([
-  definitionCardItem,
-  exampleSentencesItem,
-  kanjiComponentsItem,
-]);
+final genUiCatalog = Catalog(
+  [definitionCardItem, exampleSentencesItem, kanjiComponentsItem],
+  catalogId: genUiCatalogId,
+);

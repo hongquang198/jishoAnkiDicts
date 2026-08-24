@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   a2ui_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: a2ui_core
       sha256: "81cd97d82d58719e68856e901b8e8cae45be201ed7b1f9a0c9ba79226dc87208"

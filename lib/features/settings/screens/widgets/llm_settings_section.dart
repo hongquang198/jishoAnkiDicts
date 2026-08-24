@@ -59,7 +59,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
         }
 
         // Show success snackbar when models are fetched
-        if (!state.isFetchingModels && state.availableModels.isNotEmpty && state.fetchError.isEmpty) {
+        if (!state.isFetchingModels &&
+            state.availableModels.isNotEmpty &&
+            state.fetchError.isEmpty) {
           // Only show on transition (we check that fetching just completed)
         }
       },
@@ -77,8 +79,11 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
-                isVn ? 'Cấu hình AI / LLM (Gemini)' : 'AI / LLM Settings (Gemini)',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                isVn
+                    ? 'Cấu hình AI / LLM (Gemini)'
+                    : 'AI / LLM Settings (Gemini)',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 10),
@@ -89,14 +94,38 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
-                  child: Text(isVn ? 'Bật giải thích AI' : 'Enable AI Explanation'),
+                  child: Text(
+                      isVn ? 'Bật giải thích AI' : 'Enable AI Explanation'),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 15.0),
                   child: Switch(
                     value: state.llmEnabled,
                     onChanged: (val) {
-                      context.read<LlmSettingsBloc>().add(ToggleLlmEnabledEvent(val));
+                      context
+                          .read<LlmSettingsBloc>()
+                          .add(ToggleLlmEnabledEvent(val));
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Text(
+                      isVn ? 'Sử dụng giao diện GenUI' : 'Use GenUI Interface'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 15.0),
+                  child: Switch(
+                    value: state.llmGenUiEnabled,
+                    onChanged: (val) {
+                      context
+                          .read<LlmSettingsBloc>()
+                          .add(ToggleLlmGenUiEnabledEvent(val));
                     },
                   ),
                 ),
@@ -119,9 +148,12 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     obscureText: _obscureApiKey,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText: isVn ? 'Nhập Gemini API Key' : 'Enter Gemini API Key',
+                      hintText:
+                          isVn ? 'Nhập Gemini API Key' : 'Enter Gemini API Key',
                       suffixIcon: IconButton(
-                        icon: Icon(_obscureApiKey ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(_obscureApiKey
+                            ? Icons.visibility
+                            : Icons.visibility_off),
                         onPressed: () {
                           setState(() {
                             _obscureApiKey = !_obscureApiKey;
@@ -130,7 +162,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                       ),
                     ),
                     onChanged: (val) {
-                      context.read<LlmSettingsBloc>().add(UpdateApiKeyEvent(val));
+                      context
+                          .read<LlmSettingsBloc>()
+                          .add(UpdateApiKeyEvent(val));
                     },
                   ),
                   const SizedBox(height: 15),
@@ -170,7 +204,8 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                             ? const SizedBox(
                                 width: 14,
                                 height: 14,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.sync, size: 16),
                         label: Text(isVn ? 'Tải từ API' : 'Fetch from API'),
@@ -188,7 +223,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                             hintText: 'gemini-2.0-flash',
                           ),
                           onChanged: (val) {
-                            context.read<LlmSettingsBloc>().add(UpdateModelNameEvent(val));
+                            context
+                                .read<LlmSettingsBloc>()
+                                .add(UpdateModelNameEvent(val));
                           },
                         ),
                       ),
@@ -199,7 +236,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                         enabled: state.availableModels.isNotEmpty,
                         onSelected: (model) {
                           _modelController.text = model;
-                          context.read<LlmSettingsBloc>().add(UpdateModelNameEvent(model));
+                          context
+                              .read<LlmSettingsBloc>()
+                              .add(UpdateModelNameEvent(model));
                         },
                         itemBuilder: (context) {
                           if (state.availableModels.isEmpty) {
@@ -219,7 +258,8 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                             ];
                           }
                           return state.availableModels
-                              .map((m) => PopupMenuItem(value: m, child: Text(m)))
+                              .map((m) =>
+                                  PopupMenuItem(value: m, child: Text(m)))
                               .toList();
                         },
                       ),
@@ -233,15 +273,20 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     children: [
                       Flexible(
                         child: Text(
-                          isVn ? 'Mẫu Prompt (Custom):' : 'Custom Prompt Template:',
+                          isVn
+                              ? 'Mẫu Prompt (Custom for text-based output):'
+                              : 'Custom Prompt Template for text-based output:',
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                       TextButton(
                         onPressed: () {
-                          context.read<LlmSettingsBloc>().add(const ResetPromptToDefaultEvent());
+                          context
+                              .read<LlmSettingsBloc>()
+                              .add(const ResetPromptToDefaultEvent());
                         },
-                        child: Text(isVn ? 'Đặt lại mặc định' : 'Reset to Default'),
+                        child: Text(
+                            isVn ? 'Đặt lại mặc định' : 'Reset to Default'),
                       ),
                     ],
                   ),
@@ -256,7 +301,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                           : 'Use %search_words% as query placeholder',
                     ),
                     onChanged: (val) {
-                      context.read<LlmSettingsBloc>().add(UpdateCustomPromptEvent(val));
+                      context
+                          .read<LlmSettingsBloc>()
+                          .add(UpdateCustomPromptEvent(val));
                     },
                   ),
                 ],
