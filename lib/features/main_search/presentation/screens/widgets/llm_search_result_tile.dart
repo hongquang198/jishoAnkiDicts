@@ -170,35 +170,14 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             onTap: _toggleExpanded,
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: _openGenUiScreen,
-                    tooltip:
-                        isVn ? 'Mở trang AI đầy đủ' : 'Open full AI page',
-                    padding: const EdgeInsets.all(6),
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor:
-                          const Color(0xFFDB8C8A).withValues(alpha: 0.15),
-                      shape: const CircleBorder(),
-                    ),
-                    icon: const Icon(
-                      Icons.auto_awesome,
-                      color: Color(0xFFDB8C8A),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       isVn
-                          ? '✨ AI Giải thích: "${widget.query}"'
-                          : '✨ AI Explanation: "${widget.query}"',
+                          ? '✨   AI Giải thích: "${widget.query}"'
+                          : '✨   AI Explanation: "${widget.query}"',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -219,6 +198,26 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                         ),
                       ),
                     ),
+                  IconButton(
+                    onPressed: _openGenUiScreen,
+                    tooltip: isVn ? 'Mở trang AI đầy đủ' : 'Open full AI page',
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          const Color(0xFFDB8C8A).withValues(alpha: 0.15),
+                      shape: const CircleBorder(),
+                    ),
+                    icon: const Icon(
+                      Icons.auto_awesome,
+                      color: Color(0xFFDB8C8A),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Icon(
                     _isExpanded
                         ? Icons.keyboard_arrow_up
