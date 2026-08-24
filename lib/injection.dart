@@ -15,6 +15,7 @@ import 'package:jisho_anki/core/client/http_client.dart';
 import 'package:jisho_anki/core/services/navigation_service.dart';
 import 'package:jisho_anki/l10n/localization.dart';
 import 'package:jisho_anki/core/domain/entities/dictionary.dart';
+import 'package:jisho_anki/services/llm/gen_ui_data_prefetch.dart';
 import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
 import 'package:jisho_anki/services/llm_service.dart';
 import 'package:jisho_anki/services/wikimedia_image_service.dart';
@@ -34,6 +35,8 @@ Future<void> inject() async {
       () => LlmService(sharedPref: getIt<SharedPref>()),
       dependsOn: [SharedPref]);
   getIt.registerLazySingleton<GenUiPrefetchCache>(() => GenUiPrefetchCache());
+  getIt.registerLazySingleton<GenUiDataPrefetchCache>(
+      () => GenUiDataPrefetchCache());
   getIt.registerLazySingleton<WikimediaImageService>(
       () => WikimediaImageService());
   getIt.registerSingletonAsync<Dictionary>(() async {
