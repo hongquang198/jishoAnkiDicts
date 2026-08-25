@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
+import '../../../core/data/datasources/shared_pref.dart';
+import '../../../core/domain/entities/user_data/word_card.dart';
+import '../../../core/domain/repositories/user_data_repository.dart';
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
-import '../../../models/offline_word_record.dart';
 import '../../../models/vietnamese_definition.dart';
-import '../../../services/db_helper.dart';
 import '../../../services/kanji_helper.dart';
-import '../../../utils/offline_list_type.dart';
-import '../../../core/data/datasources/shared_pref.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../main_search/presentation/bloc/main_search_bloc.dart';
-import '../mixins/get_word_view_count_mixin.dart';
+import '../bloc/word_interaction_bloc.dart';
 import 'widgets/component_widget.dart';
 import 'widgets/definition_widget.dart';
 import 'widgets/example_sentence_widget.dart';
@@ -45,11 +44,21 @@ class DefinitionScreen extends StatefulWidget {
     required this.args,
   });
 
-  static BlocProvider<MainSearchBloc> provider({
+  static Widget provider({
     required DefinitionScreenArgs args,
   }) {
-    return BlocProvider.value(
-      value: args.mainSearchBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: args.mainSearchBloc),
+        BlocProvider(
+          create: (context) {
+            final word = args.vnDefinition?.word.isNotEmpty == true
+                ? args.vnDefinition!.word
+                : (args.jishoDefinition?.japaneseWord ?? args.jishoDefinition?.slug ?? '');
+            return getIt<WordInteractionBloc>()..add(WatchWordInteraction(word));
+          },
+        ),
+      ],
       child: DefinitionScreen(args: args),
     );
   }
@@ -58,33 +67,17 @@ class DefinitionScreen extends StatefulWidget {
   State<DefinitionScreen> createState() => _DefinitionScreenState();
 }
 
-class _DefinitionScreenState extends State<DefinitionScreen>
-    with GetWordViewCountMixin {
-  bool isClipboardSet = false;
-  late String clipboard;
+class _DefinitionScreenState extends State<DefinitionScreen> {
   late Future<List<Widget>> pitchAccent;
   late Future<List<Kanji>> kanjiList;
   late Future<List<ExampleSentence>> exampleSentence;
   late JishoDefinition jishoDefinition;
   late VietnameseDefinition vnDefinition;
-  late OfflineWordRecord offlineWordRecord;
   late String currentJapaneseWord;
+  bool _historyRecorded = false;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
-  Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
-    if (partsOfSpeech.isNotEmpty) {
-      return Text(
-        partsOfSpeech.first.toString().toUpperCase(),
-      );
-    }
-    return SizedBox();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -98,9 +91,11 @@ class _DefinitionScreenState extends State<DefinitionScreen>
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.slug;
     }
+
     if (widget.args.jishoDefinition != null) {
-      _saveHistoryOfflineWordRecord(context);
+      _recordViewAndHistory();
     }
+
     pitchAccent = KanjiHelper.getPitchAccent(
       word: jishoDefinition.word,
       slug: jishoDefinition.slug,
@@ -128,235 +123,182 @@ class _DefinitionScreenState extends State<DefinitionScreen>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: widget.args.jishoDefinition != null
-            ? IsCommonTagsAndJlptWidget(
-                isCommon: jishoDefinition.isCommon,
-                tags: jishoDefinition.tags,
-                jlpt: jishoDefinition.jlpt,
-              )
-            : BlocConsumer<MainSearchBloc, MainSearchState>(
-                listener: (context, state) {
-                  if (state is MainSearchJishoLoadedState) {
-                    jishoDefinition = state.data.getSpecificJishoDefinition(
-                            japaneseWord: currentJapaneseWord) ??
-                        JishoDefinition(slug: '');
-                    _saveHistoryOfflineWordRecord(context);
-                  }
-                },
-                builder: (context, state) {
-                  final jishoDefinition = state.data.getSpecificJishoDefinition(
-                      japaneseWord: currentJapaneseWord);
-                  final isCommon = jishoDefinition?.isCommon ?? false;
-                  final tags = jishoDefinition?.tags ?? [];
-                  final jlpt = jishoDefinition?.jlpt ?? [];
-
-                  return IsCommonTagsAndJlptWidget(
-                    isCommon: isCommon,
-                    tags: tags,
-                    jlpt: jlpt,
-                  );
-                },
-              ),
-        actions: [
-          IconButton(
-            padding: EdgeInsets.all(0),
-            icon: DbHelper.checkDatabaseExist(
-                    offlineListType: OfflineListType.favorite,
-                    word: currentJapaneseWord,
-                    context: context)
-                ? Icon(Icons.bookmark, color: Colors.white)
-                : Icon(Icons.bookmark_border),
-            onPressed: () {
-              if (DbHelper.checkDatabaseExist(
-                      offlineListType: OfflineListType.favorite,
-                      word: currentJapaneseWord,
-                      context: context) ==
-                  false) {
-                setState(() {
-                  DbHelper.addToOfflineList(
-                      offlineListType: OfflineListType.favorite,
-                      offlineWordRecord: offlineWordRecord,
-                      context: context);
-                });
-              } else {
-                setState(() {
-                  DbHelper.removeFromOfflineList(
-                      offlineListType: OfflineListType.favorite,
-                      context: context,
-                      word: currentJapaneseWord);
-                });
-              }
-            },
-          ),
-          IconButton(
-            padding: EdgeInsets.only(left: 20, right: 20),
-            icon: DbHelper.checkDatabaseExist(
-                    offlineListType: OfflineListType.review,
-                    word: currentJapaneseWord,
-                    context: context)
-                ? Icon(
-                    Icons.alarm_on_rounded,
-                    color: Colors.white,
-                  )
-                : Icon(
-                    Icons.alarm_add,
-                  ),
-            onPressed: () {
-              if (DbHelper.checkDatabaseExist(
-                      offlineListType: OfflineListType.review,
-                      word: currentJapaneseWord,
-                      context: context) ==
-                  false) {
-                setState(() {
-                  DbHelper.addToOfflineList(
-                      offlineListType: OfflineListType.review,
-                      offlineWordRecord: offlineWordRecord,
-                      context: context);
-                });
-              } else {
-                setState(() {
-                  DbHelper.removeFromOfflineList(
-                      offlineListType: OfflineListType.review,
-                      context: context,
-                      word: currentJapaneseWord);
-                });
-              }
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.only(left: 12, right: 12),
-        child: ListView(children: <Widget>[
-          SizedBox(
-            height: 10,
-          ),
-          FutureBuilder<List<Widget>>(
-            future: pitchAccent,
-            builder: (context, snapshot) {
-              if (snapshot.data == null || snapshot.data?.isEmpty == true) {
-                return Text(
-                  jishoDefinition.reading ?? '',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    color: Colors.grey,
-                  ),
-                );
-              }
-              return Row(
-                children: snapshot.data!,
-              );
-            },
-          ),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  currentJapaneseWord,
-                  style: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              WordViewCountWidget(
-                  viewCounts:
-                      getViewCounts(currentJapaneseWord: currentJapaneseWord))
-            ],
-          ),
-          if (getIt<SharedPref>().isAppInVietnamese &&
-              widget.args.hanViet?.isNotEmpty == true)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.args.hanViet.toString().toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 22,
-                  ),
-                ),
-              ],
-            ),
-          SizedBox(height: 8),
-          DefinitionWidget(
-            senses: jishoDefinition.senses,
-            vietnameseDefinition: vnDefinition.definition,
-          ),
-          divider,
-          Text(
-            'Examples',
-            style: TextStyle(
-              color: Color(0xffDB8C8A),
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-          FutureBuilder<List<ExampleSentence>>(
-              future: exampleSentence,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data?.isEmpty ?? true) {
-                    return ExampleSentenceWidget(
-                      exampleSentence: KanjiHelper.getExampleSentence(
-                          word: currentJapaneseWord,
-                          context: context,
-                          tableName: 'englishExampleDictionary'),
-                    );
-                  }
-                  return ExampleSentenceWidget(
-                    exampleSentence: exampleSentence,
-                  );
-                } else {
-                  return SizedBox();
-                }
-              }),
-          divider,
-          Text(
-            'Components',
-            style: TextStyle(
-              color: Color(0xffDB8C8A),
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-          ComponentWidget(
-            kanjiComponent: kanjiList,
-          ),
-        ]),
-      ),
+  WordCard _createWordCard() {
+    return WordCard(
+      id: currentJapaneseWord,
+      word: jishoDefinition.word ?? currentJapaneseWord,
+      slug: jishoDefinition.slug,
+      reading: jishoDefinition.reading ?? '',
+      isCommon: jishoDefinition.isCommon ? 1 : 0,
+      tags: jishoDefinition.tags,
+      jlpt: jishoDefinition.jlpt,
+      senses: jishoDefinition.senses,
+      vietnameseDefinition: vnDefinition.definition,
+      addedAt: DateTime.now().millisecondsSinceEpoch,
+      updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
-  void _saveHistoryOfflineWordRecord(BuildContext context) {
-    DbHelper.addToOfflineList(
-        offlineListType: OfflineListType.history,
-        offlineWordRecord: OfflineWordRecord(
-          slug: currentJapaneseWord,
-          isCommon: jishoDefinition.isCommon == true ? 1 : 0,
-          tags: jishoDefinition.tags,
-          jlpt: jishoDefinition.jlpt,
-          word: currentJapaneseWord,
-          reading: jishoDefinition.reading ?? '',
-          senses: jishoDefinition.senses,
-          vietnameseDefinition: vnDefinition.definition,
-          added: DateTime.now().millisecondsSinceEpoch,
-          firstReview: null,
-          lastReview: null,
-          due: -1,
-          interval: 0,
-          ease: getIt<SharedPref>().prefs.getDouble('startingEase') ?? -1,
-          reviews: 0,
-          lapses: 0,
-          averageTimeMinute: 0,
-          totalTimeMinute: 0,
-          cardType: 'default',
-          noteType: 'default',
-          deck: 'default',
-        ),
-        context: context);
+  void _recordViewAndHistory() {
+    if (_historyRecorded || currentJapaneseWord.isEmpty) return;
+    _historyRecorded = true;
+    final card = _createWordCard();
+    getIt<UserDataRepository>().recordWordView(currentJapaneseWord);
+    getIt<UserDataRepository>().addHistory(card);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WordInteractionBloc, WordInteractionState>(
+      builder: (context, interactionState) {
+        return Scaffold(
+          appBar: AppBar(
+            title: widget.args.jishoDefinition != null
+                ? IsCommonTagsAndJlptWidget(
+                    isCommon: jishoDefinition.isCommon,
+                    tags: jishoDefinition.tags,
+                    jlpt: jishoDefinition.jlpt,
+                  )
+                : BlocConsumer<MainSearchBloc, MainSearchState>(
+                    listener: (context, state) {
+                      if (state is MainSearchJishoLoadedState) {
+                        jishoDefinition = state.data.getSpecificJishoDefinition(
+                                japaneseWord: currentJapaneseWord) ??
+                            JishoDefinition(slug: '');
+                        _recordViewAndHistory();
+                      }
+                    },
+                    builder: (context, state) {
+                      final jishoDef = state.data.getSpecificJishoDefinition(
+                          japaneseWord: currentJapaneseWord);
+                      final isCommon = jishoDef?.isCommon ?? false;
+                      final tags = jishoDef?.tags ?? [];
+                      final jlpt = jishoDef?.jlpt ?? [];
+
+                      return IsCommonTagsAndJlptWidget(
+                        isCommon: isCommon,
+                        tags: tags,
+                        jlpt: jlpt,
+                      );
+                    },
+                  ),
+            actions: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                icon: interactionState.isFavorite
+                    ? const Icon(Icons.bookmark, color: Colors.white)
+                    : const Icon(Icons.bookmark_border),
+                onPressed: () {
+                  context
+                      .read<WordInteractionBloc>()
+                      .add(ToggleWordFavoriteEvent(_createWordCard()));
+                },
+              ),
+              IconButton(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                icon: interactionState.isInReview
+                    ? const Icon(Icons.alarm_on_rounded, color: Colors.white)
+                    : const Icon(Icons.alarm_add),
+                onPressed: () {
+                  context
+                      .read<WordInteractionBloc>()
+                      .add(ToggleWordReviewEvent(_createWordCard()));
+                },
+              ),
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: ListView(
+              children: <Widget>[
+                const SizedBox(height: 10),
+                FutureBuilder<List<Widget>>(
+                  future: pitchAccent,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null || snapshot.data?.isEmpty == true) {
+                      return Text(
+                        jishoDefinition.reading ?? '',
+                        style: const TextStyle(fontSize: 15.0, color: Colors.grey),
+                      );
+                    }
+                    return Row(children: snapshot.data!);
+                  },
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        currentJapaneseWord,
+                        style: const TextStyle(
+                          fontSize: 45.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    WordViewCountWidget(viewCounts: interactionState.viewCount),
+                  ],
+                ),
+                if (getIt<SharedPref>().isAppInVietnamese &&
+                    widget.args.hanViet?.isNotEmpty == true)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.args.hanViet.toString().toUpperCase(),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 8),
+                DefinitionWidget(
+                  senses: jishoDefinition.senses,
+                  vietnameseDefinition: vnDefinition.definition,
+                ),
+                divider,
+                const Text(
+                  'Examples',
+                  style: TextStyle(
+                    color: Color(0xffDB8C8A),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                FutureBuilder<List<ExampleSentence>>(
+                  future: exampleSentence,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.data?.isEmpty ?? true) {
+                        return ExampleSentenceWidget(
+                          exampleSentence: KanjiHelper.getExampleSentence(
+                            word: currentJapaneseWord,
+                            context: context,
+                            tableName: 'englishExampleDictionary',
+                          ),
+                        );
+                      }
+                      return ExampleSentenceWidget(
+                        exampleSentence: exampleSentence,
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
+                divider,
+                const Text(
+                  'Components',
+                  style: TextStyle(
+                    color: Color(0xffDB8C8A),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                ComponentWidget(kanjiComponent: kanjiList),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

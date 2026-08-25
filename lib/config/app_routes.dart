@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/domain/entities/user_data/word_card.dart';
 import '../core/services/navigation_service.dart';
 import '../features/card_info/screens/card_info_screen.dart';
 import '../features/favorite_words/screens/favorite_screen.dart';
@@ -35,8 +36,14 @@ class AppRoutes {
         GoRoute(
           path: AppRoutesPath.cardInfo,
           name: AppRoutesPath.cardInfo,
-          builder: (_, state) => CardInfoScreen(
-              offlineWordRecord: state.extra as OfflineWordRecord),
+          builder: (_, state) {
+            if (state.extra is WordCard) {
+              return CardInfoScreen(card: state.extra as WordCard);
+            }
+            return CardInfoScreen(
+              offlineWordRecord: state.extra as OfflineWordRecord?,
+            );
+          },
         ),
         GoRoute(
           path: AppRoutesPath.favoriteWords,
@@ -79,7 +86,7 @@ class AppRoutes {
         GoRoute(
           path: AppRoutesPath.statistics,
           name: AppRoutesPath.statistics,
-          builder: (_, state) => StatisticsScreen(),
+          builder: (_, state) => const StatisticsScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.wordDefinition,

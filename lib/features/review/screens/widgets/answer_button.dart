@@ -1,95 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/srs_stage.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/services/srs_engine.dart';
 
-import '../../../../core/data/datasources/shared_pref.dart';
-import '../../../../injection.dart';
-import '../../../../models/offline_word_record.dart';
+class SrsAnswerButton extends StatelessWidget {
+  final WordCard card;
+  final SrsRating rating;
+  final SrsEngine srsEngine;
+  final VoidCallback onTap;
 
-class AnswerButton extends StatelessWidget {
-  const AnswerButton({
+  const SrsAnswerButton({
     super.key,
-    required this.steps,
-    required this.color,
-    required this.buttonText,
-    required this.offlineWordRecord,
+    required this.card,
+    required this.rating,
+    required this.srsEngine,
+    required this.onTap,
   });
-  final OfflineWordRecord offlineWordRecord;
-  final List<int> steps;
-  final Color color;
-  final String buttonText;
+
+  String get buttonLabel {
+    switch (rating) {
+      case SrsRating.again:
+        return 'Again';
+      case SrsRating.hard:
+        return 'Hard';
+      case SrsRating.good:
+        return 'Good';
+      case SrsRating.easy:
+        return 'Easy';
+    }
+  }
+
+  Color get buttonColor {
+    switch (rating) {
+      case SrsRating.again:
+        return const Color(0xFFE53935);
+      case SrsRating.hard:
+        return const Color(0xFFFB8C00);
+      case SrsRating.good:
+        return const Color(0xFF43A047);
+      case SrsRating.easy:
+        return const Color(0xFF1E88E5);
+    }
+  }
+
+  String get intervalEstimate {
+    final srs = card.srsData;
+    if (srs == null) return '';
+    final next = srsEngine.calculateNextState(
+      current: srs,
+      rating: rating,
+      nowMs: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    final ms = next.intervalMs;
+    if (ms < 60 * 1000) return '<1m';
+    if (ms < 60 * 60 * 1000) return '${(ms / (60 * 1000)).round()}m';
+    if (ms < 24 * 60 * 60 * 1000) return '${(ms / (60 * 60 * 1000)).round()}h';
+    if (ms < 30 * 24 * 60 * 60 * 1000) {
+      return '${(ms / (24 * 60 * 60 * 1000)).round()}d';
+    }
+    if (ms < 365 * 24 * 60 * 60 * 1000) {
+      return '${(ms / (30 * 24 * 60 * 60 * 1000)).toStringAsFixed(1)}mo';
+    }
+    return '${(ms / (365 * 24 * 60 * 60 * 1000)).toStringAsFixed(1)}y';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.sizeOf(context).width / 2,
-      height: 50,
-      color: color,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              buttonText,
-              style: TextStyle(color: Colors.white),
-            ),
-            if (buttonText == 'Again') Text('1m') else getInterval()
-          ],
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 54,
+          color: buttonColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                buttonLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                intervalEstimate,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-
-  Widget getInterval() {
-    if (offlineWordRecord.interval < steps[steps.length - 1] * 60 * 1000) {
-
-      for (int i = 0; i < steps.length; i++) {
-        if (offlineWordRecord.interval < steps[i] * 60 * 1000) {
-          return Text('${steps[i]}min');
-        }
-      }
-    }
-    else if (offlineWordRecord.interval ==
-        steps[steps.length - 1] * 60 * 1000) {
-      return Text(
-          '${getIt<SharedPref>().prefs.getInt('graduatingInterval')}day');
-    } else if (offlineWordRecord.interval >=
-        getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
-            24 *
-            60 *
-            60 *
-            1000) {
-      if (offlineWordRecord.interval * offlineWordRecord.ease <=
-          31 * 24 * 60 * 60 * 1000) {
-        return Text(
-            '${Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays}day');
-      } else if (offlineWordRecord.interval * offlineWordRecord.ease <=
-          365 * 24 * 60 * 60 * 1000) {
-        return Text(
-            '${(Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays / 31).toStringAsFixed(1)}month');
-      }
-      return Text(
-          '${(Duration(milliseconds: (offlineWordRecord.interval * offlineWordRecord.ease).round()).inDays / 365).toStringAsFixed(1)}year');
-    }
-    return Text('');
-  }
 }
-
-// if (dictionary.review[currentCard].reviews > 0 == true)
-// dictionary.review[currentCard].interval / 1000 / 60 < 60
-// ? Text(
-// '${(dictionary.review[currentCard].interval / 1000 / 60).round()}m',
-// style: TextStyle(color: Colors.white),
-// )
-// : Text(
-// '${(dictionary.review[currentCard].interval / 1000 / 60 / 60 / 24).round()}d',
-// style: TextStyle(color: Colors.white),
-// )
-// else
-// buttonText == 'Good'
-// ? Text(
-// '${step[1].round().toString()}m',
-// style: TextStyle(color: Colors.white),
-// )
-// : Text(
-// '${step[0].round().toString()}m',
-// style: TextStyle(color: Colors.white),
-// ),

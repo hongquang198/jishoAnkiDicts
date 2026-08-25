@@ -117,7 +117,7 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
                 children: [
                   WordViewCountWidget(
                     margin: const EdgeInsets.only(right: 10.0),
-                    viewCounts: getViewCounts(currentJapaneseWord: word),
+                    word: word,
                     onlyShowNumber: true,
                   ),
                   Expanded(

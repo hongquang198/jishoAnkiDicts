@@ -1,93 +1,52 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/data/datasources/shared_pref.dart';
-import '../../../../core/domain/entities/dictionary.dart';
-import '../../../../injection.dart';
-import '../../../../models/offline_word_record.dart';
-import '../../../../utils/card_status.dart';
+class ReviewInfo extends StatelessWidget {
+  final int newCardsCount;
+  final int learningCardsCount;
+  final int dueCardsCount;
 
-class ReviewInfo extends StatefulWidget {
-  final OfflineWordRecord offlineWordRecord;
-  const ReviewInfo({super.key, required this.offlineWordRecord});
-
-  @override
-  State<ReviewInfo> createState() => _ReviewInfoState();
-}
-
-class _ReviewInfoState extends State<ReviewInfo> {
-  late List<OfflineWordRecord> review;
-  late List<int> steps;
-
-  @override
-  void initState() {
-    steps = getIt<SharedPref>()
-            .prefs
-            .getStringList('newCardsSteps')
-            ?.map((e) => int.parse(e))
-            .toList() ??
-        [];
-    super.initState();
-  }
-
-  CardStatus getCardStatus() {
-    if (widget.offlineWordRecord.reviews == 0) {
-      return CardStatus.isNew;
-    } else if (widget.offlineWordRecord.interval <=
-        steps[steps.length - 1] * 60 * 1000) {
-      return CardStatus.isLearned;
-    } else if (widget.offlineWordRecord.due <
-        DateTime.now().millisecondsSinceEpoch) {
-      return CardStatus.isDue;
-    }
-    return CardStatus.isNew;
-  }
+  const ReviewInfo({
+    super.key,
+    this.newCardsCount = 0,
+    this.learningCardsCount = 0,
+    this.dueCardsCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildCountBadge('$newCardsCount', Colors.blue, 'New'),
+          const SizedBox(width: 20),
+          _buildCountBadge('$learningCardsCount', Colors.orange, 'Learn'),
+          const SizedBox(width: 20),
+          _buildCountBadge('$dueCardsCount', Colors.green, 'Due'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountBadge(String count, Color color, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-              border: Border(
-            bottom: getCardStatus() == CardStatus.isNew
-                ? BorderSide(
-                    color: Colors.blue,
-                  )
-                : BorderSide(color: Colors.white),
-          )),
-          child: Text(
-            '${getIt<Dictionary>().getNewCardNumber}',
-            style: TextStyle(color: Colors.blue),
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: color, width: 1),
           ),
-        ),
-        SizedBox(width: 5),
-        Container(
-          decoration: BoxDecoration(
-              border: Border(
-            bottom: getCardStatus() == CardStatus.isLearned
-                ? BorderSide(
-                    color: Colors.red,
-                  )
-                : BorderSide(color: Colors.white),
-          )),
           child: Text(
-            '${getIt<Dictionary>().getLearnedCardNumber}',
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
-        SizedBox(width: 5),
-        Container(
-          decoration: BoxDecoration(
-              border: Border(
-            bottom: getCardStatus() == CardStatus.isDue
-                ? BorderSide(
-                    color: Colors.green,
-                  )
-                : BorderSide(color: Colors.white),
-          )),
-          child: Text(
-            '${getIt<Dictionary>().getDueCardNumber}',
-            style: TextStyle(color: Colors.green),
+            count,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
           ),
         ),
       ],

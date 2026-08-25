@@ -1,636 +1,372 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jisho_anki/common/widgets/custom_dialog.dart';
+import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/srs_stage.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/features/card_info/screens/card_info_screen.dart';
+import 'package:jisho_anki/features/review/bloc/review_bloc.dart';
+import 'package:jisho_anki/features/review/screens/widgets/answer_button.dart';
+import 'package:jisho_anki/features/review/screens/widgets/review_info.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/component_widget.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/definition_tags.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/definition_widget.dart';
+import 'package:jisho_anki/features/word_definition/screens/widgets/example_sentence_widget.dart';
+import 'package:jisho_anki/injection.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
-import 'dart:async';
+import 'package:jisho_anki/models/example_sentence.dart';
+import 'package:jisho_anki/models/kanji.dart';
+import 'package:jisho_anki/models/vietnamese_definition.dart';
+import 'package:jisho_anki/services/kanji_helper.dart';
+import 'package:jisho_anki/services/srs_engine.dart';
 
-import '../../../common/widgets/custom_dialog.dart';
-import '../../../injection.dart';
-import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/example_sentence.dart';
-import '../../../models/kanji.dart';
-import '../../../models/offline_word_record.dart';
-import '../../../models/vietnamese_definition.dart';
-import '../../../utils/redo_type.dart';
-import '../../../core/data/datasources/shared_pref.dart';
-import '../../../services/db_helper.dart';
-import '../../../services/kanji_helper.dart';
-import '../../../utils/offline_list_type.dart';
-import '../../card_info/screens/card_info_screen.dart';
-import '../../word_definition/screens/widgets/component_widget.dart';
-import '../../word_definition/screens/widgets/definition_tags.dart';
-import '../../word_definition/screens/widgets/definition_widget.dart';
-import '../../word_definition/screens/widgets/example_sentence_widget.dart';
-import 'widgets/answer_button.dart';
-import 'widgets/review_info.dart';
-
-class ReviewScreen extends StatefulWidget {
+class ReviewScreen extends StatelessWidget {
   const ReviewScreen({super.key});
+
   @override
-  State<ReviewScreen> createState() => _ReviewScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<ReviewBloc>()..add(const LoadReviewSession()),
+      child: const _ReviewScreenView(),
+    );
+  }
 }
 
-class _ReviewScreenState extends State<ReviewScreen> {
-  late int totalCardNumber;
-  late String clipboard;
+class _ReviewScreenView extends StatefulWidget {
+  const _ReviewScreenView();
+
+  @override
+  State<_ReviewScreenView> createState() => _ReviewScreenViewState();
+}
+
+class _ReviewScreenViewState extends State<_ReviewScreenView> {
   bool showAll = false;
-  late List<int> steps;
-  late Future<List<Widget>> pitchAccent;
-  late Future<List<Kanji>> kanjiComponent;
-  late Future<List<String>> hanViet;
-  late OfflineWordRecord? redo;
-  late OfflineWordRecord currentCard;
-  late RedoType redoType;
-  late Future<List<ExampleSentence>> enExampleSentence;
-  late Future<List<ExampleSentence>> vnExampleSentence;
+  Future<List<Widget>>? pitchAccent;
+  Future<List<Kanji>>? kanjiComponent;
+  Future<List<String>>? hanViet;
+  Future<List<ExampleSentence>>? enExampleSentence;
+  Future<List<ExampleSentence>>? vnExampleSentence;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
-  Widget getPartsOfSpeech(List<dynamic> partsOfSpeech) {
-    if (partsOfSpeech.isNotEmpty) {
-      return Text(
-        partsOfSpeech.first.toString().toUpperCase(),
-      );
-    }
-    return SizedBox();
-  }
-
-  Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
-    List<VietnameseDefinition> vnList = [];
-    try {
-      vnList = await KanjiHelper.getVnDefinition(word: word);
-      return vnList[0];
-    } catch (e) {
-      log('No VN definition found $e');
-      return vnList[0];
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // getKanjiComponent() async {
-  //   kanjiComponent = KanjiHelper.getKanjiComponent(
-  //       word: getIt<Dictionary>()
-  //               .getCards[currentCard]
-  //               .word ??
-  //           getIt<Dictionary>()
-  //               .getCards[currentCard]
-  //               .slug,
-  //       context: context);
-  // }
-  //
-  // drawPitchAccent() async {
-  //   pitchAccent = KanjiHelper.getPitchAccent(
-  //       word: getIt<Dictionary>()
-  //           .getCards[currentCard]
-  //           .word,
-  //       slug: getIt<Dictionary>()
-  //           .getCards[currentCard]
-  //           .slug,
-  //       reading: getIt<Dictionary>()
-  //           .getCards[currentCard]
-  //           .reading,
-  //       context: context);
-  //   return pitchAccent;
-  // }
-
-  @override
-  void initState() {
-    super.initState();
-    // Get steps from settings to calculate card's next interval
-    steps = getIt<SharedPref>()
-            .prefs
-            .getStringList('newCardsSteps')
-            ?.map((i) => int.parse(i))
-            .toList() ??
-        [];
-
-    // Review list maybe empty so try catch
-    try {
-      currentCard = getIt<Dictionary>().getCards[0];
-      redo = currentCard;
-      updateAdditionalInfo();
-    } catch (e) {
-      log('Card empty. $e');
-    }
-  }
-
-  String get word =>
-      currentCard.word.isEmpty ? currentCard.slug : currentCard.word;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.review),
-        actions: [
-          GestureDetector(
-              onTap: () async {
-                if (redo != null) currentCard = redo!;
-                if (redoType == RedoType.update) {
-                  DbHelper.updateWordInfo(
-                      offlineListType: OfflineListType.review,
-                      context: context,
-                      offlineWordRecord: currentCard);
-                } else if (redoType == RedoType.delete) {
-                  DbHelper.addToOfflineList(
-                      offlineListType: OfflineListType.review,
-                      offlineWordRecord: currentCard,
-                      context: context);
-                }
-                showAll = false;
-                updateAdditionalInfo();
-                setState(() {});
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: Icon(Icons.undo),
-              )),
-          GestureDetector(
-              onTap: () async {
-                if (getIt<Dictionary>().getCards.isNotEmpty) {
-                  redo = OfflineWordRecord(
-                    slug: currentCard.slug,
-                    isCommon: currentCard.isCommon,
-                    tags: currentCard.tags,
-                    jlpt: currentCard.jlpt,
-                    word: currentCard.word,
-                    reading: currentCard.reading,
-                    senses: currentCard.senses,
-                    vietnameseDefinition: currentCard.vietnameseDefinition,
-                    added: currentCard.added,
-                    firstReview: currentCard.firstReview,
-                    lastReview: currentCard.lastReview,
-                    due: currentCard.due,
-                    interval: currentCard.interval,
-                    ease: currentCard.ease,
-                    reviews: currentCard.reviews,
-                    lapses: currentCard.lapses,
-                    averageTimeMinute: currentCard.averageTimeMinute,
-                    totalTimeMinute: currentCard.totalTimeMinute,
-                    cardType: currentCard.cardType,
-                    noteType: currentCard.noteType,
-                    deck: currentCard.deck,
-                  );
-
-                  redoType = RedoType.delete;
-
-                  DbHelper.removeFromOfflineList(
-                      offlineListType: OfflineListType.review,
-                      context: context,
-                      word: currentCard.word);
-                  if (getIt<Dictionary>().getCards.isNotEmpty) {
-                    currentCard = getIt<Dictionary>().getCards[0];
-                    updateAdditionalInfo();
-                  }
-                  setState(() {
-                    showAll = false;
-                  });
-                } else {
-                  log('No card');
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: Icon(Icons.delete),
-              )),
-          GestureDetector(
-              onTap: () {
-                getIt<Dictionary>().getCards.isNotEmpty
-                    ? Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CardInfoScreen(
-                                  offlineWordRecord: currentCard,
-                                )))
-                    : log('No card');
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                child: Icon(Icons.info),
-              ))
-        ],
-        bottom: getIt<Dictionary>().getCards.isNotEmpty
-            ? PreferredSize(
-                preferredSize: Size.fromHeight(24),
-                child: Container(
-                  height: 24,
-                  color: Color(0xFFF7E7E6),
-                  child: ReviewInfo(
-                    offlineWordRecord: currentCard,
-                  ),
-                ),
-              )
-            : PreferredSize(
-                preferredSize: Size.fromHeight(0), child: SizedBox()),
-      ),
-      body: getIt<Dictionary>().getCards.isNotEmpty
-          ? buildCard(getIt<Dictionary>(), context)
-          : Center(
-              child: Text(AppLocalizations.of(context)!.reviewComplete),
-            ),
+  void _loadAdditionalInfo(WordCard card) {
+    hanViet = KanjiHelper.getHanvietReading(word: card.word);
+    pitchAccent = KanjiHelper.getPitchAccent(
+      word: card.word,
+      slug: card.slug,
+      reading: card.reading,
+      context: context,
+    );
+    enExampleSentence = KanjiHelper.getExampleSentence(
+      word: card.word,
+      context: context,
+      tableName: 'englishExampleDictionary',
+    );
+    vnExampleSentence = KanjiHelper.getExampleSentence(
+      word: card.word,
+      context: context,
+      tableName: 'exampleDictionary',
     );
   }
 
-  // How to decide which card is shown first ? use a list = dictionary.getCards at index 0 since every review updates cards position
-  // For example, a card due in 1 minute will be updated to show earlier than a card due in 10 minutes
-  // The card position update is actually in the getCards function
-  Column buildCard(Dictionary dictionary, BuildContext context) {
-    return Column(children: [
-      Expanded(
-        child: ListView(children: <Widget>[
-          SizedBox(
-            height: 10,
-          ),
-          showAll == true
-              ? FutureBuilder<List<Widget>>(
-                  future: KanjiHelper.getPitchAccent(
-                      word: currentCard.word,
-                      slug: currentCard.slug,
-                      reading: currentCard.reading,
-                      context: context),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) {
-                      return Center(
+  Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
+    try {
+      final vnList = await KanjiHelper.getVnDefinition(word: word);
+      if (vnList.isNotEmpty) return vnList.first;
+    } catch (e) {
+      log('No VN definition found $e');
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<ReviewBloc, ReviewState>(
+      listener: (context, state) {
+        if (state is ReviewSessionLoaded && state.currentCard != null) {
+          _loadAdditionalInfo(state.currentCard!);
+          setState(() {
+            showAll = false;
+          });
+        }
+      },
+      builder: (context, state) {
+        if (state is ReviewLoading) {
+          return Scaffold(
+            appBar: AppBar(title: Text(AppLocalizations.of(context)!.review)),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state is ReviewSessionCompleted) {
+          return Scaffold(
+            appBar: AppBar(title: Text(AppLocalizations.of(context)!.review)),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.reviewComplete,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  if (state.totalReviewed > 0) ...[
+                    const SizedBox(height: 8),
+                    Text('Completed ${state.totalReviewed} cards in this session!'),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state is ReviewSessionLoaded && state.currentCard != null) {
+          final card = state.currentCard!;
+          if (pitchAccent == null) {
+            _loadAdditionalInfo(card);
+          }
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.review),
+              actions: [
+                if (state.undoStack.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.undo),
+                    onPressed: () {
+                      context.read<ReviewBloc>().add(const UndoLastReview());
+                    },
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => CustomDialog(
+                        word: card.japaneseWord,
+                        message: 'Remove this card from review deck?',
+                      ),
+                    ).then((confirmed) {
+                      if (context.mounted) {
+                        context.read<ReviewBloc>().add(const DeleteCurrentCard());
+                      }
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => CardInfoScreen(card: card),
+                      ),
+                    );
+                  },
+                ),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(28),
+                child: Container(
+                  height: 28,
+                  color: const Color(0xFFF7E7E6),
+                  alignment: Alignment.center,
+                  child: ReviewInfo(
+                    newCardsCount: state.newCardsCount,
+                    learningCardsCount: state.learningCardsCount,
+                    dueCardsCount: state.dueCardsCount,
+                  ),
+                ),
+              ),
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    children: [
+                      const SizedBox(height: 10),
+                      if (showAll && pitchAccent != null)
+                        FutureBuilder<List<Widget>>(
+                          future: pitchAccent,
+                          builder: (context, snapshot) {
+                            if (snapshot.data == null || snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  card.reading,
+                                  style: const TextStyle(fontSize: 15.0, color: Colors.grey),
+                                ),
+                              );
+                            }
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: snapshot.data!,
+                            );
+                          },
+                        ),
+                      Center(
                         child: Text(
-                          currentCard.reading,
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.grey,
+                          card.japaneseWord,
+                          style: const TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if (showAll && getIt<SharedPref>().isAppInVietnamese && hanViet != null)
+                        FutureBuilder<List<String>>(
+                          future: hanViet,
+                          builder: (context, snapshot) {
+                            if (snapshot.data == null || snapshot.data!.isEmpty) return const SizedBox();
+                            return Center(
+                              child: Text(
+                                snapshot.data.toString().toUpperCase(),
+                                style: const TextStyle(fontSize: 22),
+                              ),
+                            );
+                          },
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (card.isCommon == 1)
+                            const Card(
+                              color: Color(0xFF8ABC82),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                child: Text(
+                                  'common word',
+                                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          DefinitionTags(tags: card.tags, color: const Color(0xFF909DC0)),
+                          DefinitionTags(tags: card.jlpt, color: const Color(0xFF909DC0)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (showAll) _buildDefinitionWidget(card),
+                      if (showAll) divider,
+                      if (showAll)
+                        const Center(
+                          child: Text(
+                            'Examples',
+                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
                           ),
                         ),
-                      );
-                    }
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: snapshot.data ?? [],
-                    );
-                  },
-                )
-              : SizedBox(),
-          Center(
-            child: Text(
-              currentCard.japaneseWord,
-              style: TextStyle(
-                fontSize: 45.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          showAll == true && getIt<SharedPref>().isAppInVietnamese
-              ? FutureBuilder(
-                  future: hanViet,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) return SizedBox();
-                    return Center(
-                      child: Text(
-                        snapshot.data.toString().toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 22,
+                      if (showAll && vnExampleSentence != null && enExampleSentence != null)
+                        FutureBuilder<List<ExampleSentence>>(
+                          future: vnExampleSentence,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                              if (snapshot.data!.isEmpty) {
+                                return ExampleSentenceWidget(exampleSentence: enExampleSentence!);
+                              }
+                              return ExampleSentenceWidget(exampleSentence: vnExampleSentence!);
+                            }
+                            return const SizedBox();
+                          },
                         ),
-                      ),
-                    );
-                  },
-                )
-              : SizedBox(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              currentCard.isCommon == 1
-                  ? Card(
-                      color: Color(0xFF8ABC82),
-                      child: Text(
-                        'common word',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.bold,
+                      if (showAll) divider,
+                      if (showAll)
+                        const Center(
+                          child: Text(
+                            'Components',
+                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
                         ),
-                      ),
-                    )
-                  : SizedBox(),
-              DefinitionTags(tags: currentCard.tags, color: Color(0xFF909DC0)),
-              DefinitionTags(tags: currentCard.jlpt, color: Color(0xFF909DC0)),
-            ],
-          ),
-          SizedBox(height: 8),
-          if (showAll == true) getDefinitionWidget(),
-          divider,
-          showAll == true
-              ? Center(
-                  child: Text(
-                    'Examples',
-                    style: TextStyle(
-                      color: Color(0xffDB8C8A),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
+                      if (showAll)
+                        ComponentWidget(
+                          kanjiComponent: KanjiHelper.getKanjiComponent(word: card.japaneseWord),
+                        ),
+                    ],
                   ),
-                )
-              : SizedBox(),
-          showAll == true
-              ? Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: FutureBuilder<List<ExampleSentence>>(
-                      future: vnExampleSentence,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done &&
-                            snapshot.data != null) {
-                          if (snapshot.data!.isEmpty) {
-                            return ExampleSentenceWidget(
-                                exampleSentence: enExampleSentence);
-                          }
-                          return ExampleSentenceWidget(
-                            exampleSentence: vnExampleSentence,
-                          );
-                        } else {
-                          return SizedBox();
-                        }
-                      }),
-                )
-              : SizedBox(),
-          divider,
-          showAll == true
-              ? Center(
-                  child: Text(
-                    'Components',
-                    style: TextStyle(
-                      color: Color(0xffDB8C8A),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                  ),
-                )
-              : SizedBox(),
-          showAll == true
-              ? Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: ComponentWidget(
-                    kanjiComponent: KanjiHelper.getKanjiComponent(
-                      word: currentCard.japaneseWord,
-                    ),
-                  ),
-                )
-              : SizedBox(),
-        ]),
-      ),
-      TextField(
-        decoration: InputDecoration(hintText: 'Enter your answer'),
-      ),
-      SizedBox(height: 5),
-      if (showAll == false)
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              showAll = true;
-            });
-          },
-          child: Container(
-            width: MediaQuery.sizeOf(context).width,
-            height: 50,
-            color: Color(0xFF385499),
-            child: Center(
-              child: Text(
-                'Show answer',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        )
-      else
-        SizedBox(
-          child: Row(
-            children: [
-              // Again button
-              GestureDetector(
-                onTap: () async {
-                  // Prepare for redo button
-                  redo = OfflineWordRecord(
-                    slug: currentCard.slug,
-                    isCommon: currentCard.isCommon,
-                    tags: currentCard.tags,
-                    jlpt: currentCard.jlpt,
-                    word: currentCard.word,
-                    reading: currentCard.reading,
-                    senses: currentCard.senses,
-                    vietnameseDefinition: currentCard.vietnameseDefinition,
-                    added: currentCard.added,
-                    firstReview: currentCard.firstReview,
-                    lastReview: currentCard.lastReview,
-                    due: currentCard.due,
-                    interval: currentCard.interval,
-                    ease: currentCard.ease,
-                    reviews: currentCard.reviews,
-                    lapses: currentCard.lapses,
-                    averageTimeMinute: currentCard.averageTimeMinute,
-                    totalTimeMinute: currentCard.totalTimeMinute,
-                    cardType: currentCard.cardType,
-                    noteType: currentCard.noteType,
-                    deck: currentCard.deck,
-                  );
-                  redoType = RedoType.update;
-
-                  // Calculate and update card interval
-                  if (currentCard.reviews == 0) {
-                    currentCard = currentCard.copyWith(
-                        firstReview: DateTime.now().millisecondsSinceEpoch);
-                  } else {
-                    // If card is mature
-                    if (currentCard.interval > 21 * 24 * 60 * 60 * 1000) {
-                      currentCard =
-                          currentCard.copyWith(lapses: currentCard.lapses + 1);
-                      if (currentCard.lapses ==
-                          getIt<SharedPref>().prefs.getInt('leechThreshold')) {
-                        log('Card lapses reached. Deleting');
-                        redoType = RedoType.delete;
-                        DbHelper.addToOfflineList(
-                          offlineListType: OfflineListType.favorite,
-                          offlineWordRecord: currentCard,
-                          context: context,
-                        );
-                        DbHelper.removeFromOfflineList(
-                          offlineListType: OfflineListType.review,
-                          context: context,
-                          word: currentCard.word,
-                        );
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) => CustomDialog(
-                                  word: currentCard.japaneseWord,
-                                  message:
-                                      'Card has reached lapses threshold (${getIt<SharedPref>().prefs.getInt('leechThreshold')} times wrong) and has been moved to your favorite list since you probably need to revisit it.',
-                                ));
-                        showAll = false;
-                        if (dictionary.getCards.isNotEmpty) {
-                          currentCard = dictionary.getCards[0];
-                          updateAdditionalInfo();
-                        }
-                        setState(() {});
-                        return;
-                      }
-                    }
-                  }
-                  currentCard = currentCard.copyWith(
-                      lastReview: DateTime.now().millisecondsSinceEpoch,
-                      interval: steps[0] * 60 * 1000,
-                      due: DateTime.now().millisecondsSinceEpoch +
-                          currentCard.interval,
-                      reviews: currentCard.reviews + 1);
-
-                  DbHelper.updateWordInfo(
-                      offlineListType: OfflineListType.review,
-                      context: context,
-                      offlineWordRecord: currentCard);
-                  // dictionary.review = await dictionary.offlineDatabase.retrieve(tableName: 'review');
-                  showAll = false;
-                  if (dictionary.getCards.isNotEmpty) {
-                    currentCard = dictionary.getCards[0];
-                    updateAdditionalInfo();
-                  }
-                  setState(() {});
-                },
-                child: AnswerButton(
-                    offlineWordRecord: currentCard,
-                    steps: steps,
-                    buttonText: 'Again',
-                    color: Colors.red),
-              ),
-
-              // Good button
-              GestureDetector(
-                onTap: () async {
-                  // Prepare for redo button
-                  redo = OfflineWordRecord(
-                    slug: currentCard.slug,
-                    isCommon: currentCard.isCommon,
-                    tags: currentCard.tags,
-                    jlpt: currentCard.jlpt,
-                    word: currentCard.word,
-                    reading: currentCard.reading,
-                    senses: currentCard.senses,
-                    vietnameseDefinition: currentCard.vietnameseDefinition,
-                    added: currentCard.added,
-                    firstReview: currentCard.firstReview,
-                    lastReview: currentCard.lastReview,
-                    due: currentCard.due,
-                    interval: currentCard.interval,
-                    ease: currentCard.ease,
-                    reviews: currentCard.reviews,
-                    lapses: currentCard.lapses,
-                    averageTimeMinute: currentCard.averageTimeMinute,
-                    totalTimeMinute: currentCard.totalTimeMinute,
-                    cardType: currentCard.cardType,
-                    noteType: currentCard.noteType,
-                    deck: currentCard.deck,
-                  );
-                  redoType = RedoType.update;
-
-                  // Calculate and update card interval
-                  currentCard = currentCard.copyWith(
-                      lastReview: DateTime.now().millisecondsSinceEpoch);
-                  if (currentCard.reviews == 0) {
-                    currentCard = currentCard.copyWith(
-                        firstReview: DateTime.now().millisecondsSinceEpoch);
-                  }
-                  if (currentCard.interval <
-                      steps[steps.length - 1] * 60 * 1000) {
-                    for (int i = 0; i < steps.length; i++) {
-                      if (currentCard.interval < steps[i] * 60 * 1000) {
-                        currentCard = currentCard.copyWith(
-                            interval: steps[i] * 60 * 1000);
-                        break;
-                      }
-                    }
-                  } else if (currentCard.interval ==
-                      steps[steps.length - 1] * 60 * 1000) {
-                    currentCard = currentCard.copyWith(
-                        interval: getIt<SharedPref>()
-                                .prefs
-                                .getInt('graduatingInterval')! *
-                            24 *
-                            60 *
-                            60 *
-                            1000);
-                  } else if (currentCard.interval >=
-                      getIt<SharedPref>().prefs.getInt('graduatingInterval')! *
-                          24 *
-                          60 *
-                          60 *
-                          1000) {
-                    currentCard = currentCard.copyWith(
-                        interval:
-                            (currentCard.interval * currentCard.ease).round());
-                  }
-                  currentCard = currentCard.copyWith(
-                      due: currentCard.interval +
-                          DateTime.now().millisecondsSinceEpoch,
-                      reviews: currentCard.reviews + 1);
-
-                  DbHelper.updateWordInfo(
-                    offlineListType: OfflineListType.review,
-                    context: context,
-                    offlineWordRecord: currentCard,
-                  );
-                  showAll = false;
-                  if (dictionary.getCards.isNotEmpty) {
-                    currentCard = dictionary.getCards[0];
-                    updateAdditionalInfo();
-                  }
-                  setState(() {});
-                },
-                child: AnswerButton(
-                    offlineWordRecord: currentCard,
-                    steps: steps,
-                    buttonText: 'Good',
-                    color: Colors.green),
-              )
-            ],
-          ),
-        ),
-    ]);
-  }
-
-  getDefinitionWidget() {
-    if (currentCard.vietnameseDefinition.isNotEmpty) {
-      return DefinitionWidget(
-        senses: currentCard.senses,
-        vietnameseDefinition: currentCard.vietnameseDefinition,
-      );
-    } else {
-      return FutureBuilder<VietnameseDefinition>(
-          future: getVietnameseDefinition(word),
-          builder: (context, snapshot) {
-            if (snapshot.data == null) {
-              return Center(
-                child: DefinitionWidget(
-                  senses: currentCard.senses,
-                  vietnameseDefinition: null,
                 ),
-              );
-            }
-            return Center(
-              child: DefinitionWidget(
-                senses: currentCard.senses,
-                vietnameseDefinition: snapshot.data?.definition,
-              ),
-            );
-          });
-    }
+                if (!showAll)
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        showAll = true;
+                      });
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
+                      color: const Color(0xFF385499),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Show Answer',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      SrsAnswerButton(
+                        card: card,
+                        rating: SrsRating.again,
+                        srsEngine: getIt<SrsEngine>(),
+                        onTap: () {
+                          context.read<ReviewBloc>().add(const RateCurrentCard(rating: SrsRating.again));
+                        },
+                      ),
+                      SrsAnswerButton(
+                        card: card,
+                        rating: SrsRating.hard,
+                        srsEngine: getIt<SrsEngine>(),
+                        onTap: () {
+                          context.read<ReviewBloc>().add(const RateCurrentCard(rating: SrsRating.hard));
+                        },
+                      ),
+                      SrsAnswerButton(
+                        card: card,
+                        rating: SrsRating.good,
+                        srsEngine: getIt<SrsEngine>(),
+                        onTap: () {
+                          context.read<ReviewBloc>().add(const RateCurrentCard(rating: SrsRating.good));
+                        },
+                      ),
+                      SrsAnswerButton(
+                        card: card,
+                        rating: SrsRating.easy,
+                        srsEngine: getIt<SrsEngine>(),
+                        onTap: () {
+                          context.read<ReviewBloc>().add(const RateCurrentCard(rating: SrsRating.easy));
+                        },
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: Text(AppLocalizations.of(context)!.review)),
+          body: Center(
+            child: Text(AppLocalizations.of(context)!.reviewComplete),
+          ),
+        );
+      },
+    );
   }
 
-  void updateAdditionalInfo() {
-    getVietnameseDefinition(word);
-    hanViet = KanjiHelper.getHanvietReading(word: currentCard.word);
-    enExampleSentence = KanjiHelper.getExampleSentence(
-        word: currentCard.word,
-        context: context,
-        tableName: 'englishExampleDictionary');
-    vnExampleSentence = KanjiHelper.getExampleSentence(
-        word: currentCard.word,
-        context: context,
-        tableName: 'exampleDictionary');
+  Widget _buildDefinitionWidget(WordCard card) {
+    if (card.vietnameseDefinition.isNotEmpty) {
+      return DefinitionWidget(
+        senses: card.senses,
+        vietnameseDefinition: card.vietnameseDefinition,
+      );
+    }
+    return FutureBuilder<VietnameseDefinition?>(
+      future: _getVietnameseDefinition(card.japaneseWord),
+      builder: (context, snapshot) {
+        return DefinitionWidget(
+          senses: card.senses,
+          vietnameseDefinition: snapshot.data?.definition,
+        );
+      },
+    );
   }
 }

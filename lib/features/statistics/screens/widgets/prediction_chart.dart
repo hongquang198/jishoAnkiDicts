@@ -1,94 +1,53 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import '../../../../core/domain/entities/dictionary.dart';
-import '../../../../injection.dart';
-import '../../../../models/offline_word_record.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/user_study_stats.dart';
 import '../../../../utils/bar_title_type.dart';
 import 'y_axis_number_line.dart';
 import 'bar_line.dart';
 
-class PredictionChart extends StatefulWidget {
-  const PredictionChart({super.key});
+class PredictionChart extends StatelessWidget {
+  final List<DayForecast> forecast;
 
-  @override
-  State<PredictionChart> createState() => _PredictionChartState();
-}
-
-class _PredictionChartState extends State<PredictionChart> {
-  /// List of card number.
-  /// For example matureCardNumber[0] = Today's mature card number, matureCardNumber[1] = Tomorrow's new card number
-  /// youngCardNumber[6] = Young card number 8 days from now
-  /// 6 is max (weekly interval)
-  late double newCardNumber;
-  List<double> youngCardNumber = [0, 0, 0, 0, 0, 0, 0];
-  List<double> matureCardNumber = [0, 0, 0, 0, 0, 0, 0];
-  late double difficultCardNumber;
-  late List<OfflineWordRecord> review;
+  const PredictionChart({
+    super.key,
+    this.forecast = const [],
+  });
 
   double highestCardTypeNumber() {
-    double maxYoung = youngCardNumber.reduce(max);
-    double maxMature = matureCardNumber.reduce(max);
-    return max(
-        max(newCardNumber, difficultCardNumber), max(maxYoung, maxMature));
+    if (forecast.isEmpty) return 1;
+    double maxVal = 0;
+    for (final day in forecast) {
+      maxVal = max(maxVal, day.newCards.toDouble());
+      maxVal = max(maxVal, day.youngCards.toDouble());
+      maxVal = max(maxVal, day.matureCards.toDouble());
+      maxVal = max(maxVal, day.difficultCards.toDouble());
+    }
+    return max(1.0, maxVal);
   }
 
   double maxReviewNumberPerDay() {
-    List<double> sum = [0, 0, 0, 0, 0, 0, 0];
-    for (int i = 0; i < 7; i++) {
-      sum[0] = newCardNumber +
-          youngCardNumber[i] +
-          matureCardNumber[i] +
-          difficultCardNumber;
+    if (forecast.isEmpty) return 1;
+    double maxVal = 0;
+    for (final day in forecast) {
+      maxVal = max(maxVal, day.totalDue.toDouble());
     }
-    return sum.reduce(max);
-  }
-
-  void getCardNumber() {
-    newCardNumber = 0;
-    difficultCardNumber = 0;
-
-    for (var element in review) {
-      // Find number of new cards
-      if (element.reviews == 0) {
-        newCardNumber++;
-      }
-      // Find number of young cards
-      if (element.reviews != 0) {
-        if (element.interval <= 21 * 24 * 60 * 60 * 1000) {
-          for (int i = 0; i < 7; i++) {
-            if (element.due <
-                DateTime.now().millisecondsSinceEpoch +
-                    i * 24 * 60 * 60 * 1000) {
-              youngCardNumber[i]++;
-            }
-          }
-        }
-      }
-
-      if (element.interval > 21 * 24 * 60 * 60 * 1000) {
-        for (int i = 0; i < 7; i++) {
-          if (element.due <
-              i * 24 * 60 * 60 * 1000 + DateTime.now().millisecondsSinceEpoch) {
-            matureCardNumber[i]++;
-          }
-        }
-      }
-      if (element.lapses > 5) {
-        difficultCardNumber++;
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    review = getIt<Dictionary>().review;
-    getCardNumber();
-    super.initState();
+    return max(1.0, maxVal);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (forecast.isEmpty) {
+      return const SizedBox(
+        height: 120,
+        child: Center(
+          child: Text('No forecast data available.', style: TextStyle(color: Colors.grey)),
+        ),
+      );
+    }
+
+    final maxNumber = highestCardTypeNumber();
+
     return Stack(
       alignment: AlignmentDirectional.bottomStart,
       children: [
@@ -98,73 +57,25 @@ class _PredictionChartState extends State<PredictionChart> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                PredictionLineBar(
-                  barTitle: '月',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[0],
-                  matureCardNumber: matureCardNumber[0],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '火',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[1],
-                  matureCardNumber: matureCardNumber[1],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '水',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[2],
-                  matureCardNumber: matureCardNumber[2],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '木',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[3],
-                  matureCardNumber: matureCardNumber[3],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '金',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[4],
-                  matureCardNumber: matureCardNumber[4],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '土',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[5],
-                  matureCardNumber: matureCardNumber[5],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-                PredictionLineBar(
-                  barTitle: '日',
-                  newCardNumber: newCardNumber,
-                  youngCardNumber: youngCardNumber[6],
-                  matureCardNumber: matureCardNumber[6],
-                  difficultCardNumber: difficultCardNumber,
-                  maxNumber: highestCardTypeNumber(),
-                ),
-              ],
+              children: forecast.map((day) {
+                return PredictionLineBar(
+                  barTitle: day.dayLabel,
+                  newCardNumber: day.newCards.toDouble(),
+                  youngCardNumber: day.youngCards.toDouble(),
+                  matureCardNumber: day.matureCards.toDouble(),
+                  difficultCardNumber: day.difficultCards.toDouble(),
+                  maxNumber: maxNumber,
+                );
+              }).toList(),
             ),
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
           ],
         ),
         YAxisNumberLine(
           totalNumberOfCards: maxReviewNumberPerDay(),
           maximumHeightPixel: 200,
           barLineMaximumHeightPixel: 100,
-          highestCardNumber: highestCardTypeNumber(),
+          highestCardNumber: maxNumber,
         ),
       ],
     );
@@ -176,8 +87,6 @@ class PredictionLineBar extends StatelessWidget {
   final double youngCardNumber;
   final double matureCardNumber;
   final double difficultCardNumber;
-
-  /// Max number of all card types in 7 days
   final double maxNumber;
   final String barTitle;
 
@@ -187,7 +96,7 @@ class PredictionLineBar extends StatelessWidget {
     this.matureCardNumber = 0,
     this.newCardNumber = 0,
     this.youngCardNumber = 0,
-    this.maxNumber = 0,
+    this.maxNumber = 1,
     super.key,
   });
 
@@ -198,7 +107,7 @@ class PredictionLineBar extends StatelessWidget {
         BarLine(
           number: newCardNumber,
           maxNumber: maxNumber,
-          color: Color(0xFFF4DDDC),
+          color: const Color(0xFFF4DDDC),
           baseHeight: 0,
           barWidth: 7,
           borderRadius: 0,
@@ -206,7 +115,7 @@ class PredictionLineBar extends StatelessWidget {
         BarLine(
           number: youngCardNumber,
           maxNumber: maxNumber,
-          color: Color(0xFFDB8C8A),
+          color: const Color(0xFFDB8C8A),
           baseHeight: 0,
           barWidth: 7,
           borderRadius: 0,
