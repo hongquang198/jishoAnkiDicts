@@ -1,5 +1,20 @@
 import 'package:get_it/get_it.dart';
+import 'package:jisho_anki/core/data/datasources/firebase_user_data_data_source.dart';
+import 'package:jisho_anki/core/data/datasources/local_user_data_data_source.dart';
+import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/core/data/datasources/user_data_migrator.dart';
+import 'package:jisho_anki/core/data/datasources/user_local_data_source_impl.dart';
+import 'package:jisho_anki/core/data/repositories/user_data_repository_impl.dart';
+import 'package:jisho_anki/core/domain/repositories/user_data_repository.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/clear_history_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/get_favorites_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/get_history_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/get_study_stats_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/record_word_view_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/submit_review_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/toggle_favorite_use_case.dart';
+import 'package:jisho_anki/core/domain/use_cases/user_data/toggle_review_use_case.dart';
 import 'package:jisho_anki/features/main_search/data/data_sources/jisho_remote_data_source.dart';
 import 'package:jisho_anki/features/main_search/domain/repositories/jisho_repository.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
@@ -8,6 +23,7 @@ import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_vie
 import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
 import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:jisho_anki/features/main_search/repository/jisho_repository_impl.dart';
+import 'package:jisho_anki/services/srs_engine.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,6 +72,77 @@ Future<void> inject() async {
       dependsOn: [SharedPref, PackageInfo]);
   getIt.registerLazySingleton<NavigationService>(() => NavigationServiceImpl());
 
+  // SRS Engine
+  getIt.registerLazySingleton<SrsEngine>(() {
+    final prefs = getIt<SharedPref>().prefs;
+    final steps = prefs
+            .getStringList('newCardsSteps')
+            ?.map((e) => int.tryParse(e) ?? 1)
+            .toList() ??
+        [1, 10];
+    final gradInterval = prefs.getInt('graduatingInterval') ?? 1;
+    final easyInterval = prefs.getInt('easyInterval') ?? 4;
+    final easyBonus = prefs.getDouble('easyBonus') ?? 1.3;
+    final intervalModifier = prefs.getDouble('intervalModifier') ?? 1.0;
+    final leechThreshold = prefs.getInt('leechThreshold') ?? 8;
+
+    return SrsEngine(
+      learningStepMinutes: steps,
+      graduatingIntervalDays: gradInterval,
+      easyIntervalDays: easyInterval,
+      easyBonus: easyBonus,
+      intervalModifier: intervalModifier,
+      leechThreshold: leechThreshold,
+    );
+  });
+
+  // User Data Layer (Local + Pluggable Remote Backend)
+  getIt.registerSingletonAsync<LocalUserDataDataSource>(() async {
+    final local = UserLocalDataSourceImpl();
+    await local.init();
+    return local;
+  });
+
+  getIt.registerLazySingleton<RemoteUserDataDataSource>(
+      () => FirebaseUserDataDataSource());
+
+  getIt.registerSingletonAsync<UserDataRepository>(() async {
+    final repo = UserDataRepositoryImpl(
+      localDataSource: getIt<LocalUserDataDataSource>(),
+      remoteDataSource: getIt<RemoteUserDataDataSource>(),
+      srsEngine: getIt<SrsEngine>(),
+    );
+    await repo.init();
+
+    // Run one-time migration from legacy SQLite
+    final migrator = UserDataMigrator(
+      localDataSource: getIt<LocalUserDataDataSource>(),
+      legacyDbManager: getIt<Dictionary>().offlineDatabase,
+    );
+    await migrator.migrateLegacyData();
+
+    return repo;
+  }, dependsOn: [LocalUserDataDataSource, Dictionary, SharedPref]);
+
+  // User Data Use Cases
+  getIt
+    ..registerLazySingleton<GetFavoritesUseCase>(
+        () => GetFavoritesUseCase(getIt()))
+    ..registerLazySingleton<ToggleFavoriteUseCase>(
+        () => ToggleFavoriteUseCase(getIt()))
+    ..registerLazySingleton<ToggleReviewUseCase>(
+        () => ToggleReviewUseCase(getIt()))
+    ..registerLazySingleton<SubmitReviewUseCase>(
+        () => SubmitReviewUseCase(getIt()))
+    ..registerLazySingleton<RecordWordViewUseCase>(
+        () => RecordWordViewUseCase(getIt()))
+    ..registerLazySingleton<GetStudyStatsUseCase>(
+        () => GetStudyStatsUseCase(getIt()))
+    ..registerLazySingleton<GetHistoryUseCase>(
+        () => GetHistoryUseCase(getIt()))
+    ..registerLazySingleton<ClearHistoryUseCase>(
+        () => ClearHistoryUseCase(getIt()));
+
   // BLoC
   getIt.registerFactory<MainSearchBloc>(() => MainSearchBloc(
         lookupGrammarPoint: getIt(),
@@ -78,29 +165,9 @@ Future<void> inject() async {
         jishoRemoteDataSource: getIt(),
       ));
 
-  // getIt.registerLazySingleton<RestaurantRepository>(() => RestaurantRepositoryImpl(
-  //       restaurantLocalDataSource: getIt(),
-  //       restaurantRemoteDataSource: getIt(),
-  //       userRemoteDataSource: getIt(),
-  //     ));
-
-  // getIt.registerLazySingleton<RestaurantTableRepository>(
-  //     () => RestaurantTableRepositoryImpl(
-  //           restaurantTableLocalDataSource: getIt(),
-  //           restaurantTableRemoteDataSource: getIt(),
-  //         ));
-
   // Data source
   getIt.registerLazySingleton<JishoRemoteDataSource>(
       () => JishoRemoteDataSourceImpl());
-  // getIt.registerLazySingleton<RestaurantRemoteDataSource>(
-  //     () => RestaurantRemoteDataSourceImpl(httpsClient: getIt()));
-  // getIt.registerLazySingleton<RestaurantLocalDataSource>(
-  //     () => RestaurantLocalDataSourceImpl(localStorage: getIt()));
-  // getIt.registerLazySingleton<RestaurantTableLocalDataSource>(
-  //     () => RestaurantTableLocalDataSourceImpl(localStorage: getIt()));
-  // getIt.registerLazySingleton<RestaurantTableRemoteDataSource>(
-  //     () => RestaurantTableRemoteDataSourceImpl(httpsClient: getIt()));
 
   // Localization without context
   getIt.registerLazySingleton<Localization>(() => Localization());
