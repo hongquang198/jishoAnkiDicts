@@ -143,7 +143,7 @@ void main() {
       );
       final image = await prefetch.image;
       expect(image?.url, 'https://example.com/local.png');
-      expect(searchedTerms, ['cherry blossom']);
+      expect(searchedTerms, ['sakura']);
       await Future<void>.delayed(Duration.zero);
       expect(pending.isCompleted, isFalse);
     });
@@ -160,7 +160,7 @@ void main() {
       );
       final image = await prefetch.image;
       expect(wordInfoCalls, 1);
-      expect(searchedTerms, ['cherry blossom', 'sakura tree']);
+      expect(searchedTerms, ['sakura', 'sakura tree']);
       expect(image?.url, 'https://example.com/upgraded.png');
     });
 
@@ -171,15 +171,15 @@ void main() {
         onWordInfo: () => {'found': true, 'imageQuery': ''},
       );
       expect(await prefetch.image, isNull);
-      expect(searchedTerms, ['cherry blossom']);
+      expect(searchedTerms, ['sakura']);
 
       searchedTerms.clear();
       final prefetch2 = buildPrefetch(
         localHitUrl: '',
-        onWordInfo: () => {'found': true, 'imageQuery': 'cherry blossom'},
+        onWordInfo: () => {'found': true, 'imageQuery': 'sakura'},
       );
       expect(await prefetch2.image, isNull);
-      expect(searchedTerms, ['cherry blossom']);
+      expect(searchedTerms, ['sakura']);
     });
   });
 }

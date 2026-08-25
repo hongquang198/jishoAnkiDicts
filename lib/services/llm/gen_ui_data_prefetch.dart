@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/features/main_search/domain/entities/jisho_definition.dart';
 import 'package:jisho_anki/models/example_sentence.dart';
@@ -61,11 +60,12 @@ class GenUiDataPrefetch {
     Future<List<ExampleSentence>> Function()? loadExamples,
     Future<List<Kanji>> Function()? loadKanjiComponents,
   }) {
-    final senseTerm =
-        jishoDefinition.senses.firstOrNull?.englishDefinitions.firstOrNull
-            ?.trim();
-    final localTerm =
-        (senseTerm?.isNotEmpty == true ? senseTerm! : query).trim();
+    final localTerm = (jishoDefinition.slug.isNotEmpty
+            ? jishoDefinition.slug
+            : (jishoDefinition.word?.isNotEmpty == true
+                ? jishoDefinition.word!
+                : query))
+        .trim();
 
     final wordInfoFuture = () async {
       if (!llmEnabled || fetchWordInfo == null) return null;
