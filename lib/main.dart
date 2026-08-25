@@ -13,6 +13,7 @@ import 'theme_manager.dart';
 import 'core/data/datasources/shared_pref.dart';
 import 'localization_manager.dart';
 import 'services/share_intent_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('assets/$path');
@@ -28,6 +29,11 @@ late File file;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {
+    // Firebase initialization optional if configuration files are not bundled
+  }
   file = await getImageFileFromAssets('floatingicon.png');
   await inject();
   await ShareIntentService.instance.init();
