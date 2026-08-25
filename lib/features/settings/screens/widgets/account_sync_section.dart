@@ -32,7 +32,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
       await _userDataRepo.syncWithRemote();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cloud sync completed successfully!')),
+          const SnackBar(content: Text('Cloud sync completed successfully! Data pushed & pulled.')),
         );
       }
     } catch (e) {
@@ -62,7 +62,6 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
 
   Future<void> _signOut() async {
     await _authDataSource.signOut();
-    // Re-sign in anonymously as per requirements
     await _authDataSource.signInAnonymously();
     _refresh();
   }
@@ -91,28 +90,37 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      isAnon ? 'Guest User (Anonymous)' : 'Signed In',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        Icon(
+                          isAnon ? Icons.person_outline : Icons.cloud_done,
+                          color: isAnon ? Colors.orange : Colors.green,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isAnon ? 'Guest User (Anonymous)' : 'Cloud Account Active',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ],
                     ),
                     Chip(
-                      label: Text(shortUid, style: const TextStyle(fontSize: 12)),
+                      label: Text(shortUid, style: const TextStyle(fontSize: 11)),
                       backgroundColor: Colors.grey[200],
                     ),
                   ],
                 ),
                 if (email != null) ...[
-                  const SizedBox(height: 4),
-                  Text('Email: $email', style: const TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 6),
+                  Text('Email: $email', style: const TextStyle(color: Colors.black87)),
                 ],
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
@@ -121,7 +129,8 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                       ElevatedButton.icon(
                         onPressed: () => _openAuthDialog(isLinking: true),
                         icon: const Icon(Icons.link, size: 16),
-                        label: const Text('Link Account / Register'),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[700], foregroundColor: Colors.white),
+                        label: const Text('Register / Link Account'),
                       ),
                     ] else ...[
                       OutlinedButton.icon(
@@ -133,7 +142,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                     OutlinedButton.icon(
                       onPressed: () => _openAuthDialog(isLinking: false),
                       icon: const Icon(Icons.login, size: 16),
-                      label: Text(isAnon ? 'Sign In / Switch' : 'Sign In'),
+                      label: Text(isAnon ? 'Sign In / Switch' : 'Switch Account'),
                     ),
                     ElevatedButton.icon(
                       onPressed: _isSyncing ? null : _syncNow,
@@ -144,6 +153,10 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.sync, size: 16),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
                       label: const Text('Sync Now'),
                     ),
                   ],

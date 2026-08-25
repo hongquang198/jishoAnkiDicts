@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_entity.dart';
 
@@ -82,7 +83,36 @@ class FirebaseAuthDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<UserEntity> signInWithGoogle() async {
+    final googleAccount = await GoogleSignIn.instance.authenticate();
+    final auth = googleAccount.authentication;
+    final credential = fb.GoogleAuthProvider.credential(
+      idToken: auth.idToken,
+    );
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    return _mapUser(userCredential.user)!;
+  }
+
+  @override
+  Future<UserEntity> linkAccountWithGoogle() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('No user currently signed in to link account.');
+    }
+    final googleAccount = await GoogleSignIn.instance.authenticate();
+    final auth = googleAccount.authentication;
+    final credential = fb.GoogleAuthProvider.credential(
+      idToken: auth.idToken,
+    );
+    final userCredential = await user.linkWithCredential(credential);
+    return _mapUser(userCredential.user)!;
+  }
+
+  @override
   Future<void> signOut() async {
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
     await _firebaseAuth.signOut();
   }
 }

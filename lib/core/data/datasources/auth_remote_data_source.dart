@@ -20,5 +20,7 @@ abstract class AuthRemoteDataSource {
     required String email,
     required String password,
   });
+  Future<UserEntity> signInWithGoogle();
+  Future<UserEntity> linkAccountWithGoogle();
   Future<void> signOut();
 }

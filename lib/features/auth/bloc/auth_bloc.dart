@@ -37,6 +37,10 @@ class LinkAccountRequested extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
+class SignInWithGoogleRequested extends AuthEvent {}
+
+class LinkAccountWithGoogleRequested extends AuthEvent {}
+
 class SignOutRequested extends AuthEvent {}
 
 // --- States ---
@@ -78,11 +82,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignInRequested>(_onSignInRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<LinkAccountRequested>(_onLinkAccountRequested);
+    on<SignInWithGoogleRequested>(_onSignInWithGoogleRequested);
+    on<LinkAccountWithGoogleRequested>(_onLinkAccountWithGoogleRequested);
     on<SignOutRequested>(_onSignOutRequested);
 
     _authSubscription = _authDataSource.watchAuthState().listen((user) {
       if (user != null) {
-        add(CheckAuthStatus()); // or emit Authenticated(user)
+        add(CheckAuthStatus());
       }
     });
   }
@@ -157,6 +163,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  Future<void> _onSignInWithGoogleRequested(
+    SignInWithGoogleRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      final user = await _authDataSource.signInWithGoogle();
+      emit(Authenticated(user));
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> _onLinkAccountWithGoogleRequested(
+    LinkAccountWithGoogleRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      final user = await _authDataSource.linkAccountWithGoogle();
+      emit(Authenticated(user));
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
   Future<void> _onSignOutRequested(
     SignOutRequested event,
     Emitter<AuthState> emit,
@@ -164,7 +196,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       await _authDataSource.signOut();
-      // Automatically sign in anonymously again or emit unauthenticated/anonymous guest
       final user = await _authDataSource.signInAnonymously();
       emit(Authenticated(user));
     } catch (e) {
@@ -174,6 +205,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   @override
   Future<void> close() {
+    _authDataSource.watchAuthState();
     _authSubscription?.cancel();
     return super.close();
   }

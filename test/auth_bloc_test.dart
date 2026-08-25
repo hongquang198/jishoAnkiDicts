@@ -79,6 +79,31 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<UserEntity> signInWithGoogle() async {
+    _currentUser = const UserEntity(
+      uid: 'google_123',
+      email: 'google@example.com',
+      isAnonymous: false,
+    );
+    _authStream.add(_currentUser);
+    return _currentUser!;
+  }
+
+  @override
+  Future<UserEntity> linkAccountWithGoogle() async {
+    if (_currentUser == null) {
+      throw Exception('No user signed in');
+    }
+    _currentUser = UserEntity(
+      uid: _currentUser!.uid,
+      email: 'google_linked@example.com',
+      isAnonymous: false,
+    );
+    _authStream.add(_currentUser);
+    return _currentUser!;
+  }
+
+  @override
   Future<void> signOut() async {
     _currentUser = null;
     _authStream.add(null);
@@ -127,7 +152,6 @@ void main() {
     });
 
     test('LinkAccountRequested upgrades anonymous user to registered email account', () async {
-      // First sign in anonymously
       await fakeAuthDataSource.signInAnonymously();
       expect(fakeAuthDataSource.isAnonymous, isTrue);
 
@@ -138,7 +162,7 @@ void main() {
       final state = authBloc.state as Authenticated;
       expect(state.user.email, equals('linked@example.com'));
       expect(state.user.isAnonymous, isFalse);
-      expect(state.user.uid, equals('anon_123')); // Same UID preserved!
+      expect(state.user.uid, equals('anon_123'));
     });
   });
 }
