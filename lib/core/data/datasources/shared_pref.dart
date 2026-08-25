@@ -69,6 +69,8 @@ class SharedPref {
         prefs.setString(_SharedPreferenceKeys.theme, 'light');
     prefs.getBool(_SharedPreferenceKeys.llmEnable) ??
         prefs.setBool(_SharedPreferenceKeys.llmEnable, true);
+    prefs.getBool(_SharedPreferenceKeys.llmGenUiEnable) ??
+        prefs.setBool(_SharedPreferenceKeys.llmGenUiEnable, true);
     prefs.getString(_SharedPreferenceKeys.llmApiKey) ??
         prefs.setString(_SharedPreferenceKeys.llmApiKey, '');
     prefs.getString(_SharedPreferenceKeys.llmCustomPrompt) ??
@@ -84,6 +86,10 @@ class SharedPref {
   bool get llmEnable => prefs.getBool(_SharedPreferenceKeys.llmEnable) ?? true;
   set llmEnable(bool value) =>
       prefs.setBool(_SharedPreferenceKeys.llmEnable, value);
+
+  bool get llmGenUiEnable => prefs.getBool(_SharedPreferenceKeys.llmGenUiEnable) ?? true;
+  set llmGenUiEnable(bool value) =>
+      prefs.setBool(_SharedPreferenceKeys.llmGenUiEnable, value);
 
   String get llmApiKey =>
       prefs.getString(_SharedPreferenceKeys.llmApiKey) ?? '';
@@ -150,6 +156,7 @@ class _SharedPreferenceKeys {
   static const String exampleNumber = 'exampleNumber';
   static const String theme = 'theme';
   static const String llmEnable = 'llmEnable';
+  static const String llmGenUiEnable = 'llmGenUiEnable';
   static const String llmApiKey = 'llmApiKey';
   static const String llmCustomPrompt = 'llmCustomPrompt';
   static const String llmModel = 'llmModel';

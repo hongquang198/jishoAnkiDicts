@@ -1,13 +1,31 @@
 import 'package:equatable/equatable.dart';
 import 'package:unofficial_jisho_api/api.dart';
 
+/// Look at dependencies\unofficial_jisho_api-3.0.0\lib\src\objects.dart for better explanation/definition
+
 class JishoDefinition extends Equatable {
+  /// The main version of the word
+  ///
+  /// This value might sometimes appear as some kind of hash or encoded version of the word.
+  /// Whenever it happens, the word usually originates taken from dbpedia
   final String slug;
+
+  /// Whether the word is common.
+  ///
+  /// Dbpedia sometimes omit this value.
   final bool isCommon;
+
+  /// Related tags.
   final List<String> tags;
+
+  /// Relevant jlpt levels.
   final List<String> jlpt;
+
+  // A more readable version of field 'slug'
   final String? word;
+  // The hiragana reading
   final String? reading;
+  // Look at dependencies\unofficial_jisho_api-3.0.0\lib\src\objects.dart for definition
   final List<JishoWordSense> senses;
   // List<dynamic> english_definitions;
   // List<dynamic> parts_of_speech;
@@ -49,10 +67,10 @@ class JishoDefinition extends Equatable {
     this.isJmnedict,
     this.isDbpedia,
   });
-  
+
   @override
   List<Object?> get props => [
-    slug,
+        slug,
         isCommon,
         tags,
         jlpt,
@@ -62,5 +80,5 @@ class JishoDefinition extends Equatable {
         isJmdict,
         isJmnedict,
         isDbpedia,
-  ];
+      ];
 }

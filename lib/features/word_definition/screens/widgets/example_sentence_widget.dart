@@ -67,7 +67,10 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
 
   @override
   void dispose() {
-    sticky?.remove();
+    // The overlay entry is currently never inserted (insertion inside the
+    // initState post-frame callback is disabled), and removing an
+    // uninserted entry trips a framework assert in debug builds.
+    sticky = null;
     super.dispose();
   }
 

@@ -116,11 +116,31 @@ class KanjiHelper {
     }
   }
 
+  /// Builds pitch accent boxes from a raw L/H pattern (e.g. "LHHH") and its
+  /// reading. The pattern must be exactly one character longer than the
+  /// reading, mirroring [getPitchAccent]'s database format.
+  static List<Widget> buildPitchWidgets({
+    required String reading,
+    required String pitchPattern,
+  }) {
+    final widgetList = <Widget>[];
+    if (reading.isEmpty) return widgetList;
+    if (reading.length + 1 != pitchPattern.length) return widgetList;
+    for (int i = 0; i < reading.length; i++) {
+      widgetList.add(getPitchForChar(
+          character: reading[i], position: i, pitchAccent: pitchPattern));
+    }
+    return widgetList;
+  }
+
   static Future<List<Widget>> getPitchAccent({
     String? word,
     String? slug,
     String? reading,
-    required BuildContext context,
+
+    /// Unused today; kept optional so callers may pass it without crossing
+    /// async-gap lints.
+    BuildContext? context,
   }) async {
     List<Widget> widgetList = [];
     List<PitchAccent> pitchFound = await getIt<Dictionary>()
@@ -163,7 +183,10 @@ class KanjiHelper {
 
   static Future<List<ExampleSentence>> getExampleSentence(
       {required String word,
-      required BuildContext context,
+
+      /// Unused today; kept optional so callers may pass it without crossing
+      /// async-gap lints.
+      BuildContext? context,
       required String tableName}) async {
     late List<ExampleSentence> exampleSentence;
     try {

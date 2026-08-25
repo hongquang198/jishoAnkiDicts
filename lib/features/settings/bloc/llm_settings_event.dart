@@ -15,6 +15,14 @@ class ToggleLlmEnabledEvent extends LlmSettingsEvent {
   List<Object?> get props => [enabled];
 }
 
+class ToggleLlmGenUiEnabledEvent extends LlmSettingsEvent {
+  final bool enabled;
+  const ToggleLlmGenUiEnabledEvent(this.enabled);
+
+  @override
+  List<Object?> get props => [enabled];
+}
+
 class UpdateApiKeyEvent extends LlmSettingsEvent {
   final String apiKey;
   const UpdateApiKeyEvent(this.apiKey);

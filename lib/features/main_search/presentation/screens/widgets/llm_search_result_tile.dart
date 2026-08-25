@@ -4,11 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../config/app_routes.dart';
-import '../../../../../core/data/datasources/shared_pref.dart';
-import '../../../../../injection.dart';
-import '../../../../../services/llm_service.dart';
+import 'package:jisho_anki/config/app_routes.dart';
+import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
+import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/services/llm/gen_ui_data_prefetch.dart';
+import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
+import 'package:jisho_anki/services/llm_service.dart';
 import '../../bloc/main_search_bloc.dart';
+import '../gen_ui_definition_screen.dart';
 
 class LlmSearchResultTile extends StatefulWidget {
   final String query;
@@ -58,11 +61,24 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     });
   }
 
+  /// Opens the dedicated full-screen GenUI explanation page. Only reachable
+  /// from the sparkle icon button, not from tapping the rest of the tile.
+  void _openGenUiScreen() {
+    context.pushNamed(
+      AppRoutesPath.genUiDefinition,
+      extra: GenUiDefinitionScreenArgs(
+        query: widget.query,
+        mainSearchBloc: context.read<MainSearchBloc>(),
+      ),
+    );
+  }
+
   void _startStreaming() {
     final sharedPref = getIt<SharedPref>();
     final llmService = getIt<LlmService>();
 
     if (!sharedPref.llmEnable) return;
+
     if (sharedPref.llmApiKey.trim().isEmpty) {
       setState(() {
         _hasStartedStream = true;
@@ -80,6 +96,36 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
       _isStreaming = true;
     });
 
+    _startRawTextStream(llmService);
+
+    // Pre-warm the GenUI (A2UI protocol) response so that tapping the sparkle
+    // icon button renders near-instantly instead of waiting for a fresh call.
+    if (sharedPref.llmGenUiEnable) {
+      getIt<GenUiPrefetchCache>().warm(
+        widget.query,
+        startStream: () =>
+            llmService.generateExplanationStream(widget.query, useGenUi: true),
+      );
+    }
+
+    // Pre-warm every other GenUI-screen lane as well: structured gap-fill
+    // (badges fallback, sentences, tutor comment), the descriptive picture
+    // with bytes already decoded, and the local DB sections. Runs regardless
+    // of llmGenUiEnable — only the LLM lane respects enable/key flags.
+    final resolved = resolveMainSearchData(
+      context.read<MainSearchBloc>(),
+      widget.query,
+    );
+    getIt<GenUiDataPrefetchCache>().warm(
+      widget.query,
+      start: () => startDefaultDataPrefetch(
+        query: widget.query,
+        jishoDefinition: resolved.jishoDefinition,
+      ),
+    );
+  }
+
+  void _startRawTextStream(LlmService llmService) {
     final stream = llmService.generateExplanationStream(widget.query);
     _subscription = stream.listen(
       (chunk) {
@@ -123,7 +169,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
   Widget build(BuildContext context) {
     final sharedPref = getIt<SharedPref>();
     if (!sharedPref.llmEnable) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     final isVn = sharedPref.isAppInVietnamese;
@@ -152,27 +198,14 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             onTap: _toggleExpanded,
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDB8C8A).withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      color: Color(0xFFDB8C8A),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       isVn
-                          ? '✨ AI Giải thích: "${widget.query}"'
-                          : '✨ AI Explanation: "${widget.query}"',
+                          ? '✨   AI Giải thích: "${widget.query}"'
+                          : '✨   AI Explanation: "${widget.query}"',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -193,6 +226,26 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                         ),
                       ),
                     ),
+                  IconButton(
+                    onPressed: _openGenUiScreen,
+                    tooltip: isVn ? 'Mở trang AI đầy đủ' : 'Open full AI page',
+                    padding: const EdgeInsets.all(6),
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          const Color(0xFFDB8C8A).withValues(alpha: 0.15),
+                      shape: const CircleBorder(),
+                    ),
+                    icon: const Icon(
+                      Icons.auto_awesome,
+                      color: Color(0xFFDB8C8A),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Icon(
                     _isExpanded
                         ? Icons.keyboard_arrow_up
@@ -287,24 +340,10 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     }
 
     if (_isStreaming && _accumulatedText.isEmpty) {
-      return Row(
-        children: [
-          const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-                strokeWidth: 2, color: Color(0xFFDB8C8A)),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
-            style: const TextStyle(
-                fontStyle: FontStyle.italic, color: Colors.grey),
-          ),
-        ],
-      );
+      return _buildLoadingIndicator(isVn);
     }
 
+    // Raw text mode
     if (_accumulatedText.isEmpty && !_isStreaming) {
       return Text(
         isVn ? 'Không có câu trả lời.' : 'No output received.',
@@ -312,6 +351,33 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
       );
     }
 
+    return _buildRawTextContent(context, isVn);
+  }
+
+  Widget _buildLoadingIndicator(bool isVn) {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFFDB8C8A),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
+          style: const TextStyle(
+            fontStyle: FontStyle.italic,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRawTextContent(BuildContext context, bool isVn) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
