@@ -1,140 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/models/offline_word_record.dart';
 
-import '../../../models/offline_word_record.dart';
+class CardInfoScreen extends StatelessWidget {
+  final WordCard? card;
+  final OfflineWordRecord? offlineWordRecord;
 
-class CardInfoScreen extends StatefulWidget {
-  final OfflineWordRecord offlineWordRecord;
-  const CardInfoScreen({super.key, required this.offlineWordRecord});
+  const CardInfoScreen({
+    super.key,
+    this.card,
+    this.offlineWordRecord,
+  });
 
-  @override
-  State<CardInfoScreen> createState() => _CardInfoScreenState();
-}
+  String get word => card?.japaneseWord ?? offlineWordRecord?.japaneseWord ?? '';
+  int get addedAt => card?.addedAt ?? offlineWordRecord?.added ?? 0;
+  int? get firstReview => card?.srsData?.firstReviewedAt ?? offlineWordRecord?.firstReview;
+  int? get lastReview => card?.srsData?.lastReviewedAt ?? offlineWordRecord?.lastReview;
+  int get due => card?.srsData?.dueAt ?? offlineWordRecord?.due ?? 0;
+  int get intervalMs => card?.srsData?.intervalMs ?? offlineWordRecord?.interval ?? 0;
+  double get ease => card?.srsData?.easeFactor ?? offlineWordRecord?.ease ?? 2.5;
+  int get reviews => card?.srsData?.reviews ?? offlineWordRecord?.reviews ?? 0;
+  int get lapses => card?.srsData?.lapses ?? offlineWordRecord?.lapses ?? 0;
+  String get stage => card?.srsData?.stage.name ?? offlineWordRecord?.cardType ?? 'New';
+  String get deck => card?.deck ?? offlineWordRecord?.deck ?? 'default';
 
-class _CardInfoScreenState extends State<CardInfoScreen> {
-  late Duration duration;
-
-  @override
-  void initState() {
-    duration = Duration(milliseconds: widget.offlineWordRecord.interval);
-    super.initState();
-  }
-
-  Text getInterval() {
-    if (widget.offlineWordRecord.interval <= 10 * 60 * 1000) {
-      return Text(
-          '${Duration(milliseconds: widget.offlineWordRecord.interval).inMinutes}min');
-    } else if (widget.offlineWordRecord.interval <= 31 * 24 * 60 * 60 * 1000) {
-      return Text(
-          '${Duration(milliseconds: widget.offlineWordRecord.interval).inDays}day');
-    } else if (widget.offlineWordRecord.interval <= 365 * 24 * 60 * 60 * 1000) {
-      return Text(
-          '${(Duration(milliseconds: widget.offlineWordRecord.interval).inDays / 31).toStringAsFixed(1)}month');
+  String get intervalText {
+    if (intervalMs <= 10 * 60 * 1000) {
+      return '${(intervalMs / (60 * 1000)).round()}min';
+    } else if (intervalMs <= 31 * 24 * 60 * 60 * 1000) {
+      return '${(intervalMs / (24 * 60 * 60 * 1000)).round()}day';
+    } else if (intervalMs <= 365 * 24 * 60 * 60 * 1000) {
+      return '${(intervalMs / (30 * 24 * 60 * 60 * 1000)).toStringAsFixed(1)}month';
     }
-    return Text(
-        '${(Duration(milliseconds: widget.offlineWordRecord.interval).inDays / 365).toStringAsFixed(1)}year');
+    return '${(intervalMs / (365 * 24 * 60 * 60 * 1000)).toStringAsFixed(1)}year';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
+      appBar: AppBar(
+        title: const Text('Card Info'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            _buildRow('Word', word),
+            const Divider(),
+            _buildRow('Deck', deck),
+            const Divider(),
+            _buildRow('Stage', stage),
+            const Divider(),
+            _buildRow('Added', addedAt > 0 ? DateTime.fromMillisecondsSinceEpoch(addedAt).toString().split('.')[0] : 'N/A'),
+            const Divider(),
+            _buildRow('First Review', firstReview != null ? DateTime.fromMillisecondsSinceEpoch(firstReview!).toString().split('.')[0] : 'N/A'),
+            const Divider(),
+            _buildRow('Latest Review', lastReview != null ? DateTime.fromMillisecondsSinceEpoch(lastReview!).toString().split('.')[0] : 'N/A'),
+            const Divider(),
+            _buildRow('Due', due > 0 ? DateTime.fromMillisecondsSinceEpoch(due).toString().split('.')[0] : 'N/A'),
+            const Divider(),
+            _buildRow('Interval', intervalText),
+            const Divider(),
+            _buildRow('Ease Factor', ease.toStringAsFixed(2)),
+            const Divider(),
+            _buildRow('Reviews', '$reviews'),
+            const Divider(),
+            _buildRow('Lapses', '$lapses'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Word: ${widget.offlineWordRecord.word}'),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Added: '),
-              Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.added)}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('First Review'),
-              Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.firstReview!)}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Latest review'),
-              Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.lastReview!)}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Due'),
-              Text(
-                  '${DateTime.fromMillisecondsSinceEpoch(widget.offlineWordRecord.due)}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Interval'),
-              getInterval(),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Ease'), Text('${widget.offlineWordRecord.ease}')],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Reviews'),
-              Text('${widget.offlineWordRecord.reviews}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Lapses'),
-              Text('${widget.offlineWordRecord.lapses}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Average Time'),
-              Text('${widget.offlineWordRecord.averageTimeMinute}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total Time'),
-              Text('${widget.offlineWordRecord.totalTimeMinute}')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Card Type'),
-              Text(widget.offlineWordRecord.cardType)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Note type'),
-              Text(widget.offlineWordRecord.noteType)
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Deck'), Text(widget.offlineWordRecord.deck)],
-          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
         ],
       ),
     );

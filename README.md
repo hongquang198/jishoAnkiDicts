@@ -1,4 +1,4 @@
-    # Flutter Tensorflow Lite Jisho dictionary + Ankidroid
+# Flutter Tensorflow Lite Jisho dictionary + Ankidroid
 Japanese Dictionary with Handwriting recognition using Tensorflow Lite and ETL models, jisho API
 (It works on both Android and iOS.)
 
@@ -10,19 +10,22 @@ In short, the app aims to combine Anki with a smart dictionary to completely rem
 
 ![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
 
-Main functionality:
-- AI-powered dictionary lookup: Integrated with Google Gemini for intelligent analysis of words, grammar patterns explanations. Thanks to customizable prompts, this feature can be adapted for other languages or study purposes beyond Japanese.
-- Dark mode, beautiful UI, inspired by a great designer I came across on https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
-- Pitch accent dictionary was taken from Wadoku dictionary with more than 111.000 entries.
-- View times on each words to help you decide whether they are worth learning.
-- Fast look up using application floating icon (like facebook messenger) with the ability to look up from clipboard
-- Configurable spaced-repetition system.
-- Offline handwriting recognition.
-- Example sentences taken from tatoeba.org: > 200.000 entries.
-- Basic grammar look up with corresponding JLPT level.
-- Kanji dictionary was based off of a RTK kanji deck with top 2 most upvoted stories on kanji.koohii.com: 2200 entries.
-- Supports Vietnamese and English language.
-- No ads. This is a completely free, open-source application and I intend to not include ads in the future
+## Main functionality:
+- **AI-powered dictionary lookup**: Integrated with Google Gemini for intelligent analysis of words, grammar patterns explanations. Thanks to customizable prompts, this feature can be adapted for other languages or study purposes beyond Japanese.
+- **Generative UI (GenUI / A2UI)**: Dynamic native widget streaming and component composition for dictionary lookups.
+- **Offline-First & Swappable Backend**: Clean Architecture domain abstraction with an offline-first SQLite cache (`user_data.db`) and pluggable remote backend adapters (Firebase Firestore, Supabase, or REST APIs) allowing zero-downtime backend swapping.
+- **Standardized SM-2 Spaced-Repetition System (SRS)**: 4-tier grading (`Again`, `Hard`, `Good`, `Easy`), dynamic interval estimates, session queue prioritization, leech management, and instant review undo.
+- **Dedicated Word View Analytics**: Independent view count tracking decoupled from SRS review attempts.
+- **Study Statistics & Activity Heatmap**: Real-time due card breakdown, dynamic 7-day forecast, retention rate calculations, and a 4-week review activity heatmap.
+- **Dark mode, beautiful UI**, inspired by https://www.behance.net/gallery/96147213/Dictionary-app-design-concept
+- **Pitch accent dictionary** from Wadoku dictionary (> 111,000 entries).
+- **Fast look up** using floating clipboard search.
+- **Offline handwriting recognition**.
+- **Example sentences** from tatoeba.org (> 200,000 entries).
+- **Grammar look up** with corresponding JLPT level.
+- **Kanji dictionary** based on RTK kanji deck with mnemonics from kanji.koohii.com (2,200 entries).
+- **Dual language support** (Vietnamese and English).
+- **No ads**, 100% free and open-source.
 
 <img src="gif.gif" width="300">
 
@@ -34,12 +37,6 @@ Here is the link to my reddit post for more discussions: https://www.reddit.com/
 
 Thank you all and happy learning!
 
-### Package
-tflite : A Flutter plugin for accessing TensorFlow Lite API
-
-https://pub.dev/packages/tflite"# jishoAnkiDicts" 
+### Acknowledgements
 Professor Nguyen Viet Khoa, Dean of School of Foreign Languages, Hanoi University of Science and Technology, was kind enough to send me his compilation of the Japanese-Vietnamese dictionary, so many thanks to him.
 Visit his website http://nguyenvietkhoa.edu.vn/ for more info.
-
-
-

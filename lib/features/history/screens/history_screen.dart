@@ -1,113 +1,176 @@
-import 'package:jisho_anki/common/widgets/common_query_tile.dart';
-import 'package:jisho_anki/l10n/app_localizations.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jisho_anki/common/widgets/common_query_tile.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/features/history/bloc/history_bloc.dart';
+import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
+import 'package:jisho_anki/models/vietnamese_definition.dart';
+import 'package:jisho_anki/services/kanji_helper.dart';
+import 'package:jisho_anki/utils/constants.dart';
 
-import '../../../injection.dart';
-import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/offline_word_record.dart';
-import '../../../models/vietnamese_definition.dart';
-import '../../../services/kanji_helper.dart';
-import '../../../utils/constants.dart';
-import '../../../core/data/datasources/shared_pref.dart';
-
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
+
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<HistoryBloc>()..add(const LoadHistory()),
+      child: const _HistoryScreenView(),
+    );
+  }
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
-  late String clipboard;
-  late List<OfflineWordRecord> history;
+class _HistoryScreenView extends StatefulWidget {
+  const _HistoryScreenView();
 
   @override
-  void initState() {
-    super.initState();
-    history = getIt<Dictionary>().history.reversed.toList();
+  State<_HistoryScreenView> createState() => _HistoryScreenViewState();
+}
+
+class _HistoryScreenViewState extends State<_HistoryScreenView> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+  Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
+    try {
+      final vnDefinition = await KanjiHelper.getVnDefinition(word: word);
+      if (vnDefinition.isNotEmpty) return vnDefinition.first;
+    } catch (e) {
+      log('No VN definition found: $e');
+    }
+    return null;
   }
 
-  // Convert normal String tags in offline dictionary to match list<dynamic> used by jisho api
-  // Since List<dynamic> is processed to display word defintion
-  List<String> convertToList(String string) {
-    String bracketRemoved = string.substring(1, string.length - 1);
-    List<String> stringSplitted;
-    stringSplitted = bracketRemoved.split(', ');
-    return stringSplitted;
-  }
-
-  Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
-    List<VietnameseDefinition> vnDefinition =
-        await KanjiHelper.getVnDefinition(word: word);
-    return vnDefinition[0];
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.history,
-          style: TextStyle(color: Constants.appBarTextColor),
-        ),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(8),
-        child: ListView.separated(
-          separatorBuilder: (context, index) => Divider(
-            thickness: 0.4,
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Search history...',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  context.read<HistoryBloc>().add(SearchHistory(query));
+                },
+              )
+            : Text(
+                AppLocalizations.of(context)!.history,
+                style: TextStyle(color: Constants.appBarTextColor),
+              ),
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _searchController.clear();
+                  context.read<HistoryBloc>().add(const SearchHistory(''));
+                  _isSearching = false;
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
           ),
-          itemCount: getIt<Dictionary>().history.length,
-          itemBuilder: (BuildContext context, int index) {
-            return getCommonQueryTile(index);
-          },
-        ),
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Clear History'),
+                  content: const Text('Are you sure you want to clear all lookup history?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              ).then((confirmed) {
+                if (confirmed == true && context.mounted) {
+                  context.read<HistoryBloc>().add(const ClearAllHistory());
+                }
+              });
+            },
+          ),
+        ],
+      ),
+      body: BlocBuilder<HistoryBloc, HistoryState>(
+        builder: (context, state) {
+          if (state is HistoryLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is HistoryLoaded) {
+            final history = state.filteredHistory;
+            if (history.isEmpty) {
+              return Center(
+                child: Text(
+                  state.searchQuery.isNotEmpty
+                      ? 'No history matches found.'
+                      : 'No lookup history yet.',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(8),
+              separatorBuilder: (context, index) => const Divider(thickness: 0.4),
+              itemCount: history.length,
+              itemBuilder: (context, index) {
+                final card = history[index];
+                return _buildHistoryTile(card);
+              },
+            );
+          }
+
+          return const SizedBox();
+        },
       ),
     );
   }
 
-  Widget getCommonQueryTile(int index) {
-    final offlineWordRecord = history[index];
-    final word = offlineWordRecord.word.isEmpty
-        ? offlineWordRecord.slug
-        : offlineWordRecord.word;
-    if (getIt<SharedPref>().isAppInVietnamese) {
-      if (history[index].vietnameseDefinition.isEmpty) {
-        return FutureBuilder<VietnameseDefinition>(
-            future: getVietnameseDefinition(word),
-            builder: (context, snapshot) {
-              if (snapshot.data == null) {
-                return CommonQueryTile(
-                  hanViet: KanjiHelper.getHanvietReading(
-                    word: word,
-                  ),
-                  jishoDefinition: history[index].toJishoDefinition,
-                );
-              } else {
-                return CommonQueryTile(
-                  hanViet: KanjiHelper.getHanvietReading(
-                    word: word,
-                  ),
-                  vnDefinition: snapshot.data,
-                  jishoDefinition: history[index].toJishoDefinition,
-                );
-              }
-            });
-      } else {
-        return CommonQueryTile(
-          hanViet: KanjiHelper.getHanvietReading(word: word),
-          vnDefinition: VietnameseDefinition(
-              word: word, definition: history[index].vietnameseDefinition),
-          jishoDefinition: history[index].toJishoDefinition,
-        );
-      }
-    } else {
+  Widget _buildHistoryTile(WordCard card) {
+    if (card.vietnameseDefinition.isNotEmpty) {
       return CommonQueryTile(
-        hanViet: KanjiHelper.getHanvietReading(word: word),
-        jishoDefinition: history[index].toJishoDefinition,
+        hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
+        vnDefinition: VietnameseDefinition(
+          word: card.japaneseWord,
+          definition: card.vietnameseDefinition,
+        ),
+        jishoDefinition: card.toJishoDefinition,
       );
     }
-  }
 
-// load kanji dictionary
+    return FutureBuilder<VietnameseDefinition?>(
+      future: _getVietnameseDefinition(card.japaneseWord),
+      builder: (context, snapshot) {
+        return CommonQueryTile(
+          hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
+          vnDefinition: snapshot.data,
+          jishoDefinition: card.toJishoDefinition,
+        );
+      },
+    );
+  }
 }

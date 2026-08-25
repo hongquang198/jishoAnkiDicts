@@ -1,85 +1,150 @@
-import 'package:jisho_anki/common/widgets/common_query_tile.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jisho_anki/common/widgets/common_query_tile.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/features/favorite_words/bloc/favorite_bloc.dart';
+import 'package:jisho_anki/injection.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
-import 'dart:async';
+import 'package:jisho_anki/models/vietnamese_definition.dart';
+import 'package:jisho_anki/services/kanji_helper.dart';
+import 'package:jisho_anki/utils/constants.dart';
 
-import '../../../injection.dart';
-import '../../../core/domain/entities/dictionary.dart';
-import '../../../models/offline_word_record.dart';
-import '../../../models/vietnamese_definition.dart';
-import '../../../services/kanji_helper.dart';
-import '../../../utils/constants.dart';
-
-class FavoriteScreen extends StatefulWidget {
+class FavoriteScreen extends StatelessWidget {
   const FavoriteScreen({super.key});
+
   @override
-  State<FavoriteScreen> createState() => _FavoriteScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<FavoriteBloc>()..add(const LoadFavorites()),
+      child: const _FavoriteScreenView(),
+    );
+  }
 }
 
-class _FavoriteScreenState extends State<FavoriteScreen> {
-  late String clipboard;
+class _FavoriteScreenView extends StatefulWidget {
+  const _FavoriteScreenView();
 
-  Future<VietnameseDefinition> getVietnameseDefinition(String word) async {
-    List<VietnameseDefinition> vnDefinition =
-        await KanjiHelper.getVnDefinition(word: word);
-    return vnDefinition[0];
+  @override
+  State<_FavoriteScreenView> createState() => _FavoriteScreenViewState();
+}
+
+class _FavoriteScreenViewState extends State<_FavoriteScreenView> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+  Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
+    try {
+      final vnDefinition = await KanjiHelper.getVnDefinition(word: word);
+      if (vnDefinition.isNotEmpty) return vnDefinition.first;
+    } catch (e) {
+      log('No VN definition found: $e');
+    }
+    return null;
   }
 
-  // Convert normal String tags in offline dictionary to match list<dynamic> used by jisho api
-  // Since List<dynamic> is processed to display word defintion
-  List<String> convertToList(String string) {
-    if (string.length <= 1) return [string];
-    String bracketRemoved = string.substring(1, string.length - 1);
-    List<String> stringSplitted;
-    stringSplitted = bracketRemoved.split(', ');
-    return stringSplitted;
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.favorite,
-          style: TextStyle(color: Constants.appBarTextColor),
-        ),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(8),
-        child: ListView.separated(
-          separatorBuilder: (context, index) => Divider(
-            thickness: 0.4,
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Search favorites...',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  context.read<FavoriteBloc>().add(SearchFavorites(query));
+                },
+              )
+            : Text(
+                AppLocalizations.of(context)!.favorite,
+                style: TextStyle(color: Constants.appBarTextColor),
+              ),
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _searchController.clear();
+                  context.read<FavoriteBloc>().add(const SearchFavorites(''));
+                  _isSearching = false;
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
           ),
-          itemCount: getIt<Dictionary>().favorite.length,
-          itemBuilder: (BuildContext context, int index) {
-            List<OfflineWordRecord> favorite = getIt<Dictionary>().favorite;
-            favorite = favorite.reversed.toList();
+        ],
+      ),
+      body: BlocBuilder<FavoriteBloc, FavoriteState>(
+        builder: (context, state) {
+          if (state is FavoriteLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return FutureBuilder<VietnameseDefinition>(
-                future: getVietnameseDefinition(favorite[index].japaneseWord),
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return CommonQueryTile(
-                      hanViet: KanjiHelper.getHanvietReading(
-                        word: favorite[index].japaneseWord,
-                      ),
-                      vnDefinition: null,
-                      jishoDefinition: favorite[index].toJishoDefinition,
-                    );
-                  }
-                  return CommonQueryTile(
-                    hanViet: KanjiHelper.getHanvietReading(
-                      word: favorite[index].japaneseWord,
-                    ),
-                    vnDefinition: snapshot.data,
-                    jishoDefinition: favorite[index].toJishoDefinition,
-                  );
-                });
-          },
-        ),
+          if (state is FavoriteLoaded) {
+            final favorites = state.filteredFavorites;
+            if (favorites.isEmpty) {
+              return Center(
+                child: Text(
+                  state.searchQuery.isNotEmpty
+                      ? 'No matches found.'
+                      : 'No favorite words saved yet.',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(8),
+              separatorBuilder: (context, index) => const Divider(thickness: 0.4),
+              itemCount: favorites.length,
+              itemBuilder: (context, index) {
+                final card = favorites[index];
+                return _buildFavoriteTile(card);
+              },
+            );
+          }
+
+          return const SizedBox();
+        },
       ),
     );
   }
 
-// load kanji dictionary
+  Widget _buildFavoriteTile(WordCard card) {
+    if (card.vietnameseDefinition.isNotEmpty) {
+      return CommonQueryTile(
+        hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
+        vnDefinition: VietnameseDefinition(
+          word: card.japaneseWord,
+          definition: card.vietnameseDefinition,
+        ),
+        jishoDefinition: card.toJishoDefinition,
+      );
+    }
+
+    return FutureBuilder<VietnameseDefinition?>(
+      future: _getVietnameseDefinition(card.japaneseWord),
+      builder: (context, snapshot) {
+        return CommonQueryTile(
+          hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
+          vnDefinition: snapshot.data,
+          jishoDefinition: card.toJishoDefinition,
+        );
+      },
+    );
+  }
 }

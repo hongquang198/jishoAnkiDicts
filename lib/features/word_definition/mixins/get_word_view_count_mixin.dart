@@ -1,28 +1,8 @@
-import 'dart:developer';
-import 'package:collection/collection.dart';
-
-import '../../../core/domain/entities/dictionary.dart';
-import '../../../injection.dart';
-import '../../../models/offline_word_record.dart';
+import 'package:jisho_anki/core/domain/repositories/user_data_repository.dart';
+import 'package:jisho_anki/injection.dart';
 
 mixin GetWordViewCountMixin {
-  int getViewCounts({required String currentJapaneseWord}) {
-    OfflineWordRecord? found;
-    try {
-      found = getIt<Dictionary>().history.firstWhereOrNull((element) {
-        String elementWord = element.word;
-        if (elementWord.isEmpty) {
-          elementWord = element.slug;
-        }
-        return elementWord == currentJapaneseWord;
-      });
-    } catch (e) {
-      log('Word not in history: $e');
-    }
-    if (found == null) {
-      return 0;
-    } else {
-      return found.reviews;
-    }
+  Future<int> getViewCounts({required String currentJapaneseWord}) async {
+    return getIt<UserDataRepository>().getWordViewCount(currentJapaneseWord);
   }
 }

@@ -64,6 +64,10 @@ dependencies:
   genui: ^0.10.2
   a2ui_core: ^0.1.1
   json_schema_builder: ^0.1.6
+  firebase_core: ^4.14.0
+  firebase_auth: ^6.6.0
+  cloud_firestore: ^6.9.0
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

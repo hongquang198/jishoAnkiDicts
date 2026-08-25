@@ -1,7 +1,27 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gms:google-services:4.5.0'
+    }
+}
+
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.dependencies {
+                add("implementation", "org.checkerframework:checker-qual:3.42.0")
+            }
+        }
     }
 }
 
