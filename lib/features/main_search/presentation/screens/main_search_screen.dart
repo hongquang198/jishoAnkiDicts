@@ -69,7 +69,6 @@ class _MainSearchScreenState extends State<MainSearchScreen>
     );
     focusNode = FocusNode();
     focusNode.addListener(_onFocusChange);
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
     bloc = context.read<MainSearchBloc>();
     textEditingController = TextEditingController();
     _initModel(modelFilePath: modelFilePath1, labelFilePath: labelFilePath1);
@@ -92,38 +91,6 @@ class _MainSearchScreenState extends State<MainSearchScreen>
     }
   }
 
-  bool _handleKeyEvent(KeyEvent event) {
-    final logicalKey = event.logicalKey;
-    final keyLabel = logicalKey.keyLabel;
-    if (event is KeyDownEvent) {
-      return false;
-    }
-
-    if (keyLabel.isNotEmpty &&
-        !isNumericCharacter(keyLabel) &&
-        !['backspace', 'enter'].contains(keyLabel.toLowerCase()) &&
-        keyLabel.toLowerCase() != 'go back') {
-      // If a key with a printable label is pressed, navigate to the search screen and update the text field.
-      if (context.canPop()) {
-        Navigator.of(context).popUntil(
-            (route) => route.settings.name == AppRoutesPath.mainScreen);
-      }
-      textEditingController.text = keyLabel;
-      textEditingController.selection = TextSelection.fromPosition(
-        TextPosition(offset: textEditingController.text.length),
-      );
-      _search();
-      focusNode.requestFocus();
-      return true;
-    }
-    return false;
-  }
-
-  bool isNumericCharacter(String input) {
-    final result = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].contains(int.tryParse(input));
-    return result;
-  }
-
   void _startClipboardMonitoring() {
     clipboardTimer =
         Timer.periodic(const Duration(milliseconds: 300), (timer) async {
@@ -144,7 +111,6 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   void dispose() {
     _shareIntentSubscription?.cancel();
     clipboardTimer.cancel();
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     focusNode.removeListener(_onFocusChange);
     focusNode.dispose();
     super.dispose();
