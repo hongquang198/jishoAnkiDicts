@@ -15,6 +15,7 @@ import 'core/data/datasources/shared_pref.dart';
 import 'localization_manager.dart';
 import 'services/share_intent_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 
 Future<File> getImageFileFromAssets(String path) async {
   final byteData = await rootBundle.load('assets/$path');
@@ -35,6 +36,9 @@ void main() async {
     await GoogleSignIn.instance.initialize(
       serverClientId: '922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com',
     );
+    if (fb.FirebaseAuth.instance.currentUser == null) {
+      await fb.FirebaseAuth.instance.signInAnonymously();
+    }
   } catch (_) {
     // Firebase initialization optional if configuration files are not bundled
   }

@@ -12,7 +12,20 @@
           "package_name": "com.quangpham.JishoAnki"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "922935793300-ousag0ea96el7ofsvssbd99b19nkop1t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quangpham.JishoAnki",
+            "certificate_hash": "768b51bd5d3f40545e80f1b78507e7fe74bd92a5"
+          }
+        },
+        {
+          "client_id": "922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDR-_iS_fbtjZNGC6zBF4M60hSGGhtIcQ4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

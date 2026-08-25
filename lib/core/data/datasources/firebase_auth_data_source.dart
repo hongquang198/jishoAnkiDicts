@@ -70,16 +70,30 @@ class FirebaseAuthDataSource implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    final user = _firebaseAuth.currentUser;
+    var user = _firebaseAuth.currentUser;
     if (user == null) {
-      throw Exception('No user currently signed in to link account.');
+      final anon = await _firebaseAuth.signInAnonymously();
+      user = anon.user;
     }
     final credential = fb.EmailAuthProvider.credential(
       email: email,
       password: password,
     );
-    final userCredential = await user.linkWithCredential(credential);
-    return _mapUser(userCredential.user)!;
+    try {
+      final userCredential = await user!.linkWithCredential(credential);
+      return _mapUser(userCredential.user)!;
+    } catch (e) {
+      if (user?.isAnonymous == true &&
+          (e.toString().contains('credential-already-in-use') ||
+              e.toString().contains('email-already-in-use'))) {
+        final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        return _mapUser(userCredential.user)!;
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -95,17 +109,26 @@ class FirebaseAuthDataSource implements AuthRemoteDataSource {
 
   @override
   Future<UserEntity> linkAccountWithGoogle() async {
-    final user = _firebaseAuth.currentUser;
+    var user = _firebaseAuth.currentUser;
     if (user == null) {
-      throw Exception('No user currently signed in to link account.');
+      final anon = await _firebaseAuth.signInAnonymously();
+      user = anon.user;
     }
     final googleAccount = await GoogleSignIn.instance.authenticate();
     final auth = googleAccount.authentication;
     final credential = fb.GoogleAuthProvider.credential(
       idToken: auth.idToken,
     );
-    final userCredential = await user.linkWithCredential(credential);
-    return _mapUser(userCredential.user)!;
+    try {
+      final userCredential = await user!.linkWithCredential(credential);
+      return _mapUser(userCredential.user)!;
+    } catch (e) {
+      if (user?.isAnonymous == true && e.toString().contains('credential-already-in-use')) {
+        final userCredential = await _firebaseAuth.signInWithCredential(credential);
+        return _mapUser(userCredential.user)!;
+      }
+      rethrow;
+    }
   }
 
   @override

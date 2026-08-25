@@ -55,7 +55,6 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   final labelFilePath2 = 'assets/label3036.txt';
   late MainSearchBloc bloc;
   String clipboard = '';
-  bool keyboardListened = false;
   StreamSubscription<String>? _shareIntentSubscription;
 
   @override
