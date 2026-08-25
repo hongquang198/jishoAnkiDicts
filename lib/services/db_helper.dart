@@ -75,7 +75,8 @@ class DbHelper {
             getIt<Dictionary>().history.firstWhere(
                 (element) =>
                     element.japaneseWord ==
-                    offlineWordRecord.japaneseWord);
+                    offlineWordRecord.japaneseWord,
+                orElse: () => offlineWordRecord);
         getIt<Dictionary>().history.remove(found);
         getIt<Dictionary>()
             .offlineDatabase
