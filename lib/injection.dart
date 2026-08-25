@@ -21,6 +21,11 @@ import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietna
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_grammar_point.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
+import 'package:jisho_anki/features/favorite_words/bloc/favorite_bloc.dart';
+import 'package:jisho_anki/features/history/bloc/history_bloc.dart';
+import 'package:jisho_anki/features/review/bloc/review_bloc.dart';
+import 'package:jisho_anki/features/statistics/bloc/statistics_bloc.dart';
+import 'package:jisho_anki/features/word_definition/bloc/word_interaction_bloc.dart';
 import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:jisho_anki/features/main_search/repository/jisho_repository_impl.dart';
 import 'package:jisho_anki/services/srs_engine.dart';
@@ -144,6 +149,17 @@ Future<void> inject() async {
         () => ClearHistoryUseCase(getIt()));
 
   // BLoC
+  getIt.registerFactory<WordInteractionBloc>(
+      () => WordInteractionBloc(repository: getIt<UserDataRepository>()));
+  getIt.registerFactory<ReviewBloc>(
+      () => ReviewBloc(repository: getIt<UserDataRepository>(), srsEngine: getIt<SrsEngine>()));
+  getIt.registerFactory<FavoriteBloc>(
+      () => FavoriteBloc(repository: getIt<UserDataRepository>()));
+  getIt.registerFactory<HistoryBloc>(
+      () => HistoryBloc(repository: getIt<UserDataRepository>()));
+  getIt.registerFactory<StatisticsBloc>(
+      () => StatisticsBloc(repository: getIt<UserDataRepository>()));
+
   getIt.registerFactory<MainSearchBloc>(() => MainSearchBloc(
         lookupGrammarPoint: getIt(),
         searchJishoForPhrase: getIt(),
