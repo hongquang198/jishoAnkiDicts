@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
+    await GoogleSignIn.instance.initialize(
+      serverClientId: '922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com',
+    );
   } catch (_) {
     // Firebase initialization optional if configuration files are not bundled
   }
