@@ -100,7 +100,9 @@ class _MainSearchScreenState extends State<MainSearchScreen>
               (route) => route.settings.name == AppRoutesPath.mainScreen);
         }
         clipboard = newClipboard.text!;
-        textEditingController.text = clipboard;
+        textEditingController.text = clipboard
+            .replaceAll('\r', '')
+            .replaceAll('\n', '');
         await _search();
       }
     });
@@ -122,7 +124,16 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   }
 
   Future<void> _search() async {
-    bloc.add(SearchForPhraseEvent(textEditingController.text));
+    final cleanPhrase = textEditingController.text
+        .replaceAll('\r', '')
+        .replaceAll('\n', '');
+    if (textEditingController.text != cleanPhrase) {
+      textEditingController.text = cleanPhrase;
+      textEditingController.selection = TextSelection.fromPosition(
+        TextPosition(offset: textEditingController.text.length),
+      );
+    }
+    bloc.add(SearchForPhraseEvent(cleanPhrase));
   }
 
   @override

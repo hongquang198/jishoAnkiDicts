@@ -41,17 +41,18 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
 
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
+    final cleanPhrase = event.phrase.replaceAll('\r', '').replaceAll('\n', '');
     final isAppInVietnamese = getIt<SharedPref>().isAppInVietnamese;
     emit(MainSearchLoadingState(state.data.copyWith(
       isAppInVietnamese: isAppInVietnamese,
-      searchedPhrase: event.phrase,
+      searchedPhrase: cleanPhrase,
     )));
 
-    add(SearchForGrammarPointEvent(event.phrase));
+    add(SearchForGrammarPointEvent(cleanPhrase));
     if (isAppInVietnamese) {
-      add(SearchForVnDefinitionEvent(event.phrase));
+      add(SearchForVnDefinitionEvent(cleanPhrase));
     }
-    add(SearchForJishoDefinitionEvent(event.phrase));
+    add(SearchForJishoDefinitionEvent(cleanPhrase));
   }
 
   FutureOr<void> _onSearchForGrammarPoint(
