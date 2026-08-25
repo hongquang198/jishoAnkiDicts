@@ -93,4 +93,48 @@ void main() {
     expect(find.text(' N4 '), findsOneWidget);
     expect(find.textContaining('Worth memorizing'), findsOneWidget);
   });
+
+  testWidgets(
+      'GenUiDefinitionScreen renders grammar analysis for sentence queries',
+      (tester) async {
+    final prefetch = GenUiDataPrefetch.start(
+      query: '雨が降っている',
+      jishoDefinition: JishoDefinition(slug: '雨が降っている'),
+      llmEnabled: true,
+      fetchWordInfo: (_) async => <String, dynamic>{
+        'found': true,
+        'grammarAnalysis': 'Present continuous tense using verb ている.',
+        'tutorComment': 'Common descriptive phrase.',
+      },
+      searchThumbnailUrl: (_) async => null,
+      loadImage: (_) async => null,
+      loadPitchWidgets: () async => const [],
+      loadExamples: () async => const [],
+      loadKanjiComponents: () async => const [],
+    );
+
+    final dataCache = GenUiDataPrefetchCache();
+    dataCache.warm('雨が降っている', start: () => prefetch);
+    if (getIt.isRegistered<GenUiDataPrefetchCache>()) {
+      getIt.unregister<GenUiDataPrefetchCache>();
+    }
+    getIt.registerLazySingleton<GenUiDataPrefetchCache>(() => dataCache);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: GenUiDefinitionScreen(
+          args: GenUiDefinitionScreenArgs(query: '雨が降っている'),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Grammar Analysis'), findsOneWidget);
+    expect(find.textContaining('Present continuous tense'), findsOneWidget);
+    expect(find.text('AI Tutor Notes'), findsOneWidget);
+  });
 }

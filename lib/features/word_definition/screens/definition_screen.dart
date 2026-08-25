@@ -11,8 +11,11 @@ import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
+import '../../../services/llm/gen_ui_data_prefetch.dart';
+import '../../../services/preloaded_image.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../main_search/presentation/bloc/main_search_bloc.dart';
+import '../../main_search/presentation/screens/gen_ui_definition_screen.dart';
 import '../bloc/word_interaction_bloc.dart';
 import 'widgets/component_widget.dart';
 import 'widgets/definition_widget.dart';
@@ -54,8 +57,11 @@ class DefinitionScreen extends StatefulWidget {
           create: (context) {
             final word = args.vnDefinition?.word.isNotEmpty == true
                 ? args.vnDefinition!.word
-                : (args.jishoDefinition?.japaneseWord ?? args.jishoDefinition?.slug ?? '');
-            return getIt<WordInteractionBloc>()..add(WatchWordInteraction(word));
+                : (args.jishoDefinition?.japaneseWord ??
+                    args.jishoDefinition?.slug ??
+                    '');
+            return getIt<WordInteractionBloc>()
+              ..add(WatchWordInteraction(word));
           },
         ),
       ],
@@ -75,6 +81,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   late VietnameseDefinition vnDefinition;
   late String currentJapaneseWord;
   bool _historyRecorded = false;
+  PreloadedImage? _descriptivePicture;
+  String? _aiTutorComment;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
@@ -95,6 +103,8 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     if (widget.args.jishoDefinition != null) {
       _recordViewAndHistory();
     }
+
+    _attachDataPrefetch();
 
     pitchAccent = KanjiHelper.getPitchAccent(
       word: jishoDefinition.word,
@@ -121,6 +131,32 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     } catch (e) {
       log('Error getting example sentence $e');
     }
+  }
+
+  void _attachDataPrefetch() {
+    final query = currentJapaneseWord;
+    final cache = getIt<GenUiDataPrefetchCache>();
+    var prefetch = cache.get(query);
+    if (prefetch == null) {
+      final fresh = startDefaultDataPrefetch(
+        query: query,
+        jishoDefinition: jishoDefinition,
+      );
+      cache.warm(query, start: () => fresh);
+      prefetch = fresh;
+    }
+
+    prefetch.wordInfo.then((info) {
+      if (!mounted || info == null || info['found'] != true) return;
+      setState(() {
+        final comment = info['tutorComment']?.toString().trim() ?? '';
+        if (comment.isNotEmpty) _aiTutorComment = comment;
+      });
+    });
+    prefetch.image.then((picture) {
+      if (!mounted || picture == null) return;
+      setState(() => _descriptivePicture = picture);
+    });
   }
 
   WordCard _createWordCard() {
@@ -215,40 +251,71 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                 FutureBuilder<List<Widget>>(
                   future: pitchAccent,
                   builder: (context, snapshot) {
-                    if (snapshot.data == null || snapshot.data?.isEmpty == true) {
+                    if (snapshot.data == null ||
+                        snapshot.data?.isEmpty == true) {
                       return Text(
                         jishoDefinition.reading ?? '',
-                        style: const TextStyle(fontSize: 15.0, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 15.0, color: Colors.grey),
                       );
                     }
                     return Row(children: snapshot.data!);
                   },
                 ),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
-                      child: Text(
-                        currentJapaneseWord,
-                        style: const TextStyle(
-                          fontSize: 45.0,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            currentJapaneseWord,
+                            style: const TextStyle(
+                              fontSize: 45.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (getIt<SharedPref>().isAppInVietnamese &&
+                              widget.args.hanViet?.isNotEmpty == true)
+                            Text(
+                              widget.args.hanViet.toString().toUpperCase(),
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                        ],
                       ),
                     ),
-                    WordViewCountWidget(viewCounts: interactionState.viewCount),
-                  ],
-                ),
-                if (getIt<SharedPref>().isAppInVietnamese &&
-                    widget.args.hanViet?.isNotEmpty == true)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        widget.args.hanViet.toString().toUpperCase(),
-                        style: const TextStyle(fontSize: 22),
+                    if (_descriptivePicture != null) ...[
+                      const SizedBox(width: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image(
+                          image: _descriptivePicture!.provider,
+                          height: 120,
+                          width: 120,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          loadingBuilder: (context, child, progress) =>
+                              progress == null
+                                  ? child
+                                  : const SizedBox(
+                                      height: 120,
+                                      width: 120,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Color(0xFFDB8C8A)),
+                                      ),
+                                    ),
+                        ),
                       ),
                     ],
-                  ),
+                    WordViewCountWidget(
+                      viewCounts: interactionState.viewCount,
+                      margin: EdgeInsets.only(left: 8),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 DefinitionWidget(
                   senses: jishoDefinition.senses,
@@ -294,6 +361,40 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   ),
                 ),
                 ComponentWidget(kanjiComponent: kanjiList),
+                if (_aiTutorComment != null) ...[
+                  const SizedBox(height: 12),
+                  divider,
+                  Row(
+                    children: [
+                      const Icon(Icons.record_voice_over,
+                          color: Color(0xffDB8C8A), size: 20),
+                      const SizedBox(width: 6),
+                      Text(
+                        getIt<SharedPref>().isAppInVietnamese
+                            ? 'Nhận xét từ AI Tutor'
+                            : 'AI Tutor Notes',
+                        style: const TextStyle(
+                          color: Color(0xffDB8C8A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      _aiTutorComment!,
+                      style: const TextStyle(fontSize: 14, height: 1.5),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

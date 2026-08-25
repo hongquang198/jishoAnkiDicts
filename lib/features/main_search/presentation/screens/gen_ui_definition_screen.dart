@@ -138,6 +138,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   // Descriptive picture with bytes already decoded, and AI-tutor comment.
   PreloadedImage? _descriptivePicture;
   String? _aiTutorComment;
+  String? _grammarAnalysis;
 
   // AI explanation stream
   bool _isStreaming = false;
@@ -208,6 +209,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
         _llmInfo = info;
         final comment = _llmString('tutorComment');
         if (comment.isNotEmpty) _aiTutorComment = comment;
+        final grammar = _llmString('grammarAnalysis');
+        if (grammar.isNotEmpty) _grammarAnalysis = grammar;
         // Swap the examples future only when the local list was empty and
         // the LLM actually provided sentences, so animations replay once.
         if ((_examples?.isEmpty ?? true) && _effectiveExamples.isNotEmpty) {
@@ -503,6 +506,38 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               ),
             ),
             ComponentWidget(kanjiComponent: _kanjiListFuture),
+            if (_grammarAnalysis != null) ...[
+              const SizedBox(height: 12),
+              divider,
+              Row(
+                children: [
+                  const Icon(Icons.psychology,
+                      color: Color(0xffDB8C8A), size: 20),
+                  const SizedBox(width: 6),
+                  Text(
+                    isVn ? 'Phân tích ngữ pháp' : 'Grammar Analysis',
+                    style: const TextStyle(
+                      color: Color(0xffDB8C8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _grammarAnalysis!,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
+                ),
+              ),
+            ],
             if (_aiTutorComment != null) ...[
               SizedBox(height: 12),
               divider,
