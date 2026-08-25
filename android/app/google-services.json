@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "922935793300",
+    "project_id": "jishoanki",
+    "storage_bucket": "jishoanki.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922935793300:android:b1b62663992df36a13c681",
+        "android_client_info": {
+          "package_name": "com.quangpham.JishoAnki"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR-_iS_fbtjZNGC6zBF4M60hSGGhtIcQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
