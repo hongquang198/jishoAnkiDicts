@@ -2,6 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:jisho_anki/core/data/datasources/firebase_user_data_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/local_user_data_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
+import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
+import 'package:jisho_anki/core/data/datasources/firebase_auth_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/core/data/datasources/user_data_migrator.dart';
 import 'package:jisho_anki/core/data/datasources/user_local_data_source_impl.dart';
@@ -110,6 +112,9 @@ Future<void> inject() async {
 
   getIt.registerLazySingleton<RemoteUserDataDataSource>(
       () => FirebaseUserDataDataSource());
+
+  getIt.registerLazySingleton<AuthRemoteDataSource>(
+      () => FirebaseAuthDataSource());
 
   getIt.registerSingletonAsync<UserDataRepository>(() async {
     final repo = UserDataRepositoryImpl(

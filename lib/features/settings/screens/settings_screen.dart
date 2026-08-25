@@ -5,6 +5,7 @@ import '../../../core/data/datasources/shared_pref.dart';
 import '../../../services/llm_service.dart';
 import '../bloc/llm_settings_bloc.dart';
 import 'widgets/llm_settings_section.dart';
+import 'widgets/account_sync_section.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -334,6 +335,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 child: const LlmSettingsSection(),
               ),
+              const SizedBox(height: 10),
+              const AccountSyncSection(),
             ],
           ),
         );
