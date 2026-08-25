@@ -1,0 +1,3 @@
+<!-- Step 3 -->
+<!-- This is the template for the tasks.md file -->
+please read the requirement.md and the design.md file and create a tasks.md file that lays out a set of tasks and subtasks representing the functionality of this app. lay out the top-level tasks as minimal new functionality that the user can see in the running app, step-by-step as each top-level task is completed. each top-level task should include sub-tasks for creating and running tests and updating the @README.md with a description of the current functionality of the app. ask any questions you may have before you get started.

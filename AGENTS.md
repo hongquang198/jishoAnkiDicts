@@ -5,8 +5,7 @@
 - **Plan Mode**: Synthesize all required modifications into a single, cohesive, multi-step proposal. Execute the changes in batch workflows rather than sequential, isolated requests.
 
 # Coding standards
-- **TDD (Test-Driven Development)** - write the tests first; the implementation
-  code isn't done until the tests pass.
+- **TDD (Test-Driven Development) with Clean Architecture** - write the tests first; the implementation code isn't done until the tests pass.
 
 DRY (Don't Repeat Yourself) – eliminate duplicated logic by extracting shared utilities and modules.
 
