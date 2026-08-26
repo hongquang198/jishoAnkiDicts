@@ -134,6 +134,9 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
   // LLM gap-fill data (used only when local data is missing)
   Map<String, dynamic>? _llmInfo;
+  // True while the structured gap-fill payload (tutor comment, grammar
+  // analysis) is still in flight, so placeholder spinners can be shown.
+  bool _wordInfoPending = true;
 
   // Descriptive picture with bytes already decoded, and AI-tutor comment.
   PreloadedImage? _descriptivePicture;
@@ -204,8 +207,10 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
       });
     });
     prefetch.wordInfo.then((info) {
-      if (!mounted || info == null || info['found'] != true) return;
+      if (!mounted) return;
       setState(() {
+        _wordInfoPending = false;
+        if (info == null || info['found'] != true) return;
         _llmInfo = info;
         final comment = _llmString('tutorComment');
         if (comment.isNotEmpty) _aiTutorComment = comment;
@@ -279,7 +284,12 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
   // --- AI explanation streaming ---
 
-  void _startStreaming() {
+  /// Starts (or attaches to) the AI explanation stream.
+  ///
+  /// With [regenerate] the cached prefetch for this query is discarded first
+  /// so a genuinely fresh request is issued; without it an in-flight or
+  /// completed pre-warmed response is re-attached transparently.
+  void _startStreaming({bool regenerate = false}) {
     final sharedPref = getIt<SharedPref>();
     final llmService = getIt<LlmService>();
 
@@ -340,6 +350,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
     // was opened without passing through the tile — this transparently starts
     // a fresh stream.
     final prefetchCache = getIt<GenUiPrefetchCache>();
+    if (regenerate) prefetchCache.invalidate(currentJapaneseWord);
     prefetchCache.warm(
       currentJapaneseWord,
       startStream: () => llmService
@@ -414,7 +425,9 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
             padding: const EdgeInsets.only(left: 20, right: 20),
             icon: const Icon(Icons.refresh),
             tooltip: isVn ? 'Tạo lại' : 'Regenerate',
-            onPressed: _isStreaming ? null : _startStreaming,
+            onPressed: _isStreaming
+                ? null
+                : () => _startStreaming(regenerate: true),
           ),
         ],
       ),
@@ -506,73 +519,90 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               ),
             ),
             ComponentWidget(kanjiComponent: _kanjiListFuture),
-            if (_grammarAnalysis != null) ...[
-              const SizedBox(height: 12),
-              divider,
-              Row(
-                children: [
-                  const Icon(Icons.psychology,
-                      color: Color(0xffDB8C8A), size: 20),
-                  const SizedBox(width: 6),
-                  Text(
-                    isVn ? 'Phân tích ngữ pháp' : 'Grammar Analysis',
-                    style: const TextStyle(
-                      color: Color(0xffDB8C8A),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  _grammarAnalysis!,
-                  style: const TextStyle(fontSize: 14, height: 1.5),
-                ),
-              ),
-            ],
-            if (_aiTutorComment != null) ...[
-              SizedBox(height: 12),
-              divider,
-              Row(
-                children: [
-                  const Icon(Icons.record_voice_over,
-                      color: Color(0xffDB8C8A), size: 20),
-                  const SizedBox(width: 6),
-                  Text(
-                    isVn ? 'Nhận xét từ AI Tutor' : 'AI Tutor Notes',
-                    style: const TextStyle(
-                      color: Color(0xffDB8C8A),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  _aiTutorComment!,
-                  style: const TextStyle(fontSize: 14, height: 1.5),
-                ),
-              ),
-            ],
+            _llmGapFillSection(
+              isVn: isVn,
+              icon: Icons.psychology,
+              titleVn: 'Phân tích ngữ pháp',
+              titleEn: 'Grammar Analysis',
+              value: _grammarAnalysis,
+            ),
+            _llmGapFillSection(
+              isVn: isVn,
+              icon: Icons.record_voice_over,
+              titleVn: 'Nhận xét từ AI Tutor',
+              titleEn: 'AI Tutor Notes',
+              value: _aiTutorComment,
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  /// LLM gap-fill section (grammar analysis / tutor comment): renders the
+  /// value once available, a spinner while [GenUiDataPrefetch.wordInfo] is
+  /// still in flight, nothing when that lane finished without data.
+  Widget _llmGapFillSection({
+    required bool isVn,
+    required IconData icon,
+    required String titleVn,
+    required String titleEn,
+    required String? value,
+  }) {
+    if (value == null && !_wordInfoPending) return const SizedBox.shrink();
+    return Column(
+      children: [
+        const SizedBox(height: 12),
+        divider,
+        Row(
+          children: [
+            Icon(icon, color: const Color(0xffDB8C8A), size: 20),
+            const SizedBox(width: 6),
+            Text(
+              isVn ? titleVn : titleEn,
+              style: const TextStyle(
+                color: Color(0xffDB8C8A),
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: value != null
+              ? Text(value, style: const TextStyle(fontSize: 14, height: 1.5))
+              : Row(
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFFDB8C8A),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        isVn ? 'Đang soạn nội dung...' : 'Writing it up...',
+                        style: const TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ],
     );
   }
 
