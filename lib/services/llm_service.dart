@@ -151,14 +151,12 @@ class LlmService {
   ///
   /// Used to fill gaps that the local databases cannot provide. Returns null
   /// when the request fails or the model output cannot be parsed.
-  Future<Map<String, dynamic>?> fetchWordInfo(String query) async {
-    if (!isLlmEnabled || query.trim().isEmpty) return null;
-    final apiKey = sharedPref.llmApiKey.trim();
-    if (apiKey.isEmpty) return null;
-
-    final targetLanguage = sharedPref.isAppInVietnamese ? 'Vietnamese' : 'English';
-    final prompt =
-        'You are a Japanese dictionary data provider. For the query '
+  /// Builds the structured word-info prompt for [fetchWordInfo].
+  ///
+  /// Static and injectable-free so tests can assert on the exact contract
+  /// (field names, conditional rules) without mocking Gemini.
+  static String buildWordInfoPrompt(String query, String targetLanguage) {
+    return 'You are a Japanese dictionary data provider. For the query '
         '"$query", return ONLY a JSON object (no markdown fences, no '
         'commentary) with exactly this shape:\n'
         '{\n'
@@ -172,6 +170,7 @@ class LlmService {
         '  "pitchPattern": "<string of L/H characters exactly one longer than the reading, e.g. LHHH>",\n'
         '  "imageQuery": "<simple English noun phrase describing what the word looks like, for an image search, e.g. \'cherry blossom\'>",\n'
         '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes>",\n'
+        '  "memoryTip": "<a vivid mnemonic or memory trick (kanji story, sound-alike, visual image) to remember this word/phrase - ONLY if it is genuinely worth memorizing, otherwise empty string>",\n'
         '  "grammarAnalysis": "<Detailed grammar analysis, sentence breakdown, particle explanation, and syntactic structure if the query is a sentence, phrase, or grammar pattern, or empty string if it is a single word>",\n'
         '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$targetLanguage translation>"}]\n'
         '}\n\n'
@@ -181,8 +180,21 @@ class LlmService {
         '- "grammarAnalysis" must provide a clear, structured breakdown of grammar points, clause structure, and particle usage if the query is a sentence or phrase (written in $targetLanguage); leave empty if a simple word.\n'
         '- "sentences" must contain 2-3 natural example sentences using the word.\n'
         '- "tutorComment" must be written in $targetLanguage.\n'
+        '- "memoryTip" must be written in $targetLanguage and stay under ~40 '
+        'words; judge worth-memorizing by frequency and practical usefulness '
+        '(skip it for rare or highly transparent words).\n'
         '- Use empty arrays or empty strings for anything unknown. '
         'Set "found" to false if the query is not Japanese.';
+  }
+
+  Future<Map<String, dynamic>?> fetchWordInfo(String query) async {
+    if (!isLlmEnabled || query.trim().isEmpty) return null;
+    final apiKey = sharedPref.llmApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final targetLanguage =
+        sharedPref.isAppInVietnamese ? 'Vietnamese' : 'English';
+    final prompt = buildWordInfoPrompt(query, targetLanguage);
 
     try {
       final model = GenerativeModel(

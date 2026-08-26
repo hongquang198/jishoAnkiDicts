@@ -142,6 +142,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   PreloadedImage? _descriptivePicture;
   String? _aiTutorComment;
   String? _grammarAnalysis;
+  String? _memoryTip;
 
   // AI explanation stream
   bool _isStreaming = false;
@@ -216,6 +217,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
         if (comment.isNotEmpty) _aiTutorComment = comment;
         final grammar = _llmString('grammarAnalysis');
         if (grammar.isNotEmpty) _grammarAnalysis = grammar;
+        final memoryTip = _llmString('memoryTip');
+        if (memoryTip.isNotEmpty) _memoryTip = memoryTip;
         // Swap the examples future only when the local list was empty and
         // the LLM actually provided sentences, so animations replay once.
         if ((_examples?.isEmpty ?? true) && _effectiveExamples.isNotEmpty) {
@@ -533,23 +536,36 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               titleEn: 'AI Tutor Notes',
               value: _aiTutorComment,
             ),
+            _llmGapFillSection(
+              isVn: isVn,
+              icon: Icons.lightbulb,
+              titleVn: 'Mẹo ghi nhớ',
+              titleEn: 'Memory Tip',
+              value: _memoryTip,
+              showWhilePending: false,
+            ),
           ],
         ),
       ),
     );
   }
 
-  /// LLM gap-fill section (grammar analysis / tutor comment): renders the
-  /// value once available, a spinner while [GenUiDataPrefetch.wordInfo] is
-  /// still in flight, nothing when that lane finished without data.
+  /// LLM gap-fill section (grammar analysis / tutor comment / memory tip):
+  /// renders the value once available, a spinner while
+  /// [GenUiDataPrefetch.wordInfo] is still in flight, nothing when that lane
+  /// finished without data. Pass [showWhilePending] false for optional fields
+  /// that may legitimately stay empty (e.g. memory tip) so no spinner flashes.
   Widget _llmGapFillSection({
     required bool isVn,
     required IconData icon,
     required String titleVn,
     required String titleEn,
     required String? value,
+    bool showWhilePending = true,
   }) {
-    if (value == null && !_wordInfoPending) return const SizedBox.shrink();
+    if (value == null && (!showWhilePending || !_wordInfoPending)) {
+      return const SizedBox.shrink();
+    }
     return Column(
       children: [
         const SizedBox(height: 12),
