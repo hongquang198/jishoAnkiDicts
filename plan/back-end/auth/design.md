@@ -96,11 +96,23 @@ abstract class AuthRemoteDataSource {
 
   Future<UserEntity> signInAnonymously();
   Future<UserEntity> signInWithEmail({required String email, required String password});
-  Future<UserEntity> signUpWithEmail({required String email, required String password});
   Future<UserEntity> linkAccountWithEmail({required String email, required String password});
+  Future<UserEntity> signInWithGoogle();
+  Future<UserEntity> linkAccountWithGoogle();
   Future<void> signOut();
 }
 ```
+
+Note: there is deliberately no `signUpWithEmail`. Registration is expressed
+as *linking a credential onto the anonymous guest session* (`linkWithCredential`),
+which creates the account while preserving the guest `uid` and its synced data.
+
+### UX Entry Points (two flows)
+
+| Button | Dialog mode | Behavior |
+|---|---|---|
+| "Create Account & Sync" | linking | New email/Google → registers & keeps guest uid; existing credentials → silently falls back to sign-in (uid switches, guest cloud data is orphaned — accepted trade-off) |
+| "Sign In to Existing Account" / "Switch Account" | sign-in | Replaces the session entirely |
 
 ### Account Linking Implementation Pattern
 ```dart
@@ -109,25 +121,48 @@ Future<UserEntity> linkAccountWithEmail({
   required String email,
   required String password,
 }) async {
-  final user = _firebaseAuth.currentUser;
-  if (user == null) throw Exception('No user signed in.');
-  
-  final credential = EmailAuthProvider.credential(email: email, password: password);
-  final userCredential = await user.linkWithCredential(credential);
-  return _mapFirebaseUser(userCredential.user!);
+  var user = _firebaseAuth.currentUser;
+  if (user == null) {
+    final anon = await _firebaseAuth.signInAnonymously();
+    user = anon.user;
+  }
+  final credential = fb.EmailAuthProvider.credential(email: email, password: password);
+  try {
+    final userCredential = await user!.linkWithCredential(credential);
+    return _mapFirebaseUser(userCredential.user!);
+  } catch (e) {
+    // Existing account: degrade gracefully to plain sign-in.
+    // The uid switches to the existing account; guest data does NOT migrate.
+    if (user?.isAnonymous == true &&
+        (e.toString().contains('credential-already-in-use') ||
+            e.toString().contains('email-already-in-use'))) {
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return _mapFirebaseUser(userCredential.user!);
+    }
+    rethrow;
+  }
 }
 ```
+
+`linkAccountWithGoogle()` follows the same pattern with a
+`GoogleAuthProvider.credential(idToken: ...)` and falls back on
+`credential-already-in-use`.
 
 ## 4. `AuthBloc` State Machine
 
 - **Events**:
   - `CheckAuthStatus`
   - `SignInRequested(email, password)`
-  - `SignUpRequested(email, password)`
   - `LinkAccountRequested(email, password)`
+  - `SignInWithGoogleRequested`
+  - `LinkAccountWithGoogleRequested`
   - `SignOutRequested`
 - **States**:
   - `AuthInitial`
   - `AuthLoading`
   - `Authenticated(UserEntity user)`
+  - `Unauthenticated`
   - `AuthError(String message)`

@@ -48,20 +48,6 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserEntity> signUpWithEmail({
-    required String email,
-    required String password,
-  }) async {
-    _currentUser = UserEntity(
-      uid: 'user_123',
-      email: email,
-      isAnonymous: false,
-    );
-    _authStream.add(_currentUser);
-    return _currentUser!;
-  }
-
-  @override
   Future<UserEntity> linkAccountWithEmail({
     required String email,
     required String password,

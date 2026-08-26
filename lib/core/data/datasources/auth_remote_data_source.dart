@@ -12,10 +12,6 @@ abstract class AuthRemoteDataSource {
     required String email,
     required String password,
   });
-  Future<UserEntity> signUpWithEmail({
-    required String email,
-    required String password,
-  });
   Future<UserEntity> linkAccountWithEmail({
     required String email,
     required String password,

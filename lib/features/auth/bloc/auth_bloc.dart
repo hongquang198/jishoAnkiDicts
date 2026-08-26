@@ -21,14 +21,6 @@ class SignInRequested extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
-class SignUpRequested extends AuthEvent {
-  final String email;
-  final String password;
-  const SignUpRequested({required this.email, required this.password});
-  @override
-  List<Object?> get props => [email, password];
-}
-
 class LinkAccountRequested extends AuthEvent {
   final String email;
   final String password;
@@ -80,7 +72,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         super(AuthInitial()) {
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<SignInRequested>(_onSignInRequested);
-    on<SignUpRequested>(_onSignUpRequested);
     on<LinkAccountRequested>(_onLinkAccountRequested);
     on<SignInWithGoogleRequested>(_onSignInWithGoogleRequested);
     on<LinkAccountWithGoogleRequested>(_onLinkAccountWithGoogleRequested);
@@ -122,22 +113,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await _authDataSource.signInWithEmail(
-        email: event.email,
-        password: event.password,
-      );
-      emit(Authenticated(user));
-    } catch (e) {
-      emit(AuthError(e.toString()));
-    }
-  }
-
-  Future<void> _onSignUpRequested(
-    SignUpRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    try {
-      final user = await _authDataSource.signUpWithEmail(
         email: event.email,
         password: event.password,
       );

@@ -130,7 +130,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                         onPressed: () => _openAuthDialog(isLinking: true),
                         icon: const Icon(Icons.link, size: 16),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[700], foregroundColor: Colors.white),
-                        label: const Text('Register / Link Account'),
+                        label: const Text('Create Account & Sync'),
                       ),
                     ] else ...[
                       OutlinedButton.icon(
@@ -142,7 +142,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                     OutlinedButton.icon(
                       onPressed: () => _openAuthDialog(isLinking: false),
                       icon: const Icon(Icons.login, size: 16),
-                      label: Text(isAnon ? 'Sign In / Switch' : 'Switch Account'),
+                      label: Text(isAnon ? 'Sign In to Existing Account' : 'Switch Account'),
                     ),
                     ElevatedButton.icon(
                       onPressed: _isSyncing ? null : _syncNow,

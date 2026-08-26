@@ -54,18 +54,6 @@ class FirebaseAuthDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserEntity> signUpWithEmail({
-    required String email,
-    required String password,
-  }) async {
-    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    return _mapUser(credential.user)!;
-  }
-
-  @override
   Future<UserEntity> linkAccountWithEmail({
     required String email,
     required String password,

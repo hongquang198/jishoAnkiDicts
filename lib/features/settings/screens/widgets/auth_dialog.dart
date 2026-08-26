@@ -19,7 +19,6 @@ class AuthDialog extends StatefulWidget {
 class _AuthDialogState extends State<AuthDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isRegistering = false;
   bool _isLoading = false;
   String? _error;
 
@@ -46,11 +45,6 @@ class _AuthDialogState extends State<AuthDialog> {
     try {
       if (widget.isLinking) {
         await widget.authDataSource.linkAccountWithEmail(
-          email: email,
-          password: password,
-        );
-      } else if (_isRegistering) {
-        await widget.authDataSource.signUpWithEmail(
           email: email,
           password: password,
         );
@@ -92,9 +86,7 @@ class _AuthDialogState extends State<AuthDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.isLinking
-        ? 'Link Account & Sync'
-        : (_isRegistering ? 'Register New Account' : 'Sign In');
+    final title = widget.isLinking ? 'Link Account & Sync' : 'Sign In';
 
     return AlertDialog(
       title: Text(title),
@@ -154,6 +146,14 @@ class _AuthDialogState extends State<AuthDialog> {
               ),
               obscureText: true,
             ),
+            if (widget.isLinking) ...[
+              const SizedBox(height: 8),
+              Text(
+                'New email creates a new account · Existing email signs you in',
+                style: TextStyle(color: Colors.grey, fontSize: 11),
+                textAlign: TextAlign.center,
+              ),
+            ],
             const SizedBox(height: 16),
 
             ElevatedButton(
@@ -170,26 +170,10 @@ class _AuthDialogState extends State<AuthDialog> {
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
                   : Text(
-                      widget.isLinking
-                          ? 'Link with Email'
-                          : (_isRegistering ? 'Register Account' : 'Sign In with Email'),
+                      widget.isLinking ? 'Link with Email' : 'Sign In with Email',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
             ),
-
-            if (!widget.isLinking) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_isRegistering ? 'Already have an account?' : "Don't have an account?"),
-                  TextButton(
-                    onPressed: () => setState(() => _isRegistering = !_isRegistering),
-                    child: Text(_isRegistering ? 'Sign In' : 'Register'),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),
