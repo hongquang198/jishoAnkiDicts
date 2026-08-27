@@ -15,26 +15,32 @@ class IsCommonTagsAndJlptWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasContent = isCommon || tags.isNotEmpty || jlpt.isNotEmpty;
+    if (!hasContent) return const SizedBox.shrink();
+
     return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
         if (isCommon)
-          Card(
-            color: Color(0xFF8ABC82),
-            child: Text(
-              'common word',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          DefinitionTags(
+            tags: ['common'],
+            color: theme.brightness == Brightness.dark
+                ? const Color(0xFF81C784)
+                : const Color(0xFF2E7D32),
           ),
-        DefinitionTags(
+        if (tags.isNotEmpty)
+          DefinitionTags(
             tags: tags,
-            color: Color(0xFF909DC0)),
-        DefinitionTags(
+            color: theme.colorScheme.secondary,
+          ),
+        if (jlpt.isNotEmpty)
+          DefinitionTags(
             tags: jlpt,
-            color: Color(0xFF909DC0)),
+            color: theme.colorScheme.tertiary,
+          ),
       ],
     );
   }

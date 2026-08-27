@@ -80,6 +80,7 @@ class DefinitionScreen extends StatefulWidget {
 }
 
 class _DefinitionScreenState extends State<DefinitionScreen> {
+  final ScrollController _scrollController = ScrollController();
   late Future<List<Widget>> pitchAccent;
   late Future<List<Kanji>> kanjiList;
   late Future<List<ExampleSentence>> exampleSentence;
@@ -175,6 +176,12 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   WordCard _createWordCard() {
     return WordCard(
       id: currentJapaneseWord,
@@ -201,228 +208,308 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final bool isSplitMode = screenHeight < 650;
+
     return BlocBuilder<WordInteractionBloc, WordInteractionState>(
       builder: (context, interactionState) {
         return Scaffold(
-          appBar: AppBar(
-            title: widget.args.jishoDefinition != null
-                ? IsCommonTagsAndJlptWidget(
-                    isCommon: jishoDefinition.isCommon,
-                    tags: jishoDefinition.tags,
-                    jlpt: jishoDefinition.jlpt,
-                  )
-                : BlocConsumer<MainSearchBloc, MainSearchState>(
-                    listener: (context, state) {
-                      if (state is MainSearchJishoLoadedState) {
-                        jishoDefinition = state.data.getSpecificJishoDefinition(
-                                japaneseWord: currentJapaneseWord) ??
-                            JishoDefinition(slug: '');
-                        _recordViewAndHistory();
-                      }
-                    },
-                    builder: (context, state) {
-                      final jishoDef = state.data.getSpecificJishoDefinition(
-                          japaneseWord: currentJapaneseWord);
-                      final isCommon = jishoDef?.isCommon ?? false;
-                      final tags = jishoDef?.tags ?? [];
-                      final jlpt = jishoDef?.jlpt ?? [];
-
-                      return IsCommonTagsAndJlptWidget(
-                        isCommon: isCommon,
-                        tags: tags,
-                        jlpt: jlpt,
-                      );
-                    },
-                  ),
-            actions: [
-              IconButton(
-                padding: EdgeInsets.zero,
-                icon: interactionState.isFavorite
-                    ? const Icon(Icons.bookmark, color: Colors.white)
-                    : const Icon(Icons.bookmark_border),
-                onPressed: () {
-                  context
-                      .read<WordInteractionBloc>()
-                      .add(ToggleWordFavoriteEvent(_createWordCard()));
-                },
-              ),
-              IconButton(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                icon: interactionState.isInReview
-                    ? const Icon(Icons.alarm_on_rounded, color: Colors.white)
-                    : const Icon(Icons.alarm_add),
-                onPressed: () {
-                  context
-                      .read<WordInteractionBloc>()
-                      .add(ToggleWordReviewEvent(_createWordCard()));
-                },
-              ),
-            ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: ListView(
-              children: <Widget>[
-                const SizedBox(height: 10),
-                FutureBuilder<List<Widget>>(
-                  future: pitchAccent,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null ||
-                        snapshot.data?.isEmpty == true) {
-                      return Text(
-                        jishoDefinition.reading ?? '',
-                        style:
-                            const TextStyle(fontSize: 15.0, color: Colors.grey),
-                      );
-                    }
-                    return Row(children: snapshot.data!);
-                  },
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            currentJapaneseWord,
+          body: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                pinned: true,
+                expandedHeight: 145,
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _scrollController,
+                      builder: (context, child) {
+                        final textPainter = TextPainter(
+                          text: TextSpan(
+                            text: currentJapaneseWord,
                             style: const TextStyle(
-                              fontSize: 45.0,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontWeight: FontWeight.bold, fontSize: 15),
                           ),
-                          if (getIt<SharedPref>().isAppInVietnamese &&
-                              widget.args.hanViet?.isNotEmpty == true)
-                            Text(
-                              widget.args.hanViet.toString().toUpperCase(),
-                              style: const TextStyle(fontSize: 22),
-                            ),
-                        ],
+                          textDirection: TextDirection.ltr,
+                        )..layout();
+
+                        final offset = _scrollController.hasClients
+                            ? _scrollController.offset
+                            : 0.0;
+                        final double maxScroll = 100.0;
+                        final double progress =
+                            (offset / maxScroll).clamp(0.0, 1.0);
+
+                        final double startWidth = 0;
+                        final double endWidth = textPainter.width;
+
+                        // 4. Linearly interpolate the width based on scroll progress
+                        final double dynamicWidth =
+                            startWidth + (endWidth - startWidth) * progress;
+
+                        return SizedBox(
+                          width: dynamicWidth,
+                          child: child,
+                        );
+                      },
+                      child: Text(
+                        currentJapaneseWord,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                     ),
-                    if (_descriptivePicture != null) ...[
-                      const SizedBox(width: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image(
-                          image: _descriptivePicture!.provider,
-                          height: 120,
-                          width: 120,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                          loadingBuilder: (context, child, progress) =>
-                              progress == null
-                                  ? child
-                                  : const SizedBox(
-                                      height: 120,
-                                      width: 120,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Color(0xFFDB8C8A)),
-                                      ),
-                                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: widget.args.jishoDefinition != null
+                            ? IsCommonTagsAndJlptWidget(
+                                isCommon: jishoDefinition.isCommon,
+                                tags: jishoDefinition.tags,
+                                jlpt: jishoDefinition.jlpt,
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  AnimatedBuilder(
+                    animation: _scrollController,
+                    builder: (context, child) {
+                      final offset = _scrollController.hasClients
+                          ? _scrollController.offset
+                          : 0.0;
+                      final double maxScroll = 100.0;
+                      final double progress =
+                          (offset / maxScroll).clamp(0.0, 1.0);
+                      return Opacity(
+                        opacity: progress,
+                        child: child,
+                      );
+                    },
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: WordViewCountWidget(
+                          viewCounts: interactionState.viewCount,
+                          onlyShowNumber: true,
+                          margin: EdgeInsets.zero,
                         ),
                       ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: interactionState.isFavorite
+                            ? const Icon(Icons.bookmark, color: Colors.white)
+                            : const Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          context
+                              .read<WordInteractionBloc>()
+                              .add(ToggleWordFavoriteEvent(_createWordCard()));
+                        },
+                      ),
+                      IconButton(
+                        padding: const EdgeInsets.only(left: 4, right: 8),
+                        icon: interactionState.isInReview
+                            ? const Icon(Icons.alarm_on_rounded,
+                                color: Colors.white)
+                            : const Icon(Icons.alarm_add),
+                        onPressed: () {
+                          context
+                              .read<WordInteractionBloc>()
+                              .add(ToggleWordReviewEvent(_createWordCard()));
+                        },
+                      ),
                     ],
-                    WordViewCountWidget(
-                      viewCounts: interactionState.viewCount,
-                      margin: EdgeInsets.only(left: 8),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                DefinitionWidget(
-                  senses: jishoDefinition.senses,
-                  vietnameseDefinition: vnDefinition.definition,
-                ),
-                divider,
-                const Text(
-                  'Examples',
-                  style: TextStyle(
-                    color: Color(0xffDB8C8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
                   ),
-                ),
-                FutureBuilder<List<ExampleSentence>>(
-                  future: exampleSentence,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      if (snapshot.data?.isEmpty ?? true) {
-                        return ExampleSentenceWidget(
-                          exampleSentence: KanjiHelper.getExampleSentence(
-                            word: currentJapaneseWord,
-                            context: context,
-                            tableName: 'englishExampleDictionary',
+                ],
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(12, isSplitMode ? 50 : 98, 12, 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              FutureBuilder<List<Widget>>(
+                                future: pitchAccent,
+                                builder: (context, snapshot) {
+                                  if (snapshot.data == null ||
+                                      snapshot.data?.isEmpty == true) {
+                                    return Text(
+                                      jishoDefinition.reading ?? '',
+                                      style: const TextStyle(
+                                          fontSize: 14.0, color: Colors.grey),
+                                    );
+                                  }
+                                  return Row(children: snapshot.data!);
+                                },
+                              ),
+                              Text(
+                                currentJapaneseWord,
+                                style: const TextStyle(
+                                  fontSize: 36.0,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.1,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (getIt<SharedPref>().isAppInVietnamese &&
+                                  widget.args.hanViet?.isNotEmpty == true)
+                                Text(
+                                  widget.args.hanViet.toString().toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              const SizedBox(height: 4),
+                            ],
                           ),
-                        );
-                      }
-                      return ExampleSentenceWidget(
-                        exampleSentence: exampleSentence,
-                      );
-                    } else {
-                      return const SizedBox();
-                    }
-                  },
-                ),
-                divider,
-                const Text(
-                  'Components',
-                  style: TextStyle(
-                    color: Color(0xffDB8C8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                        ),
+                        if (_descriptivePicture != null) ...[
+                          const SizedBox(width: 8),
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image(
+                                image: _descriptivePicture!.provider,
+                                height: 72,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) =>
+                                    const SizedBox.shrink(),
+                                loadingBuilder: (context, child, progress) =>
+                                    progress == null
+                                        ? child
+                                        : const SizedBox(
+                                            height: 72,
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Color(0xFFDB8C8A)),
+                                            ),
+                                          ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        WordViewCountWidget(
+                          viewCounts: interactionState.viewCount,
+                          margin: const EdgeInsets.only(left: 6),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                ComponentWidget(kanjiComponent: kanjiList),
-                const SizedBox(height: 12),
-                divider,
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.psychology, color: Color(0xffDB8C8A), size: 20),
-                    const SizedBox(width: 6),
-                    Text(
-                      getIt<SharedPref>().isAppInVietnamese
-                          ? 'Trợ lý AI'
-                          : 'AI Tutor & Insights',
-                      style: const TextStyle(
-                        color: Color(0xffDB8C8A),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      const SizedBox(height: 2),
+                      DefinitionWidget(
+                        senses: jishoDefinition.senses,
+                        vietnameseDefinition: vnDefinition.definition,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                AiTutorCard(
-                  tutorComment: _aiTutorComment,
-                  isLoading: _isAiLoading,
-                  onAskAiTutor: () {
-                    context.push(
-                      AppRoutesPath.aiChat,
-                      extra: AiChatScreenArgs(
-                        word: currentJapaneseWord,
-                        reading: jishoDefinition.reading,
-                        definition: vnDefinition.definition,
-                        existingTutorComment: _aiTutorComment,
-                        existingMemoryTip: _aiMemoryTip,
+                      divider,
+                      const Text(
+                        'Examples',
+                        style: TextStyle(
+                          color: Color(0xffDB8C8A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
-                    );
-                  },
+                      FutureBuilder<List<ExampleSentence>>(
+                        future: exampleSentence,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return ExampleSentenceWidget(
+                                exampleSentence: exampleSentence);
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                      ),
+                      divider,
+                      const Text(
+                        'Components',
+                        style: TextStyle(
+                          color: Color(0xffDB8C8A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      ComponentWidget(kanjiComponent: kanjiList),
+                      const SizedBox(height: 12),
+                      divider,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.psychology,
+                              color: Color(0xffDB8C8A), size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            getIt<SharedPref>().isAppInVietnamese
+                                ? 'Trợ lý AI'
+                                : 'AI Tutor & Insights',
+                            style: const TextStyle(
+                              color: Color(0xffDB8C8A),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      AiTutorCard(
+                        tutorComment: _aiTutorComment,
+                        isLoading: _isAiLoading,
+                        onAskAiTutor: () {
+                          context.push(
+                            AppRoutesPath.aiChat,
+                            extra: AiChatScreenArgs(
+                              word: currentJapaneseWord,
+                              reading: jishoDefinition.reading,
+                              definition: vnDefinition.definition,
+                              existingTutorComment: _aiTutorComment,
+                              existingMemoryTip: _aiMemoryTip,
+                            ),
+                          );
+                        },
+                      ),
+                      AiMemoryTipCard(
+                        memoryTip: _aiMemoryTip,
+                        isLoading: _isAiLoading,
+                      ),
+                      AiGrammarBreakdownCard(
+                        grammarAnalysis: _aiGrammarAnalysis,
+                        isLoading: _isAiLoading,
+                      ),
+                    ],
+                  ),
                 ),
-                AiMemoryTipCard(
-                  memoryTip: _aiMemoryTip,
-                  isLoading: _isAiLoading,
-                ),
-                AiGrammarBreakdownCard(
-                  grammarAnalysis: _aiGrammarAnalysis,
-                  isLoading: _isAiLoading,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

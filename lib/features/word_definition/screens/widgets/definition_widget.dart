@@ -50,6 +50,9 @@ class DefinitionWidget extends StatelessWidget {
         font.attributes['color'] = '0xffffff';
       }
     }
+    if (document.outerHtml.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0, right: 15),
       child: HtmlWidget(
@@ -66,7 +69,11 @@ class DefinitionWidget extends StatelessWidget {
               'list-style-type': 'upper-roman',
               'align': 'left',
               'margin-left': '0px',
-              'padding-left': '0px'
+              'padding-left': '0px',
+              'margin-top': '0px',
+              'padding-top': '0px',
+              'margin-bottom': '0px',
+              'padding-bottom': '0px'
             };
           }
           return null;

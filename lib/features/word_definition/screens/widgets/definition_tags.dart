@@ -7,28 +7,38 @@ class DefinitionTags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (tags.isNotEmpty) {
-      for (int i = 0; i < tags.length;) {
-        return tags[i].isNotEmpty
-            ? Card(
-                margin: const EdgeInsets.only(
-                  left: 4.0,
-                  top: 3.0,
-                  bottom: 3.0,
-                ),
-                color: color,
-                child: Text(
-                  ' ${tags[i]} ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            : SizedBox();
-      }
-    }
-    return SizedBox();
+    if (tags.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: tags.where((tag) => tag.isNotEmpty).map((tag) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2.0),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: color.withValues(alpha: 0.3),
+              width: 0.8,
+            ),
+          ),
+          child: Text(
+            tag,
+            style: TextStyle(
+              color: theme.brightness == Brightness.dark
+                  ? color.withValues(alpha: 0.95)
+                  : color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              height: 1.0,
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }

@@ -142,22 +142,29 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                     if (widget.jishoDefinition?.isCommon == true)
                       const Card(
                         color: Color(0xFF8ABC82),
-                        child: Text(
-                          'common word',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Text(
+                            'common word',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    DefinitionTags(
-                      tags: widget.jishoDefinition?.tags ?? [],
-                      color: const Color(0xFF909DC0),
+                    Flexible(
+                      child: DefinitionTags(
+                        tags: widget.jishoDefinition?.tags ?? [],
+                        color: const Color(0xFF909DC0),
+                      ),
                     ),
-                    DefinitionTags(
-                      tags: widget.jishoDefinition?.jlpt ?? [],
-                      color: const Color(0xFF909DC0),
+                    Flexible(
+                      child: DefinitionTags(
+                        tags: widget.jishoDefinition?.jlpt ?? [],
+                        color: const Color(0xFF909DC0),
+                      ),
                     ),
                   ],
                 ),

@@ -41,8 +41,8 @@ class GenUiDefinitionScreenArgs {
 /// Resolves the bloc-held jisho definition and Sino-Vietnamese readings for
 /// [query], shared by the search-result tile (prewarm) and this screen so the
 /// matching logic exists exactly once.
-({JishoDefinition jishoDefinition, List<String> hanViet})
-    resolveMainSearchData(MainSearchBloc? mainSearchBloc, String query) {
+({JishoDefinition jishoDefinition, List<String> hanViet}) resolveMainSearchData(
+    MainSearchBloc? mainSearchBloc, String query) {
   final data = mainSearchBloc?.state.data;
   final jishoDefinition =
       data?.getSpecificJishoDefinition(japaneseWord: query) ??
@@ -124,6 +124,8 @@ class GenUiDefinitionScreen extends StatefulWidget {
 
 class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   static const _surfaceId = 'llm_definition_surface';
+
+  final ScrollController _scrollController = ScrollController();
 
   // Local dictionary data
   late JishoDefinition _jishoDefinition;
@@ -398,6 +400,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _subscription?.cancel();
     _messageSubscription?.cancel();
     _transportAdapter?.dispose();
@@ -408,155 +411,234 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
   @override
   Widget build(BuildContext context) {
     final isVn = getIt<SharedPref>().isAppInVietnamese;
-
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final bool isSplitMode = screenHeight < 650;
     return Scaffold(
-      appBar: AppBar(
-        title: _hasTagData
-            ? IsCommonTagsAndJlptWidget(
-                isCommon:
-                    _jishoDefinition.isCommon || _llmInfo?['isCommon'] == true,
-                tags: _jishoDefinition.tags.isNotEmpty
-                    ? _jishoDefinition.tags
-                    : _llmStringList('tags'),
-                jlpt: _jishoDefinition.jlpt.isNotEmpty
-                    ? _jishoDefinition.jlpt
-                    : _llmStringList('jlpt'),
-              )
-            : Text(
-                currentJapaneseWord,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-        actions: [
-          IconButton(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            icon: const Icon(Icons.refresh),
-            tooltip: isVn ? 'Tạo lại' : 'Regenerate',
-            onPressed: _isStreaming
-                ? null
-                : () => _startStreaming(regenerate: true),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12),
-        child: ListView(
-          children: <Widget>[
-            const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            pinned: true,
+            expandedHeight: 145,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildPitchAccentSection(),
-                      Text(
-                        currentJapaneseWord,
+                AnimatedBuilder(
+                  animation: _scrollController,
+                  builder: (context, child) {
+                    final textPainter = TextPainter(
+                      text: TextSpan(
+                        text: currentJapaneseWord,
                         style: const TextStyle(
-                          fontSize: 45.0,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontWeight: FontWeight.bold, fontSize: 15),
                       ),
-                      if (_effectiveHanViet.isNotEmpty)
-                        Text(
-                          _effectiveHanViet.join(' ').toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 22,
-                          ),
-                        ),
-                    ],
+                      textDirection: TextDirection.ltr,
+                    )..layout();
+
+                    final offset = _scrollController.hasClients
+                        ? _scrollController.offset
+                        : 0.0;
+
+                    final double maxScroll = 100.0;
+                    final double progress =
+                        (offset / maxScroll).clamp(0.0, 1.0);
+
+                    final double startWidth = 0;
+                    final double endWidth = textPainter.width;
+
+                    final double dynamicWidth =
+                        startWidth + (endWidth - startWidth) * progress;
+
+                    return SizedBox(
+                      width: dynamicWidth,
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    currentJapaneseWord,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                 ),
-                if (_descriptivePicture != null) ...[
-                  const SizedBox(width: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image(
-                      image: _descriptivePicture!.provider,
-                      height: 120,
-                      width: 120,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      loadingBuilder: (context, child, progress) =>
-                          progress == null
-                              ? child
-                              : const SizedBox(
-                                  height: 120,
-                                  width: 120,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Color(0xFFDB8C8A)),
-                                  ),
-                                ),
-                    ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: _hasTagData
+                        ? IsCommonTagsAndJlptWidget(
+                            isCommon: _jishoDefinition.isCommon ||
+                                _llmInfo?['isCommon'] == true,
+                            tags: _jishoDefinition.tags.isNotEmpty
+                                ? _jishoDefinition.tags
+                                : _llmStringList('tags'),
+                            jlpt: _jishoDefinition.jlpt.isNotEmpty
+                                ? _jishoDefinition.jlpt
+                                : _llmStringList('jlpt'),
+                          )
+                        : const SizedBox.shrink(),
                   ),
-                ],
+                ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              isVn ? 'Giải thích AI' : 'AI Explanation',
-              style: const TextStyle(
-                color: Color(0xffDB8C8A),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+            actions: [
+              IconButton(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                icon: const Icon(Icons.refresh),
+                tooltip: isVn ? 'Tạo lại' : 'Regenerate',
+                onPressed: _isStreaming
+                    ? null
+                    : () => _startStreaming(regenerate: true),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              background: Padding(
+                padding: EdgeInsets.fromLTRB(12, isSplitMode ? 50 : 98, 12, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          _buildPitchAccentSection(),
+                          Text(
+                            currentJapaneseWord,
+                            style: const TextStyle(
+                              fontSize: 36.0,
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (_effectiveHanViet.isNotEmpty)
+                            Text(
+                              _effectiveHanViet.join(' ').toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          const SizedBox(height: 4),
+                        ],
+                      ),
+                    ),
+                    if (_descriptivePicture != null) ...[
+                      const SizedBox(width: 8),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image(
+                            image: _descriptivePicture!.provider,
+                            height: 96,
+                            width: 96,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) =>
+                                const SizedBox.shrink(),
+                            loadingBuilder: (context, child, progress) =>
+                                progress == null
+                                    ? child
+                                    : const SizedBox(
+                                        height: 96,
+                                        width: 96,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Color(0xFFDB8C8A)),
+                                        ),
+                                      ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            _buildAiBodyContent(isVn),
-            divider,
-            Text(
-              isVn ? 'Ví dụ' : 'Examples',
-              style: const TextStyle(
-                color: Color(0xffDB8C8A),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            _buildExamplesSection(isVn),
-            divider,
-            Text(
-              isVn ? 'Thành phần' : 'Components',
-              style: const TextStyle(
-                color: Color(0xffDB8C8A),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            ComponentWidget(kanjiComponent: _kanjiListFuture),
-            AiGrammarBreakdownCard(
-              grammarAnalysis: _grammarAnalysis,
-              isLoading: _wordInfoPending,
-            ),
-            AiTutorCard(
-              tutorComment: _aiTutorComment,
-              isLoading: _wordInfoPending,
-              errorMessage: _errorMessage == 'missing_key' ? null : _errorMessage,
-              onAskAiTutor: () {
-                context.push(
-                  AppRoutesPath.aiChat,
-                  extra: AiChatScreenArgs(
-                    word: currentJapaneseWord,
-                    reading: _effectiveReading,
-                    definition: _jishoDefinition.senses.isNotEmpty
-                        ? _jishoDefinition.senses.first.englishDefinitions.join(', ')
-                        : (_llmInfo?['senses'] is List && (_llmInfo!['senses'] as List).isNotEmpty
-                            ? (((_llmInfo!['senses'] as List).first as Map?)?['english_definitions'] as List?)?.join(', ') ?? ''
-                            : ''),
-                    existingTutorComment: _aiTutorComment,
-                    existingMemoryTip: _memoryTip,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  const SizedBox(height: 2),
+                  Text(
+                    isVn ? 'Giải thích AI' : 'AI Explanation',
+                    style: const TextStyle(
+                      color: Color(0xffDB8C8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
-                );
-              },
+                  const SizedBox(height: 8),
+                  _buildAiBodyContent(isVn),
+                  divider,
+                  Text(
+                    isVn ? 'Ví dụ' : 'Examples',
+                    style: const TextStyle(
+                      color: Color(0xffDB8C8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                  _buildExamplesSection(isVn),
+                  divider,
+                  Text(
+                    isVn ? 'Thành phần' : 'Components',
+                    style: const TextStyle(
+                      color: Color(0xffDB8C8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                  ComponentWidget(kanjiComponent: _kanjiListFuture),
+                  AiGrammarBreakdownCard(
+                    grammarAnalysis: _grammarAnalysis,
+                    isLoading: _wordInfoPending,
+                  ),
+                  AiTutorCard(
+                    tutorComment: _aiTutorComment,
+                    isLoading: _wordInfoPending,
+                    errorMessage:
+                        _errorMessage == 'missing_key' ? null : _errorMessage,
+                    onAskAiTutor: () {
+                      context.push(
+                        AppRoutesPath.aiChat,
+                        extra: AiChatScreenArgs(
+                          word: currentJapaneseWord,
+                          reading: _effectiveReading,
+                          definition: _jishoDefinition.senses.isNotEmpty
+                              ? _jishoDefinition.senses.first.englishDefinitions
+                                  .join(', ')
+                              : (_llmInfo?['senses'] is List &&
+                                      (_llmInfo!['senses'] as List).isNotEmpty
+                                  ? (((_llmInfo!['senses'] as List).first
+                                                  as Map?)?[
+                                              'english_definitions'] as List?)
+                                          ?.join(', ') ??
+                                      ''
+                                  : ''),
+                          existingTutorComment: _aiTutorComment,
+                          existingMemoryTip: _memoryTip,
+                        ),
+                      );
+                    },
+                  ),
+                  AiMemoryTipCard(
+                    memoryTip: _memoryTip,
+                    isLoading: _wordInfoPending,
+                  ),
+                ],
+              ),
             ),
-            AiMemoryTipCard(
-              memoryTip: _memoryTip,
-              isLoading: _wordInfoPending,
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

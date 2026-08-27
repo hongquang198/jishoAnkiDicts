@@ -76,6 +76,9 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.exampleSentences.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return ListView(
       shrinkWrap: true,
       key: stickyKey,

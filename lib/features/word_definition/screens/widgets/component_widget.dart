@@ -70,21 +70,18 @@ class _SingleKanjiComponentWidgetState extends State<SingleKanjiComponentWidget>
         },
         child: ListTile(
           contentPadding: EdgeInsets.only(left: 0),
-          trailing: Padding(
-            padding: EdgeInsets.only(right: 18),
-            child: Container(
-                width: 40,
-                height: 25,
-                decoration: BoxDecoration(
-                    color: Color(0xffDB8C8A),
-                    borderRadius: BorderRadius.all(Radius.circular(8))),
-                child: Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.view,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                )),
-          ),
+          trailing: Container(
+              width: 40,
+              height: 25,
+              decoration: BoxDecoration(
+                  color: Color(0xffDB8C8A),
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context)!.view,
+                  style: TextStyle(color: Colors.white),
+                ),
+              )),
           title: Text(
             getIt<SharedPref>().isAppInVietnamese
                 ? '${widget.kanji.kanji ?? ''} ${widget.kanji.hanViet ?? ''}'
