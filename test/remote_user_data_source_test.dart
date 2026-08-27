@@ -3,6 +3,7 @@ import 'package:jisho_anki/core/data/datasources/firebase_user_data_data_source.
 import 'package:jisho_anki/core/data/datasources/in_memory_remote_user_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/srs_stage.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_view_record.dart';
 
@@ -102,6 +103,23 @@ void main() {
       await remote.deleteCard('c1');
       final after = await remote.pullCardsUpdatedSince(0);
       expect(after.isEmpty, isTrue);
+    });
+
+    test('Push and pull user settings', () async {
+      final settings = UserSettingsEntity(
+        llmApiKey: 'test_key_123',
+        sourceLanguage: 'Tiếng Việt',
+        targetLanguage: 'Japanese',
+        hasCompletedLanguageSetup: true,
+        updatedAt: 12345678,
+      );
+
+      await remote.pushSettings(settings);
+      final pulled = await remote.pullSettings();
+      expect(pulled, isNotNull);
+      expect(pulled!.llmApiKey, equals('test_key_123'));
+      expect(pulled.sourceLanguage, equals('Tiếng Việt'));
+      expect(pulled.hasCompletedLanguageSetup, isTrue);
     });
   });
 

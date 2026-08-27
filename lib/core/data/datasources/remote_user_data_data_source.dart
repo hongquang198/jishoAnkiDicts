@@ -1,4 +1,5 @@
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_view_record.dart';
 
@@ -34,4 +35,10 @@ abstract class RemoteUserDataDataSource {
 
   /// Delete card in cloud.
   Future<void> deleteCard(String cardId);
+
+  /// Push user settings to cloud.
+  Future<void> pushSettings(UserSettingsEntity settings);
+
+  /// Pull user settings from cloud.
+  Future<UserSettingsEntity?> pullSettings();
 }

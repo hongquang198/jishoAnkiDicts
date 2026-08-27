@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_view_record.dart';
 
@@ -27,6 +28,7 @@ class FirebaseUserDataDataSource implements RemoteUserDataDataSource {
   final Map<String, WordCard> _cacheCards = {};
   final Map<String, WordViewRecord> _cacheViews = {};
   final List<ReviewLog> _cacheLogs = [];
+  UserSettingsEntity? _cacheSettings;
 
   FirebaseUserDataDataSource({
     String? initialUserId,
@@ -253,6 +255,44 @@ class FirebaseUserDataDataSource implements RemoteUserDataDataSource {
       }
     }
     _cacheCards.remove(cardId);
+  }
+
+  @override
+  Future<void> pushSettings(UserSettingsEntity settings) async {
+    if (_isFirebaseAvailable && _uid != null) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(_uid)
+            .collection('settings')
+            .doc('config')
+            .set(settings.toMap(), fs.SetOptions(merge: true));
+        return;
+      } catch (e) {
+        log('FirebaseUserDataDataSource: pushSettings Firestore error, using fallback cache: $e');
+      }
+    }
+    _cacheSettings = settings;
+  }
+
+  @override
+  Future<UserSettingsEntity?> pullSettings() async {
+    if (_isFirebaseAvailable && _uid != null) {
+      try {
+        final doc = await _firestore
+            .collection('users')
+            .doc(_uid)
+            .collection('settings')
+            .doc('config')
+            .get();
+        if (doc.exists && doc.data() != null) {
+          return UserSettingsEntity.fromMap(doc.data()!);
+        }
+      } catch (e) {
+        log('FirebaseUserDataDataSource: pullSettings Firestore error, using fallback cache: $e');
+      }
+    }
+    return _cacheSettings;
   }
 
   void dispose() {

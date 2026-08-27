@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
+import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_view_record.dart';
 
@@ -13,6 +14,7 @@ class InMemoryRemoteUserDataDataSource implements RemoteUserDataDataSource {
   final Map<String, WordCard> _remoteCards = {};
   final Map<String, WordViewRecord> _remoteViews = {};
   final List<ReviewLog> _remoteLogs = [];
+  UserSettingsEntity? _remoteSettings;
 
   InMemoryRemoteUserDataDataSource({String? initialUserId}) {
     if (initialUserId != null) _userId = initialUserId;
@@ -78,6 +80,16 @@ class InMemoryRemoteUserDataDataSource implements RemoteUserDataDataSource {
   @override
   Future<void> deleteCard(String cardId) async {
     _remoteCards.remove(cardId);
+  }
+
+  @override
+  Future<void> pushSettings(UserSettingsEntity settings) async {
+    _remoteSettings = settings;
+  }
+
+  @override
+  Future<UserSettingsEntity?> pullSettings() async {
+    return _remoteSettings;
   }
 
   void dispose() {
