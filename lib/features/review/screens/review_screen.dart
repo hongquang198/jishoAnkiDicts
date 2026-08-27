@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/common/widgets/custom_dialog.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/srs_stage.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/features/ai_chat/screens/ai_chat_screen.dart';
 import 'package:jisho_anki/features/card_info/screens/card_info_screen.dart';
 import 'package:jisho_anki/features/review/bloc/review_bloc.dart';
 import 'package:jisho_anki/features/review/screens/widgets/answer_button.dart';
@@ -19,7 +21,12 @@ import 'package:jisho_anki/models/example_sentence.dart';
 import 'package:jisho_anki/models/kanji.dart';
 import 'package:jisho_anki/models/vietnamese_definition.dart';
 import 'package:jisho_anki/services/kanji_helper.dart';
+import 'package:jisho_anki/services/llm_service.dart';
 import 'package:jisho_anki/services/srs_engine.dart';
+import 'package:jisho_anki/config/app_routes.dart';
+import 'package:jisho_anki/common/widgets/ai/ai_tutor_card.dart';
+import 'package:jisho_anki/common/widgets/ai/ai_memory_tip_card.dart';
+import 'package:jisho_anki/common/widgets/ai/ai_grammar_breakdown_card.dart';
 
 class ReviewScreen extends StatelessWidget {
   const ReviewScreen({super.key});
@@ -47,6 +54,10 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
   Future<List<String>>? hanViet;
   Future<List<ExampleSentence>>? enExampleSentence;
   Future<List<ExampleSentence>>? vnExampleSentence;
+  String? _aiTutorComment;
+  String? _aiMemoryTip;
+  String? _aiGrammarAnalysis;
+  bool _isAiLoading = false;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
@@ -69,6 +80,28 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
       context: context,
       tableName: 'exampleDictionary',
     );
+
+    setState(() {
+      _aiTutorComment = null;
+      _aiMemoryTip = null;
+      _aiGrammarAnalysis = null;
+      _isAiLoading = true;
+    });
+
+    getIt<LlmService>().fetchWordInfo(card.word).then((info) {
+      if (!mounted) return;
+      setState(() {
+        _isAiLoading = false;
+        if (info != null && info['found'] == true) {
+          _aiTutorComment = info['tutorComment']?.toString();
+          _aiMemoryTip = info['memoryTip']?.toString();
+          _aiGrammarAnalysis = info['grammarAnalysis']?.toString();
+        }
+      });
+    }).catchError((_) {
+      if (!mounted) return;
+      setState(() => _isAiLoading = false);
+    });
   }
 
   Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
@@ -279,6 +312,40 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         ComponentWidget(
                           kanjiComponent: KanjiHelper.getKanjiComponent(word: card.japaneseWord),
                         ),
+                      if (showAll) ...[
+                        divider,
+                        const Center(
+                          child: Text(
+                            'AI Tutor & Insights',
+                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        AiTutorCard(
+                          tutorComment: _aiTutorComment,
+                          isLoading: _isAiLoading,
+                          onAskAiTutor: () {
+                            context.push(
+                              AppRoutesPath.aiChat,
+                              extra: AiChatScreenArgs(
+                                word: card.word,
+                                reading: card.reading,
+                                definition: card.vietnameseDefinition,
+                                existingTutorComment: _aiTutorComment,
+                                existingMemoryTip: _aiMemoryTip,
+                              ),
+                            );
+                          },
+                        ),
+                        AiMemoryTipCard(
+                          memoryTip: _aiMemoryTip,
+                          isLoading: _isAiLoading,
+                        ),
+                        AiGrammarBreakdownCard(
+                          grammarAnalysis: _aiGrammarAnalysis,
+                          isLoading: _isAiLoading,
+                        ),
+                      ],
                     ],
                   ),
                 ),

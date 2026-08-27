@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:go_router/go_router.dart';
 
 import '../../../injection.dart';
 import '../../../core/domain/entities/dictionary.dart';
@@ -7,7 +8,13 @@ import '../../../models/example_sentence.dart';
 import '../../../models/grammar_point.dart';
 import '../../../models/kanji.dart';
 import '../../../services/kanji_helper.dart';
+import '../../../services/llm_service.dart';
 import '../../../utils/constants.dart';
+import '../../../common/widgets/ai/ai_tutor_card.dart';
+import '../../../common/widgets/ai/ai_memory_tip_card.dart';
+import '../../../common/widgets/ai/ai_grammar_breakdown_card.dart';
+import '../../../config/app_routes.dart';
+import '../../ai_chat/screens/ai_chat_screen.dart';
 import '../../word_definition/screens/widgets/component_widget.dart';
 import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 
@@ -24,6 +31,10 @@ class GrammarPointScreen extends StatefulWidget {
 
 class _GrammarPointScreenState extends State<GrammarPointScreen> {
   late Future<List<Kanji>> kanjiList;
+  String? _aiTutorComment;
+  String? _aiMemoryTip;
+  String? _aiGrammarAnalysis;
+  bool _isAiLoading = true;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
@@ -56,6 +67,35 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
 
     kanjiList =
         KanjiHelper.getKanjiComponent(word: widget.grammarPoint.grammarPoint!);
+    _fetchGrammarAiInfo();
+  }
+
+  Future<void> _fetchGrammarAiInfo() async {
+    try {
+      final llmService = getIt<LlmService>();
+      final info = await llmService
+          .fetchWordInfo(widget.grammarPoint.grammarPoint ?? '');
+      if (!mounted) return;
+      setState(() {
+        _isAiLoading = false;
+        if (info != null && info['found'] == true) {
+          _aiTutorComment = info['tutorComment']?.toString();
+          _aiMemoryTip = info['memoryTip']?.toString();
+          _aiGrammarAnalysis = info['grammarAnalysis']?.toString().isNotEmpty ==
+                  true
+              ? info['grammarAnalysis']?.toString()
+              : widget.grammarPoint.grammarMeaning;
+        } else {
+          _aiGrammarAnalysis = widget.grammarPoint.grammarMeaning;
+        }
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isAiLoading = false;
+        _aiGrammarAnalysis = widget.grammarPoint.grammarMeaning;
+      });
+    }
   }
 
   @override
@@ -127,6 +167,39 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           ),
           ComponentWidget(
             kanjiComponent: kanjiList,
+          ),
+          divider,
+          const Text(
+            'AI Grammar Insights & Tutor',
+            style: TextStyle(
+              color: Color(0xffDB8C8A),
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 8),
+          AiTutorCard(
+            tutorComment: _aiTutorComment,
+            isLoading: _isAiLoading,
+            onAskAiTutor: () {
+              context.push(
+                AppRoutesPath.aiChat,
+                extra: AiChatScreenArgs(
+                  word: widget.grammarPoint.grammarPoint ?? '',
+                  grammarPoint: widget.grammarPoint.grammarMeaning,
+                  existingTutorComment: _aiTutorComment,
+                  existingMemoryTip: _aiMemoryTip,
+                ),
+              );
+            },
+          ),
+          AiMemoryTipCard(
+            memoryTip: _aiMemoryTip,
+            isLoading: _isAiLoading,
+          ),
+          AiGrammarBreakdownCard(
+            grammarAnalysis: _aiGrammarAnalysis,
+            isLoading: _isAiLoading,
           ),
         ]),
       ),

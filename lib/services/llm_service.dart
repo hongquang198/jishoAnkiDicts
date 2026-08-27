@@ -143,6 +143,28 @@ class LlmService {
     }
   }
 
+  /// Adds `startChatSession({required String initialContext})` method in `LlmService`.
+  ChatSession startChatSession({required String initialContext}) {
+    final apiKey = sharedPref.llmApiKey.trim();
+    if (apiKey.isEmpty) {
+      throw Exception(
+          'API Key is missing. Please set your Gemini API key in Settings.');
+    }
+    final selectedModel = sharedPref.llmModel;
+    final model = GenerativeModel(
+      model: selectedModel,
+      apiKey: apiKey,
+    );
+    return model.startChat(
+      history: [
+        Content.text(
+            'System Context / Background for this chat session:\n$initialContext\n\n'
+            'You are an expert bilingual Japanese dictionary and language tutor AI. '
+            'Help the user understand vocabulary, grammar, nuances, and etymology.')
+      ],
+    );
+  }
+
   /// Fetches dictionary metadata (reading, han viet, pitch accent pattern,
   /// example sentences, jisho tags), an image search term and an AI-tutor
   /// comment for a word as structured JSON. The image term is resolved
@@ -169,7 +191,7 @@ class LlmService {
         '  "jlpt": ["<JLPT level(s), e.g. N4>"],\n'
         '  "pitchPattern": "<string of L/H characters exactly one longer than the reading, e.g. LHHH>",\n'
         '  "imageQuery": "<simple English noun phrase describing what the word looks like, for an image search, e.g. \'cherry blossom\'>",\n'
-        '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes>",\n'
+        '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes. If the word is a loanword/borrowed word (Gairaigo) or has notable etymological origins, explicitly include the source language and original word/meaning directly here>",\n'
         '  "memoryTip": "<a vivid mnemonic or memory trick (kanji story, sound-alike, visual image) to remember this word/phrase - ONLY if it is genuinely worth memorizing, otherwise empty string>",\n'
         '  "grammarAnalysis": "<Detailed grammar analysis, sentence breakdown, particle explanation, and syntactic structure if the query is a sentence, phrase, or grammar pattern, or empty string if it is a single word>",\n'
         '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$targetLanguage translation>"}]\n'
@@ -179,7 +201,7 @@ class LlmService {
         'character per mora of the reading plus one trailing character.\n'
         '- "grammarAnalysis" must provide a clear, structured breakdown of grammar points, clause structure, and particle usage if the query is a sentence or phrase (written in $targetLanguage); leave empty if a simple word.\n'
         '- "sentences" must contain 2-3 natural example sentences using the word.\n'
-        '- "tutorComment" must be written in $targetLanguage.\n'
+        '- "tutorComment" must be written in $targetLanguage, and if the word is a borrowed word or loanword (Gairaigo), explicitly include its source language and original form.\n'
         '- "memoryTip" must be written in $targetLanguage and stay under ~40 '
         'words; judge worth-memorizing by frequency and practical usefulness '
         '(skip it for rare or highly transparent words).\n'

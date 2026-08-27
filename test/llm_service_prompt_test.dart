@@ -10,6 +10,20 @@ void main() {
       expect(prompt, contains('"tutorComment"'));
     });
 
+    test('tutorComment requests borrowed word origin and source language information', () {
+      final prompt = LlmService.buildWordInfoPrompt('アイスクリーム', 'English');
+
+      expect(
+        prompt.toLowerCase(),
+        anyOf([
+          contains('source language'),
+          contains('origin'),
+          contains('borrowed'),
+          contains('gairaigo'),
+        ]),
+      );
+    });
+
     test('memoryTip is conditional on the word being worth memorizing', () {
       final prompt = LlmService.buildWordInfoPrompt('勉強', 'English');
 

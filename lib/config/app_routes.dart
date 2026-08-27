@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/domain/entities/user_data/word_card.dart';
 import '../core/data/datasources/shared_pref.dart';
 import '../core/services/navigation_service.dart';
+import '../features/ai_chat/screens/ai_chat_screen.dart';
 import '../features/card_info/screens/card_info_screen.dart';
 import '../features/favorite_words/screens/favorite_screen.dart';
 import '../features/grammar/screens/grammar_screen.dart';
@@ -124,6 +125,13 @@ class AppRoutes {
             args: state.extra as GenUiDefinitionScreenArgs,
           ),
         ),
+        GoRoute(
+          path: AppRoutesPath.aiChat,
+          name: AppRoutesPath.aiChat,
+          builder: (_, state) => AiChatScreen.provider(
+            args: state.extra as AiChatScreenArgs,
+          ),
+        ),
       ]);
 }
 
@@ -141,4 +149,5 @@ class AppRoutesPath {
   static const String savedWordDefinition = '/saved-word-definition';
   static const String genUiDefinition = '/gen-ui-definition';
   static const String languageSelection = '/language-selection';
+  static const String aiChat = '/ai-chat';
 }

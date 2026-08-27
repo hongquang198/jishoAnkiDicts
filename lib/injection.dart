@@ -23,6 +23,7 @@ import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietna
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_grammar_point.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
+import 'package:jisho_anki/features/ai_chat/bloc/ai_chat_bloc.dart';
 import 'package:jisho_anki/features/favorite_words/bloc/favorite_bloc.dart';
 import 'package:jisho_anki/features/history/bloc/history_bloc.dart';
 import 'package:jisho_anki/features/review/bloc/review_bloc.dart';
@@ -154,6 +155,8 @@ Future<void> inject() async {
         () => ClearHistoryUseCase(getIt()));
 
   // BLoC
+  getIt.registerFactory<AiChatBloc>(
+      () => AiChatBloc(llmService: getIt<LlmService>()));
   getIt.registerFactory<WordInteractionBloc>(
       () => WordInteractionBloc(repository: getIt<UserDataRepository>()));
   getIt.registerFactory<ReviewBloc>(

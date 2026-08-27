@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../../core/domain/entities/user_data/word_card.dart';
@@ -13,6 +14,11 @@ import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../services/llm/gen_ui_data_prefetch.dart';
 import '../../../services/preloaded_image.dart';
+import '../../../common/widgets/ai/ai_tutor_card.dart';
+import '../../../common/widgets/ai/ai_memory_tip_card.dart';
+import '../../../common/widgets/ai/ai_grammar_breakdown_card.dart';
+import '../../../config/app_routes.dart';
+import '../../ai_chat/screens/ai_chat_screen.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../main_search/presentation/bloc/main_search_bloc.dart';
 import '../../main_search/presentation/screens/gen_ui_definition_screen.dart';
@@ -83,6 +89,9 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   bool _historyRecorded = false;
   PreloadedImage? _descriptivePicture;
   String? _aiTutorComment;
+  String? _aiMemoryTip;
+  String? _aiGrammarAnalysis;
+  bool _isAiLoading = true;
 
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
@@ -147,10 +156,17 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     }
 
     prefetch.wordInfo.then((info) {
-      if (!mounted || info == null || info['found'] != true) return;
+      if (!mounted) return;
       setState(() {
-        final comment = info['tutorComment']?.toString().trim() ?? '';
-        if (comment.isNotEmpty) _aiTutorComment = comment;
+        _isAiLoading = false;
+        if (info != null && info['found'] == true) {
+          final comment = info['tutorComment']?.toString().trim() ?? '';
+          if (comment.isNotEmpty) _aiTutorComment = comment;
+          final memoryTip = info['memoryTip']?.toString().trim() ?? '';
+          if (memoryTip.isNotEmpty) _aiMemoryTip = memoryTip;
+          final grammar = info['grammarAnalysis']?.toString().trim() ?? '';
+          if (grammar.isNotEmpty) _aiGrammarAnalysis = grammar;
+        }
       });
     });
     prefetch.image.then((picture) {
@@ -361,40 +377,50 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                   ),
                 ),
                 ComponentWidget(kanjiComponent: kanjiList),
-                if (_aiTutorComment != null) ...[
-                  const SizedBox(height: 12),
-                  divider,
-                  Row(
-                    children: [
-                      const Icon(Icons.record_voice_over,
-                          color: Color(0xffDB8C8A), size: 20),
-                      const SizedBox(width: 6),
-                      Text(
-                        getIt<SharedPref>().isAppInVietnamese
-                            ? 'Nhận xét từ AI Tutor'
-                            : 'AI Tutor Notes',
-                        style: const TextStyle(
-                          color: Color(0xffDB8C8A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                const SizedBox(height: 12),
+                divider,
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.psychology, color: Color(0xffDB8C8A), size: 20),
+                    const SizedBox(width: 6),
+                    Text(
+                      getIt<SharedPref>().isAppInVietnamese
+                          ? 'Trợ lý AI'
+                          : 'AI Tutor & Insights',
+                      style: const TextStyle(
+                        color: Color(0xffDB8C8A),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      _aiTutorComment!,
-                      style: const TextStyle(fontSize: 14, height: 1.5),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                AiTutorCard(
+                  tutorComment: _aiTutorComment,
+                  isLoading: _isAiLoading,
+                  onAskAiTutor: () {
+                    context.push(
+                      AppRoutesPath.aiChat,
+                      extra: AiChatScreenArgs(
+                        word: currentJapaneseWord,
+                        reading: jishoDefinition.reading,
+                        definition: vnDefinition.definition,
+                        existingTutorComment: _aiTutorComment,
+                        existingMemoryTip: _aiMemoryTip,
+                      ),
+                    );
+                  },
+                ),
+                AiMemoryTipCard(
+                  memoryTip: _aiMemoryTip,
+                  isLoading: _isAiLoading,
+                ),
+                AiGrammarBreakdownCard(
+                  grammarAnalysis: _aiGrammarAnalysis,
+                  isLoading: _isAiLoading,
+                ),
               ],
             ),
           ),
