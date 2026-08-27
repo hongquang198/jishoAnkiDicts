@@ -1,7 +1,7 @@
 # Dual-Agent Architecture & Simultaneous Execution Workflow
 
 ## 1. Overview
-This document defines the interface boundary, file ownership, and coordination protocol between **AI Instance 1 (Stream A)** and **AI Instance 2 (Stream B)** for concurrent development on `jisho_anki`.
+This document defines the interface boundary, file ownership, and coordination protocol between **AI Instance 1 (Settings & Sync)** and **AI Instance 2 (AI Features & Chat)** for concurrent development on `jisho_anki`.
 
 ---
 
@@ -38,7 +38,7 @@ This document defines the interface boundary, file ownership, and coordination p
              ┌────────────────┴────────────────┐
              ▼                                 ▼
 ┌──────────────────────────────┐ ┌──────────────────────────────┐
-│   STREAM A (AI Instance 1)   │ │   STREAM B (AI Instance 2)   │
+│   SETTINGS & SYNC            │ │   AI FEATURES & CHAT         │
 │ Backend, Sync & Settings     │ │ AI Components, UI & Chat     │
 ├──────────────────────────────┤ ├──────────────────────────────┤
 │ Core Responsibilities:       │ │ Core Responsibilities:       │
@@ -69,5 +69,5 @@ This document defines the interface boundary, file ownership, and coordination p
 ## 4. Cross-Stream Integration Testing Checklist
 1. `flutter analyze` passes across all paths with zero warnings.
 2. `flutter test` runs all domain and BLoC unit tests.
-3. Stream A verifies remote sync and database migrations.
-4. Stream B verifies AI UI rendering, shimmer loading, and multi-turn chat interactions.
+3. Settings & Sync workstream verifies remote sync and database migrations.
+4. AI Features & Chat workstream verifies AI UI rendering, shimmer loading, and multi-turn chat interactions.

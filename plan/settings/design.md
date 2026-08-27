@@ -1,4 +1,4 @@
-# Stream A Design: Backend, Settings & Persistence
+# Settings Design: Backend, Settings & Persistence
 
 ## 1. System Architecture & Cloud Sync Flow
 
