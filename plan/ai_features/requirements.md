@@ -1,7 +1,7 @@
-# Stream B Requirements: AI Components, UI Surfaces & AI Chat
+# AI Features Requirements: AI Components, UI Surfaces & Interactive AI Chat
 
 ## 1. Scope & Objectives
-Stream B covers the user-facing AI experience: reusable AI components, shimmer/loading indicators, memory tips in definition and grammar pages, borrowed word etymology, and interactive back-and-forth AI chat.
+This document covers the user-facing AI experience: reusable AI components, shimmer/loading indicators, memory tips in definition and grammar pages, borrowed word etymology, and interactive back-and-forth AI chat.
 
 ---
 

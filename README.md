@@ -12,6 +12,10 @@ In short, the app aims to combine Anki with a smart dictionary to completely rem
 
 ## Main functionality:
 - **AI-powered dictionary lookup**: Integrated with Google Gemini for intelligent analysis of words, grammar patterns explanations. Thanks to customizable prompts, this feature can be adapted for other languages or study purposes beyond Japanese.
+- **Interactive Multi-Turn AI Tutor Chat**: Full-screen conversational AI (`/ai_chat`) preloaded with rich word context, JLPT data, definitions, and quick suggestion chips for follow-up questions.
+- **AI Tutor Comments & Memory Tips**: Wise comment and info on words and detection of loanwords (Gairaigo) with source language origin etymology and mnemonic memory tips embedded into study cards.
+- **Cloud Settings Sync & Debounced Model Discovery**: Automatic background synchronization of LLM credentials, custom prompts, and language settings to Firestore, with debounced Gemini model auto-loading upon key entry.
+- **Language Onboarding & Multilingual Support**: Guided onboarding for source language (Vietnamese/English) and target learning language (Japanese), with dedicated Settings controls.
 - **Generative UI (GenUI / A2UI)**: Dynamic native widget streaming and component composition for dictionary lookups.
 - **Offline-First & Swappable Backend**: Clean Architecture domain abstraction with an offline-first SQLite cache (`user_data.db`) and pluggable remote backend adapters (Firebase Firestore, Supabase, or REST APIs) allowing zero-downtime backend swapping.
 - **Standardized SM-2 Spaced-Repetition System (SRS)**: 4-tier grading (`Again`, `Hard`, `Good`, `Easy`), dynamic interval estimates, session queue prioritization, leech management, and instant review undo.

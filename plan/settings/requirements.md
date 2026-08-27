@@ -1,7 +1,7 @@
-# Stream A Requirements: Backend, Settings & Cloud Persistence
+# Settings Requirements: Backend Settings, Cloud Sync & Language Onboarding
 
 ## 1. Scope & Objectives
-Stream A covers server synchronization, settings automation, language onboarding, and database persistence for AI-generated study data.
+This document covers server synchronization for settings, debounced model selection, language selection onboarding, and database persistence for AI-generated study data.
 
 ---
 

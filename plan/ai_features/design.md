@@ -1,4 +1,4 @@
-# Stream B Design: AI Components, UI Surfaces & AI Chat
+# AI Features Design: AI Components, UI Surfaces & AI Chat
 
 ## 1. Component Architecture & UI Flow
 
