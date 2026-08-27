@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../common/widgets/ai/ai_grammar_breakdown_card.dart';
+import '../../../../common/widgets/ai/ai_memory_tip_card.dart';
+import '../../../../common/widgets/ai/ai_tutor_card.dart';
 import '../../../../config/app_routes.dart';
 import '../../../../core/data/datasources/shared_pref.dart';
 import '../../../../injection.dart';
@@ -18,6 +21,7 @@ import '../../../../services/llm/genui_catalog.dart';
 import '../../../../services/llm_service.dart';
 import '../../../../services/preloaded_image.dart';
 import '../../../../services/wikimedia_image_service.dart';
+import '../../../ai_chat/screens/ai_chat_screen.dart';
 import '../../../main_search/domain/entities/jisho_definition.dart';
 import '../bloc/main_search_bloc.dart';
 import '../../../word_definition/screens/widgets/component_widget.dart';
@@ -522,103 +526,38 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               ),
             ),
             ComponentWidget(kanjiComponent: _kanjiListFuture),
-            _llmGapFillSection(
-              isVn: isVn,
-              icon: Icons.psychology,
-              titleVn: 'Phân tích ngữ pháp',
-              titleEn: 'Grammar Analysis',
-              value: _grammarAnalysis,
+            AiGrammarBreakdownCard(
+              grammarAnalysis: _grammarAnalysis,
+              isLoading: _wordInfoPending,
             ),
-            _llmGapFillSection(
-              isVn: isVn,
-              icon: Icons.record_voice_over,
-              titleVn: 'Nhận xét từ AI Tutor',
-              titleEn: 'AI Tutor Notes',
-              value: _aiTutorComment,
+            AiTutorCard(
+              tutorComment: _aiTutorComment,
+              isLoading: _wordInfoPending,
+              errorMessage: _errorMessage == 'missing_key' ? null : _errorMessage,
+              onAskAiTutor: () {
+                context.push(
+                  AppRoutesPath.aiChat,
+                  extra: AiChatScreenArgs(
+                    word: currentJapaneseWord,
+                    reading: _effectiveReading,
+                    definition: _jishoDefinition.senses.isNotEmpty
+                        ? _jishoDefinition.senses.first.englishDefinitions.join(', ')
+                        : (_llmInfo?['senses'] is List && (_llmInfo!['senses'] as List).isNotEmpty
+                            ? (((_llmInfo!['senses'] as List).first as Map?)?['english_definitions'] as List?)?.join(', ') ?? ''
+                            : ''),
+                    existingTutorComment: _aiTutorComment,
+                    existingMemoryTip: _memoryTip,
+                  ),
+                );
+              },
             ),
-            _llmGapFillSection(
-              isVn: isVn,
-              icon: Icons.lightbulb,
-              titleVn: 'Mẹo ghi nhớ',
-              titleEn: 'Memory Tip',
-              value: _memoryTip,
-              showWhilePending: false,
+            AiMemoryTipCard(
+              memoryTip: _memoryTip,
+              isLoading: _wordInfoPending,
             ),
           ],
         ),
       ),
-    );
-  }
-
-  /// LLM gap-fill section (grammar analysis / tutor comment / memory tip):
-  /// renders the value once available, a spinner while
-  /// [GenUiDataPrefetch.wordInfo] is still in flight, nothing when that lane
-  /// finished without data. Pass [showWhilePending] false for optional fields
-  /// that may legitimately stay empty (e.g. memory tip) so no spinner flashes.
-  Widget _llmGapFillSection({
-    required bool isVn,
-    required IconData icon,
-    required String titleVn,
-    required String titleEn,
-    required String? value,
-    bool showWhilePending = true,
-  }) {
-    if (value == null && (!showWhilePending || !_wordInfoPending)) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-        divider,
-        Row(
-          children: [
-            Icon(icon, color: const Color(0xffDB8C8A), size: 20),
-            const SizedBox(width: 6),
-            Text(
-              isVn ? titleVn : titleEn,
-              style: const TextStyle(
-                color: Color(0xffDB8C8A),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFDB8C8A).withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: value != null
-              ? Text(value, style: const TextStyle(fontSize: 14, height: 1.5))
-              : Row(
-                  children: [
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Color(0xFFDB8C8A),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        isVn ? 'Đang soạn nội dung...' : 'Writing it up...',
-                        style: const TextStyle(
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-        ),
-      ],
     );
   }
 
