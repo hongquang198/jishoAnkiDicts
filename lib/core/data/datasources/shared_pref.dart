@@ -77,6 +77,12 @@ class SharedPref {
         prefs.setString(_SharedPreferenceKeys.llmCustomPrompt, '');
     prefs.getString(_SharedPreferenceKeys.llmModel) ??
         prefs.setString(_SharedPreferenceKeys.llmModel, 'gemini-2.0-flash');
+    prefs.getString(_SharedPreferenceKeys.sourceLanguage) ??
+        prefs.setString(_SharedPreferenceKeys.sourceLanguage, 'Tiếng Việt');
+    prefs.getString(_SharedPreferenceKeys.targetLanguage) ??
+        prefs.setString(_SharedPreferenceKeys.targetLanguage, 'Japanese');
+    prefs.getBool(_SharedPreferenceKeys.hasCompletedLanguageSetup) ??
+        prefs.setBool(_SharedPreferenceKeys.hasCompletedLanguageSetup, false);
   }
 
   bool get isAppInVietnamese => prefs.getString('language') == 'Tiếng Việt';
@@ -110,6 +116,21 @@ class SharedPref {
 
   set llmModel(String value) =>
       prefs.setString(_SharedPreferenceKeys.llmModel, value);
+
+  String get sourceLanguage =>
+      prefs.getString(_SharedPreferenceKeys.sourceLanguage) ?? 'Tiếng Việt';
+  set sourceLanguage(String value) =>
+      prefs.setString(_SharedPreferenceKeys.sourceLanguage, value);
+
+  String get targetLanguage =>
+      prefs.getString(_SharedPreferenceKeys.targetLanguage) ?? 'Japanese';
+  set targetLanguage(String value) =>
+      prefs.setString(_SharedPreferenceKeys.targetLanguage, value);
+
+  bool get hasCompletedLanguageSetup =>
+      prefs.getBool(_SharedPreferenceKeys.hasCompletedLanguageSetup) ?? false;
+  set hasCompletedLanguageSetup(bool value) =>
+      prefs.setBool(_SharedPreferenceKeys.hasCompletedLanguageSetup, value);
 
   static const String defaultPromptVn =
       "Phân tích từ vựng và ngữ pháp cho cụm từ/câu '%search_words%' bằng Tiếng Việt. "
@@ -160,4 +181,7 @@ class _SharedPreferenceKeys {
   static const String llmApiKey = 'llmApiKey';
   static const String llmCustomPrompt = 'llmCustomPrompt';
   static const String llmModel = 'llmModel';
+  static const String sourceLanguage = 'sourceLanguage';
+  static const String targetLanguage = 'targetLanguage';
+  static const String hasCompletedLanguageSetup = 'hasCompletedLanguageSetup';
 }

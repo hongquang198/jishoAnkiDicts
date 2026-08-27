@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/domain/entities/user_data/word_card.dart';
+import '../core/data/datasources/shared_pref.dart';
 import '../core/services/navigation_service.dart';
 import '../features/card_info/screens/card_info_screen.dart';
 import '../features/favorite_words/screens/favorite_screen.dart';
@@ -10,6 +11,7 @@ import '../features/history/screens/saved_definition_screen.dart';
 import '../features/history/screens/history_screen.dart';
 import '../features/main_search/presentation/screens/gen_ui_definition_screen.dart';
 import '../features/main_search/presentation/screens/main_search_screen.dart';
+import '../features/onboarding/screens/language_selection_screen.dart';
 import '../features/review/screens/review_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../features/single_grammar_point/screen/grammar_point_screen.dart';
@@ -27,11 +29,32 @@ class AppRoutes {
   static final routes = GoRouter(
       observers: [routeObserver],
       navigatorKey: getIt<NavigationService>().navigatorKey,
+      redirect: (context, state) {
+        try {
+          final sharedPref = getIt<SharedPref>();
+          final hasSetup = sharedPref.hasCompletedLanguageSetup;
+          final isGoingToSelection =
+              state.matchedLocation == AppRoutesPath.languageSelection;
+
+          if (!hasSetup && !isGoingToSelection) {
+            return AppRoutesPath.languageSelection;
+          }
+          if (hasSetup && isGoingToSelection) {
+            return AppRoutesPath.mainScreen;
+          }
+        } catch (_) {}
+        return null;
+      },
       routes: <GoRoute>[
         GoRoute(
           path: '/',
           name: AppRoutesPath.mainScreen,
           builder: (context, state) => MainSearchScreen.provider(),
+        ),
+        GoRoute(
+          path: AppRoutesPath.languageSelection,
+          name: AppRoutesPath.languageSelection,
+          builder: (context, state) => const LanguageSelectionScreen(),
         ),
         GoRoute(
           path: AppRoutesPath.cardInfo,
@@ -117,4 +140,5 @@ class AppRoutesPath {
   static const String wordDefinition = '/word-definition';
   static const String savedWordDefinition = '/saved-word-definition';
   static const String genUiDefinition = '/gen-ui-definition';
+  static const String languageSelection = '/language-selection';
 }

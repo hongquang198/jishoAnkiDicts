@@ -5,6 +5,7 @@ import '../../../core/data/datasources/shared_pref.dart';
 import '../../../services/llm_service.dart';
 import '../bloc/llm_settings_bloc.dart';
 import 'widgets/llm_settings_section.dart';
+import 'widgets/language_settings_section.dart';
 import 'widgets/account_sync_section.dart';
 
 import 'package:flutter/material.dart';
@@ -327,16 +328,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
-              // LLM Settings Section (Bloc-powered)
-              BlocProvider(
-                create: (_) => LlmSettingsBloc(
-                  sharedPref: getIt<SharedPref>(),
-                  llmService: getIt<LlmService>(),
-                ),
-                child: const LlmSettingsSection(),
-              ),
-              const SizedBox(height: 10),
-              const AccountSyncSection(),
+               // LLM Settings Section (Bloc-powered)
+               BlocProvider(
+                 create: (_) => LlmSettingsBloc(
+                   sharedPref: getIt<SharedPref>(),
+                   llmService: getIt<LlmService>(),
+                 ),
+                 child: const LlmSettingsSection(),
+               ),
+               const LanguageSettingsSection(),
+               const SizedBox(height: 10),
+               const AccountSyncSection(),
             ],
           ),
         );
