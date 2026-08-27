@@ -51,6 +51,12 @@ class WordCard extends Equatable {
   /// Deck name (defaults to 'default').
   final String deck;
 
+  /// AI tutor comment and nuances.
+  final String? aiTutorComment;
+
+  /// AI memory tip and mnemonics.
+  final String? aiMemoryTip;
+
   const WordCard({
     required this.id,
     required this.word,
@@ -67,6 +73,8 @@ class WordCard extends Equatable {
     required this.updatedAt,
     this.isSynced = false,
     this.deck = 'default',
+    this.aiTutorComment,
+    this.aiMemoryTip,
   });
 
   /// Primary display term for the word.
@@ -96,6 +104,8 @@ class WordCard extends Equatable {
     int? updatedAt,
     bool? isSynced,
     String? deck,
+    String? aiTutorComment,
+    String? aiMemoryTip,
   }) {
     return WordCard(
       id: id ?? this.id,
@@ -114,6 +124,8 @@ class WordCard extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,
       deck: deck ?? this.deck,
+      aiTutorComment: aiTutorComment ?? this.aiTutorComment,
+      aiMemoryTip: aiMemoryTip ?? this.aiMemoryTip,
     );
   }
 
@@ -135,6 +147,8 @@ class WordCard extends Equatable {
     bool isFavorite = false,
     SrsData? srsData,
     int? timestamp,
+    String? aiTutorComment,
+    String? aiMemoryTip,
   }) {
     final now = timestamp ?? DateTime.now().millisecondsSinceEpoch;
     final primaryWord =
@@ -154,6 +168,8 @@ class WordCard extends Equatable {
       addedAt: now,
       updatedAt: now,
       isSynced: false,
+      aiTutorComment: aiTutorComment,
+      aiMemoryTip: aiMemoryTip,
     );
   }
 
@@ -174,6 +190,8 @@ class WordCard extends Equatable {
       'updated_at': updatedAt,
       'is_synced': isSynced ? 1 : 0,
       'deck': deck,
+      'ai_tutor_comment': aiTutorComment,
+      'ai_memory_tip': aiMemoryTip,
     };
   }
 
@@ -228,6 +246,8 @@ class WordCard extends Equatable {
       updatedAt: (map['updated_at'] as num?)?.toInt() ?? 0,
       isSynced: map['is_synced'] == 1 || map['is_synced'] == true,
       deck: map['deck'] as String? ?? 'default',
+      aiTutorComment: map['ai_tutor_comment'] as String?,
+      aiMemoryTip: map['ai_memory_tip'] as String?,
     );
   }
 
@@ -248,5 +268,7 @@ class WordCard extends Equatable {
         updatedAt,
         isSynced,
         deck,
+        aiTutorComment,
+        aiMemoryTip,
       ];
 }

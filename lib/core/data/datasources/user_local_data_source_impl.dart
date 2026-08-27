@@ -33,9 +33,27 @@ class UserLocalDataSourceImpl implements LocalUserDataDataSource {
     final path = join(documentsDirectory.path, dbName);
     _db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      try {
+        await db.execute('ALTER TABLE user_cards ADD COLUMN ai_tutor_comment TEXT;');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE user_cards ADD COLUMN ai_memory_tip TEXT;');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE lookup_history ADD COLUMN ai_tutor_comment TEXT;');
+      } catch (_) {}
+      try {
+        await db.execute('ALTER TABLE lookup_history ADD COLUMN ai_memory_tip TEXT;');
+      } catch (_) {}
+    }
   }
 
   static Future<void> _onCreate(Database db, int version) async {
@@ -55,7 +73,9 @@ class UserLocalDataSourceImpl implements LocalUserDataDataSource {
         added_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         is_synced INTEGER DEFAULT 0,
-        deck TEXT DEFAULT 'default'
+        deck TEXT DEFAULT 'default',
+        ai_tutor_comment TEXT,
+        ai_memory_tip TEXT
       )
     ''');
 
@@ -85,7 +105,9 @@ class UserLocalDataSourceImpl implements LocalUserDataDataSource {
         added_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         is_synced INTEGER DEFAULT 0,
-        deck TEXT DEFAULT 'default'
+        deck TEXT DEFAULT 'default',
+        ai_tutor_comment TEXT,
+        ai_memory_tip TEXT
       )
     ''');
 

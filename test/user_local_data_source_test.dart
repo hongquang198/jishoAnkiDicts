@@ -195,12 +195,16 @@ void main() {
         isFavorite: true,
         addedAt: 1000,
         updatedAt: 1000,
+        aiTutorComment: 'Sun / Day character with pictographic roots',
+        aiMemoryTip: 'Imagine a window showing the sun rising',
       );
 
       await localDb.upsertCard(card);
       final fetched = await localDb.getCard('日');
       expect(fetched, isNotNull);
       expect(fetched!.isFavorite, isTrue);
+      expect(fetched.aiTutorComment, equals('Sun / Day character with pictographic roots'));
+      expect(fetched.aiMemoryTip, equals('Imagine a window showing the sun rising'));
 
       final favorites = await localDb.getFavorites();
       expect(favorites.length, equals(1));
