@@ -33,6 +33,14 @@ class LlmSettingsBloc extends Bloc<LlmSettingsEvent, LlmSettingsState> {
     on<FetchAvailableModelsEvent>(_onFetchAvailableModels);
   }
 
+  Timer? _debounceTimer;
+
+  @override
+  Future<void> close() {
+    _debounceTimer?.cancel();
+    return super.close();
+  }
+
   FutureOr<void> _onToggleLlmEnabled(
       ToggleLlmEnabledEvent event, Emitter<LlmSettingsState> emit) {
     sharedPref.llmEnable = event.enabled;
@@ -49,6 +57,14 @@ class LlmSettingsBloc extends Bloc<LlmSettingsEvent, LlmSettingsState> {
       UpdateApiKeyEvent event, Emitter<LlmSettingsState> emit) {
     sharedPref.llmApiKey = event.apiKey;
     emit(state.copyWith(apiKey: event.apiKey));
+
+    _debounceTimer?.cancel();
+    final trimmedKey = event.apiKey.trim();
+    if (trimmedKey.length >= 20) {
+      _debounceTimer = Timer(const Duration(milliseconds: 600), () {
+        add(FetchAvailableModelsEvent(apiKey: trimmedKey));
+      });
+    }
   }
 
   FutureOr<void> _onUpdateModelName(
