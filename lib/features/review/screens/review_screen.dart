@@ -81,6 +81,17 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
       tableName: 'exampleDictionary',
     );
 
+    // If AI insights are already saved in the card from previous interaction/DB, use them without calling LLM!
+    if (card.aiTutorComment != null || card.aiMemoryTip != null) {
+      setState(() {
+        _aiTutorComment = card.aiTutorComment;
+        _aiMemoryTip = card.aiMemoryTip;
+        _aiGrammarAnalysis = null;
+        _isAiLoading = false;
+      });
+      return;
+    }
+
     setState(() {
       _aiTutorComment = null;
       _aiMemoryTip = null;

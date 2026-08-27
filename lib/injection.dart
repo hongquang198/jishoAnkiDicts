@@ -149,8 +149,7 @@ Future<void> inject() async {
         () => RecordWordViewUseCase(getIt()))
     ..registerLazySingleton<GetStudyStatsUseCase>(
         () => GetStudyStatsUseCase(getIt()))
-    ..registerLazySingleton<GetHistoryUseCase>(
-        () => GetHistoryUseCase(getIt()))
+    ..registerLazySingleton<GetHistoryUseCase>(() => GetHistoryUseCase(getIt()))
     ..registerLazySingleton<ClearHistoryUseCase>(
         () => ClearHistoryUseCase(getIt()));
 
@@ -159,8 +158,8 @@ Future<void> inject() async {
       () => AiChatBloc(llmService: getIt<LlmService>()));
   getIt.registerFactory<WordInteractionBloc>(
       () => WordInteractionBloc(repository: getIt<UserDataRepository>()));
-  getIt.registerFactory<ReviewBloc>(
-      () => ReviewBloc(repository: getIt<UserDataRepository>(), srsEngine: getIt<SrsEngine>()));
+  getIt.registerFactory<ReviewBloc>(() => ReviewBloc(
+      repository: getIt<UserDataRepository>(), srsEngine: getIt<SrsEngine>()));
   getIt.registerFactory<FavoriteBloc>(
       () => FavoriteBloc(repository: getIt<UserDataRepository>()));
   getIt.registerFactory<HistoryBloc>(
