@@ -33,8 +33,8 @@ class AiTutorCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: theme.colorScheme.error.withValues(alpha: 0.5)),
+          border:
+              Border.all(color: theme.colorScheme.error.withValues(alpha: 0.5)),
         ),
         child: Column(
           children: [
@@ -73,7 +73,7 @@ class AiTutorCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -453,7 +453,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
                     return SizedBox(
                       width: dynamicWidth,
-                      child: child,
+                      child: dynamicWidth == 0 ? null : child,
                     );
                   },
                   child: Text(

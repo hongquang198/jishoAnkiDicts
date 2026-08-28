@@ -80,6 +80,7 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
       return const SizedBox.shrink();
     }
     return ListView(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       key: stickyKey,
       controller: controller,

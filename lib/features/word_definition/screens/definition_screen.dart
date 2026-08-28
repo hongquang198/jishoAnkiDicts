@@ -253,7 +253,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
 
                         return SizedBox(
                           width: dynamicWidth,
-                          child: child,
+                          child: dynamicWidth == 0 ? null : child,
                         );
                       },
                       child: Text(
@@ -438,18 +438,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                           fontSize: 20,
                         ),
                       ),
-                      FutureBuilder<List<ExampleSentence>>(
-                        future: exampleSentence,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            return ExampleSentenceWidget(
-                                exampleSentence: exampleSentence);
-                          } else {
-                            return const SizedBox();
-                          }
-                        },
-                      ),
+                      ExampleSentenceWidget(exampleSentence: exampleSentence),
                       divider,
                       const Text(
                         'Components',
@@ -460,9 +449,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                         ),
                       ),
                       ComponentWidget(kanjiComponent: kanjiList),
-                      const SizedBox(height: 12),
                       divider,
-                      const SizedBox(height: 8),
                       Row(
                         children: [
                           const Icon(Icons.psychology,
