@@ -6,7 +6,6 @@ class AiTutorCard extends StatelessWidget {
   final bool isLoading;
   final String? errorMessage;
   final VoidCallback? onRetry;
-  final VoidCallback? onAskAiTutor;
 
   const AiTutorCard({
     super.key,
@@ -14,7 +13,6 @@ class AiTutorCard extends StatelessWidget {
     this.isLoading = false,
     this.errorMessage,
     this.onRetry,
-    this.onAskAiTutor,
   });
 
   @override
@@ -64,9 +62,8 @@ class AiTutorCard extends StatelessWidget {
       );
     }
 
-    if (tutorComment == null || tutorComment!.trim().isEmpty) {
-      return const SizedBox.shrink();
-    }
+    final isEmpty =
+        tutorComment == null || tutorComment!.trim().isEmpty;
 
     return Card(
       elevation: 2,
@@ -101,19 +98,16 @@ class AiTutorCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (onAskAiTutor != null)
-                  IconButton(
-                    icon: const Icon(Icons.chat_bubble_outline, size: 20),
-                    tooltip: 'Ask AI Tutor',
-                    onPressed: onAskAiTutor,
-                  ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
-              tutorComment!,
+              isEmpty ? 'No AI Tutor insights yet.' : tutorComment!,
               style: theme.textTheme.bodyMedium?.copyWith(
                 height: 1.5,
+                color: isEmpty
+                    ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
+                    : null,
               ),
             ),
           ],

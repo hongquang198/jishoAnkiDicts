@@ -335,6 +335,14 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         AiTutorCard(
                           tutorComment: _aiTutorComment,
                           isLoading: _isAiLoading,
+                        ),
+                        AiMemoryTipCard(
+                          memoryTip: _aiMemoryTip,
+                          isLoading: _isAiLoading,
+                        ),
+                        AiGrammarBreakdownCard(
+                          grammarAnalysis: _aiGrammarAnalysis,
+                          isLoading: _isAiLoading,
                           onAskAiTutor: () {
                             context.push(
                               AppRoutesPath.aiChat,
@@ -347,14 +355,6 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                               ),
                             );
                           },
-                        ),
-                        AiMemoryTipCard(
-                          memoryTip: _aiMemoryTip,
-                          isLoading: _isAiLoading,
-                        ),
-                        AiGrammarBreakdownCard(
-                          grammarAnalysis: _aiGrammarAnalysis,
-                          isLoading: _isAiLoading,
                         ),
                       ],
                     ],

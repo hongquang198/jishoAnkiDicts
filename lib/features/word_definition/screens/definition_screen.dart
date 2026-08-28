@@ -471,6 +471,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                       AiTutorCard(
                         tutorComment: _aiTutorComment,
                         isLoading: _isAiLoading,
+                      ),
+                      AiMemoryTipCard(
+                        memoryTip: _aiMemoryTip,
+                        isLoading: _isAiLoading,
+                      ),
+                      AiGrammarBreakdownCard(
+                        grammarAnalysis: _aiGrammarAnalysis,
+                        isLoading: _isAiLoading,
                         onAskAiTutor: () {
                           context.push(
                             AppRoutesPath.aiChat,
@@ -484,14 +492,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                           );
                         },
                       ),
-                      AiMemoryTipCard(
-                        memoryTip: _aiMemoryTip,
-                        isLoading: _isAiLoading,
-                      ),
-                      AiGrammarBreakdownCard(
-                        grammarAnalysis: _aiGrammarAnalysis,
-                        isLoading: _isAiLoading,
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

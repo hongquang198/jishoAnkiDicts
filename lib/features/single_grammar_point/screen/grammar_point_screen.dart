@@ -181,6 +181,14 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           AiTutorCard(
             tutorComment: _aiTutorComment,
             isLoading: _isAiLoading,
+          ),
+          AiMemoryTipCard(
+            memoryTip: _aiMemoryTip,
+            isLoading: _isAiLoading,
+          ),
+          AiGrammarBreakdownCard(
+            grammarAnalysis: _aiGrammarAnalysis,
+            isLoading: _isAiLoading,
             onAskAiTutor: () {
               context.push(
                 AppRoutesPath.aiChat,
@@ -192,14 +200,6 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
                 ),
               );
             },
-          ),
-          AiMemoryTipCard(
-            memoryTip: _aiMemoryTip,
-            isLoading: _isAiLoading,
-          ),
-          AiGrammarBreakdownCard(
-            grammarAnalysis: _aiGrammarAnalysis,
-            isLoading: _isAiLoading,
           ),
         ]),
       ),

@@ -12,11 +12,33 @@ class AiMemoryTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isLoading && (memoryTip == null || memoryTip!.trim().isEmpty)) {
-      return const SizedBox.shrink();
-    }
-
     final theme = Theme.of(context);
+    final isEmpty = memoryTip == null || memoryTip!.trim().isEmpty;
+
+    final Widget body;
+    if (isLoading) {
+      body = LinearProgressIndicator(
+        color: theme.colorScheme.secondary,
+        backgroundColor: theme.colorScheme.secondary.withValues(alpha: 0.2),
+      );
+    } else if (isEmpty) {
+      body = Text(
+        'No memory tip available yet.',
+        style: theme.textTheme.bodyMedium?.copyWith(
+          height: 1.5,
+          fontStyle: FontStyle.italic,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+      );
+    } else {
+      body = Text(
+        memoryTip!,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          height: 1.5,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
 
     return Card(
       elevation: 2,
@@ -36,29 +58,19 @@ class AiMemoryTipCard extends StatelessWidget {
                   size: 22,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  'Memory Tip & Mnemonic',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.secondary,
+                Expanded(
+                  child: Text(
+                    'Memory Tip & Mnemonic',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.secondary,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            isLoading
-                ? LinearProgressIndicator(
-                    color: theme.colorScheme.secondary,
-                    backgroundColor:
-                        theme.colorScheme.secondary.withValues(alpha: 0.2),
-                  )
-                : Text(
-                    memoryTip!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
+            body,
           ],
         ),
       ),

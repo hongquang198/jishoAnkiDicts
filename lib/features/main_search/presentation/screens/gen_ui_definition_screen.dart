@@ -601,12 +601,6 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                   AiGrammarBreakdownCard(
                     grammarAnalysis: _grammarAnalysis,
                     isLoading: _wordInfoPending,
-                  ),
-                  AiTutorCard(
-                    tutorComment: _aiTutorComment,
-                    isLoading: _wordInfoPending,
-                    errorMessage:
-                        _errorMessage == 'missing_key' ? null : _errorMessage,
                     onAskAiTutor: () {
                       context.push(
                         AppRoutesPath.aiChat,
@@ -630,10 +624,17 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                       );
                     },
                   ),
+                  AiTutorCard(
+                    tutorComment: _aiTutorComment,
+                    isLoading: _wordInfoPending,
+                    errorMessage:
+                        _errorMessage == 'missing_key' ? null : _errorMessage,
+                  ),
                   AiMemoryTipCard(
                     memoryTip: _memoryTip,
                     isLoading: _wordInfoPending,
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
