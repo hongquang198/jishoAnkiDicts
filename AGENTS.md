@@ -27,7 +27,7 @@ YAGNI (You're Not Gonna Need It) – avoid speculative complexity or over-engine
 
 ---
 trigger: model_decision
-description: Apply these below rules while creating new features, not when fixing bugs
+description:
 ---
 
 # Gemini CLI Guidelines: Flutter & Dart Development

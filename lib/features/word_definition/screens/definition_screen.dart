@@ -468,14 +468,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      AiTutorCard(
-                        tutorComment: _aiTutorComment,
-                        isLoading: _isAiLoading,
-                      ),
-                      AiMemoryTipCard(
-                        memoryTip: _aiMemoryTip,
-                        isLoading: _isAiLoading,
-                      ),
                       AiGrammarBreakdownCard(
                         grammarAnalysis: _aiGrammarAnalysis,
                         isLoading: _isAiLoading,
@@ -491,6 +483,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                             ),
                           );
                         },
+                      ),
+                      AiTutorCard(
+                        tutorComment: _aiTutorComment,
+                        isLoading: _isAiLoading,
+                      ),
+                      AiMemoryTipCard(
+                        memoryTip: _aiMemoryTip,
+                        isLoading: _isAiLoading,
                       ),
                       const SizedBox(height: 24),
                     ],
