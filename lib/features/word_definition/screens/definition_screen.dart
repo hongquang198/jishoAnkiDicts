@@ -218,8 +218,6 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
             controller: _scrollController,
             slivers: [
               SliverAppBar(
-                floating: true,
-                snap: true,
                 pinned: true,
                 expandedHeight: 145,
                 title: Row(
