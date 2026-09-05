@@ -8,7 +8,7 @@ Since Jisho.org doesn't have a mobile application version, and most of the dicti
 
 In short, the app aims to combine Anki with a smart dictionary to completely remove the time-consuming input process to create flashcard as fast as possible, with ample word information like pitch accent, example sentences, and a lot more!
 
-![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
+<img src="gif1.gif" width="200"> <img src="gif2.gif" width="200"> <img src="gif3.gif" width="200"> <img src="gif.gif" width="204">
 
 ## Main functionality:
 - **AI-powered dictionary lookup**: Integrated with Google Gemini for intelligent analysis of words, grammar patterns explanations. Thanks to customizable prompts, this feature can be adapted for other languages or study purposes beyond Japanese.
@@ -31,9 +31,9 @@ In short, the app aims to combine Anki with a smart dictionary to completely rem
 - **Dual language support** (Vietnamese and English).
 - **No ads**, 100% free and open-source.
 
-<img src="gif.gif" width="300">
+![Nghich](https://user-images.githubusercontent.com/49474671/126075995-50a8d4c2-04ca-4e4e-aa98-03bca2a17525.png)
 
-And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/download/v1.0-betaEN/app-release.apk
+And it can be installed via apk on Android: https://github.com/hongquang198/jishoAnkiDicts/releases/
 
 And if you think this project is interesting, please star the GitHub page and if you think you can lend me a hand, please contact me, I would really appreciate it.
 
