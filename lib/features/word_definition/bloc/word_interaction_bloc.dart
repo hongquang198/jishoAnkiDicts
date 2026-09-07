@@ -3,6 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/core/domain/repositories/user_data_repository.dart';
+import 'package:jisho_anki/features/main_search/domain/entities/jisho_definition.dart';
+import 'package:jisho_anki/services/query_helpers.dart';
 
 // --- Events ---
 abstract class WordInteractionEvent extends Equatable {
@@ -52,6 +54,32 @@ class RecordWordViewEvent extends WordInteractionEvent {
   const RecordWordViewEvent(this.word);
   @override
   List<Object?> get props => [word];
+}
+
+/// Records a detail-screen visit against the dictionary base form.
+///
+/// The screen passes the surface [card] plus every base-form candidate it
+/// holds ([query], LLM [wordInfo], [jishoDefinition], [vnWord]); the bloc
+/// resolves the canonical base via [canonicalBaseForm], counts the view, and
+/// files the history card under the base. Sentence queries resolve to empty
+/// and are skipped entirely (ephemeral AI explanation: no view, no history).
+class RecordBaseViewEvent extends WordInteractionEvent {
+  final WordCard card;
+  final String query;
+  final Map<String, dynamic>? wordInfo;
+  final JishoDefinition? jishoDefinition;
+  final String vnWord;
+
+  const RecordBaseViewEvent({
+    required this.card,
+    required this.query,
+    this.wordInfo,
+    this.jishoDefinition,
+    this.vnWord = '',
+  });
+
+  @override
+  List<Object?> get props => [card, query, wordInfo, jishoDefinition, vnWord];
 }
 
 // --- State ---
@@ -112,6 +140,7 @@ class WordInteractionBloc
     on<ToggleWordFavoriteEvent>(_onToggleFavorite);
     on<ToggleWordReviewEvent>(_onToggleReview);
     on<RecordWordViewEvent>(_onRecordView);
+    on<RecordBaseViewEvent>(_onRecordBaseView);
   }
 
   Future<void> _onWatchWordInteraction(
@@ -168,6 +197,25 @@ class WordInteractionBloc
     Emitter<WordInteractionState> emit,
   ) async {
     await repository.recordWordView(event.word);
+  }
+
+  Future<void> _onRecordBaseView(
+    RecordBaseViewEvent event,
+    Emitter<WordInteractionState> emit,
+  ) async {
+    if (isSentenceQuery(event.query)) return;
+    final base = canonicalBaseForm(
+      query: event.query,
+      wordInfo: event.wordInfo,
+      jishoDefinition: event.jishoDefinition,
+      vnWord: event.vnWord,
+    );
+    if (base.isEmpty) return;
+    await repository.recordWordView(base);
+    await repository.addHistory(event.card.copyWith(id: base, word: base));
+    // Re-watch on the lemma so counters/favorite state follow the base form
+    // without the screen recomputing it.
+    add(WatchWordInteraction(base));
   }
 
   @override

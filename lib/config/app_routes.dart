@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/domain/entities/user_data/word_card.dart';
 import '../core/data/datasources/shared_pref.dart';
 import '../core/services/navigation_service.dart';
+import '../features/word_definition/bloc/word_interaction_bloc.dart';
 import '../features/ai_chat/screens/ai_chat_screen.dart';
 import '../features/card_info/screens/card_info_screen.dart';
 import '../features/favorite_words/screens/favorite_screen.dart';
@@ -121,8 +123,11 @@ class AppRoutes {
         GoRoute(
           path: AppRoutesPath.genUiDefinition,
           name: AppRoutesPath.genUiDefinition,
-          builder: (_, state) => GenUiDefinitionScreen(
-            args: state.extra as GenUiDefinitionScreenArgs,
+          builder: (_, state) => BlocProvider(
+            create: (_) => getIt<WordInteractionBloc>(),
+            child: GenUiDefinitionScreen(
+              args: state.extra as GenUiDefinitionScreenArgs,
+            ),
           ),
         ),
         GoRoute(

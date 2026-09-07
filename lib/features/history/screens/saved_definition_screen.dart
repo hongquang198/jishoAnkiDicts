@@ -16,6 +16,8 @@ import '../../word_definition/screens/widgets/component_widget.dart';
 import '../../word_definition/screens/widgets/definition_widget.dart';
 import '../../word_definition/screens/widgets/example_sentence_widget.dart';
 import '../../word_definition/screens/widgets/is_common_tag_and_jlpt.dart';
+import '../../word_definition/screens/widgets/pitch_accent_line.dart';
+import '../../word_definition/screens/widgets/section_header.dart';
 import '../../word_definition/screens/widgets/word_view_count_widget.dart';
 
 class SavedDefinitionScreenArgs {
@@ -163,17 +165,10 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
             child: ListView(
               children: <Widget>[
                 const SizedBox(height: 10),
-                FutureBuilder<List<Widget>>(
-                  future: pitchAccent,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) {
-                      return Text(
-                        jishoDefinition.reading ?? '',
-                        style: const TextStyle(fontSize: 15.0, color: Colors.grey),
-                      );
-                    }
-                    return Row(children: snapshot.data!);
-                  },
+                PitchAccentLine(
+                  pitchAccent: pitchAccent,
+                  fallbackReading: jishoDefinition.reading ?? '',
+                  fontSize: 15.0,
                 ),
                 Row(
                   children: <Widget>[
@@ -219,14 +214,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
                   vietnameseDefinition: vnDefinition.definition,
                 ),
                 divider,
-                const Text(
-                  'Examples',
-                  style: TextStyle(
-                    color: Color(0xffDB8C8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
+                const SectionHeader(title: 'Examples'),
                 FutureBuilder<List<ExampleSentence>>(
                   future: exampleSentence,
                   builder: (context, snapshot) {
@@ -249,14 +237,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
                   },
                 ),
                 divider,
-                const Text(
-                  'Components',
-                  style: TextStyle(
-                    color: Color(0xffDB8C8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
+                const SectionHeader(title: 'Components'),
                 ComponentWidget(kanjiComponent: kanjiList),
               ],
             ),

@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../../core/domain/entities/user_data/word_card.dart';
-import '../../../core/domain/repositories/user_data_repository.dart';
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/vietnamese_definition.dart';
 import '../../../services/kanji_helper.dart';
+import '../../../services/query_helpers.dart';
 import '../../../services/llm/gen_ui_data_prefetch.dart';
 import '../../../services/preloaded_image.dart';
 import '../../../common/widgets/ai/ai_tutor_card.dart';
@@ -24,10 +24,17 @@ import '../../main_search/presentation/bloc/main_search_bloc.dart';
 import '../../main_search/presentation/screens/gen_ui_definition_screen.dart';
 import '../bloc/word_interaction_bloc.dart';
 import 'widgets/component_widget.dart';
+import 'widgets/definition_header.dart';
+import 'widgets/definition_sliver_app_bar.dart';
 import 'widgets/definition_widget.dart';
 import 'widgets/example_sentence_widget.dart';
 import 'widgets/is_common_tag_and_jlpt.dart';
+import 'widgets/pitch_accent_line.dart';
+import 'widgets/section_header.dart';
 import 'widgets/word_view_count_widget.dart';
+
+part 'definition_screen.data.dart';
+part 'definition_screen.view_record.dart';
 
 class DefinitionScreenArgs {
   MainSearchBloc mainSearchBloc;
@@ -61,13 +68,21 @@ class DefinitionScreen extends StatefulWidget {
         BlocProvider.value(value: args.mainSearchBloc),
         BlocProvider(
           create: (context) {
-            final word = args.vnDefinition?.word.isNotEmpty == true
-                ? args.vnDefinition!.word
+            // Watch the local base form immediately so the counter paints
+            // without flashing the inflected surface; the bloc re-watches
+            // with the LLM lemma once its lane completes.
+            final vnWord = args.vnDefinition?.word ?? '';
+            final query = vnWord.isNotEmpty
+                ? vnWord
                 : (args.jishoDefinition?.japaneseWord ??
                     args.jishoDefinition?.slug ??
                     '');
             return getIt<WordInteractionBloc>()
-              ..add(WatchWordInteraction(word));
+              ..add(WatchWordInteraction(canonicalBaseForm(
+                query: query,
+                jishoDefinition: args.jishoDefinition,
+                vnWord: vnWord,
+              )));
           },
         ),
       ],
@@ -97,83 +112,20 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   Divider get divider =>
       Divider(thickness: 0.4, color: Theme.of(context).dividerColor);
 
+  /// setState entry point for the state extensions in this library.
+  /// Extensions cannot use the protected [setState] directly.
+  void _update(void Function() fn) {
+    if (!mounted) return;
+    setState(fn);
+  }
+
   @override
   void initState() {
     super.initState();
-    jishoDefinition = widget.args.jishoDefinition ?? JishoDefinition(slug: '');
-    vnDefinition = widget.args.vnDefinition ?? VietnameseDefinition();
-    currentJapaneseWord = vnDefinition.word;
-    if (currentJapaneseWord.isEmpty) {
-      currentJapaneseWord = jishoDefinition.word ?? '';
-    }
-    if (currentJapaneseWord.isEmpty) {
-      currentJapaneseWord = jishoDefinition.slug;
-    }
-
-    if (widget.args.jishoDefinition != null) {
-      _recordViewAndHistory();
-    }
-
+    _resolveArgs();
     _attachDataPrefetch();
-
-    pitchAccent = KanjiHelper.getPitchAccent(
-      word: jishoDefinition.word,
-      slug: jishoDefinition.slug,
-      reading: jishoDefinition.reading,
-      context: context,
-    );
-
-    kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
-
-    try {
-      final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true) {
-        exampleSentence = KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord,
-            context: context,
-            tableName: 'englishExampleDictionary');
-      } else if (lang == 'Tiếng Việt') {
-        exampleSentence = KanjiHelper.getExampleSentence(
-            word: currentJapaneseWord,
-            context: context,
-            tableName: 'exampleDictionary');
-      }
-    } catch (e) {
-      log('Error getting example sentence $e');
-    }
-  }
-
-  void _attachDataPrefetch() {
-    final query = currentJapaneseWord;
-    final cache = getIt<GenUiDataPrefetchCache>();
-    var prefetch = cache.get(query);
-    if (prefetch == null) {
-      final fresh = startDefaultDataPrefetch(
-        query: query,
-        jishoDefinition: jishoDefinition,
-      );
-      cache.warm(query, start: () => fresh);
-      prefetch = fresh;
-    }
-
-    prefetch.wordInfo.then((info) {
-      if (!mounted) return;
-      setState(() {
-        _isAiLoading = false;
-        if (info != null && info['found'] == true) {
-          final comment = info['tutorComment']?.toString().trim() ?? '';
-          if (comment.isNotEmpty) _aiTutorComment = comment;
-          final memoryTip = info['memoryTip']?.toString().trim() ?? '';
-          if (memoryTip.isNotEmpty) _aiMemoryTip = memoryTip;
-          final grammar = info['grammarAnalysis']?.toString().trim() ?? '';
-          if (grammar.isNotEmpty) _aiGrammarAnalysis = grammar;
-        }
-      });
-    });
-    prefetch.image.then((picture) {
-      if (!mounted || picture == null) return;
-      setState(() => _descriptivePicture = picture);
-    });
+    _recordViewByBase();
+    _loadLocalFutures();
   }
 
   @override
@@ -182,99 +134,25 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
     super.dispose();
   }
 
-  WordCard _createWordCard() {
-    return WordCard(
-      id: currentJapaneseWord,
-      word: jishoDefinition.word ?? currentJapaneseWord,
-      slug: jishoDefinition.slug,
-      reading: jishoDefinition.reading ?? '',
-      isCommon: jishoDefinition.isCommon ? 1 : 0,
-      tags: jishoDefinition.tags,
-      jlpt: jishoDefinition.jlpt,
-      senses: jishoDefinition.senses,
-      vietnameseDefinition: vnDefinition.definition,
-      addedAt: DateTime.now().millisecondsSinceEpoch,
-      updatedAt: DateTime.now().millisecondsSinceEpoch,
-    );
-  }
-
-  void _recordViewAndHistory() {
-    if (_historyRecorded || currentJapaneseWord.isEmpty) return;
-    _historyRecorded = true;
-    final card = _createWordCard();
-    getIt<UserDataRepository>().recordWordView(currentJapaneseWord);
-    getIt<UserDataRepository>().addHistory(card);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.sizeOf(context).height;
-    final bool isSplitMode = screenHeight < 650;
-
+    final bool isVn = getIt<SharedPref>().isAppInVietnamese;
     return BlocBuilder<WordInteractionBloc, WordInteractionState>(
       builder: (context, interactionState) {
         return Scaffold(
           body: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverAppBar(
-                pinned: true,
-                expandedHeight: 145,
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _scrollController,
-                      builder: (context, child) {
-                        final textPainter = TextPainter(
-                          text: TextSpan(
-                            text: currentJapaneseWord,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15),
-                          ),
-                          textDirection: TextDirection.ltr,
-                        )..layout();
-
-                        final offset = _scrollController.hasClients
-                            ? _scrollController.offset
-                            : 0.0;
-                        final double maxScroll = 100.0;
-                        final double progress =
-                            (offset / maxScroll).clamp(0.0, 1.0);
-
-                        final double startWidth = 0;
-                        final double endWidth = textPainter.width;
-
-                        // 4. Linearly interpolate the width based on scroll progress
-                        final double dynamicWidth =
-                            startWidth + (endWidth - startWidth) * progress;
-
-                        return SizedBox(
-                          width: dynamicWidth,
-                          child: dynamicWidth == 0 ? null : child,
-                        );
-                      },
-                      child: Text(
-                        currentJapaneseWord,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: widget.args.jishoDefinition != null
-                            ? IsCommonTagsAndJlptWidget(
-                                isCommon: jishoDefinition.isCommon,
-                                tags: jishoDefinition.tags,
-                                jlpt: jishoDefinition.jlpt,
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ),
-                  ],
-                ),
+              DefinitionSliverAppBar(
+                scrollController: _scrollController,
+                title: currentJapaneseWord,
+                tags: widget.args.jishoDefinition != null
+                    ? IsCommonTagsAndJlptWidget(
+                        isCommon: jishoDefinition.isCommon,
+                        tags: jishoDefinition.tags,
+                        jlpt: jishoDefinition.jlpt,
+                      )
+                    : const SizedBox.shrink(),
                 actions: [
                   AnimatedBuilder(
                     animation: _scrollController,
@@ -282,7 +160,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                       final offset = _scrollController.hasClients
                           ? _scrollController.offset
                           : 0.0;
-                      final double maxScroll = 100.0;
+                      const double maxScroll = 100.0;
                       final double progress =
                           (offset / maxScroll).clamp(0.0, 1.0);
                       return Opacity(
@@ -330,90 +208,20 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                     ],
                   ),
                 ],
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(12, isSplitMode ? 50 : 98, 12, 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              FutureBuilder<List<Widget>>(
-                                future: pitchAccent,
-                                builder: (context, snapshot) {
-                                  if (snapshot.data == null ||
-                                      snapshot.data?.isEmpty == true) {
-                                    return Text(
-                                      jishoDefinition.reading ?? '',
-                                      style: const TextStyle(
-                                          fontSize: 14.0, color: Colors.grey),
-                                    );
-                                  }
-                                  return Row(children: snapshot.data!);
-                                },
-                              ),
-                              Text(
-                                currentJapaneseWord,
-                                style: const TextStyle(
-                                  fontSize: 36.0,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.1,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (getIt<SharedPref>().isAppInVietnamese &&
-                                  widget.args.hanViet?.isNotEmpty == true)
-                                Text(
-                                  widget.args.hanViet.toString().toUpperCase(),
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    height: 1.1,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              const SizedBox(height: 4),
-                            ],
-                          ),
-                        ),
-                        if (_descriptivePicture != null) ...[
-                          const SizedBox(width: 8),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image(
-                                image: _descriptivePicture!.provider,
-                                height: 72,
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) =>
-                                    const SizedBox.shrink(),
-                                loadingBuilder: (context, child, progress) =>
-                                    progress == null
-                                        ? child
-                                        : const SizedBox(
-                                            height: 72,
-                                            child: Center(
-                                              child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  color: Color(0xFFDB8C8A)),
-                                            ),
-                                          ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        WordViewCountWidget(
-                          viewCounts: interactionState.viewCount,
-                          margin: const EdgeInsets.only(left: 6),
-                        ),
-                      ],
-                    ),
+                header: DefinitionHeader(
+                  pitchSection: PitchAccentLine(
+                    pitchAccent: pitchAccent,
+                    fallbackReading: jishoDefinition.reading ?? '',
+                  ),
+                  word: currentJapaneseWord,
+                  hanVietLine: isVn &&
+                          widget.args.hanViet?.isNotEmpty == true
+                      ? widget.args.hanViet.toString().toUpperCase()
+                      : null,
+                  picture: _descriptivePicture,
+                  trailing: WordViewCountWidget(
+                    viewCounts: interactionState.viewCount,
+                    margin: const EdgeInsets.only(left: 6),
                   ),
                 ),
               ),
@@ -428,42 +236,15 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                         vietnameseDefinition: vnDefinition.definition,
                       ),
                       divider,
-                      const Text(
-                        'Examples',
-                        style: TextStyle(
-                          color: Color(0xffDB8C8A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
+                      const SectionHeader(title: 'Examples'),
                       ExampleSentenceWidget(exampleSentence: exampleSentence),
                       divider,
-                      const Text(
-                        'Components',
-                        style: TextStyle(
-                          color: Color(0xffDB8C8A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
+                      const SectionHeader(title: 'Components'),
                       ComponentWidget(kanjiComponent: kanjiList),
                       divider,
-                      Row(
-                        children: [
-                          const Icon(Icons.psychology,
-                              color: Color(0xffDB8C8A), size: 20),
-                          const SizedBox(width: 6),
-                          Text(
-                            getIt<SharedPref>().isAppInVietnamese
-                                ? 'Trợ lý AI'
-                                : 'AI Tutor & Insights',
-                            style: const TextStyle(
-                              color: Color(0xffDB8C8A),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
+                      SectionHeader(
+                        title: isVn ? 'Trợ lý AI' : 'AI Tutor & Insights',
+                        icon: Icons.psychology,
                       ),
                       const SizedBox(height: 8),
                       AiGrammarBreakdownCard(
