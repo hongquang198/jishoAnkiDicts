@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../../../../common/widgets/common_animated_list_item.dart';
 import '../../../../models/example_sentence.dart';
@@ -43,47 +42,20 @@ class _ExampleSentenceWidget extends StatefulWidget {
   State<_ExampleSentenceWidget> createState() => __ExampleSentenceWidgetState();
 }
 
-class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
-  OverlayEntry? sticky;
-  GlobalKey stickyKey = GlobalKey();
-  final controller = ScrollController();
-
+class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget>
+    with AutomaticKeepAliveClientMixin {
   @override
-  void initState() {
-    sticky?.remove();
-
-    sticky = OverlayEntry(
-      builder: (context) => stickyBuilder(context),
-    );
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (sticky != null) {
-        // Overlay.of(context).insert(sticky!);
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // The overlay entry is currently never inserted (insertion inside the
-    // initState post-frame callback is disabled), and removing an
-    // uninserted entry trips a framework assert in debug builds.
-    sticky = null;
-    super.dispose();
-  }
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (widget.exampleSentences.isEmpty) {
       return const SizedBox.shrink();
     }
-    return ListView(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      key: stickyKey,
-      controller: controller,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: generateSentence(widget.exampleSentences),
     );
   }
@@ -92,14 +64,15 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
     List<Widget> sentence = [];
 
     for (int i = 0; i < exampleSentence.length; i++) {
-      if (exampleSentence[i].jpSentence?.startsWith('[{"') == true) {
-        var jsonList = jsonDecode(exampleSentence[i].jpSentence ?? '');
+      var jpSentence = exampleSentence[i].jpSentence ?? '';
+      if (jpSentence.startsWith('[{"')) {
+        var jsonList = jsonDecode(jpSentence);
         for (int j = 0; j < jsonList.length; j++) {
           var jsonObject = jsonList[j];
           jsonObject.removeWhere((key, value) => value == null || value == '');
         }
         var prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonList);
-        exampleSentence[i].jpSentence = prettyJsonString
+        jpSentence = prettyJsonString
             .replaceAll('  ', '')
             .replaceAll('[\n', '')
             .replaceAll(']\n', '')
@@ -107,11 +80,12 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
       }
       if (i == 5) break;
       sentence.add(CommonAnimatedListItem(
+        key: ValueKey('example_jp_$i'),
         animationDuration: Duration(milliseconds: 300 * (i + 1)),
         child: Padding(
           padding: EdgeInsets.only(right: 10, top: 9),
           child: Text(
-            exampleSentence[i].jpSentence ?? '',
+            jpSentence,
             style: TextStyle(
                 fontSize: Constants.definitionTextSize,
                 fontWeight: FontWeight.bold),
@@ -120,6 +94,7 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
       ));
       if (exampleSentence[i].targetSentence != null) {
         sentence.add(CommonAnimatedListItem(
+          key: ValueKey('example_target_$i'),
           animationDuration: Duration(milliseconds: 300 * (i + 1)),
           child: Padding(
             padding: EdgeInsets.only(left: 10, right: 10, top: 2),
@@ -132,33 +107,5 @@ class __ExampleSentenceWidgetState extends State<_ExampleSentenceWidget> {
       }
     }
     return sentence;
-  }
-
-  Widget stickyBuilder(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        final keyContext = stickyKey.currentContext;
-        if (keyContext != null) {
-          // widget is visible
-          final box = keyContext.findRenderObject() as RenderBox;
-          final pos = box.localToGlobal(Offset.zero);
-          return Positioned(
-            top: pos.dy,
-            right: pos.dx,
-            height: box.size.height,
-            width: box.size.width,
-            child: Material(
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.purple,
-                child: const Text("^ Nah I think you're okay"),
-              ),
-            ),
-          );
-        }
-        return Container();
-      },
-    );
   }
 }

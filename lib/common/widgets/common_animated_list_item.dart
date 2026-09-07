@@ -15,10 +15,14 @@ class CommonAnimatedListItem extends StatefulWidget {
   State<CommonAnimatedListItem> createState() => _CommonAnimatedListItemState();
 }
 
-class _CommonAnimatedListItemState extends State<CommonAnimatedListItem> {
+class _CommonAnimatedListItemState extends State<CommonAnimatedListItem>
+    with AutomaticKeepAliveClientMixin {
   bool postFrame = false;
   GlobalKey key = GlobalKey();
   double? height;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -50,6 +54,7 @@ class _CommonAnimatedListItemState extends State<CommonAnimatedListItem> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Opacity(
       key: key,
       opacity: postFrame ? 1 : 0,
