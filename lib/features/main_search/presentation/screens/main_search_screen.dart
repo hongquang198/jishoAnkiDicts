@@ -5,6 +5,7 @@ import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/features/main_search/presentation/bloc/main_search_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/gen_ui_definition_screen.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/widgets/vn_search_result_list_view.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -55,6 +56,7 @@ class _MainSearchScreenState extends State<MainSearchScreen>
   final labelFilePath2 = 'assets/label3036.txt';
   late MainSearchBloc bloc;
   String clipboard = '';
+  bool _handlingClipboard = false;
   StreamSubscription<String>? _shareIntentSubscription;
 
   @override
@@ -77,10 +79,8 @@ class _MainSearchScreenState extends State<MainSearchScreen>
 
   void _listenForSharedText() {
     _shareIntentSubscription =
-        ShareIntentService.instance.sharedTextStream.listen((sharedText) {
-      if (!mounted) return;
-
-      textEditingController.text = sharedText;
+        ShareIntentService.instance.sharedTextStream.listen((sharedText) async {
+      await _handleExternalQuery(sharedText);
     });
   }
 
@@ -94,18 +94,35 @@ class _MainSearchScreenState extends State<MainSearchScreen>
     clipboardTimer =
         Timer.periodic(const Duration(milliseconds: 300), (timer) async {
       final newClipboard = await Clipboard.getData(Clipboard.kTextPlain);
-      if (newClipboard?.text != null && newClipboard!.text != clipboard) {
-        if (mounted) {
-          Navigator.of(context).popUntil(
-              (route) => route.settings.name == AppRoutesPath.mainScreen);
-        }
-        clipboard = newClipboard.text!;
-        textEditingController.text = clipboard
-            .replaceAll('\r', '')
-            .replaceAll('\n', '');
-        await _search();
-      }
+      final raw = newClipboard?.text;
+      if (raw == null) return;
+      await _handleExternalQuery(raw);
     });
+  }
+
+  Future<void> _handleExternalQuery(String raw) async {
+    final clean = raw.replaceAll('\r', '').replaceAll('\n', '').trim();
+    if (clean.isEmpty || clean == clipboard) return;
+    if (_handlingClipboard) return;
+    _handlingClipboard = true;
+    try {
+      clipboard = clean;
+      if (!mounted) return;
+      Navigator.of(context).popUntil(
+          (route) => route.settings.name == AppRoutesPath.mainScreen);
+      textEditingController.text = clean;
+      await _search();
+      if (!mounted) return;
+      context.pushNamed(
+        AppRoutesPath.genUiDefinition,
+        extra: GenUiDefinitionScreenArgs(
+          query: clean,
+          mainSearchBloc: bloc,
+        ),
+      );
+    } finally {
+      _handlingClipboard = false;
+    }
   }
 
   @override
