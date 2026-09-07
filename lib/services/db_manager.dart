@@ -209,10 +209,17 @@ class DbManager {
   Future<List<PitchAccent>> searchForPitchAccent(
       {required String word, required String reading}) async {
     Database db = await initDatabase();
-    // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('pitchDictionary',
-        where: 'orths_txt LIKE ? AND hira = ?',
-        whereArgs: ['%$word%', reading]);
+    // VN-DB words have no jisho reading: match on orthography alone so pitch
+    // still resolves instead of returning empty via `hira = ''`.
+    final List<Map<String, dynamic>> maps;
+    if (reading.isEmpty) {
+      maps = await db.query('pitchDictionary',
+          where: 'orths_txt LIKE ?', whereArgs: ['%$word%']);
+    } else {
+      maps = await db.query('pitchDictionary',
+          where: 'orths_txt LIKE ? AND hira = ?',
+          whereArgs: ['%$word%', reading]);
+    }
     return List.generate(maps.length, (i) {
       return PitchAccent(
         orthsTxt: maps[i]['orths_txt'],

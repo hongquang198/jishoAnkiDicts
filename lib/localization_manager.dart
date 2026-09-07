@@ -5,11 +5,9 @@ import 'injection.dart';
 
 class LocalizationNotifier with ChangeNotifier {
   Locale getLanguage() {
-    if (getIt<SharedPref>().isAppInVietnamese) {
-      return Locale('vi', '');
-    } else {
-      return Locale('en', '');
-    }
+    // Locale code is centralized in SharedPref.appLocaleCode so new languages
+    // only touch that mapping plus their .arb bundle.
+    return Locale(getIt<SharedPref>().appLocaleCode, '');
   }
 
   void setLanguage({required String language}) async {

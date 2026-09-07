@@ -24,12 +24,15 @@ extension _GenUiDefinitionViewRecordExt on _GenUiDefinitionScreenState {
 
   WordCard _surfaceCard(Map<String, dynamic>? info) {
     final now = DateTime.now().millisecondsSinceEpoch;
+    // Headword follows the same precedence as the display/recorded base so
+    // favorites/reviews land on the lemma, not the inflected surface.
+    final headword = _effectiveHeadword;
     return WordCard(
-      id: currentJapaneseWord,
-      word: currentJapaneseWord,
+      id: headword.isNotEmpty ? headword : currentJapaneseWord,
+      word: headword.isNotEmpty ? headword : currentJapaneseWord,
       slug: _jishoDefinition.slug.isNotEmpty
           ? _jishoDefinition.slug
-          : currentJapaneseWord,
+          : (headword.isNotEmpty ? headword : currentJapaneseWord),
       reading: _effectiveReading,
       isCommon:
           (_jishoDefinition.isCommon || info?['isCommon'] == true) ? 1 : 0,
@@ -39,6 +42,9 @@ extension _GenUiDefinitionViewRecordExt on _GenUiDefinitionScreenState {
       jlpt: _jishoDefinition.jlpt.isNotEmpty
           ? _jishoDefinition.jlpt
           : _llmStringList('jlpt'),
+      senses: _jishoDefinition.senses,
+      aiTutorComment: _aiTutorComment,
+      aiMemoryTip: _memoryTip,
       addedAt: now,
       updatedAt: now,
     );

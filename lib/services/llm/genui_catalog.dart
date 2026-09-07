@@ -8,19 +8,51 @@ import 'package:jisho_anki/models/example_sentence.dart';
 import 'package:jisho_anki/models/kanji.dart';
 
 /// GenUI Catalog Item mapping to [DefinitionWidget].
+///
+/// Field descriptions double as the model's detail contract: dumped into
+/// the GenUI prompt via `toCapabilitiesJson()`, so richer wording here
+/// directly improves `_buildAiBodyContent`. Examples and kanji stay as
+/// separate screen sections (local lanes), not bundled here.
+///
+/// Language weight: respond in the SINGLE active app language only. Fill the
+/// matching definition property fully; keep the other to a 1-gloss fallback.
+/// Never emit a dozen languages — one request, one language.
 final definitionCardItem = CatalogItem(
   name: 'DefinitionCard',
   dataSchema: S.object(
     properties: {
       'vietnameseDefinition': S.string(
-          description: 'Optional Vietnamese definition HTML or raw text'),
+          description:
+              'Definition gloss in the app language when it is Vietnamese '
+              '(1-gloss fallback otherwise). Start with the CLOSEST meaning '
+              'in plain words, then 1-3 secondary glosses each with one '
+              'short nuance note (register, context, or common collocation). '
+              'Scannable, no tutor commentary or mnemonics.'),
       'senses': S.list(
+        description:
+            '2-5 senses ordered closest-first (full detail when the app '
+            'language is English, else a 1-sense fallback). The FIRST sense '
+            'is the truest meaning in context; later senses show why they '
+            'differ. No commentary or mnemonics.',
         items: S.object(
           properties: {
-            'english_definitions': S.list(items: S.string()),
-            'parts_of_speech': S.list(items: S.string()),
-            'tags': S.list(items: S.string()),
-            'info': S.list(items: S.string()),
+            'english_definitions': S.list(
+                description:
+                    '1-3 short glosses for this sense, closest first',
+                items: S.string()),
+            'parts_of_speech': S.list(
+                description:
+                    'Real part of speech, e.g. Noun, Ichidan verb, Adjective',
+                items: S.string()),
+            'tags': S.list(
+                description:
+                    'Only genuine nuance tags, e.g. formal; else empty',
+                items: S.string()),
+            'info': S.list(
+                description:
+                    'One-line usage note per sense when it clarifies meaning, '
+                    'e.g. often in 〜を受ける, vs near-synonym; else empty',
+                items: S.string()),
           },
           required: ['english_definitions', 'parts_of_speech'],
         ),

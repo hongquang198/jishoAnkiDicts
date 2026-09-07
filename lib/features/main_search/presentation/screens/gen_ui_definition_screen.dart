@@ -243,12 +243,46 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                 : const SizedBox.shrink(),
             actions: [
               IconButton(
-                padding: const EdgeInsets.only(left: 10, right: 10),
+                padding: const EdgeInsets.only(left: 10, right: 4),
                 icon: const Icon(Icons.refresh),
                 tooltip: isVn ? 'Tạo lại' : 'Regenerate',
                 onPressed: _isStreaming
                     ? null
                     : () => _startStreaming(regenerate: true),
+              ),
+              BlocBuilder<WordInteractionBloc, WordInteractionState>(
+                buildWhen: (previous, current) =>
+                    previous.isFavorite != current.isFavorite ||
+                    previous.isInReview != current.isInReview,
+                builder: (context, interactionState) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: interactionState.isFavorite
+                          ? const Icon(Icons.bookmark, color: Colors.white)
+                          : const Icon(Icons.bookmark_border),
+                      tooltip: isVn ? 'Lưu' : 'Save',
+                      onPressed: () {
+                        context.read<WordInteractionBloc>().add(
+                            ToggleWordFavoriteEvent(_surfaceCard(_llmInfo)));
+                      },
+                    ),
+                    IconButton(
+                      padding: const EdgeInsets.only(left: 4, right: 8),
+                      icon: interactionState.isInReview
+                          ? const Icon(Icons.alarm_on_rounded,
+                              color: Colors.white)
+                          : const Icon(Icons.alarm_add),
+                      tooltip: isVn ? 'Thêm vào ôn tập' : 'Add to review',
+                      onPressed: () {
+                        context
+                            .read<WordInteractionBloc>()
+                            .add(ToggleWordReviewEvent(_surfaceCard(_llmInfo)));
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
             header: BlocBuilder<WordInteractionBloc, WordInteractionState>(
@@ -278,6 +312,24 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               delegate: SliverChildListDelegate(
                 [
                   const SizedBox(height: 2),
+                  SectionHeader(
+                      title: isVn ? 'Giải thích AI' : 'AI Explanation'),
+                  const SizedBox(height: 8),
+                  _buildAiBodyContent(isVn),
+                  divider,
+                  AiTutorCard(
+                    tutorComment: _aiTutorComment,
+                    isLoading: _wordInfoPending,
+                    errorMessage:
+                        _errorMessage == 'missing_key' ? null : _errorMessage,
+                  ),
+                  AiMemoryTipCard(
+                    memoryTip: _memoryTip,
+                    isLoading: _wordInfoPending,
+                  ),
+                  SectionHeader(title: isVn ? 'Ví dụ' : 'Examples'),
+                  _buildExamplesSection(isVn),
+                  divider,
                   AiGrammarBreakdownCard(
                     grammarAnalysis: _grammarAnalysis,
                     isLoading: _wordInfoPending,
@@ -304,24 +356,6 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                       );
                     },
                   ),
-                  AiTutorCard(
-                    tutorComment: _aiTutorComment,
-                    isLoading: _wordInfoPending,
-                    errorMessage:
-                        _errorMessage == 'missing_key' ? null : _errorMessage,
-                  ),
-                  AiMemoryTipCard(
-                    memoryTip: _memoryTip,
-                    isLoading: _wordInfoPending,
-                  ),
-                  SectionHeader(
-                      title: isVn ? 'Giải thích AI' : 'AI Explanation'),
-                  const SizedBox(height: 8),
-                  _buildAiBodyContent(isVn),
-                  divider,
-                  SectionHeader(title: isVn ? 'Ví dụ' : 'Examples'),
-                  _buildExamplesSection(isVn),
-                  divider,
                   SectionHeader(title: isVn ? 'Thành phần' : 'Components'),
                   ComponentWidget(kanjiComponent: _kanjiListFuture),
                   const SizedBox(height: 24),

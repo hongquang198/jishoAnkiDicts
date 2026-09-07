@@ -61,6 +61,7 @@ class LlmService {
     if (useGenUi) {
       final catalogSchema = const JsonEncoder.withIndent('  ')
           .convert(genUiCatalog.toCapabilitiesJson());
+      final targetLanguage = sharedPref.appLanguageName;
       return 'You are a bilingual Japanese dictionary assistant. '
           'Analyze the query: "$query".\n\n'
           'Respond by generating a UI card via the A2UI protocol. Your entire '
@@ -92,15 +93,23 @@ class LlmService {
           'wrap it in another object.\n\n'
           'Available components (name -> property schema):\n'
           '$catalogSchema\n\n'
+          'Language weight: respond ONLY in $targetLanguage. One request, '
+          'one language — NEVER emit multiple languages. Fill the matching '
+          'definition property fully; keep the other to a 1-gloss fallback.\n\n'
           'Choose the single most appropriate component for the query '
           '("DefinitionCard" for words, phrases or grammar points, '
           '"ExampleSentences" for example sentences, "KanjiComponents" for '
           'kanji breakdown).\n'
-          'IMPORTANT: Fill ALL structured array properties (e.g. "senses", '
-          '"sentences", "components") with complete, well-organized entries '
-          'using their dedicated fields. Do NOT dump everything into a single '
-          'text property. Provide accurate Japanese content plus Vietnamese '
-          'and English explanations.';
+          'DefinitionCard rules: closest meaning first, no tutor commentary '
+          'or mnemonics (commentary lives in other cards). Field-level '
+          'detail follows each property description in the schema above.\n'
+          '- Example root component:\n'
+          '{"id": "root", "component": "DefinitionCard", '
+          '"vietnameseDefinition": "<closest $targetLanguage gloss> — '
+          '<1-line nuance>; also: <secondary gloss>", '
+          '"senses": [{"english_definitions": ["<closest gloss>", '
+          '"<near synonym>"], "parts_of_speech": ["Noun"], "tags": [], '
+          '"info": ["<when to use this sense>"]}]}';
     }
     String template = sharedPref.effectivePrompt;
     return template
@@ -214,8 +223,7 @@ class LlmService {
     final apiKey = sharedPref.llmApiKey.trim();
     if (apiKey.isEmpty) return null;
 
-    final targetLanguage =
-        sharedPref.isAppInVietnamese ? 'Vietnamese' : 'English';
+    final targetLanguage = sharedPref.appLanguageName;
     final prompt = buildWordInfoPrompt(query, targetLanguage);
 
     try {

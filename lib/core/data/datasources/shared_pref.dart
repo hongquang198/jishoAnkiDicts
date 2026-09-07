@@ -85,9 +85,30 @@ class SharedPref {
         prefs.setBool(_SharedPreferenceKeys.hasCompletedLanguageSetup, false);
   }
 
-  bool get isAppInVietnamese => prefs.getString('language') == 'Tiếng Việt';
-  bool get isAppInEnglish =>
-      prefs.getString('language')?.contains('English') == true;
+  /// Canonical app-locale code derived from the stored `language` label.
+  /// Single mapping point for future locales: add the new label here plus
+  /// its `.arb` bundle, and every `isAppInX` / prompt call site follows.
+  /// Currently `vi` for Tiếng Việt, `en` for everything else (legacy stored
+  /// values include 'English' variants).
+  String get appLocaleCode {
+    final stored = prefs.getString('language') ?? '';
+    if (stored == 'Tiếng Việt' || stored == 'vi') return 'vi';
+    return 'en';
+  }
+
+  /// Display name of the app language for LLM prompts (e.g. Vietnamese,
+  /// English). Extend the switch when new locales land.
+  String get appLanguageName {
+    switch (appLocaleCode) {
+      case 'vi':
+        return 'Vietnamese';
+      default:
+        return 'English';
+    }
+  }
+
+  bool get isAppInVietnamese => appLocaleCode == 'vi';
+  bool get isAppInEnglish => appLocaleCode == 'en';
 
   bool get llmEnable => prefs.getBool(_SharedPreferenceKeys.llmEnable) ?? true;
   set llmEnable(bool value) =>

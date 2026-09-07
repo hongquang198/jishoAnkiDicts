@@ -19,9 +19,18 @@ extension _DefinitionScreenDataExt on _DefinitionScreenState {
   }
 
   void _loadLocalFutures() {
+    // VN-DB words have no jisho entry (empty stub): fall back to the VN
+    // headword so the pitch lookup still has an orthography key.
+    final vnWord = vnDefinition.word;
+    final lookupWord = jishoDefinition.word?.isNotEmpty == true
+        ? jishoDefinition.word
+        : (vnWord.isNotEmpty ? vnWord : null);
+    final lookupSlug = jishoDefinition.slug.isNotEmpty
+        ? jishoDefinition.slug
+        : (vnWord.isNotEmpty ? vnWord : jishoDefinition.slug);
     pitchAccent = KanjiHelper.getPitchAccent(
-      word: jishoDefinition.word,
-      slug: jishoDefinition.slug,
+      word: lookupWord,
+      slug: lookupSlug,
       reading: jishoDefinition.reading,
       context: context,
     );

@@ -133,6 +133,21 @@ class KanjiHelper {
     return widgetList;
   }
 
+  /// Exact orthography match against the stored `orthsTxt` list string
+  /// (e.g. `"[救済, 救濟]"`). Substring `contains` would match longer
+  /// compounds like `農尊救済` for a `救済` lookup, producing a wrong reading
+  /// such as のうそんきゅうさい — so exact token equality is required.
+  static bool _isExactOrthMatch(String orthsTxt, String lookupWord) {
+    final stripped = orthsTxt.trim();
+    final inner = stripped.startsWith('[') && stripped.endsWith(']')
+        ? stripped.substring(1, stripped.length - 1)
+        : stripped;
+    for (final token in inner.split(',')) {
+      if (token.trim() == lookupWord) return true;
+    }
+    return false;
+  }
+
   static Future<List<Widget>> getPitchAccent({
     String? word,
     String? slug,
@@ -143,24 +158,49 @@ class KanjiHelper {
     BuildContext? context,
   }) async {
     List<Widget> widgetList = [];
+    // Prefer the first non-empty orth key: VN-DB words arrive with an empty
+    // jisho slug/word stub, so `slug ?? word` alone would query ''.
+    String lookupWord = '';
+    if (word?.isNotEmpty == true) {
+      lookupWord = word!;
+    } else if (slug?.isNotEmpty == true) {
+      lookupWord = slug!;
+    } else if (reading?.isNotEmpty == true) {
+      lookupWord = reading!;
+    }
+    if (lookupWord.isEmpty) return [];
+    final lookupReading = reading ?? '';
     List<PitchAccent> pitchFound = await getIt<Dictionary>()
         .offlineDatabase
-        .searchForPitchAccent(word: slug ?? word ?? '', reading: reading ?? '');
+        .searchForPitchAccent(word: lookupWord, reading: lookupReading);
     String pitchAccent;
     PitchAccent pitch;
     try {
-      pitch = pitchFound.firstWhere((element) =>
-          element.orthsTxt.contains(word ?? slug ?? reading ?? '') &&
-          element.hira == reading);
+      if (lookupReading.isNotEmpty) {
+        // Exact orth + exact reading first.
+        pitch = pitchFound.firstWhere((element) =>
+            _isExactOrthMatch(element.orthsTxt, lookupWord) &&
+            element.hira == lookupReading);
+      } else {
+        // VN-DB path (no reading): exact orth only. Never fall back to
+        // substring matching — showing nothing beats showing a longer
+        // compound's pitch (e.g. のうそんきゅうさい for 救済).
+        pitch = pitchFound.firstWhere(
+            (element) => _isExactOrthMatch(element.orthsTxt, lookupWord));
+      }
     } catch (e) {
       log('$e');
       return [];
     }
+    // VN-DB words carry no jisho reading: render the DB hira so the accent
+    // boxes still have characters to annotate.
+    final displayReading =
+        lookupReading.isNotEmpty ? lookupReading : pitch.hira;
     pitchAccent = pitch.pattsTxt;
-    if ((reading?.length ?? 0) + 1 == pitchAccent.length) {
-      for (int i = 0; i < (reading?.length ?? 0); i++) {
+    if (displayReading.length + 1 == pitchAccent.length) {
+      for (int i = 0; i < displayReading.length; i++) {
         widgetList.add(getPitchForChar(
-            character: reading?[i] ?? '',
+            character: displayReading[i],
             position: i,
             pitchAccent: pitchAccent));
       }

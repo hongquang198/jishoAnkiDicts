@@ -48,8 +48,12 @@ class SingleKanjiComponentWidget extends StatefulWidget {
 }
 
 class _SingleKanjiComponentWidgetState extends State<SingleKanjiComponentWidget>
-    with KanjiDetailMixin {
+    with KanjiDetailMixin, AutomaticKeepAliveClientMixin {
   bool postFrame = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +64,7 @@ class _SingleKanjiComponentWidgetState extends State<SingleKanjiComponentWidget>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return AnimatedContainer(
       height: postFrame ? 80 : 0,
       duration: widget.animationDuration,
