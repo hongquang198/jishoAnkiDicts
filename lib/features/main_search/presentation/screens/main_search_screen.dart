@@ -230,7 +230,8 @@ class _MainSearchScreenState extends State<MainSearchScreen>
                     return const SizedBox.shrink();
                   }
                   return SafeArea(
-                    bottom: false,
+                    top: false,
+                    minimum: const EdgeInsets.only(bottom: 8.0),
                     child: Container(
                       margin: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
                       decoration: BoxDecoration(
@@ -239,7 +240,26 @@ class _MainSearchScreenState extends State<MainSearchScreen>
                       ),
                       child: TabBar(
                         controller: tabController,
-                        indicatorColor: Colors.black,
+                        dividerColor: Colors.transparent,
+                        dividerHeight: 0,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding:
+                            const EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                          vertical: 4.0,
+                        ),
+                        indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11.0),
+                          color: const Color(0xffDB8C8A),
+                        ),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
+                        labelPadding: EdgeInsets.zero,
+                        overlayColor:
+                            WidgetStateProperty.all(Colors.transparent),
+                        splashFactory: NoSplash.splashFactory,
                         onTap: (index) async {
                           if (index == 0) {
                             await context.pushNamed(AppRoutesPath.history);
