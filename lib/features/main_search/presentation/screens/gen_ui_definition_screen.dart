@@ -278,16 +278,6 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               delegate: SliverChildListDelegate(
                 [
                   const SizedBox(height: 2),
-                  SectionHeader(
-                      title: isVn ? 'Giải thích AI' : 'AI Explanation'),
-                  const SizedBox(height: 8),
-                  _buildAiBodyContent(isVn),
-                  divider,
-                  SectionHeader(title: isVn ? 'Ví dụ' : 'Examples'),
-                  _buildExamplesSection(isVn),
-                  divider,
-                  SectionHeader(title: isVn ? 'Thành phần' : 'Components'),
-                  ComponentWidget(kanjiComponent: _kanjiListFuture),
                   AiGrammarBreakdownCard(
                     grammarAnalysis: _grammarAnalysis,
                     isLoading: _wordInfoPending,
@@ -324,6 +314,16 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                     memoryTip: _memoryTip,
                     isLoading: _wordInfoPending,
                   ),
+                  SectionHeader(
+                      title: isVn ? 'Giải thích AI' : 'AI Explanation'),
+                  const SizedBox(height: 8),
+                  _buildAiBodyContent(isVn),
+                  divider,
+                  SectionHeader(title: isVn ? 'Ví dụ' : 'Examples'),
+                  _buildExamplesSection(isVn),
+                  divider,
+                  SectionHeader(title: isVn ? 'Thành phần' : 'Components'),
+                  ComponentWidget(kanjiComponent: _kanjiListFuture),
                   const SizedBox(height: 24),
                 ],
               ),
