@@ -6,6 +6,7 @@ import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
+import 'package:jisho_anki/l10n/localization.dart';
 import 'dart:io';
 
 import 'config/app_routes.dart';
@@ -130,6 +131,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             supportedLocales: AppLocalizations.supportedLocales,
             locale: Provider.of<LocalizationNotifier>(context).getLanguage(),
             theme: Provider.of<ThemeNotifier>(context).getTheme(),
+            builder: (innerContext, child) {
+              getIt<Localization>().init(innerContext);
+              return child ?? const SizedBox.shrink();
+            },
           );
         });
   }
