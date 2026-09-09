@@ -13,29 +13,14 @@
     "appTitle" : "Từ điển JishoAnki",
     "newCardsPerDay" : "Số thẻ flashcard mới / ngày",
     "graduatingInterval" : "Khoảng thời gian thẻ flashcard trưởng thành",
-    "@graduatingInterval": {
-      "graduatingInterval": "Graduating Interval: Khi một thẻ mới được học sẽ có khoảng thời gian (interval) tương ứng với số ngày này"
-    },
     "graduatingIntervalDescription" : "Graduating Interval: Khi một thẻ mới được học sẽ có khoảng thời gian (interval) này",
     "startingEase" : "Tỉ lệ ease ban đầu",
-    "@startingEase": {
-      "startingEase": "Starting ease: Tỉ lệ ban đầu được nhân với khoảng thời gian (interval) của thẻ để quyết định khoảng interval tiếp theo khi ấn nút Tốt"
-    },
     "startingEaseDescription" : "Starting ease: Tỉ lệ ban đầu được nhân với khoảng thời gian (interval) của thẻ để quyết định khoảng interval tiếp theo khi ấn nút Tốt",
-    "lapsesSteps" : "",
-    "@lapsesSteps": {
-      "lapsesSteps": "Lapses Steps: Khi một thẻ đã đạt độ trưởng thành mà bị quên, thẻ sẽ có khoảng thời gian mới này"
-    },
+    "lapsesSteps" : "Bước Lapses",
     "lapsesStepsDescription" : "Lapses Steps: Khi một thẻ đã đạt độ trưởng thành mà bị quên, thẻ sẽ có khoảng thời gian mới này",
     "leechThreshold" : "Ngưỡng học lại (số lần)",
-    "@leechThreshold": {
-      "leechThreshold": "Leech Threshold: Số lần một thẻ trưởng thành bị học lại (ấn nút Again) quá nhiều lần, thẻ sẽ bị xóa"
-    },
     "leechThresholdDescription" : "Leech Threshold: Số lần một thẻ trưởng thành bị học lại (ấn nút Again) quá nhiều lần, thẻ sẽ bị xóa",
     "newCardsStep" : "Bước nhảy của thẻ mới",
-    "@newCardsStep": {
-    "newCardsStep": "New cards steps: Khoảng thời gian của thẻ sẽ lần lượt có interval trong list sau mỗi lần ấn nút 'Tốt'"
-    },
     "newCardsStepDescription" : "New cards steps: Khoảng thời gian của thẻ sẽ lần lượt có interval trong list sau mỗi lần ấn nút 'Tốt'",
     "sentenceTranslate" : "Dịch câu",
     "statistics" : "Thống kê",
@@ -44,11 +29,184 @@
     "darkMode" : "Chế độ ban đêm",
     "view": "Xem",
     "views" : "Lượt xem",
-    "unknownError": "Unknown error",
-    "tokenExpiredMessage": "Token expired",
-    "invalidRequest": "Invalid request",
-    "unauthorised": "Unauthorised",
-    "fetchDataError": "Fetch data error",
-    "connectionError": "Connection error",
-    "menu": "Tùy chọn"
+    "unknownError": "Lỗi không xác định",
+    "tokenExpiredMessage": "Phiên đăng nhập đã hết hạn",
+    "invalidRequest": "Yêu cầu không hợp lệ",
+    "unauthorised": "Chưa được cấp quyền",
+    "fetchDataError": "Lỗi tải dữ liệu",
+    "connectionError": "Lỗi kết nối",
+    "menu": "Tùy chọn",
+    "selectLanguages": "Chọn Ngôn Ngữ",
+    "welcomeJishoAnki": "Chào mừng bạn đến với Jisho Anki!",
+    "selectNativeTargetDesc": "Vui lòng chọn ngôn ngữ mẹ đẻ và ngôn ngữ bạn muốn học.",
+    "onboardingNativeLanguage": "Ngôn ngữ mẹ đẻ (Source):",
+    "onboardingTargetLanguage": "Ngôn ngữ muốn học (Target):",
+    "getStarted": "Bắt đầu ngay",
+    "languageConfiguration": "Cấu hình Ngôn ngữ (Source & Target)",
+    "nativeLanguageSource": "Ngôn ngữ mẹ đẻ (Source):",
+    "learningLanguageTarget": "Ngôn ngữ học (Target):",
+    "aiLlmSettingsTitle": "Cấu hình AI / LLM (Gemini)",
+    "enableAiExplanation": "Bật giải thích AI",
+    "useGenuiInterface": "Sử dụng giao diện GenUI",
+    "enterGeminiApiKeyHint": "Nhập Gemini API Key",
+    "geminiApiKeyLabel": "Gemini API Key:",
+    "llmModelNameLabel": "Tên Model (Gemini):",
+    "enterApiKeyFirst": "Vui lòng nhập API Key trước.",
+    "fetchFromApi": "Tải từ API",
+    "selectModel": "Chọn Model",
+    "pressFetchToLoadList": "Nhấn \"Tải từ API\" để lấy danh sách",
+    "customPromptTemplateLabel": "Mẫu Prompt (Custom for text-based output):",
+    "resetToDefault": "Đặt lại mặc định",
+    "customPromptHint": "Sử dụng %search_words% để thay thế từ tra cứu",
+    "accountCloudSync": "Tài khoản & Đồng bộ đám mây",
+    "accountGuest": "Khách (Ẩn danh)",
+    "accountActive": "Tài khoản đám mây đang hoạt động",
+    "emailLabel": "Email: {email}",
+    "@emailLabel": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "createAccountSync": "Tạo tài khoản & Đồng bộ",
+    "signOut": "Đăng xuất",
+    "signinExistingAccount": "Đăng nhập tài khoản có sẵn",
+    "switchAccount": "Đổi tài khoản",
+    "syncNow": "Đồng bộ ngay",
+    "cloudSyncSuccess": "Đồng bộ đám mây thành công! Dữ liệu đã được đẩy & kéo.",
+    "syncFailed": "Đồng bộ thất bại: {error}",
+    "@syncFailed": {
+      "placeholders": {
+        "error": {"type": "String"}
+      }
+    },
+    "linkAccountSync": "Liên kết tài khoản & Đồng bộ",
+    "signIn": "Đăng nhập",
+    "enterEmailPassword": "Vui lòng nhập email và mật khẩu",
+    "linkWithGoogle": "Liên kết với Google",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "emailAddress": "Địa chỉ Email",
+    "password": "Mật khẩu",
+    "linkingEmailHint": "Email mới sẽ tạo tài khoản mới · Email có sẵn sẽ đăng nhập",
+    "linkWithEmail": "Liên kết bằng Email",
+    "signinWithEmail": "Đăng nhập bằng Email",
+    "cancel": "Hủy",
+    "regenerate": "Tạo lại",
+    "save": "Lưu",
+    "addToReview": "Thêm vào ôn tập",
+    "aiExplanation": "Giải thích AI",
+    "geminiKeyNotSet": "Chưa cấu hình Gemini API Key.",
+    "configureGeminiKeyDesc": "Vui lòng truy cập Cài đặt để thêm Gemini API Key cá nhân của bạn.",
+    "openSettings": "Mở Cài đặt",
+    "aiConnectionError": "Đã xảy ra lỗi khi kết nối AI:",
+    "noOutputReceived": "Không có câu trả lời.",
+    "analyzingQuery": "Đang phân tích từ vựng...",
+    "aiExplanationTitle": "✨   AI Giải thích: \"{query}\"",
+    "@aiExplanationTitle": {
+      "placeholders": {
+        "query": {"type": "String"}
+      }
+    },
+    "openFullAiPage": "Mở trang AI đầy đủ",
+    "retry": "Thử lại",
+    "copy": "Sao chép",
+    "copiedToClipboard": "Đã sao chép vào bộ nhớ tạm!",
+    "aiTutorInsightsSection": "Trợ lý AI",
+    "aiGrammarInsightsTutor": "AI Ngữ pháp & Trợ lý",
+    "searchForWordHint": "Tra cứu từ vựng",
+    "searchHistoryHint": "Tìm trong lịch sử...",
+    "clearHistory": "Xóa lịch sử",
+    "clearHistoryConfirm": "Bạn có chắc muốn xóa toàn bộ lịch sử tra cứu?",
+    "clear": "Xóa",
+    "noHistoryMatches": "Không tìm thấy lịch sử phù hợp.",
+    "noHistoryYet": "Chưa có lịch sử tra cứu.",
+    "searchFavoritesHint": "Tìm trong yêu thích...",
+    "noMatchesFound": "Không tìm thấy kết quả.",
+    "noFavoritesYet": "Chưa lưu từ yêu thích nào.",
+    "searchGrammarHint": "Tìm điểm ngữ pháp",
+    "commonWordBadge": "từ phổ biến",
+    "deleteWordFromHistoryConfirm": "Xóa từ này khỏi lịch sử?",
+    "notice": "THÔNG BÁO",
+    "understood": "Đã hiểu",
+    "reviewSessionCompletedCount": "Đã hoàn thành {count} thẻ trong phiên này!",
+    "@reviewSessionCompletedCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "removeCardFromReview": "Xóa thẻ này khỏi bộ ôn tập?",
+    "showAnswer": "Hiện đáp án",
+    "srsAgain": "Học lại",
+    "srsHard": "Khó",
+    "srsGood": "Tốt",
+    "srsEasy": "Dễ",
+    "reviewBadgeNew": "Mới",
+    "reviewBadgeLearn": "Đang học",
+    "reviewBadgeDue": "Đến hạn",
+    "statisticsToday": "Thống kê hôm nay",
+    "metricTotalDue": "Tổng đến hạn",
+    "metricRetention": "Tỉ lệ nhớ",
+    "metricLeechDifficult": "Thẻ khó",
+    "sevenDayForecast": "Dự báo 7 ngày",
+    "dueNew": "Mới",
+    "dueYoung": "Non",
+    "dueMature": "Chín",
+    "dueDifficult": "Khó",
+    "reviewActivity4weeks": "Hoạt động ôn tập (4 tuần qua)",
+    "reviewsCountTooltip": "{date}: {count} lượt ôn",
+    "@reviewsCountTooltip": {
+      "placeholders": {
+        "date": {"type": "String"},
+        "count": {"type": "int"}
+      }
+    },
+    "less": "Ít",
+    "more": "Nhiều",
+    "noForecastData": "Chưa có dữ liệu dự báo.",
+    "cardsDueToday": "Hôm nay có {count} thẻ đến hạn.",
+    "@cardsDueToday": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "aiTutorAnalyzing": "Trợ lý AI đang phân tích ghi chú từ vựng...",
+    "aiTutorLoadFailed": "Không tải được nhận xét của Trợ lý AI",
+    "aiTutorInsightsTitle": "Trợ lý AI",
+    "noAiTutorInsights": "Chưa có nhận xét nào.",
+    "noMemoryTip": "Chưa có mẹo ghi nhớ.",
+    "memoryTipTitle": "Mẹo ghi nhớ",
+    "noGrammarBreakdown": "Chưa có phân tích ngữ pháp.",
+    "grammarBreakdownTitle": "Phân tích ngữ pháp & cấu trúc",
+    "askAiTutor": "Hỏi Trợ lý AI",
+    "aiGeneratingInsights": "AI đang tạo nhận xét...",
+    "aiTutorChatTitle": "Trò chuyện AI: {word}",
+    "@aiTutorChatTitle": {
+      "placeholders": {
+        "word": {"type": "String"}
+      }
+    },
+    "chatErrorPrefix": "Lỗi: {message}",
+    "@chatErrorPrefix": {
+      "placeholders": {
+        "message": {"type": "String"}
+      }
+    },
+    "aiSuggestionNuance": "Giải thích sắc thái & cách dùng",
+    "aiSuggestionExamples": "Cho 3 ví dụ hội thoại",
+    "aiSuggestionMnemonic": "Mẹo ghi nhớ từ vựng",
+    "aiSuggestionEtymology": "Nguồn gốc từ & từ vay mượn",
+    "askAiTutorHint": "Hỏi Trợ lý AI về từ này...",
+    "cardInfo": "Thông tin thẻ",
+    "cardInfoWord": "Từ",
+    "cardInfoDeck": "Bộ thẻ",
+    "cardInfoStage": "Giai đoạn",
+    "cardInfoAdded": "Đã thêm",
+    "cardInfoFirstReview": "Ôn lần đầu",
+    "cardInfoLatestReview": "Ôn gần nhất",
+    "cardInfoDue": "Đến hạn",
+    "cardInfoInterval": "Khoảng cách",
+    "cardInfoEaseFactor": "Hệ số Ease",
+    "cardInfoReviews": "Lượt ôn",
+    "cardInfoLapses": "Lượt quên",
+    "notAvailable": "Không có",
+    "cardStageNew": "Mới"
 }

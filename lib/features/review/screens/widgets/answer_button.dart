@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/srs_stage.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:jisho_anki/services/srs_engine.dart';
 
 class SrsAnswerButton extends StatelessWidget {
@@ -17,16 +18,17 @@ class SrsAnswerButton extends StatelessWidget {
     required this.onTap,
   });
 
-  String get buttonLabel {
+  String buttonLabel(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     switch (rating) {
       case SrsRating.again:
-        return 'Again';
+        return l.srsAgain;
       case SrsRating.hard:
-        return 'Hard';
+        return l.srsHard;
       case SrsRating.good:
-        return 'Good';
+        return l.srsGood;
       case SrsRating.easy:
-        return 'Easy';
+        return l.srsEasy;
     }
   }
 
@@ -77,7 +79,7 @@ class SrsAnswerButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                buttonLabel,
+                buttonLabel(context),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

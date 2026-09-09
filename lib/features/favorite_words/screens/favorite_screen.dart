@@ -58,9 +58,11 @@ class _FavoriteScreenViewState extends State<_FavoriteScreenView> {
                 controller: _searchController,
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Search favorites...',
-                  hintStyle: TextStyle(color: Colors.white70),
+                decoration: InputDecoration(
+                  hintText:
+                      AppLocalizations.of(context)!.searchFavoritesHint,
+                  hintStyle:
+                      const TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                 ),
                 onChanged: (query) {
@@ -100,8 +102,8 @@ class _FavoriteScreenViewState extends State<_FavoriteScreenView> {
               return Center(
                 child: Text(
                   state.searchQuery.isNotEmpty
-                      ? 'No matches found.'
-                      : 'No favorite words saved yet.',
+                      ? AppLocalizations.of(context)!.noMatchesFound
+                      : AppLocalizations.of(context)!.noFavoritesYet,
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               );

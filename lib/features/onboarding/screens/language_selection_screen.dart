@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/data/datasources/shared_pref.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../localization_manager.dart';
 import '../../language/app_languages.dart';
 import '../../../injection.dart';
@@ -27,11 +28,15 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isVn = localeCodeForSource(_selectedSource) == 'vi';
+    // Preview strings in the selected source language so the user sees the
+    // UI they are about to get, even before confirming.
+    final l = lookupAppLocalizations(
+      Locale(localeCodeForSource(_selectedSource)),
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isVn ? 'Chọn Ngôn Ngữ' : 'Select Languages'),
+        title: Text(l.selectLanguages),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -48,15 +53,13 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                isVn ? 'Chào mừng bạn đến với Jisho Anki!' : 'Welcome to Jisho Anki!',
+                l.welcomeJishoAnki,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                isVn
-                    ? 'Vui lòng chọn ngôn ngữ mẹ đẻ và ngôn ngữ bạn muốn học.'
-                    : 'Please select your native language and the language you want to learn.',
+                l.selectNativeTargetDesc,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
@@ -64,7 +67,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
               // Source / Native Language Picker
               Text(
-                isVn ? 'Ngôn ngữ mẹ đẻ (Source Language):' : 'Native Language (Source):',
+                l.onboardingNativeLanguage,
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
@@ -92,7 +95,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
               // Target / Learning Language Picker
               Text(
-                isVn ? 'Ngôn ngữ muốn học (Target Language):' : 'Language to Learn (Target):',
+                l.onboardingTargetLanguage,
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
@@ -135,7 +138,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                   context.go('/');
                 },
                 child: Text(
-                  isVn ? 'Bắt đầu ngay' : 'Get Started',
+                  l.getStarted,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

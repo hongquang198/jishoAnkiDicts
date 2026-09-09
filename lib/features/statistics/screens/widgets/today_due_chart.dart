@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/data/datasources/shared_pref.dart';
-import '../../../../injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../utils/bar_title_type.dart';
 import '/utils/constants.dart';
 
@@ -35,6 +34,12 @@ class _TodayDueChartState extends State<TodayDueChart> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final dueTotal = (widget.newCardNumber +
+            widget.youngCardNumber +
+            widget.matureCardNumber +
+            widget.difficultCardNumber)
+        .toInt();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,7 +53,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
                 number: widget.newCardNumber,
                 maxNumber: maxCardNumber(),
                 color: Color(0xFFF4DDDC),
-                barTitle: 'New',
+                barTitle: l.dueNew,
                 baseHeight: 20,
                 barWidth: 20,
                 barTitleType: BarTitleType.rightSideBar,
@@ -61,7 +66,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
                 number: widget.youngCardNumber,
                 maxNumber: maxCardNumber(),
                 color: Color(0xFFDB8C8A),
-                barTitle: 'Young',
+                barTitle: l.dueYoung,
                 baseHeight: 20,
                 barWidth: 20,
                 barTitleType: BarTitleType.rightSideBar,
@@ -74,7 +79,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
                 number: widget.matureCardNumber,
                 maxNumber: maxCardNumber(),
                 color: Colors.black,
-                barTitle: 'Mature',
+                barTitle: l.dueMature,
                 baseHeight: 20,
                 barWidth: 20,
                 barTitleType: BarTitleType.rightSideBar,
@@ -87,7 +92,7 @@ class _TodayDueChartState extends State<TodayDueChart> {
                 number: widget.difficultCardNumber,
                 maxNumber: maxCardNumber(),
                 color: Colors.grey,
-                barTitle: 'Difficult',
+                barTitle: l.dueDifficult,
                 baseHeight: 20,
                 barWidth: 20,
                 barTitleType: BarTitleType.rightSideBar,
@@ -97,14 +102,8 @@ class _TodayDueChartState extends State<TodayDueChart> {
           ],
         ),
         SizedBox(height: 10.0),
-        getIt<SharedPref>().isAppInEnglish
-            ? Text(
-                'There are ${(widget.newCardNumber + widget.youngCardNumber + widget.matureCardNumber + widget.difficultCardNumber).toInt()} cards due today.',
-                style: TextStyle(fontSize: Constants.definitionTextSize))
-            : Text(
-                'Hôm nay có ${(widget.newCardNumber + widget.youngCardNumber + widget.matureCardNumber + widget.difficultCardNumber).toInt()} thẻ đến hạn.',
-                style: TextStyle(fontSize: Constants.definitionTextSize),
-              ),
+        Text(l.cardsDueToday(dueTotal),
+            style: TextStyle(fontSize: Constants.definitionTextSize)),
       ],
     );
   }

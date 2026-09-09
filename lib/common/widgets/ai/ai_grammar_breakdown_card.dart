@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class AiGrammarBreakdownCard extends StatelessWidget {
   final String? grammarAnalysis;
@@ -15,6 +16,7 @@ class AiGrammarBreakdownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final isEmpty = grammarAnalysis == null || grammarAnalysis!.trim().isEmpty;
 
     final Widget body;
@@ -25,7 +27,7 @@ class AiGrammarBreakdownCard extends StatelessWidget {
       );
     } else if (isEmpty) {
       body = Text(
-        'No grammar breakdown available yet.',
+        l.noGrammarBreakdown,
         style: theme.textTheme.bodyMedium?.copyWith(
           height: 1.5,
           color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -58,7 +60,7 @@ class AiGrammarBreakdownCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Grammar & Structure Breakdown',
+                    l.grammarBreakdownTitle,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.tertiary,
@@ -68,7 +70,7 @@ class AiGrammarBreakdownCard extends StatelessWidget {
                 if (onAskAiTutor != null)
                   IconButton(
                     icon: const Icon(Icons.chat_bubble_outline, size: 20),
-                    tooltip: 'Ask AI Tutor',
+                    tooltip: l.askAiTutor,
                     onPressed: onAskAiTutor,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,

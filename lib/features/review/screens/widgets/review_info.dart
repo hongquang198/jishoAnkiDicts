@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class ReviewInfo extends StatelessWidget {
   final int newCardsCount;
@@ -14,16 +15,18 @@ class ReviewInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildCountBadge('$newCardsCount', Colors.blue, 'New'),
+          _buildCountBadge('$newCardsCount', Colors.blue, l.reviewBadgeNew),
           const SizedBox(width: 20),
-          _buildCountBadge('$learningCardsCount', Colors.orange, 'Learn'),
+          _buildCountBadge(
+              '$learningCardsCount', Colors.orange, l.reviewBadgeLearn),
           const SizedBox(width: 20),
-          _buildCountBadge('$dueCardsCount', Colors.green, 'Due'),
+          _buildCountBadge('$dueCardsCount', Colors.green, l.reviewBadgeDue),
         ],
       ),
     );

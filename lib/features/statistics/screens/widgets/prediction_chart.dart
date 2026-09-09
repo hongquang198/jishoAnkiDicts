@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:jisho_anki/core/domain/entities/user_data/user_study_stats.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import '../../../../utils/bar_title_type.dart';
 import 'y_axis_number_line.dart';
 import 'bar_line.dart';
@@ -38,10 +39,11 @@ class PredictionChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (forecast.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 120,
         child: Center(
-          child: Text('No forecast data available.', style: TextStyle(color: Colors.grey)),
+          child: Text(AppLocalizations.of(context)!.noForecastData,
+              style: const TextStyle(color: Colors.grey)),
         ),
       );
     }

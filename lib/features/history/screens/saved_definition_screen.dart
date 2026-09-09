@@ -6,6 +6,7 @@ import 'dart:async';
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../../core/domain/entities/user_data/word_card.dart';
 import '../../../injection.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/localized_gloss.dart';
@@ -215,7 +216,8 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
       localizedGloss: localizedGloss.gloss,
                 ),
                 divider,
-                const SectionHeader(title: 'Examples'),
+                SectionHeader(
+                    title: AppLocalizations.of(context)!.examples),
                 FutureBuilder<List<ExampleSentence>>(
                   future: exampleSentence,
                   builder: (context, snapshot) {
@@ -238,7 +240,8 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
                   },
                 ),
                 divider,
-                const SectionHeader(title: 'Components'),
+                SectionHeader(
+                    title: AppLocalizations.of(context)!.components),
                 ComponentWidget(kanjiComponent: kanjiList),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../language/app_languages.dart';
 import '../../../../injection.dart';
 
@@ -14,7 +15,7 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
   @override
   Widget build(BuildContext context) {
     final pref = getIt<SharedPref>();
-    final isVn = pref.isAppInVietnamese;
+    final l = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,7 +24,7 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Text(
-            isVn ? 'Cấu hình Ngôn ngữ (Source & Target)' : 'Language Configuration',
+            l.languageConfiguration,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -35,7 +36,7 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(isVn ? 'Ngôn ngữ mẹ đẻ (Source):' : 'Native Language (Source):'),
+              Text(l.nativeLanguageSource),
               DropdownButton<String>(
                 value: pref.sourceLanguage,
                 items: [
@@ -60,7 +61,7 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(isVn ? 'Ngôn ngữ học (Target):' : 'Learning Language (Target):'),
+              Text(l.learningLanguageTarget),
               DropdownButton<String>(
                 value: pref.targetLanguage,
                 items: [

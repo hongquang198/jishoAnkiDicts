@@ -31,10 +31,12 @@ void main() {
       expect(fallback.promptName, equals('English'));
     });
 
-    test('locale follows source, non-vi/en sources use English UI', () {
+    test('locale follows source for every supported language', () {
       expect(localeCodeForSource('Tiếng Việt'), equals('vi'));
       expect(localeCodeForSource('English'), equals('en'));
-      expect(localeCodeForSource('French'), equals('en'));
+      expect(localeCodeForSource('French'), equals('fr'));
+      expect(localeCodeForSource('Japanese'), equals('ja'));
+      // Unknown labels still fall back to the English UI.
       expect(localeCodeForSource('Klingon'), equals('en'));
     });
 
@@ -86,7 +88,7 @@ void main() {
 
     test('locale and prompts follow the source language', () {
       sharedPref.sourceLanguage = 'French';
-      expect(sharedPref.appLocaleCode, equals('en'));
+      expect(sharedPref.appLocaleCode, equals('fr'));
       expect(sharedPref.isAppInVietnamese, isFalse);
       expect(sharedPref.appLanguageName, equals('French'));
       expect(sharedPref.sourceLanguageCode, equals('fr'));

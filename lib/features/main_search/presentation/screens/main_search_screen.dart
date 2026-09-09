@@ -19,6 +19,7 @@ import 'package:jisho_anki/services/share_intent_service.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/mixins/get_localized_gloss_mixin.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/widgets/draw_screen.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/widgets/en_search_result_list_view.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class MainSearchScreenConst {
   static const bodyPadding = EdgeInsets.only(
@@ -178,7 +179,8 @@ class _MainSearchScreenState extends State<MainSearchScreen>
                     },
                     style: TextStyle(color: Constants.appBarTextColor),
                     decoration: InputDecoration(
-                      hintText: 'Search for a word',
+                      hintText:
+                          AppLocalizations.of(context)!.searchForWordHint,
                       hintStyle: TextStyle(color: Constants.appBarTextColor),
                       labelStyle: TextStyle(color: Constants.appBarTextColor),
                       border: InputBorder.none,

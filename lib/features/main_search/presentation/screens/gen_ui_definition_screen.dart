@@ -14,6 +14,7 @@ import '../../../../config/app_routes.dart';
 import '../../../../core/data/datasources/shared_pref.dart';
 import '../../../../core/domain/entities/user_data/word_card.dart';
 import '../../../../injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../services/query_helpers.dart';
 import '../../../../models/example_sentence.dart';
 import '../../../../models/kanji.dart';
@@ -221,7 +222,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isVn = getIt<SharedPref>().isAppInVietnamese;
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         controller: _scrollController,
@@ -245,7 +246,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               IconButton(
                 padding: const EdgeInsets.only(left: 10, right: 4),
                 icon: const Icon(Icons.refresh),
-                tooltip: isVn ? 'Tạo lại' : 'Regenerate',
+                tooltip: l.regenerate,
                 onPressed: _isStreaming
                     ? null
                     : () => _startStreaming(regenerate: true),
@@ -262,7 +263,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                       icon: interactionState.isFavorite
                           ? const Icon(Icons.bookmark, color: Colors.white)
                           : const Icon(Icons.bookmark_border),
-                      tooltip: isVn ? 'Lưu' : 'Save',
+                      tooltip: l.save,
                       onPressed: () {
                         context.read<WordInteractionBloc>().add(
                             ToggleWordFavoriteEvent(_surfaceCard(_llmInfo)));
@@ -274,7 +275,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                           ? const Icon(Icons.alarm_on_rounded,
                               color: Colors.white)
                           : const Icon(Icons.alarm_add),
-                      tooltip: isVn ? 'Thêm vào ôn tập' : 'Add to review',
+                      tooltip: l.addToReview,
                       onPressed: () {
                         context
                             .read<WordInteractionBloc>()
@@ -312,10 +313,9 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
               delegate: SliverChildListDelegate(
                 [
                   const SizedBox(height: 2),
-                  SectionHeader(
-                      title: isVn ? 'Giải thích AI' : 'AI Explanation'),
+                  SectionHeader(title: l.aiExplanation),
                   const SizedBox(height: 8),
-                  _buildAiBodyContent(isVn),
+                  _buildAiBodyContent(),
                   divider,
                   AiTutorCard(
                     tutorComment: _aiTutorComment,
@@ -327,8 +327,8 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                     memoryTip: _memoryTip,
                     isLoading: _wordInfoPending,
                   ),
-                  SectionHeader(title: isVn ? 'Ví dụ' : 'Examples'),
-                  _buildExamplesSection(isVn),
+                  SectionHeader(title: l.examples),
+                  _buildExamplesSection(),
                   divider,
                   AiGrammarBreakdownCard(
                     grammarAnalysis: _grammarAnalysis,
@@ -356,7 +356,7 @@ class _GenUiDefinitionScreenState extends State<GenUiDefinitionScreen> {
                       );
                     },
                   ),
-                  SectionHeader(title: isVn ? 'Thành phần' : 'Components'),
+                  SectionHeader(title: l.components),
                   ComponentWidget(kanjiComponent: _kanjiListFuture),
                   const SizedBox(height: 24),
                 ],

@@ -159,7 +159,8 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                   ),
                   if (state.totalReviewed > 0) ...[
                     const SizedBox(height: 8),
-                    Text('Completed ${state.totalReviewed} cards in this session!'),
+                    Text(AppLocalizations.of(context)!
+                        .reviewSessionCompletedCount(state.totalReviewed)),
                   ],
                 ],
               ),
@@ -191,7 +192,8 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                       context: context,
                       builder: (ctx) => CustomDialog(
                         word: card.headword,
-                        message: 'Remove this card from review deck?',
+                        message: AppLocalizations.of(ctx)!
+                            .removeCardFromReview,
                       ),
                     ).then((confirmed) {
                       if (context.mounted) {
@@ -274,13 +276,13 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (card.isCommon == 1)
-                            const Card(
-                              color: Color(0xFF8ABC82),
+                            Card(
+                              color: const Color(0xFF8ABC82),
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 child: Text(
-                                  'common word',
-                                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                                  AppLocalizations.of(context)!.commonWordBadge,
+                                  style: const TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -292,10 +294,10 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                       if (showAll) _buildDefinitionWidget(card),
                       if (showAll) divider,
                       if (showAll)
-                        const Center(
+                        Center(
                           child: Text(
-                            'Examples',
-                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
+                            AppLocalizations.of(context)!.examples,
+                            style: const TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
                           ),
                         ),
                       if (showAll && vnExampleSentence != null && enExampleSentence != null)
@@ -313,10 +315,10 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         ),
                       if (showAll) divider,
                       if (showAll)
-                        const Center(
+                        Center(
                           child: Text(
-                            'Components',
-                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
+                            AppLocalizations.of(context)!.components,
+                            style: const TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
                           ),
                         ),
                       if (showAll)
@@ -325,10 +327,10 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         ),
                       if (showAll) ...[
                         divider,
-                        const Center(
+                        Center(
                           child: Text(
-                            'AI Tutor & Insights',
-                            style: TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
+                            AppLocalizations.of(context)!.aiTutorInsightsSection,
+                            style: const TextStyle(color: Color(0xffDB8C8A), fontWeight: FontWeight.bold, fontSize: 22),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -372,9 +374,9 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                       height: 52,
                       color: const Color(0xFF385499),
                       alignment: Alignment.center,
-                      child: const Text(
-                        'Show Answer',
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      child: Text(
+                        AppLocalizations.of(context)!.showAnswer,
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   )

@@ -26,11 +26,11 @@ class AppLanguage {
   });
 }
 
-/// App UI (locale + hardcoded strings) only exists for Vietnamese and
-/// English; every other source falls back to the English UI while prompts
-/// and glosses still use the real source language.
+/// App UI locale follows the source language directly: every source in
+/// [kSourceLanguages] now has a matching `app_<code>.arb` bundle, so a
+/// Japanese source gets the Japanese UI instead of falling back to English.
 String localeCodeForSource(String label) =>
-    sourceLanguageByLabel(label).code == 'vi' ? 'vi' : 'en';
+    sourceLanguageByLabel(label).code;
 
 /// Native languages offered as the translation source.
 const List<AppLanguage> kSourceLanguages = [

@@ -58,9 +58,11 @@ class _HistoryScreenViewState extends State<_HistoryScreenView> {
                 controller: _searchController,
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Search history...',
-                  hintStyle: TextStyle(color: Colors.white70),
+                decoration: InputDecoration(
+                  hintText:
+                      AppLocalizations.of(context)!.searchHistoryHint,
+                  hintStyle:
+                      const TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                 ),
                 onChanged: (query) {
@@ -92,16 +94,18 @@ class _HistoryScreenViewState extends State<_HistoryScreenView> {
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Clear History'),
-                  content: const Text('Are you sure you want to clear all lookup history?'),
+                  title: Text(AppLocalizations.of(ctx)!.clearHistory),
+                  content: Text(
+                      AppLocalizations.of(ctx)!.clearHistoryConfirm),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(ctx)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                      child: Text(AppLocalizations.of(ctx)!.clear,
+                          style: const TextStyle(color: Colors.red)),
                     ),
                   ],
                 ),
@@ -126,8 +130,8 @@ class _HistoryScreenViewState extends State<_HistoryScreenView> {
               return Center(
                 child: Text(
                   state.searchQuery.isNotEmpty
-                      ? 'No history matches found.'
-                      : 'No lookup history yet.',
+                      ? AppLocalizations.of(context)!.noHistoryMatches
+                      : AppLocalizations.of(context)!.noHistoryYet,
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               );

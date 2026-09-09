@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jisho_anki/config/app_routes.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:jisho_anki/services/llm/gen_ui_data_prefetch.dart';
 import 'package:jisho_anki/services/llm/gen_ui_prefetch.dart';
 import 'package:jisho_anki/services/llm_service.dart';
@@ -172,7 +173,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
       return const SizedBox.shrink();
     }
 
-    final isVn = sharedPref.isAppInVietnamese;
+    final l = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -203,9 +204,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                 children: [
                   Expanded(
                     child: Text(
-                      isVn
-                          ? '✨   AI Giải thích: "${widget.query}"'
-                          : '✨   AI Explanation: "${widget.query}"',
+                      l.aiExplanationTitle(widget.query),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -228,7 +227,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
                     ),
                   IconButton(
                     onPressed: _openGenUiScreen,
-                    tooltip: isVn ? 'Mở trang AI đầy đủ' : 'Open full AI page',
+                    tooltip: l.openFullAiPage,
                     padding: const EdgeInsets.all(6),
                     constraints: const BoxConstraints(
                       minWidth: 32,
@@ -260,7 +259,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             const Divider(height: 1, thickness: 0.5),
             Padding(
               padding: const EdgeInsets.all(14.0),
-              child: _buildBodyContent(context, isVn),
+              child: _buildBodyContent(context),
             ),
           ],
         ],
@@ -268,7 +267,8 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     );
   }
 
-  Widget _buildBodyContent(BuildContext context, bool isVn) {
+  Widget _buildBodyContent(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     if (_errorMessage == 'missing_key') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,9 +279,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  isVn
-                      ? 'Chưa cấu hình Gemini API Key.'
-                      : 'Gemini API Key is not set.',
+                  l.geminiKeyNotSet,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -289,9 +287,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
           ),
           const SizedBox(height: 8),
           Text(
-            isVn
-                ? 'Vui lòng truy cập Cài đặt để thêm Gemini API Key cá nhân của bạn.'
-                : 'Please go to Settings to configure your personal Gemini API Key.',
+            l.configureGeminiKeyDesc,
             style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
           const SizedBox(height: 10),
@@ -307,7 +303,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
               GoRouter.of(context).push(AppRoutesPath.settings);
             },
             icon: const Icon(Icons.settings, size: 16),
-            label: Text(isVn ? 'Mở Cài đặt' : 'Open Settings'),
+            label: Text(l.openSettings),
           ),
         ],
       );
@@ -318,9 +314,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isVn
-                ? 'Đã xảy ra lỗi khi kết nối AI:'
-                : 'An error occurred while connecting to AI:',
+            l.aiConnectionError,
             style:
                 const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
@@ -333,28 +327,29 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
           OutlinedButton.icon(
             onPressed: _startStreaming,
             icon: const Icon(Icons.refresh, size: 16),
-            label: Text(isVn ? 'Thử lại' : 'Retry'),
+            label: Text(l.retry),
           ),
         ],
       );
     }
 
     if (_isStreaming && _accumulatedText.isEmpty) {
-      return _buildLoadingIndicator(isVn);
+      return _buildLoadingIndicator();
     }
 
     // Raw text mode
     if (_accumulatedText.isEmpty && !_isStreaming) {
       return Text(
-        isVn ? 'Không có câu trả lời.' : 'No output received.',
+        l.noOutputReceived,
         style: const TextStyle(color: Colors.grey),
       );
     }
 
-    return _buildRawTextContent(context, isVn);
+    return _buildRawTextContent(context);
   }
 
-  Widget _buildLoadingIndicator(bool isVn) {
+  Widget _buildLoadingIndicator() {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         const SizedBox(
@@ -367,7 +362,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
         ),
         const SizedBox(width: 12),
         Text(
-          isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
+          l.analyzingQuery,
           style: const TextStyle(
             fontStyle: FontStyle.italic,
             color: Colors.grey,
@@ -377,7 +372,8 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
     );
   }
 
-  Widget _buildRawTextContent(BuildContext context, bool isVn) {
+  Widget _buildRawTextContent(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -391,15 +387,13 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
           children: [
             IconButton(
               icon: const Icon(Icons.copy, size: 18),
-              tooltip: isVn ? 'Sao chép' : 'Copy',
+              tooltip: l.copy,
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: _accumulatedText));
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      isVn
-                          ? 'Đã sao chép vào bộ nhớ tạm!'
-                          : 'Copied to clipboard!',
+                      l.copiedToClipboard,
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -408,7 +402,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
             ),
             IconButton(
               icon: const Icon(Icons.refresh, size: 18),
-              tooltip: isVn ? 'Tạo lại' : 'Regenerate',
+              tooltip: l.regenerate,
               onPressed: _startStreaming,
             ),
           ],

@@ -42,13 +42,14 @@ class _StatisticsScreenView extends StatelessWidget {
           if (state is StatisticsLoaded) {
             final stats = state.stats;
             final retentionPct = (stats.retentionRate * 100).toStringAsFixed(1);
+            final l = AppLocalizations.of(context)!;
 
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                const Text(
-                  'Statistics today',
-                  style: TextStyle(
+                Text(
+                  l.statisticsToday,
+                  style: const TextStyle(
                     color: Color(0xffDB8C8A),
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -69,17 +70,20 @@ class _StatisticsScreenView extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildMetricTile('Total Due', '${stats.dueToday}'),
-                        _buildMetricTile('Retention', '$retentionPct%'),
-                        _buildMetricTile('Leech/Difficult', '${stats.difficultCount}'),
+                        _buildMetricTile(
+                            l.metricTotalDue, '${stats.dueToday}'),
+                        _buildMetricTile(
+                            l.metricRetention, '$retentionPct%'),
+                        _buildMetricTile(l.metricLeechDifficult,
+                            '${stats.difficultCount}'),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  '7-Day Forecast',
-                  style: TextStyle(
+                Text(
+                  l.sevenDayForecast,
+                  style: const TextStyle(
                     color: Color(0xffDB8C8A),
                     fontWeight: FontWeight.bold,
                     fontSize: 20,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../services/db_helper.dart';
 import '../../utils/offline_list_type.dart';
 
@@ -10,6 +11,7 @@ class CustomDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0)), //this right here
@@ -21,8 +23,8 @@ class CustomDialog extends StatelessWidget {
           children: <Widget>[
             Center(
               child: Text(
-                'NOTICE',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                l.notice,
+                style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
             ),
             Center(
@@ -50,16 +52,16 @@ class CustomDialog extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Understood',
-                      style: TextStyle(fontSize: 18.0),
+                      l.understood,
+                      style: const TextStyle(fontSize: 18.0),
                     )),
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Cancel',
-                      style: TextStyle(fontSize: 18.0),
+                      l.cancel,
+                      style: const TextStyle(fontSize: 18.0),
                     )),
               ],
             )

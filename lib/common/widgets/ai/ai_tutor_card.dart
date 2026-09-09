@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'ai_loading_skeleton.dart';
 
 class AiTutorCard extends StatelessWidget {
@@ -18,10 +19,10 @@ class AiTutorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     if (isLoading) {
-      return const AiLoadingSkeleton(
-          message: 'AI Tutor is analyzing word notes...');
+      return AiLoadingSkeleton(message: l.aiTutorAnalyzing);
     }
 
     if (errorMessage != null && errorMessage!.isNotEmpty) {
@@ -42,7 +43,7 @@ class AiTutorCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Failed to load AI Tutor comments',
+                    l.aiTutorLoadFailed,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(color: theme.colorScheme.error),
                   ),
@@ -54,7 +55,7 @@ class AiTutorCard extends StatelessWidget {
               TextButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Retry'),
+                label: Text(l.retry),
               ),
             ],
           ],
@@ -91,7 +92,7 @@ class AiTutorCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'AI Tutor Insights',
+                    l.aiTutorInsightsTitle,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -102,7 +103,7 @@ class AiTutorCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              isEmpty ? 'No AI Tutor insights yet.' : tutorComment!,
+              isEmpty ? l.noAiTutorInsights : tutorComment!,
               style: theme.textTheme.bodyMedium?.copyWith(
                 height: 1.5,
                 color: isEmpty

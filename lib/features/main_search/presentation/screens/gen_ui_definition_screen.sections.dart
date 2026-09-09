@@ -25,7 +25,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
     );
   }
 
-  Widget _buildExamplesSection(bool isVn) {
+  Widget _buildExamplesSection() {
     final future = _examplesFuture;
     if (future == null) return const SizedBox.shrink();
     return ExampleSentenceWidget(
@@ -33,7 +33,8 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
     );
   }
 
-  Widget _buildAiBodyContent(bool isVn) {
+  Widget _buildAiBodyContent() {
+    final l = AppLocalizations.of(context)!;
     if (_errorMessage == 'missing_key') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,9 +45,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  isVn
-                      ? 'Chưa cấu hình Gemini API Key.'
-                      : 'Gemini API Key is not set.',
+                  l.geminiKeyNotSet,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -54,9 +53,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
           ),
           const SizedBox(height: 8),
           Text(
-            isVn
-                ? 'Vui lòng truy cập Cài đặt để thêm Gemini API Key cá nhân của bạn.'
-                : 'Please go to Settings to configure your personal Gemini API Key.',
+            l.configureGeminiKeyDesc,
             style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
           const SizedBox(height: 10),
@@ -72,7 +69,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
               GoRouter.of(context).push(AppRoutesPath.settings);
             },
             icon: const Icon(Icons.settings, size: 16),
-            label: Text(isVn ? 'Mở Cài đặt' : 'Open Settings'),
+            label: Text(l.openSettings),
           ),
         ],
       );
@@ -83,9 +80,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isVn
-                ? 'Đã xảy ra lỗi khi kết nối AI:'
-                : 'An error occurred while connecting to AI:',
+            l.aiConnectionError,
             style:
                 const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
@@ -105,14 +100,15 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
       );
     }
 
-    if (_isStreaming) return _buildLoadingIndicator(isVn);
+    if (_isStreaming) return _buildLoadingIndicator();
     return Text(
-      isVn ? 'Không có câu trả lời.' : 'No output received.',
+      l.noOutputReceived,
       style: const TextStyle(color: Colors.grey),
     );
   }
 
-  Widget _buildLoadingIndicator(bool isVn) {
+  Widget _buildLoadingIndicator() {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         const SizedBox(
@@ -125,7 +121,7 @@ extension _GenUiDefinitionSectionsExt on _GenUiDefinitionScreenState {
         ),
         const SizedBox(width: 12),
         Text(
-          isVn ? 'Đang phân tích từ vựng...' : 'Analyzing query...',
+          l.analyzingQuery,
           style: const TextStyle(
             fontStyle: FontStyle.italic,
             color: Colors.grey,

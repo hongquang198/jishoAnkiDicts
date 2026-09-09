@@ -9,6 +9,7 @@ import 'package:jisho_anki/features/history/screens/saved_definition_screen.dart
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../../../models/localized_gloss.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../features/main_search/domain/entities/jisho_definition.dart';
@@ -141,13 +142,13 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                 Row(
                   children: [
                     if (widget.jishoDefinition?.isCommon == true)
-                      const Card(
-                        color: Color(0xFF8ABC82),
+                      Card(
+                        color: const Color(0xFF8ABC82),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           child: Text(
-                            'common word',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.commonWordBadge,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13.0,
                               fontWeight: FontWeight.bold,
@@ -227,7 +228,8 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
               context: context,
               builder: (BuildContext context) => CustomDialog(
                 word: word,
-                message: 'Delete this word from history?',
+                message: AppLocalizations.of(context)!
+                    .deleteWordFromHistoryConfirm,
               ),
             ).then((confirmed) {
               if (confirmed == true) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class AiMemoryTipCard extends StatelessWidget {
   final String? memoryTip;
@@ -13,6 +14,7 @@ class AiMemoryTipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final isEmpty = memoryTip == null || memoryTip!.trim().isEmpty;
 
     final Widget body;
@@ -23,7 +25,7 @@ class AiMemoryTipCard extends StatelessWidget {
       );
     } else if (isEmpty) {
       body = Text(
-        'No memory tip available yet.',
+        l.noMemoryTip,
         style: theme.textTheme.bodyMedium?.copyWith(
           height: 1.5,
           fontStyle: FontStyle.italic,
@@ -60,7 +62,7 @@ class AiMemoryTipCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Memory Tip & Mnemonic',
+                    l.memoryTipTitle,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.secondary,

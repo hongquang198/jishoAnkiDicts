@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/data/datasources/shared_pref.dart';
-import '../../../../injection.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../bloc/llm_settings_bloc.dart';
 
 class LlmSettingsSection extends StatefulWidget {
@@ -36,7 +35,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isVn = getIt<SharedPref>().isAppInVietnamese;
+    final l = AppLocalizations.of(context)!;
 
     return BlocConsumer<LlmSettingsBloc, LlmSettingsState>(
       listener: (context, state) {
@@ -79,9 +78,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Text(
-                isVn
-                    ? 'Cấu hình AI / LLM (Gemini)'
-                    : 'AI / LLM Settings (Gemini)',
+                l.aiLlmSettingsTitle,
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -94,8 +91,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
-                  child: Text(
-                      isVn ? 'Bật giải thích AI' : 'Enable AI Explanation'),
+                  child: Text(l.enableAiExplanation),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 15.0),
@@ -115,8 +111,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
-                  child: Text(
-                      isVn ? 'Sử dụng giao diện GenUI' : 'Use GenUI Interface'),
+                  child: Text(l.useGenuiInterface),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 15.0),
@@ -138,9 +133,9 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // API Key
-                  const Text(
-                    'Gemini API Key:',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    l.geminiApiKeyLabel,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 5),
                   TextField(
@@ -148,8 +143,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     obscureText: _obscureApiKey,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText:
-                          isVn ? 'Nhập Gemini API Key' : 'Enter Gemini API Key',
+                      hintText: l.enterGeminiApiKeyHint,
                       suffixIcon: IconButton(
                         icon: Icon(_obscureApiKey
                             ? Icons.visibility
@@ -175,7 +169,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     children: [
                       Flexible(
                         child: Text(
-                          isVn ? 'Tên Model (Gemini):' : 'LLM Model Name:',
+                          l.llmModelNameLabel,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -188,9 +182,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        isVn
-                                            ? 'Vui lòng nhập API Key trước.'
-                                            : 'Please enter an API Key first.',
+                                        l.enterApiKeyFirst,
                                       ),
                                     ),
                                   );
@@ -208,7 +200,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                                     CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.sync, size: 16),
-                        label: Text(isVn ? 'Tải từ API' : 'Fetch from API'),
+                        label: Text(l.fetchFromApi),
                       ),
                     ],
                   ),
@@ -232,7 +224,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                       const SizedBox(width: 8),
                       PopupMenuButton<String>(
                         icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                        tooltip: isVn ? 'Chọn Model' : 'Select Model',
+                        tooltip: l.selectModel,
                         enabled: state.availableModels.isNotEmpty,
                         onSelected: (model) {
                           _modelController.text = model;
@@ -246,9 +238,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                               PopupMenuItem(
                                 enabled: false,
                                 child: Text(
-                                  isVn
-                                      ? 'Nhấn "Tải từ API" để lấy danh sách'
-                                      : 'Press "Fetch from API" to load list',
+                                  l.pressFetchToLoadList,
                                   style: const TextStyle(
                                     color: Colors.grey,
                                     fontStyle: FontStyle.italic,
@@ -273,9 +263,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     children: [
                       Flexible(
                         child: Text(
-                          isVn
-                              ? 'Mẫu Prompt (Custom for text-based output):'
-                              : 'Custom Prompt Template for text-based output:',
+                          l.customPromptTemplateLabel,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -285,8 +273,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                               .read<LlmSettingsBloc>()
                               .add(const ResetPromptToDefaultEvent());
                         },
-                        child: Text(
-                            isVn ? 'Đặt lại mặc định' : 'Reset to Default'),
+                        child: Text(l.resetToDefault),
                       ),
                     ],
                   ),
@@ -296,9 +283,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                     maxLines: 5,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText: isVn
-                          ? 'Sử dụng %search_words% để thay thế từ tra cứu'
-                          : 'Use %search_words% as query placeholder',
+                      hintText: l.customPromptHint,
                     ),
                     onChanged: (val) {
                       context

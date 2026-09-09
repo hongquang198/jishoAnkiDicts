@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:go_router/go_router.dart';
 
 import '../../../injection.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/domain/entities/dictionary.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/grammar_point.dart';
@@ -146,8 +147,8 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           ),
           divider,
           Text(
-            'Examples',
-            style: TextStyle(
+            AppLocalizations.of(context)!.examples,
+            style: const TextStyle(
               color: Color(0xffDB8C8A),
               fontWeight: FontWeight.bold,
               fontSize: 20,
@@ -158,8 +159,8 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
           ),
           divider,
           Text(
-            'Components',
-            style: TextStyle(
+            AppLocalizations.of(context)!.components,
+            style: const TextStyle(
               color: Color(0xffDB8C8A),
               fontWeight: FontWeight.bold,
               fontSize: 20,
@@ -169,9 +170,9 @@ class _GrammarPointScreenState extends State<GrammarPointScreen> {
             kanjiComponent: kanjiList,
           ),
           divider,
-          const Text(
-            'AI Grammar Insights & Tutor',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.aiGrammarInsightsTutor,
+            style: const TextStyle(
               color: Color(0xffDB8C8A),
               fontWeight: FontWeight.bold,
               fontSize: 20,

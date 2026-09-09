@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class ActivityHeatmapWidget extends StatelessWidget {
   final Map<String, int> activityData;
@@ -15,15 +16,16 @@ class ActivityHeatmapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final days = List.generate(28, (i) => now.subtract(Duration(days: 27 - i)));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Review Activity (Past 4 Weeks)',
-          style: TextStyle(
+        Text(
+          l.reviewActivity4weeks,
+          style: const TextStyle(
             color: Color(0xffDB8C8A),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -38,7 +40,7 @@ class ActivityHeatmapWidget extends StatelessWidget {
                 '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
             final count = activityData[key] ?? 0;
             return Tooltip(
-              message: '$key: $count reviews',
+              message: l.reviewsCountTooltip(key, count),
               child: Container(
                 width: 22,
                 height: 22,
@@ -55,7 +57,8 @@ class ActivityHeatmapWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Text('Less ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(l.less,
+                style: const TextStyle(fontSize: 12, color: Colors.grey)),
             ...[0, 3, 10, 20, 35].map((c) => Container(
                   width: 12,
                   height: 12,
@@ -65,7 +68,8 @@ class ActivityHeatmapWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 )),
-            const Text(' More', style: TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(l.more,
+                style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
       ],

@@ -38,5 +38,178 @@
     "unauthorised": "Unauthorised",
     "fetchDataError": "Fetch data error",
     "connectionError": "Connection error",
-    "menu": "Menu"
+    "menu": "Menu",
+    "selectLanguages": "Select Languages",
+    "welcomeJishoAnki": "Welcome to Jisho Anki!",
+    "selectNativeTargetDesc": "Please select your native language and the language you want to learn.",
+    "onboardingNativeLanguage": "Native Language (Source):",
+    "onboardingTargetLanguage": "Language to Learn (Target):",
+    "getStarted": "Get Started",
+    "languageConfiguration": "Language Configuration",
+    "nativeLanguageSource": "Native Language (Source):",
+    "learningLanguageTarget": "Learning Language (Target):",
+    "aiLlmSettingsTitle": "AI / LLM Settings (Gemini)",
+    "enableAiExplanation": "Enable AI Explanation",
+    "useGenuiInterface": "Use GenUI Interface",
+    "enterGeminiApiKeyHint": "Enter Gemini API Key",
+    "geminiApiKeyLabel": "Gemini API Key:",
+    "llmModelNameLabel": "LLM Model Name:",
+    "enterApiKeyFirst": "Please enter an API Key first.",
+    "fetchFromApi": "Fetch from API",
+    "selectModel": "Select Model",
+    "pressFetchToLoadList": "Press \"Fetch from API\" to load list",
+    "customPromptTemplateLabel": "Custom Prompt Template for text-based output:",
+    "resetToDefault": "Reset to Default",
+    "customPromptHint": "Use %search_words% as query placeholder",
+    "accountCloudSync": "Account & Cloud Sync",
+    "accountGuest": "Guest User (Anonymous)",
+    "accountActive": "Cloud Account Active",
+    "emailLabel": "Email: {email}",
+    "@emailLabel": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "createAccountSync": "Create Account & Sync",
+    "signOut": "Sign Out",
+    "signinExistingAccount": "Sign In to Existing Account",
+    "switchAccount": "Switch Account",
+    "syncNow": "Sync Now",
+    "cloudSyncSuccess": "Cloud sync completed successfully! Data pushed & pulled.",
+    "syncFailed": "Sync failed: {error}",
+    "@syncFailed": {
+      "placeholders": {
+        "error": {"type": "String"}
+      }
+    },
+    "linkAccountSync": "Link Account & Sync",
+    "signIn": "Sign In",
+    "enterEmailPassword": "Please enter email and password",
+    "linkWithGoogle": "Link with Google",
+    "continueWithGoogle": "Continue with Google",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "linkingEmailHint": "New email creates a new account · Existing email signs you in",
+    "linkWithEmail": "Link with Email",
+    "signinWithEmail": "Sign In with Email",
+    "cancel": "Cancel",
+    "regenerate": "Regenerate",
+    "save": "Save",
+    "addToReview": "Add to review",
+    "aiExplanation": "AI Explanation",
+    "geminiKeyNotSet": "Gemini API Key is not set.",
+    "configureGeminiKeyDesc": "Please go to Settings to configure your personal Gemini API Key.",
+    "openSettings": "Open Settings",
+    "aiConnectionError": "An error occurred while connecting to AI:",
+    "noOutputReceived": "No output received.",
+    "analyzingQuery": "Analyzing query...",
+    "aiExplanationTitle": "✨   AI Explanation: \"{query}\"",
+    "@aiExplanationTitle": {
+      "placeholders": {
+        "query": {"type": "String"}
+      }
+    },
+    "openFullAiPage": "Open full AI page",
+    "retry": "Retry",
+    "copy": "Copy",
+    "copiedToClipboard": "Copied to clipboard!",
+    "aiTutorInsightsSection": "AI Tutor & Insights",
+    "aiGrammarInsightsTutor": "AI Grammar Insights & Tutor",
+    "searchForWordHint": "Search for a word",
+    "searchHistoryHint": "Search history...",
+    "clearHistory": "Clear History",
+    "clearHistoryConfirm": "Are you sure you want to clear all lookup history?",
+    "clear": "Clear",
+    "noHistoryMatches": "No history matches found.",
+    "noHistoryYet": "No lookup history yet.",
+    "searchFavoritesHint": "Search favorites...",
+    "noMatchesFound": "No matches found.",
+    "noFavoritesYet": "No favorite words saved yet.",
+    "searchGrammarHint": "Search grammar point",
+    "commonWordBadge": "common word",
+    "deleteWordFromHistoryConfirm": "Delete this word from history?",
+    "notice": "NOTICE",
+    "understood": "Understood",
+    "reviewSessionCompletedCount": "Completed {count} cards in this session!",
+    "@reviewSessionCompletedCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "removeCardFromReview": "Remove this card from review deck?",
+    "showAnswer": "Show Answer",
+    "srsAgain": "Again",
+    "srsHard": "Hard",
+    "srsGood": "Good",
+    "srsEasy": "Easy",
+    "reviewBadgeNew": "New",
+    "reviewBadgeLearn": "Learn",
+    "reviewBadgeDue": "Due",
+    "statisticsToday": "Statistics today",
+    "metricTotalDue": "Total Due",
+    "metricRetention": "Retention",
+    "metricLeechDifficult": "Leech/Difficult",
+    "sevenDayForecast": "7-Day Forecast",
+    "dueNew": "New",
+    "dueYoung": "Young",
+    "dueMature": "Mature",
+    "dueDifficult": "Difficult",
+    "reviewActivity4weeks": "Review Activity (Past 4 Weeks)",
+    "reviewsCountTooltip": "{date}: {count} reviews",
+    "@reviewsCountTooltip": {
+      "placeholders": {
+        "date": {"type": "String"},
+        "count": {"type": "int"}
+      }
+    },
+    "less": "Less",
+    "more": "More",
+    "noForecastData": "No forecast data available.",
+    "cardsDueToday": "There are {count} cards due today.",
+    "@cardsDueToday": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "aiTutorAnalyzing": "AI Tutor is analyzing word notes...",
+    "aiTutorLoadFailed": "Failed to load AI Tutor comments",
+    "aiTutorInsightsTitle": "AI Tutor Insights",
+    "noAiTutorInsights": "No AI Tutor insights yet.",
+    "noMemoryTip": "No memory tip available yet.",
+    "memoryTipTitle": "Memory Tip & Mnemonic",
+    "noGrammarBreakdown": "No grammar breakdown available yet.",
+    "grammarBreakdownTitle": "Grammar & Structure Breakdown",
+    "askAiTutor": "Ask AI Tutor",
+    "aiGeneratingInsights": "AI is generating insights...",
+    "aiTutorChatTitle": "AI Tutor Chat: {word}",
+    "@aiTutorChatTitle": {
+      "placeholders": {
+        "word": {"type": "String"}
+      }
+    },
+    "chatErrorPrefix": "Error: {message}",
+    "@chatErrorPrefix": {
+      "placeholders": {
+        "message": {"type": "String"}
+      }
+    },
+    "aiSuggestionNuance": "Explain nuance & usage",
+    "aiSuggestionExamples": "Provide 3 conversational examples",
+    "aiSuggestionMnemonic": "Clarify mnemonic / memory tip",
+    "aiSuggestionEtymology": "Etymology & loanword origin",
+    "askAiTutorHint": "Ask AI Tutor about this word...",
+    "cardInfo": "Card Info",
+    "cardInfoWord": "Word",
+    "cardInfoDeck": "Deck",
+    "cardInfoStage": "Stage",
+    "cardInfoAdded": "Added",
+    "cardInfoFirstReview": "First Review",
+    "cardInfoLatestReview": "Latest Review",
+    "cardInfoDue": "Due",
+    "cardInfoInterval": "Interval",
+    "cardInfoEaseFactor": "Ease Factor",
+    "cardInfoReviews": "Reviews",
+    "cardInfoLapses": "Lapses",
+    "notAvailable": "N/A",
+    "cardStageNew": "New"
 }

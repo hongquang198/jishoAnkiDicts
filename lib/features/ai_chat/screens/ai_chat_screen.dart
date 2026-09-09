@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../injection.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../services/llm_service.dart';
 import '../bloc/ai_chat_bloc.dart';
 import '../bloc/ai_chat_event.dart';
@@ -57,7 +58,7 @@ class AiChatScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('AI Tutor Chat: ${args.word}'),
+        title: Text(AppLocalizations.of(context)!.aiTutorChatTitle(args.word)),
       ),
       body: Column(
         children: [
@@ -72,7 +73,8 @@ class AiChatScreen extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Error: ${state.errorMessage}',
+                        AppLocalizations.of(context)!
+                            .chatErrorPrefix(state.errorMessage!),
                         style: TextStyle(color: theme.colorScheme.error),
                         textAlign: TextAlign.center,
                       ),
@@ -152,11 +154,14 @@ class _QuickSuggestionsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    // Chips are sent verbatim as the chat prompt, so they double as the
+    // localized question the user asks the tutor.
     final suggestions = [
-      'Explain nuance & usage',
-      'Provide 3 conversational examples',
-      'Clarify mnemonic / memory tip',
-      'Etymology & loanword origin',
+      l.aiSuggestionNuance,
+      l.aiSuggestionExamples,
+      l.aiSuggestionMnemonic,
+      l.aiSuggestionEtymology,
     ];
 
     return Container(
@@ -218,7 +223,7 @@ class _ChatInputBarState extends State<_ChatInputBar> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(context),
               decoration: InputDecoration(
-                hintText: 'Ask AI Tutor about this word...',
+                hintText: AppLocalizations.of(context)!.askAiTutorHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,

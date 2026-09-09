@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:jisho_anki/models/offline_word_record.dart';
 
 class CardInfoScreen extends StatelessWidget {
@@ -37,35 +38,37 @@ class CardInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Card Info'),
+        title: Text(l.cardInfo),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildRow('Word', word),
+            _buildRow(l.cardInfoWord, word),
             const Divider(),
-            _buildRow('Deck', deck),
+            _buildRow(l.cardInfoDeck, deck),
             const Divider(),
-            _buildRow('Stage', stage),
+            _buildRow(l.cardInfoStage,
+                stage == 'New' ? l.cardStageNew : stage),
             const Divider(),
-            _buildRow('Added', addedAt > 0 ? DateTime.fromMillisecondsSinceEpoch(addedAt).toString().split('.')[0] : 'N/A'),
+            _buildRow(l.cardInfoAdded, addedAt > 0 ? DateTime.fromMillisecondsSinceEpoch(addedAt).toString().split('.')[0] : l.notAvailable),
             const Divider(),
-            _buildRow('First Review', firstReview != null ? DateTime.fromMillisecondsSinceEpoch(firstReview!).toString().split('.')[0] : 'N/A'),
+            _buildRow(l.cardInfoFirstReview, firstReview != null ? DateTime.fromMillisecondsSinceEpoch(firstReview!).toString().split('.')[0] : l.notAvailable),
             const Divider(),
-            _buildRow('Latest Review', lastReview != null ? DateTime.fromMillisecondsSinceEpoch(lastReview!).toString().split('.')[0] : 'N/A'),
+            _buildRow(l.cardInfoLatestReview, lastReview != null ? DateTime.fromMillisecondsSinceEpoch(lastReview!).toString().split('.')[0] : l.notAvailable),
             const Divider(),
-            _buildRow('Due', due > 0 ? DateTime.fromMillisecondsSinceEpoch(due).toString().split('.')[0] : 'N/A'),
+            _buildRow(l.cardInfoDue, due > 0 ? DateTime.fromMillisecondsSinceEpoch(due).toString().split('.')[0] : l.notAvailable),
             const Divider(),
-            _buildRow('Interval', intervalText),
+            _buildRow(l.cardInfoInterval, intervalText),
             const Divider(),
-            _buildRow('Ease Factor', ease.toStringAsFixed(2)),
+            _buildRow(l.cardInfoEaseFactor, ease.toStringAsFixed(2)),
             const Divider(),
-            _buildRow('Reviews', '$reviews'),
+            _buildRow(l.cardInfoReviews, '$reviews'),
             const Divider(),
-            _buildRow('Lapses', '$lapses'),
+            _buildRow(l.cardInfoLapses, '$lapses'),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 class AiLoadingSkeleton extends StatefulWidget {
   final double height;
@@ -7,7 +8,7 @@ class AiLoadingSkeleton extends StatefulWidget {
   const AiLoadingSkeleton({
     super.key,
     this.height = 120,
-    this.message = 'AI is generating insights...',
+    this.message = '',
   });
 
   @override
@@ -101,7 +102,9 @@ class _AiLoadingSkeletonState extends State<AiLoadingSkeleton>
               ),
               const Spacer(),
               Text(
-                widget.message,
+                widget.message.isEmpty
+                    ? AppLocalizations.of(context)!.aiGeneratingInsights
+                    : widget.message,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.primary.withValues(alpha: 0.8),
                   fontStyle: FontStyle.italic,

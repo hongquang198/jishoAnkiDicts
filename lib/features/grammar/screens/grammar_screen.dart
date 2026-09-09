@@ -91,7 +91,8 @@ class _GrammarScreenState extends State<GrammarScreen> {
                           });
                         },
                       ),
-                      hintText: 'Search grammar point',
+                      hintText:
+                          AppLocalizations.of(context)!.searchGrammarHint,
                       hintStyle: TextStyle(color: Constants.appBarTextColor),
                       labelStyle: TextStyle(color: Constants.appBarTextColor),
                       border: InputBorder.none,

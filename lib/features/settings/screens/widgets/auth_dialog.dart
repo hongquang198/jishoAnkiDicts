@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
 /// Dialog for Sign In, Account Registration, Account Linking, and Google Sign-In.
 class AuthDialog extends StatefulWidget {
@@ -33,7 +34,8 @@ class _AuthDialogState extends State<AuthDialog> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Please enter email and password');
+      setState(
+          () => _error = AppLocalizations.of(context)!.enterEmailPassword);
       return;
     }
 
@@ -86,7 +88,8 @@ class _AuthDialogState extends State<AuthDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.isLinking ? 'Link Account & Sync' : 'Sign In';
+    final l = AppLocalizations.of(context)!;
+    final title = widget.isLinking ? l.linkAccountSync : l.signIn;
 
     return AlertDialog(
       title: Text(title),
@@ -108,7 +111,8 @@ class _AuthDialogState extends State<AuthDialog> {
             OutlinedButton.icon(
               onPressed: _isLoading ? null : _submitGoogle,
               icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.blue),
-              label: Text(widget.isLinking ? 'Link with Google' : 'Continue with Google'),
+              label: Text(
+                  widget.isLinking ? l.linkWithGoogle : l.continueWithGoogle),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -129,28 +133,28 @@ class _AuthDialogState extends State<AuthDialog> {
 
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email Address',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: l.emailAddress,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock_outline),
+              decoration: InputDecoration(
+                labelText: l.password,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.lock_outline),
               ),
               obscureText: true,
             ),
             if (widget.isLinking) ...[
               const SizedBox(height: 8),
               Text(
-                'New email creates a new account · Existing email signs you in',
-                style: TextStyle(color: Colors.grey, fontSize: 11),
+                l.linkingEmailHint,
+                style: const TextStyle(color: Colors.grey, fontSize: 11),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -170,7 +174,7 @@ class _AuthDialogState extends State<AuthDialog> {
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
                   : Text(
-                      widget.isLinking ? 'Link with Email' : 'Sign In with Email',
+                      widget.isLinking ? l.linkWithEmail : l.signinWithEmail,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
             ),
@@ -180,7 +184,7 @@ class _AuthDialogState extends State<AuthDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(l.cancel),
         ),
       ],
     );

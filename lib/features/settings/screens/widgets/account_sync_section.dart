@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
 import 'package:jisho_anki/core/domain/repositories/user_data_repository.dart';
 import 'package:jisho_anki/injection.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'auth_dialog.dart';
 
 /// Settings section for Account management & Cloud Firestore synchronization.
@@ -32,13 +33,16 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
       await _userDataRepo.syncWithRemote();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cloud sync completed successfully! Data pushed & pulled.')),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.cloudSyncSuccess)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync failed: $e')),
+          SnackBar(
+              content: Text(
+                  AppLocalizations.of(context)!.syncFailed('$e'))),
         );
       }
     } finally {
@@ -68,6 +72,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final uid = _authDataSource.currentUserId ?? 'Unknown';
     final shortUid = uid.length > 10 ? '${uid.substring(0, 10)}...' : uid;
     final isAnon = _authDataSource.isAnonymous;
@@ -76,11 +81,11 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
           child: Text(
-            'Account & Cloud Sync',
-            style: TextStyle(
+            l.accountCloudSync,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.blueGrey,
@@ -105,7 +110,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isAnon ? 'Guest User (Anonymous)' : 'Cloud Account Active',
+                          isAnon ? l.accountGuest : l.accountActive,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ],
@@ -118,7 +123,8 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                 ),
                 if (email != null) ...[
                   const SizedBox(height: 6),
-                  Text('Email: $email', style: const TextStyle(color: Colors.black87)),
+                  Text(l.emailLabel(email),
+                      style: const TextStyle(color: Colors.black87)),
                 ],
                 const SizedBox(height: 14),
                 Wrap(
@@ -130,19 +136,19 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                         onPressed: () => _openAuthDialog(isLinking: true),
                         icon: const Icon(Icons.link, size: 16),
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[700], foregroundColor: Colors.white),
-                        label: const Text('Create Account & Sync'),
+                        label: Text(l.createAccountSync),
                       ),
                     ] else ...[
                       OutlinedButton.icon(
                         onPressed: _signOut,
                         icon: const Icon(Icons.logout, size: 16),
-                        label: const Text('Sign Out'),
+                        label: Text(l.signOut),
                       ),
                     ],
                     OutlinedButton.icon(
                       onPressed: () => _openAuthDialog(isLinking: false),
                       icon: const Icon(Icons.login, size: 16),
-                      label: Text(isAnon ? 'Sign In to Existing Account' : 'Switch Account'),
+                      label: Text(isAnon ? l.signinExistingAccount : l.switchAccount),
                     ),
                     ElevatedButton.icon(
                       onPressed: _isSyncing ? null : _syncNow,
@@ -157,7 +163,7 @@ class _AccountSyncSectionState extends State<AccountSyncSection> {
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                      label: const Text('Sync Now'),
+                      label: Text(l.syncNow),
                     ),
                   ],
                 ),

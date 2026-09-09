@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/data/datasources/shared_pref.dart';
 import '../../../core/domain/entities/user_data/word_card.dart';
 import '../../../injection.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/localized_gloss.dart';
@@ -137,6 +138,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isVn = getIt<SharedPref>().isAppInVietnamese;
+    final l = AppLocalizations.of(context)!;
     return BlocBuilder<WordInteractionBloc, WordInteractionState>(
       builder: (context, interactionState) {
         return Scaffold(
@@ -236,14 +238,14 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                         localizedGloss: localizedGloss.gloss,
                       ),
                       divider,
-                      const SectionHeader(title: 'Examples'),
+                      SectionHeader(title: l.examples),
                       ExampleSentenceWidget(exampleSentence: exampleSentence),
                       divider,
-                      const SectionHeader(title: 'Components'),
+                      SectionHeader(title: l.components),
                       ComponentWidget(kanjiComponent: kanjiList),
                       divider,
                       SectionHeader(
-                        title: isVn ? 'Trợ lý AI' : 'AI Tutor & Insights',
+                        title: l.aiTutorInsightsSection,
                         icon: Icons.psychology,
                       ),
                       const SizedBox(height: 8),
