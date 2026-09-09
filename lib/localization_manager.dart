@@ -11,7 +11,9 @@ class LocalizationNotifier with ChangeNotifier {
   }
 
   void setLanguage({required String language}) async {
-    getIt<SharedPref>().prefs.setString('language', language);
+    // The source language is the single source of truth for the app locale;
+    // SharedPref.appLocaleCode derives the vi/en locale from it.
+    getIt<SharedPref>().sourceLanguage = language;
     notifyListeners();
   }
 }

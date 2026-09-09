@@ -38,13 +38,13 @@ extension _DefinitionScreenDataExt on _DefinitionScreenState {
     kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
 
     try {
-      final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true) {
+      final pref = getIt<SharedPref>();
+      if (pref.isAppInEnglish) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,
             tableName: 'englishExampleDictionary');
-      } else if (lang == 'Tiếng Việt') {
+      } else if (pref.isAppInVietnamese) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,

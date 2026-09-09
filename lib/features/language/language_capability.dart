@@ -14,8 +14,24 @@ class LanguageCapability {
     return normalized == 'japanese' || normalized == 'ja' || normalized == 'jp';
   }
 
+  /// True for logographic-script targets whose written form does not tell
+  /// you how to say the word (Japanese, Chinese). Phonetic-script targets
+  /// (Vietnamese, Korean, French, …) need no reading field.
+  bool get isChinese {
+    final normalized = targetLanguage.trim().toLowerCase();
+    return normalized == 'chinese' ||
+        normalized == 'chinese (simplified)' ||
+        normalized == 'chinese (traditional)' ||
+        normalized == 'mandarin' ||
+        normalized == 'zh' ||
+        normalized == '中文';
+  }
+
+  /// Whether lookups should carry a pronunciation/reading field.
+  bool get needsReading => isJapanese || isChinese;
+
   bool get supportsPitch => isJapanese;
-  bool get supportsKanjiComponents => isJapanese;
+  bool get supportsKanjiComponents => isJapanese || isChinese;
   bool get supportsHanViet => isJapanese;
   bool get supportsJlpt => isJapanese;
   bool get supportsJishoSenses => isJapanese;

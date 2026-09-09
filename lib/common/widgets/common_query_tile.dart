@@ -54,6 +54,7 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
       jlpt: widget.jishoDefinition?.jlpt ?? const [],
       senses: widget.jishoDefinition?.senses ?? const [],
       localizedGloss: widget.localizedGloss?.gloss ?? '',
+      glossLang: getIt<SharedPref>().sourceLanguageCode,
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );

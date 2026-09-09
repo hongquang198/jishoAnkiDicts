@@ -77,14 +77,14 @@ Future<List<ExampleSentence>> loadLocalizedExamples(
   SharedPref sharedPref,
   String query,
 ) {
-  final lang = sharedPref.prefs.getString('language');
-  if (lang?.contains('English') == true) {
+  final appLocaleCode = sharedPref.appLocaleCode;
+  if (appLocaleCode == 'en') {
     return KanjiHelper.getExampleSentence(
       word: query,
       tableName: 'englishExampleDictionary',
     );
   }
-  if (lang != 'Tiếng Việt') return Future.value(const []);
+  if (appLocaleCode != 'vi') return Future.value(const []);
   return KanjiHelper.getExampleSentence(
     word: query,
     tableName: 'exampleDictionary',

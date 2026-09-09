@@ -42,17 +42,24 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
   FutureOr<void> _onSearchForPhrase(
       SearchForPhraseEvent event, Emitter<MainSearchState> emit) async {
     final cleanPhrase = event.phrase.replaceAll('\r', '').replaceAll('\n', '');
-    final isAppInVietnamese = getIt<SharedPref>().isAppInVietnamese;
+    final pref = getIt<SharedPref>();
+    final isAppInVietnamese = pref.isAppInVietnamese;
+    // The offline gloss table is Vietnamese-only and the Jisho lane is
+    // Japanese-only; other pairs are served by the LLM/GenUI tile, which
+    // both result views always render.
+    final capability = pref.targetLanguageCapability;
     emit(MainSearchLoadingState(state.data.copyWith(
       isAppInVietnamese: isAppInVietnamese,
       searchedPhrase: cleanPhrase,
     )));
 
     add(SearchForGrammarPointEvent(cleanPhrase));
-    if (isAppInVietnamese) {
+    if (capability.supportsOfflineGloss && isAppInVietnamese) {
       add(SearchForLocalizedGlossEvent(cleanPhrase));
     }
-    add(SearchForJishoDefinitionEvent(cleanPhrase));
+    if (capability.supportsJishoSenses) {
+      add(SearchForJishoDefinitionEvent(cleanPhrase));
+    }
   }
 
   FutureOr<void> _onSearchForGrammarPoint(
@@ -120,7 +127,10 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       )));
     });
 
-    if (state.data.isAppInVietnamese) {
+    if (state.data.isAppInVietnamese &&
+        getIt<SharedPref>()
+            .targetLanguageCapability
+            .supportsHanViet) {
       Map<String, List<String>> wordToHanVietMap = {}
         ..addAll(state.data.wordToHanVietMap);
       final jishoDefinitionList = state.data.jishoDefinitionList;

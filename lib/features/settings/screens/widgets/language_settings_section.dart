@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/data/datasources/shared_pref.dart';
+import '../../../language/app_languages.dart';
 import '../../../../injection.dart';
 
 class LanguageSettingsSection extends StatefulWidget {
@@ -37,9 +38,9 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
               Text(isVn ? 'Ngôn ngữ mẹ đẻ (Source):' : 'Native Language (Source):'),
               DropdownButton<String>(
                 value: pref.sourceLanguage,
-                items: const [
-                  DropdownMenuItem(value: 'Tiếng Việt', child: Text('Tiếng Việt')),
-                  DropdownMenuItem(value: 'English', child: Text('English')),
+                items: [
+                  for (final label in sourceLanguageLabels)
+                    DropdownMenuItem(value: label, child: Text(label)),
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -62,8 +63,9 @@ class _LanguageSettingsSectionState extends State<LanguageSettingsSection> {
               Text(isVn ? 'Ngôn ngữ học (Target):' : 'Learning Language (Target):'),
               DropdownButton<String>(
                 value: pref.targetLanguage,
-                items: const [
-                  DropdownMenuItem(value: 'Japanese', child: Text('Japanese')),
+                items: [
+                  for (final target in kTargetLanguages)
+                    DropdownMenuItem(value: target, child: Text(target)),
                 ],
                 onChanged: (val) {
                   if (val != null) {

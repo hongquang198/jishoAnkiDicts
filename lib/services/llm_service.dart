@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../core/data/datasources/shared_pref.dart';
+import '../features/language/language_capability.dart';
 import 'package:jisho_anki/services/llm/genui_catalog.dart';
 
 class LlmService {
@@ -61,8 +62,18 @@ class LlmService {
     if (useGenUi) {
       final catalogSchema = const JsonEncoder.withIndent('  ')
           .convert(genUiCatalog.toCapabilitiesJson());
-      final targetLanguage = sharedPref.appLanguageName;
-      return 'You are a bilingual Japanese dictionary assistant. '
+      final sourceLanguage = sharedPref.appLanguageName;
+      final targetName = sharedPref.targetLanguage;
+      // Kanji breakdowns only mean something for a Japanese target.
+      final componentChoice = sharedPref
+              .targetLanguageCapability
+              .supportsKanjiComponents
+          ? '("DefinitionCard" for words, phrases or grammar points, '
+              '"ExampleSentences" for example sentences, "KanjiComponents" for '
+              'kanji breakdown).'
+          : '("DefinitionCard" for words, phrases or grammar points, '
+              '"ExampleSentences" for example sentences).';
+      return 'You are a $sourceLanguage-speaking $targetName dictionary assistant. '
           'Analyze the query: "$query".\n\n'
           'Respond by generating a UI card via the A2UI protocol. Your entire '
           'response MUST be exactly ONE fenced JSON code block and nothing '
@@ -93,19 +104,17 @@ class LlmService {
           'wrap it in another object.\n\n'
           'Available components (name -> property schema):\n'
           '$catalogSchema\n\n'
-          'Language weight: respond ONLY in $targetLanguage. One request, '
+          'Language weight: respond ONLY in $sourceLanguage. One request, '
           'one language — NEVER emit multiple languages. Fill the matching '
           'definition property fully; keep the other to a 1-gloss fallback.\n\n'
           'Choose the single most appropriate component for the query '
-          '("DefinitionCard" for words, phrases or grammar points, '
-          '"ExampleSentences" for example sentences, "KanjiComponents" for '
-          'kanji breakdown).\n'
+          '$componentChoice\n'
           'DefinitionCard rules: closest meaning first, no tutor commentary '
           'or mnemonics (commentary lives in other cards). Field-level '
           'detail follows each property description in the schema above.\n'
           '- Example root component:\n'
           '{"id": "root", "component": "DefinitionCard", '
-          '"localizedGloss": "<closest $targetLanguage gloss> — '
+          '"localizedGloss": "<closest $sourceLanguage gloss> — '
           '<1-line nuance>; also: <secondary gloss>", '
           '"senses": [{"english_definitions": ["<closest gloss>", '
           '"<near synonym>"], "parts_of_speech": ["Noun"], "tags": [], '
@@ -164,11 +173,14 @@ class LlmService {
       model: selectedModel,
       apiKey: apiKey,
     );
+    final sourceLanguage = sharedPref.appLanguageName;
+    final targetName = sharedPref.targetLanguage;
     return model.startChat(
       history: [
         Content.text(
             'System Context / Background for this chat session:\n$initialContext\n\n'
-            'You are an expert bilingual Japanese dictionary and language tutor AI. '
+            'You are an expert $targetName dictionary and language tutor AI. '
+            'Explain in $sourceLanguage. '
             'Help the user understand vocabulary, grammar, nuances, and etymology.')
       ],
     );
@@ -180,19 +192,26 @@ class LlmService {
   /// against Wikimedia Commons by [WikimediaImageService]; model-provided
   /// URLs are never rendered.
   ///
-  /// Used to fill gaps that the local databases cannot provide. Returns null
-  /// when the request fails or the model output cannot be parsed.
+  /// This is the Japanese-lane gap-fill tool: pitch, Han-Viet and JLPT only
+  /// exist for Japanese, so non-Japanese targets leave those fields empty
+  /// while the tutor comment, memory tip and translated sentences still come
+  /// back in the source language.
+  ///
   /// Builds the structured word-info prompt for [fetchWordInfo].
   ///
   /// Static and injectable-free so tests can assert on the exact contract
   /// (field names, conditional rules) without mocking Gemini.
-  static String buildWordInfoPrompt(String query, String targetLanguage) {
-    return 'You are a Japanese dictionary data provider. For the query '
+  static String buildWordInfoPrompt(
+    String query,
+    String sourceLanguage, {
+    String targetLanguageName = 'Japanese',
+  }) {
+    return 'You are a $targetLanguageName dictionary data provider. For the query '
         '"$query", return ONLY a JSON object (no markdown fences, no '
         'commentary) with exactly this shape:\n'
         '{\n'
-        '  "found": <bool - whether the query is a valid Japanese word or phrase>,\n'
-        '  "word": "<canonical Japanese word/kanji form>",\n'
+        '  "found": <bool - whether the query is a valid $targetLanguageName word or phrase>,\n'
+        '  "word": "<canonical $targetLanguageName word form>",\n'
         '  "reading": "<hiragana reading>",\n'
         '  "hanViet": ["<one Sino-Vietnamese reading per kanji character>"],\n'
         '  "isCommon": <bool>,\n'
@@ -203,19 +222,62 @@ class LlmService {
         '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes. If the word is a loanword/borrowed word (Gairaigo) or has notable etymological origins, explicitly include the source language and original word/meaning directly here>",\n'
         '  "memoryTip": "<a vivid mnemonic or memory trick (kanji story, sound-alike, visual image) to remember this word/phrase - ONLY if it is genuinely worth memorizing, otherwise empty string>",\n'
         '  "grammarAnalysis": "<Detailed grammar analysis, sentence breakdown, particle explanation, and syntactic structure if the query is a sentence, phrase, or grammar pattern, or empty string if it is a single word>",\n'
-        '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$targetLanguage translation>"}]\n'
+        '  "sentences": [{"jpSentence": "<Japanese sentence>", "targetSentence": "<$sourceLanguage translation>"}]\n'
         '}\n\n'
         'Rules:\n'
         '- "pitchPattern" describes the pitch accent: L = low, H = high, one '
         'character per mora of the reading plus one trailing character.\n'
-        '- "grammarAnalysis" must provide a clear, structured breakdown of grammar points, clause structure, and particle usage if the query is a sentence or phrase (written in $targetLanguage); leave empty if a simple word.\n'
+        '- "grammarAnalysis" must provide a clear, structured breakdown of grammar points, clause structure, and particle usage if the query is a sentence or phrase (written in $sourceLanguage); leave empty if a simple word.\n'
         '- "sentences" must contain 2-3 natural example sentences using the word.\n'
-        '- "tutorComment" must be written in $targetLanguage, and if the word is a borrowed word or loanword (Gairaigo), explicitly include its source language and original form.\n'
-        '- "memoryTip" must be written in $targetLanguage and stay under ~40 '
+        '- "tutorComment" must be written in $sourceLanguage, and if the word is a borrowed word or loanword (Gairaigo), explicitly include its source language and original form.\n'
+        '- "memoryTip" must be written in $sourceLanguage and stay under ~40 '
         'words; judge worth-memorizing by frequency and practical usefulness '
         '(skip it for rare or highly transparent words).\n'
         '- Use empty arrays or empty strings for anything unknown. '
-        'Set "found" to false if the query is not Japanese.';
+        'Set "found" to false if the query is not $targetLanguageName.';
+  }
+
+  /// Lean gap-fill prompt for non-Japanese targets: tutor content, memory
+  /// tip, grammar analysis and translated sentences in the source language,
+  /// without the Japanese-only metadata (pitch, Han-Viet, JLPT, tags).
+  ///
+  /// The `sentences` items keep the established `jpSentence`/`targetSentence`
+  /// keys so [ExampleSentence] parsing stays untouched: `jpSentence` holds
+  /// the sentence in the target language, `targetSentence` its translation.
+  static String buildLeanWordInfoPrompt(
+    String query,
+    String sourceLanguage, {
+    required String targetLanguageName,
+  }) {
+    // Word-category tags travel across languages; a pronunciation guide only
+    // matters for logographic scripts (Vietnamese is read as written).
+    final readingLine =
+        LanguageCapability(targetLanguageName).needsReading
+            ? '  "reading": "<pronunciation guide in the target language\'s script, or empty string>",\n'
+            : '';
+    return 'You are a $targetLanguageName dictionary data provider. For the query '
+        '"$query", return ONLY a JSON object (no markdown fences, no '
+        'commentary) with exactly this shape:\n'
+        '{\n'
+        '  "found": <bool - whether the query is a valid $targetLanguageName word or phrase>,\n'
+        '  "word": "<canonical $targetLanguageName word form>",\n'
+        '$readingLine'
+        '  "isCommon": <bool>,\n'
+        '  "tags": ["<word category tags, e.g. Noun, Verb Transitive>"],\n'
+        '  "imageQuery": "<simple English noun phrase describing what the word looks like, for an image search, e.g. \'cherry blossom\'>",\n'
+        '  "tutorComment": "<2-4 sentences from an AI tutor: whether this word is worth memorizing (common vs rare), its register/formality, practical usage guidance and common mistakes. If the word is a loanword/borrowed word or has notable etymological origins, explicitly include the source language and original word/meaning directly here>",\n'
+        '  "memoryTip": "<a vivid mnemonic or memory trick to remember this word/phrase - ONLY if it is genuinely worth memorizing, otherwise empty string>",\n'
+        '  "grammarAnalysis": "<Detailed grammar analysis, sentence breakdown, and syntactic structure if the query is a sentence, phrase, or grammar pattern (written in $sourceLanguage), or empty string if it is a single word>",\n'
+        '  "sentences": [{"jpSentence": "<example sentence in $targetLanguageName>", "targetSentence": "<$sourceLanguage translation>"}]\n'
+        '}\n\n'
+        'Rules:\n'
+        '- "sentences" must contain 2-3 natural example sentences using the word.\n'
+        '- "tutorComment" must be written in $sourceLanguage.\n'
+        '- "memoryTip" must be written in $sourceLanguage and stay under ~40 '
+        'words; judge worth-memorizing by frequency and practical usefulness '
+        '(skip it for rare or highly transparent words).\n'
+        '- Use empty arrays or empty strings for anything unknown. '
+        'Set "found" to false if the query is not $targetLanguageName.';
   }
 
   Future<Map<String, dynamic>?> fetchWordInfo(String query) async {
@@ -223,8 +285,22 @@ class LlmService {
     final apiKey = sharedPref.llmApiKey.trim();
     if (apiKey.isEmpty) return null;
 
-    final targetLanguage = sharedPref.appLanguageName;
-    final prompt = buildWordInfoPrompt(query, targetLanguage);
+    final sourceLanguage = sharedPref.appLanguageName;
+    final targetName = sharedPref.targetLanguage;
+    // Japanese unlocks the full metadata lane; other targets get the lean
+    // lane so the model is never asked for pitch/Han-Viet/JLPT.
+    final prompt =
+        sharedPref.targetLanguageCapability.supportsOfflineGloss
+            ? buildWordInfoPrompt(
+              query,
+              sourceLanguage,
+              targetLanguageName: targetName,
+            )
+            : buildLeanWordInfoPrompt(
+              query,
+              sourceLanguage,
+              targetLanguageName: targetName,
+            );
 
     try {
       final model = GenerativeModel(

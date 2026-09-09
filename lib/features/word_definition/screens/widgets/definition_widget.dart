@@ -100,9 +100,10 @@ class DefinitionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        getIt<SharedPref>().isAppInVietnamese
-            ? getLocalizedGlossWidget()
-            : SizedBox(),
+        // The gloss is already in the user's source language (see
+        // SharedPref.sourceLanguageCode on save), so it renders for any
+        // locale — not just Vietnamese.
+        if (localizedGloss?.isNotEmpty == true) getLocalizedGlossWidget(),
         if ((getIt<SharedPref>().isAppInEnglish) ||
             localizedGloss?.isEmpty == true)
           for (int i = 0; i < (senses?.length ?? 0); i++) getDefinitions(i),

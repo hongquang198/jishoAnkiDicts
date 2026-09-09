@@ -2,6 +2,7 @@ import '../../../injection.dart';
 import '../../../localization_manager.dart';
 import '../../../utils/constants.dart';
 import '../../../core/data/datasources/shared_pref.dart';
+import '../../language/app_languages.dart';
 import '../../../services/llm_service.dart';
 import '../bloc/llm_settings_bloc.dart';
 import 'widgets/llm_settings_section.dart';
@@ -88,8 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: const EdgeInsets.only(right: 15.0),
                     child: DropdownButton<String>(
                       value: dropdownValue,
-                      hint: Text(
-                          '${getIt<SharedPref>().prefs.getString("language")}'),
+                      hint: Text(getIt<SharedPref>().sourceLanguage),
                       icon: const Icon(Icons.arrow_downward),
                       iconSize: 24,
                       elevation: 16,
@@ -105,8 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         }
                       },
                       items: <String>[
-                        'English',
-                        'Tiếng Việt',
+                        ...sourceLanguageLabels,
                       ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,

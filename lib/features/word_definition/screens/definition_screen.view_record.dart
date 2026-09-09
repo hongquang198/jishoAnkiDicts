@@ -19,6 +19,7 @@ extension _DefinitionScreenViewRecordExt on _DefinitionScreenState {
       jlpt: jishoDefinition.jlpt,
       senses: jishoDefinition.senses,
       localizedGloss: localizedGloss.gloss,
+      glossLang: getIt<SharedPref>().sourceLanguageCode,
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );

@@ -21,7 +21,7 @@ class SearchDictionaryForPhrase extends UseCase<List<LocalizedGloss>, String> {
   SearchDictionaryForPhrase({required this.lookUpLocalizedGloss});
 
   LanguageCapability get capability =>
-      LanguageCapability(getIt<SharedPref>().targetLanguage);
+      getIt<SharedPref>().targetLanguageCapability;
 
   @override
   Future<Either<Failure, List<LocalizedGloss>>> call(String phrase) async {

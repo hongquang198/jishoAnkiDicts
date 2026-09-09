@@ -96,13 +96,13 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
     kanjiList = KanjiHelper.getKanjiComponent(word: currentJapaneseWord);
 
     try {
-      final lang = getIt<SharedPref>().prefs.getString('language');
-      if (lang?.contains('English') == true) {
+      final pref = getIt<SharedPref>();
+      if (pref.isAppInEnglish) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,
             tableName: 'englishExampleDictionary');
-      } else if (lang == 'Tiếng Việt') {
+      } else if (pref.isAppInVietnamese) {
         exampleSentence = KanjiHelper.getExampleSentence(
             word: currentJapaneseWord,
             context: context,
@@ -124,6 +124,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
       jlpt: jishoDefinition.jlpt,
       senses: jishoDefinition.senses,
                   localizedGloss: localizedGloss.gloss,
+      glossLang: getIt<SharedPref>().sourceLanguageCode,
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );

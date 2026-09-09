@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../core/data/datasources/shared_pref.dart';
+import '../../../localization_manager.dart';
+import '../../language/app_languages.dart';
 import '../../../injection.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
@@ -24,7 +27,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isVn = _selectedSource == 'Tiếng Việt';
+    final isVn = localeCodeForSource(_selectedSource) == 'vi';
 
     return Scaffold(
       appBar: AppBar(
@@ -70,9 +73,12 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'Tiếng Việt', child: Text('Tiếng Việt (Vietnamese)')),
-                  DropdownMenuItem(value: 'English', child: Text('English')),
+                items: [
+                  for (final language in kSourceLanguages)
+                    DropdownMenuItem(
+                      value: language.label,
+                      child: Text('${language.label} (${language.promptName})'),
+                    ),
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -95,8 +101,9 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'Japanese', child: Text('Japanese (Tiếng Nhật)')),
+                items: [
+                  for (final target in kTargetLanguages)
+                    DropdownMenuItem(value: target, child: Text(target)),
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -121,6 +128,10 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                   pref.sourceLanguage = _selectedSource;
                   pref.targetLanguage = _selectedTarget;
                   pref.hasCompletedLanguageSetup = true;
+                  // The source language owns the app locale (and through it
+                  // the LLM prompt language), so apply it immediately.
+                  Provider.of<LocalizationNotifier>(context, listen: false)
+                      .setLanguage(language: _selectedSource);
                   context.go('/');
                 },
                 child: Text(

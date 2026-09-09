@@ -1,5 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../features/language/app_languages.dart';
+import '../../../features/language/language_capability.dart';
+
 class SharedPref {
   SharedPreferences prefs;
   SharedPref({required this.prefs});
@@ -61,8 +64,6 @@ class SharedPref {
         prefs.setInt(_SharedPreferenceKeys.leechThreshold, 8);
     prefs.getBool(_SharedPreferenceKeys.enableFloating) ??
         prefs.setBool(_SharedPreferenceKeys.enableFloating, true);
-    prefs.getString(_SharedPreferenceKeys.language) ??
-        prefs.setString(_SharedPreferenceKeys.language, 'English');
     prefs.getInt(_SharedPreferenceKeys.exampleNumber) ??
         prefs.setInt(_SharedPreferenceKeys.exampleNumber, 3);
     prefs.getString(_SharedPreferenceKeys.theme) ??
@@ -85,27 +86,21 @@ class SharedPref {
         prefs.setBool(_SharedPreferenceKeys.hasCompletedLanguageSetup, false);
   }
 
-  /// Canonical app-locale code derived from the stored `language` label.
-  /// Single mapping point for future locales: add the new label here plus
-  /// its `.arb` bundle, and every `isAppInX` / prompt call site follows.
-  /// Currently `vi` for Tiếng Việt, `en` for everything else (legacy stored
-  /// values include 'English' variants).
-  String get appLocaleCode {
-    final stored = prefs.getString('language') ?? '';
-    if (stored == 'Tiếng Việt' || stored == 'vi') return 'vi';
-    return 'en';
-  }
+  /// Canonical app-locale code derived from the chosen source language.
+  /// Only `vi`/`en` UIs exist, so every other source falls back to English
+  /// while prompts and glosses still use the real source language.
+  String get appLocaleCode => localeCodeForSource(sourceLanguage);
 
-  /// Display name of the app language for LLM prompts (e.g. Vietnamese,
-  /// English). Extend the switch when new locales land.
-  String get appLanguageName {
-    switch (appLocaleCode) {
-      case 'vi':
-        return 'Vietnamese';
-      default:
-        return 'English';
-    }
-  }
+  /// Name of the source language for LLM prompts (e.g. Vietnamese, French).
+  String get appLanguageName => promptNameForSource(sourceLanguage);
+
+  /// Stable source code (e.g. `vi`) persisted as `gloss_lang` on saved cards.
+  String get sourceLanguageCode => codeForSource(sourceLanguage);
+
+  /// Feature gates for the chosen target language (Japanese unlocks the
+  /// offline/Jisho lanes; other targets are served by the LLM/GenUI lane).
+  LanguageCapability get targetLanguageCapability =>
+      LanguageCapability(targetLanguage);
 
   bool get isAppInVietnamese => appLocaleCode == 'vi';
   bool get isAppInEnglish => appLocaleCode == 'en';
@@ -153,22 +148,18 @@ class SharedPref {
   set hasCompletedLanguageSetup(bool value) =>
       prefs.setBool(_SharedPreferenceKeys.hasCompletedLanguageSetup, value);
 
-  static const String defaultPromptVn =
-      "Phân tích từ vựng và ngữ pháp cho cụm từ/câu '%search_words%' bằng Tiếng Việt. "
-      'Nếu có nhiều từ (danh từ + động từ), người dùng đang tìm kiếm mẫu ngữ pháp. '
-      'Trong trường hợp này, hãy hiển thị mẫu ngữ pháp và dịch nghĩa của cụm từ/câu. '
-      'Nếu từ đầu tiên là động từ, hãy đưa ra ví dụ để phân biệt rõ Tự động từ (Intransitive) hay Tha động từ (Transitive). '
-      'Trình bày ngắn gọn, rõ ràng, dễ đọc.';
-
-  static const String defaultPromptEn =
-      "Analyze the words and grammar for this lookup '%search_words%' in English. "
+  /// Default lookup prompt shared by every source language. Instructions
+  /// stay in English (models follow them reliably) while the answer is
+  /// directed into [languageName], so saved glosses match their `gloss_lang`
+  /// stamp without per-language templates to maintain.
+  static String defaultPromptFor(String languageName) =>
+      'Analyze the words and grammar for this lookup \'%search_words%\' in $languageName. '
       'If there are multiple words (nouns+verbs), user must be definitely looking for a grammar pattern. '
       'In this case, show only the grammar pattern and the translated version of the lookup. '
       'If the first word you find is a verb, then show examples to clearly understand if the verb is Intransitive or Transitive. '
       'Keep the answer concise and easy to read.';
 
-  String get activeDefaultPrompt =>
-      isAppInVietnamese ? defaultPromptVn : defaultPromptEn;
+  String get activeDefaultPrompt => defaultPromptFor(appLanguageName);
 
   String get effectivePrompt {
     final custom = llmCustomPrompt.trim();
@@ -194,7 +185,6 @@ class _SharedPreferenceKeys {
   static const String minimumInterval = 'minimumInterval';
   static const String leechThreshold = 'leechThreshold';
   static const String enableFloating = 'enableFloating';
-  static const String language = 'language';
   static const String exampleNumber = 'exampleNumber';
   static const String theme = 'theme';
   static const String llmEnable = 'llmEnable';
