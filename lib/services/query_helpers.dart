@@ -43,8 +43,8 @@ String canonicalBaseForm({
   if (isSentenceQuery(query)) return '';
   final llmWord = wordInfo?['word']?.toString().trim() ?? '';
   if (wordInfo?['found'] == true && llmWord.isNotEmpty) return llmWord;
-  final jishoWord = jishoDefinition?.japaneseWord.trim() ?? '';
-  if (jishoWord.isNotEmpty) return jishoWord;
+  final headword = jishoDefinition?.headword.trim() ?? '';
+  if (headword.isNotEmpty) return headword;
   final vn = vnWord?.trim() ?? '';
   if (vn.isNotEmpty) return vn;
   return query.trim();

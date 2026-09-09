@@ -127,7 +127,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     return list.where((card) {
       return card.word.toLowerCase().contains(q) ||
           card.reading.toLowerCase().contains(q) ||
-          card.vietnameseDefinition.toLowerCase().contains(q);
+          card.localizedGloss.toLowerCase().contains(q);
     }).toList();
   }
 

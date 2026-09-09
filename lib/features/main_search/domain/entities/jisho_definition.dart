@@ -39,7 +39,8 @@ class JishoDefinition extends Equatable {
   final dynamic isJmnedict;
   final dynamic isDbpedia;
 
-  String get japaneseWord {
+  /// Primary display term for the entry (any source language).
+  String get headword {
     if (word?.isNotEmpty == true) {
       return word!;
     } else if (slug.isNotEmpty == true) {

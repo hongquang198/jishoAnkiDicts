@@ -134,7 +134,7 @@ class _SearchResultTileEnState extends State<SearchResultTileEn> {
                 DbHelper.removeFromOfflineList(
                     offlineListType: OfflineListType.favorite,
                     context: context,
-                    word: widget.jishoDefinition?.japaneseWord ?? '');
+                    word: widget.jishoDefinition?.headword ?? '');
               });
             }
           },

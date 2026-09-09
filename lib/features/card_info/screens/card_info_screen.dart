@@ -12,7 +12,7 @@ class CardInfoScreen extends StatelessWidget {
     this.offlineWordRecord,
   });
 
-  String get word => card?.japaneseWord ?? offlineWordRecord?.japaneseWord ?? '';
+  String get word => card?.headword ?? offlineWordRecord?.headword ?? '';
   int get addedAt => card?.addedAt ?? offlineWordRecord?.added ?? 0;
   int? get firstReview => card?.srsData?.firstReviewedAt ?? offlineWordRecord?.firstReview;
   int? get lastReview => card?.srsData?.lastReviewedAt ?? offlineWordRecord?.lastReview;

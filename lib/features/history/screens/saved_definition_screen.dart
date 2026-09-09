@@ -8,7 +8,7 @@ import '../../../core/domain/entities/user_data/word_card.dart';
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
-import '../../../models/vietnamese_definition.dart';
+import '../../../models/localized_gloss.dart';
 import '../../../services/kanji_helper.dart';
 import '../../main_search/domain/entities/jisho_definition.dart';
 import '../../word_definition/bloc/word_interaction_bloc.dart';
@@ -22,13 +22,13 @@ import '../../word_definition/screens/widgets/word_view_count_widget.dart';
 
 class SavedDefinitionScreenArgs {
   final Future<List<String>>? hanViet;
-  final VietnameseDefinition? vnDefinition;
+  final LocalizedGloss? localizedGloss;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
   final bool isOfflineList;
   SavedDefinitionScreenArgs({
     this.hanViet,
-    this.vnDefinition,
+    this.localizedGloss,
     this.jishoDefinition,
     required this.isInFavoriteList,
     this.isOfflineList = false,
@@ -44,9 +44,9 @@ class SavedDefinitionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final word = args.vnDefinition?.word.isNotEmpty == true
-        ? args.vnDefinition!.word
-        : (args.jishoDefinition?.japaneseWord ?? args.jishoDefinition?.slug ?? '');
+    final word = args.localizedGloss?.headword.isNotEmpty == true
+        ? args.localizedGloss!.headword
+        : (args.jishoDefinition?.headword ?? args.jishoDefinition?.slug ?? '');
 
     return BlocProvider(
       create: (context) => getIt<WordInteractionBloc>()..add(WatchWordInteraction(word)),
@@ -68,7 +68,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
   late Future<List<Kanji>> kanjiList;
   late Future<List<ExampleSentence>> exampleSentence;
   late JishoDefinition jishoDefinition;
-  late VietnameseDefinition vnDefinition;
+  late LocalizedGloss localizedGloss;
   late String currentJapaneseWord;
 
   Divider get divider =>
@@ -78,8 +78,8 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
   void initState() {
     super.initState();
     jishoDefinition = widget.args.jishoDefinition ?? JishoDefinition(slug: '');
-    vnDefinition = widget.args.vnDefinition ?? VietnameseDefinition();
-    currentJapaneseWord = vnDefinition.word;
+    localizedGloss = widget.args.localizedGloss ?? LocalizedGloss();
+    currentJapaneseWord = localizedGloss.headword;
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.word ?? '';
     }
@@ -123,7 +123,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
       tags: jishoDefinition.tags,
       jlpt: jishoDefinition.jlpt,
       senses: jishoDefinition.senses,
-      vietnameseDefinition: vnDefinition.definition,
+                  localizedGloss: localizedGloss.gloss,
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
@@ -211,7 +211,7 @@ class _SavedDefinitionScreenViewState extends State<_SavedDefinitionScreenView> 
                 const SizedBox(height: 8),
                 DefinitionWidget(
                   senses: jishoDefinition.senses,
-                  vietnameseDefinition: vnDefinition.definition,
+      localizedGloss: localizedGloss.gloss,
                 ),
                 divider,
                 const SectionHeader(title: 'Examples'),

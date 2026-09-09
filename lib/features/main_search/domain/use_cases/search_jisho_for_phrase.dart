@@ -36,7 +36,7 @@ extension JishoAPIResultExt on JishoResult {
         isJmnedict: attribution.jmnedict,
         isDbpedia: attribution.dbpedia?.isNotEmpty == true,
       );
-  String get japaneseWord => slug.isEmpty
+  String get headword => slug.isEmpty
       ? slug
       : japanese.firstOrNull?.word ?? japanese.firstOrNull?.reading ?? '';
 }

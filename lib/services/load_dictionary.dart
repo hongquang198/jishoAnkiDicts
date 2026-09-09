@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/example_sentence.dart';
 import '../models/pitch_accent.dart';
-import '../models/vietnamese_definition.dart';
+import '../models/localized_gloss.dart';
 import '../models/kanji.dart';
 import 'db_manager.dart';
 
@@ -86,15 +86,15 @@ class LoadDictionary {
   }
 
   // Load stardict dictionary from text file
-  Future<List<VietnameseDefinition>> loadJpvnDictionary() async {
-    List<VietnameseDefinition> dictAll = [];
+  Future<List<LocalizedGloss>> loadJpvnDictionary() async {
+    List<LocalizedGloss> dictAll = [];
     try {
       String contents = await rootBundle.loadString('assets/star_nhatviet.txt');
       List<String> lines = contents.split('\n');
       for (final line in lines) {
         List<String> infoByLine = line.split('\t');
-        VietnameseDefinition definition = VietnameseDefinition(
-            word: infoByLine[0], definition: infoByLine[1]);
+        LocalizedGloss definition = LocalizedGloss(
+            headword: infoByLine[0], gloss: infoByLine[1]);
         dictAll.add(definition);
       }
       if (dictAll.isNotEmpty) {

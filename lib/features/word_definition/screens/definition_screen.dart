@@ -9,7 +9,7 @@ import '../../../core/domain/entities/user_data/word_card.dart';
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
-import '../../../models/vietnamese_definition.dart';
+import '../../../models/localized_gloss.dart';
 import '../../../services/kanji_helper.dart';
 import '../../../services/query_helpers.dart';
 import '../../../services/llm/gen_ui_data_prefetch.dart';
@@ -39,14 +39,14 @@ part 'definition_screen.view_record.dart';
 class DefinitionScreenArgs {
   MainSearchBloc mainSearchBloc;
   final List<String>? hanViet;
-  final VietnameseDefinition? vnDefinition;
+  final LocalizedGloss? localizedGloss;
   final JishoDefinition? jishoDefinition;
   final bool isInFavoriteList;
   final bool isOfflineList;
   DefinitionScreenArgs({
     required this.mainSearchBloc,
     this.hanViet,
-    this.vnDefinition,
+    this.localizedGloss,
     this.jishoDefinition,
     required this.isInFavoriteList,
     this.isOfflineList = false,
@@ -71,10 +71,10 @@ class DefinitionScreen extends StatefulWidget {
             // Watch the local base form immediately so the counter paints
             // without flashing the inflected surface; the bloc re-watches
             // with the LLM lemma once its lane completes.
-            final vnWord = args.vnDefinition?.word ?? '';
+            final vnWord = args.localizedGloss?.headword ?? '';
             final query = vnWord.isNotEmpty
                 ? vnWord
-                : (args.jishoDefinition?.japaneseWord ??
+                : (args.jishoDefinition?.headword ??
                     args.jishoDefinition?.slug ??
                     '');
             return getIt<WordInteractionBloc>()
@@ -100,7 +100,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
   late Future<List<Kanji>> kanjiList;
   late Future<List<ExampleSentence>> exampleSentence;
   late JishoDefinition jishoDefinition;
-  late VietnameseDefinition vnDefinition;
+  late LocalizedGloss localizedGloss;
   late String currentJapaneseWord;
   bool _historyRecorded = false;
   PreloadedImage? _descriptivePicture;
@@ -233,7 +233,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                       const SizedBox(height: 2),
                       DefinitionWidget(
                         senses: jishoDefinition.senses,
-                        vietnameseDefinition: vnDefinition.definition,
+                        localizedGloss: localizedGloss.gloss,
                       ),
                       divider,
                       const SectionHeader(title: 'Examples'),
@@ -256,7 +256,7 @@ class _DefinitionScreenState extends State<DefinitionScreen> {
                             extra: AiChatScreenArgs(
                               word: currentJapaneseWord,
                               reading: jishoDefinition.reading,
-                              definition: vnDefinition.definition,
+                              definition: localizedGloss.gloss,
                               existingTutorComment: _aiTutorComment,
                               existingMemoryTip: _aiMemoryTip,
                             ),

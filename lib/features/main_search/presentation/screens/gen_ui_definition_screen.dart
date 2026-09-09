@@ -58,7 +58,7 @@ class GenUiDefinitionScreenArgs {
     MainSearchBloc? mainSearchBloc, String query) {
   final data = mainSearchBloc?.state.data;
   final jishoDefinition =
-      data?.getSpecificJishoDefinition(japaneseWord: query) ??
+      data?.getSpecificJishoDefinition(headword: query) ??
           data?.jishoDefinitionList.firstWhereOrNull(
             (element) =>
                 element.reading == query ||

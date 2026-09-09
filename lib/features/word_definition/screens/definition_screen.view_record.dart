@@ -18,7 +18,7 @@ extension _DefinitionScreenViewRecordExt on _DefinitionScreenState {
       tags: jishoDefinition.tags,
       jlpt: jishoDefinition.jlpt,
       senses: jishoDefinition.senses,
-      vietnameseDefinition: vnDefinition.definition,
+      localizedGloss: localizedGloss.gloss,
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
@@ -53,7 +53,7 @@ extension _DefinitionScreenViewRecordExt on _DefinitionScreenState {
           wordInfo: info,
           jishoDefinition:
               widget.args.jishoDefinition != null ? jishoDefinition : null,
-          vnWord: vnDefinition.word,
+          vnWord: localizedGloss.headword,
         ));
   }
 }

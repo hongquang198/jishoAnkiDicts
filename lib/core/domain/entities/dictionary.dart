@@ -1,7 +1,7 @@
 import '../../../injection.dart';
 import '../../../models/example_sentence.dart';
 import '../../../models/pitch_accent.dart';
-import '../../../models/vietnamese_definition.dart';
+import '../../../models/localized_gloss.dart';
 import '../../../services/db_manager.dart';
 import '../../data/datasources/shared_pref.dart';
 import '../../../models/grammar_point.dart';
@@ -9,7 +9,7 @@ import '../../../models/kanji.dart';
 import '../../../models/offline_word_record.dart';
 
 class Dictionary {
-  late List<VietnameseDefinition> vietnameseDictionary;
+  late List<LocalizedGloss> localizedGlossDictionary;
   late List<Kanji> kanjiDictionary;
   late List<ExampleSentence> exampleDictionary;
   late List<OfflineWordRecord> history;

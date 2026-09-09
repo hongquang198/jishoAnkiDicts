@@ -122,8 +122,8 @@
 //                   child: DefinitionWidget(
 //                     senses: jsonDecode(
 //                         widget.dictionary.review[widget.currentCard].senses),
-//                     vietnameseDefinition: widget.dictionary
-//                         .review[widget.currentCard].vietnamese_definition,
+//                     localizedGloss: widget.dictionary
+//                         .review[widget.currentCard].localized_definition,
 //                   ),
 //                 )
 //               : SizedBox(),

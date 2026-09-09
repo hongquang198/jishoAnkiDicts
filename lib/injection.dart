@@ -19,7 +19,7 @@ import 'package:jisho_anki/core/domain/use_cases/user_data/toggle_favorite_use_c
 import 'package:jisho_anki/core/domain/use_cases/user_data/toggle_review_use_case.dart';
 import 'package:jisho_anki/features/main_search/data/data_sources/jisho_remote_data_source.dart';
 import 'package:jisho_anki/features/main_search/domain/repositories/jisho_repository.dart';
-import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_localized_gloss.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_grammar_point.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
@@ -170,7 +170,7 @@ Future<void> inject() async {
   getIt.registerFactory<MainSearchBloc>(() => MainSearchBloc(
         lookupGrammarPoint: getIt(),
         searchJishoForPhrase: getIt(),
-        lookForVietnameseDefinition: getIt(),
+        lookUpLocalizedGloss: getIt(),
         lookupHanVietReading: getIt(),
       ));
 
@@ -178,8 +178,8 @@ Future<void> inject() async {
   getIt
     ..registerLazySingleton<SearchJishoForPhrase>(
         () => SearchJishoForPhrase(getIt()))
-    ..registerLazySingleton<LookForVietnameseDefinition>(
-        () => LookForVietnameseDefinition())
+    ..registerLazySingleton<LookUpLocalizedGloss>(
+        () => LookUpLocalizedGloss())
     ..registerLazySingleton<LookupHanVietReading>(() => LookupHanVietReading())
     ..registerLazySingleton<LookUpGrammarPoint>(() => LookUpGrammarPoint());
 

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/main_search_bloc.dart';
-import '../mixins/get_vietnamese_definition_mixin.dart';
+import '../mixins/get_localized_gloss_mixin.dart';
 import 'llm_search_result_tile.dart';
 import 'search_result_tile_en.dart';
 
 class EnSearchResultListView extends StatelessWidget
-    with GetVietnameseDefinitionMixin {
+    with GetLocalizedGlossMixin {
   const EnSearchResultListView({
     super.key,
   });

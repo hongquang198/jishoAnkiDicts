@@ -9,15 +9,15 @@ import '../../../../injection.dart';
 import '/utils/constants.dart';
 
 class DefinitionWidget extends StatelessWidget {
-  final String? vietnameseDefinition;
+  final String? localizedGloss;
   final List<JishoWordSense>? senses;
-  const DefinitionWidget({super.key, this.vietnameseDefinition, this.senses});
+  const DefinitionWidget({super.key, this.localizedGloss, this.senses});
 
-  getVnDefinitionWidget() {
+  getLocalizedGlossWidget() {
     List<String> example = [];
-    if (vietnameseDefinition == null) return SizedBox();
+    if (localizedGloss == null) return SizedBox();
 
-    var document = parse(vietnameseDefinition);
+    var document = parse(localizedGloss);
 
     var fontList = document.querySelectorAll('font');
 
@@ -101,10 +101,10 @@ class DefinitionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         getIt<SharedPref>().isAppInVietnamese
-            ? getVnDefinitionWidget()
+            ? getLocalizedGlossWidget()
             : SizedBox(),
         if ((getIt<SharedPref>().isAppInEnglish) ||
-            vietnameseDefinition?.isEmpty == true)
+            localizedGloss?.isEmpty == true)
           for (int i = 0; i < (senses?.length ?? 0); i++) getDefinitions(i),
       ],
     );

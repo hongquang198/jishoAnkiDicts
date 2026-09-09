@@ -25,11 +25,11 @@ extension _VnSearchResultListViewStateExt on _VnSearchResultListViewState {
           mainSearchBloc: context.read<MainSearchBloc>(),
           hanViet: searchResultChild.hanViet,
           jishoDefinition: searchResultChild.jishoDefinition,
-          vnDefinition: searchResultChild.vnDefinition,
+          localizedGloss: searchResultChild.localizedGloss,
           isInFavoriteList: DbHelper.checkDatabaseExist(
               offlineListType: OfflineListType.favorite,
-              word: searchResultChild.vnDefinition?.word ??
-                  searchResultChild.jishoDefinition?.japaneseWord ??
+              word: searchResultChild.localizedGloss?.headword ??
+                  searchResultChild.jishoDefinition?.headword ??
                   '',
               context: context),
         ),

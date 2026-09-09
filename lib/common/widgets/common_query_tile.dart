@@ -9,21 +9,21 @@ import 'package:jisho_anki/features/history/screens/saved_definition_screen.dart
 import '../../../../../common/widgets/custom_dialog.dart';
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
-import '../../../../../models/vietnamese_definition.dart';
+import '../../../../../models/localized_gloss.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../features/main_search/domain/entities/jisho_definition.dart';
 import '../../features/word_definition/screens/widgets/definition_tags.dart';
 
 class CommonQueryTile extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
-  final VietnameseDefinition? vnDefinition;
+  final LocalizedGloss? localizedGloss;
   final Future<List<String>> hanViet;
   final bool loadingDefinition;
 
   const CommonQueryTile({
     super.key,
     required this.hanViet,
-    this.vnDefinition,
+    this.localizedGloss,
     this.jishoDefinition,
     this.loadingDefinition = false,
   });
@@ -34,8 +34,8 @@ class CommonQueryTile extends StatefulWidget {
 
 class _CommonQueryTileState extends State<CommonQueryTile> {
   String get word {
-    if (widget.vnDefinition?.word.isNotEmpty == true) {
-      return widget.vnDefinition!.word;
+    if (widget.localizedGloss?.headword.isNotEmpty == true) {
+      return widget.localizedGloss!.headword;
     } else if (widget.jishoDefinition?.word?.isNotEmpty == true) {
       return widget.jishoDefinition!.word!;
     } else {
@@ -53,7 +53,7 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
       tags: widget.jishoDefinition?.tags ?? const [],
       jlpt: widget.jishoDefinition?.jlpt ?? const [],
       senses: widget.jishoDefinition?.senses ?? const [],
-      vietnameseDefinition: widget.vnDefinition?.definition ?? '',
+      localizedGloss: widget.localizedGloss?.gloss ?? '',
       addedAt: DateTime.now().millisecondsSinceEpoch,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
@@ -74,11 +74,11 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
     return const SizedBox();
   }
 
-  Widget getVnDefinitionSummary() {
-    if (widget.vnDefinition?.definition == null) {
+  Widget getLocalizedGlossSummary() {
+    if (widget.localizedGloss?.gloss == null) {
       return const SizedBox();
     } else {
-      return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
+      return parseVnDefHtmlWidget(widget.localizedGloss?.gloss ?? '');
     }
   }
 
@@ -177,7 +177,7 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
                   style: const TextStyle(fontSize: 13),
                 ),
               if (getIt<SharedPref>().isAppInVietnamese)
-                getVnDefinitionSummary(),
+                getLocalizedGlossSummary(),
             ],
           ),
           trailing: Row(
@@ -216,7 +216,7 @@ class _CommonQueryTileState extends State<CommonQueryTile> {
               extra: SavedDefinitionScreenArgs(
                 hanViet: widget.hanViet,
                 jishoDefinition: widget.jishoDefinition,
-                vnDefinition: widget.vnDefinition,
+                localizedGloss: widget.localizedGloss,
                 isInFavoriteList: isFavorite,
               ),
             );

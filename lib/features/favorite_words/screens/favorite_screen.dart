@@ -6,7 +6,7 @@ import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
 import 'package:jisho_anki/features/favorite_words/bloc/favorite_bloc.dart';
 import 'package:jisho_anki/injection.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
-import 'package:jisho_anki/models/vietnamese_definition.dart';
+import 'package:jisho_anki/models/localized_gloss.dart';
 import 'package:jisho_anki/services/kanji_helper.dart';
 import 'package:jisho_anki/utils/constants.dart';
 
@@ -33,10 +33,10 @@ class _FavoriteScreenViewState extends State<_FavoriteScreenView> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
-  Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
+  Future<LocalizedGloss?> _getLocalizedGloss(String word) async {
     try {
-      final vnDefinition = await KanjiHelper.getVnDefinition(word: word);
-      if (vnDefinition.isNotEmpty) return vnDefinition.first;
+      final localizedGloss = await KanjiHelper.getLocalizedGloss(word: word);
+      if (localizedGloss.isNotEmpty) return localizedGloss.first;
     } catch (e) {
       log('No VN definition found: $e');
     }
@@ -125,23 +125,23 @@ class _FavoriteScreenViewState extends State<_FavoriteScreenView> {
   }
 
   Widget _buildFavoriteTile(WordCard card) {
-    if (card.vietnameseDefinition.isNotEmpty) {
+    if (card.localizedGloss.isNotEmpty) {
       return CommonQueryTile(
-        hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
-        vnDefinition: VietnameseDefinition(
-          word: card.japaneseWord,
-          definition: card.vietnameseDefinition,
+        hanViet: KanjiHelper.getHanvietReading(word: card.headword),
+        localizedGloss: LocalizedGloss(
+          headword: card.headword,
+          gloss: card.localizedGloss,
         ),
         jishoDefinition: card.toJishoDefinition,
       );
     }
 
-    return FutureBuilder<VietnameseDefinition?>(
-      future: _getVietnameseDefinition(card.japaneseWord),
+    return FutureBuilder<LocalizedGloss?>(
+      future: _getLocalizedGloss(card.headword),
       builder: (context, snapshot) {
         return CommonQueryTile(
-          hanViet: KanjiHelper.getHanvietReading(word: card.japaneseWord),
-          vnDefinition: snapshot.data,
+          hanViet: KanjiHelper.getHanvietReading(word: card.headword),
+          localizedGloss: snapshot.data,
           jishoDefinition: card.toJishoDefinition,
         );
       },

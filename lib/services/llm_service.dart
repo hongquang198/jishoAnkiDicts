@@ -105,7 +105,7 @@ class LlmService {
           'detail follows each property description in the schema above.\n'
           '- Example root component:\n'
           '{"id": "root", "component": "DefinitionCard", '
-          '"vietnameseDefinition": "<closest $targetLanguage gloss> — '
+          '"localizedGloss": "<closest $targetLanguage gloss> — '
           '<1-line nuance>; also: <secondary gloss>", '
           '"senses": [{"english_definitions": ["<closest gloss>", '
           '"<near synonym>"], "parts_of_speech": ["Noun"], "tags": [], '

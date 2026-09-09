@@ -5,14 +5,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/features/main_search/domain/entities/jisho_definition.dart';
-import 'package:jisho_anki/features/main_search/domain/use_cases/look_for_vietnamese_definition.dart';
+import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_localized_gloss.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/look_up_han_viet_reading.dart';
 import 'package:jisho_anki/features/main_search/domain/use_cases/search_jisho_for_phrase.dart';
 import 'package:collection/collection.dart';
 
 import '../../../../injection.dart';
 import '../../../../models/grammar_point.dart';
-import '../../../../models/vietnamese_definition.dart';
+import '../../../../models/localized_gloss.dart';
 import '../../domain/use_cases/look_up_grammar_point.dart';
 
 part 'main_search_event.dart';
@@ -20,19 +20,19 @@ part 'main_search_state.dart';
 
 class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
   final SearchJishoForPhrase searchJishoForPhrase;
-  final LookForVietnameseDefinition lookForVietnameseDefinition;
+  final LookUpLocalizedGloss lookUpLocalizedGloss;
   final LookupHanVietReading lookupHanVietReading;
   final LookUpGrammarPoint lookupGrammarPoint;
 
   MainSearchBloc({
     required this.searchJishoForPhrase,
-    required this.lookForVietnameseDefinition,
+    required this.lookUpLocalizedGloss,
     required this.lookupHanVietReading,
     required this.lookupGrammarPoint,
   }) : super(MainSearchLoadingState(const MainSearchStateData())) {
     on<SearchForPhraseEvent>(_onSearchForPhrase);
     on<SearchForGrammarPointEvent>(_onSearchForGrammarPoint);
-    on<SearchForVnDefinitionEvent>(_onSearchForVnDefinition);
+    on<SearchForLocalizedGlossEvent>(_onSearchForLocalizedGloss);
     on<SearchForHanVietEvent>(_onSearchForHanViet);
     on<SearchForJishoDefinitionEvent>(_onSearchForJishoDefinition);
     on<TriggerAnimationEvent>(_onTriggerAnimation);
@@ -50,7 +50,7 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
 
     add(SearchForGrammarPointEvent(cleanPhrase));
     if (isAppInVietnamese) {
-      add(SearchForVnDefinitionEvent(cleanPhrase));
+      add(SearchForLocalizedGlossEvent(cleanPhrase));
     }
     add(SearchForJishoDefinitionEvent(cleanPhrase));
   }
@@ -68,11 +68,11 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
             ))));
   }
 
-  FutureOr<void> _onSearchForVnDefinition(
-      SearchForVnDefinitionEvent event, Emitter<MainSearchState> emit) async {
-    final vnDefinitionEither =
-        await lookForVietnameseDefinition.call(event.phrase);
-    vnDefinitionEither.fold(
+  FutureOr<void> _onSearchForLocalizedGloss(
+      SearchForLocalizedGlossEvent event, Emitter<MainSearchState> emit) async {
+    final glossEither =
+        await lookUpLocalizedGloss.call(event.phrase);
+    glossEither.fold(
         (failure) => emit(MainSearchFailureState(
               state.data,
               failureMessage: failure.properties.toString(),
@@ -92,11 +92,11 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       ..addAll(state.data.wordToHanVietMap);
     for (var definition in state.data.vnDictQuery) {
       final hanVietResultEither =
-          await lookupHanVietReading.call(definition.word);
+          await lookupHanVietReading.call(definition.headword);
       hanVietResultEither.fold(
         (l) => null,
         (hanViet) {
-          wordToHanVietMap[definition.word] = hanViet;
+          wordToHanVietMap[definition.headword] = hanViet;
           emit(MainSearchLoadedState(
               state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
         },
@@ -127,11 +127,11 @@ class MainSearchBloc extends Bloc<MainSearchEvent, MainSearchState> {
       for (var definition in jishoDefinitionList.sublist(
           0, min(jishoDefinitionList.length, 5))) {
         final hanVietResultEither =
-            await lookupHanVietReading.call(definition.japaneseWord);
+            await lookupHanVietReading.call(definition.headword);
         hanVietResultEither.fold(
           (l) => null,
           (hanViet) {
-            wordToHanVietMap[definition.japaneseWord] = hanViet;
+            wordToHanVietMap[definition.headword] = hanViet;
             emit(MainSearchLoadedState(
                 state.data.copyWith(wordToHanVietMap: wordToHanVietMap)));
           },

@@ -79,10 +79,10 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView>
             animationDuration: Duration(
                 milliseconds:
                     ((grammarPointList.length + index + 1) % 10) * 300),
-            vnDefinition: vnDefinition,
-            hanViet: _getHanViet(stateData, vnDefinition.word),
+            localizedGloss: vnDefinition,
+            hanViet: _getHanViet(stateData, vnDefinition.headword),
             jishoDefinition: stateData.jishoDefinitionList.firstWhereOrNull(
-                (element) => element.japaneseWord == vnDefinition.word),
+                (element) => element.headword == vnDefinition.headword),
           ),
         ),
         ...jishoDefinitionList
@@ -94,7 +94,7 @@ class _VnSearchResultListViewState extends State<VnSearchResultListView>
                                   1) %
                               10) *
                           300),
-                  hanViet: _getHanViet(stateData, jishoDefintiion.japaneseWord),
+                  hanViet: _getHanViet(stateData, jishoDefintiion.headword),
                   jishoDefinition: jishoDefintiion,
                 )),
       ]);

@@ -10,7 +10,7 @@ class OfflineWordRecord {
   final String word; //
   final String reading; //
   final List<JishoWordSense> senses; //
-  final String vietnameseDefinition; //
+  final String localizedGloss; //
   // Date
   final int added;
   final int? firstReview;
@@ -28,7 +28,7 @@ class OfflineWordRecord {
   final String noteType;
   final String deck;
 
-  String get japaneseWord {
+  String get headword {
     if (word.isNotEmpty) {
       return word;
     } else if (slug.isNotEmpty) {
@@ -45,7 +45,7 @@ class OfflineWordRecord {
       this.word = '',
       this.reading = '',
       this.senses = const [],
-      this.vietnameseDefinition = '',
+      this.localizedGloss = '',
       this.added = -1,
       this.firstReview,
       this.lastReview,
@@ -66,7 +66,7 @@ class OfflineWordRecord {
   String toString() {
     return 'OfflineWordRecord{slug: $slug, is_common: $isCommon, tags: $tags, '
         'jlpt: $jlpt, word: $word, reading: $reading, senses: $senses,'
-        'vietnamese_definition: $vietnameseDefinition, added: $added, firstReview: $firstReview,'
+        'localized_definition: $localizedGloss, added: $added, firstReview: $firstReview,'
         'lastReview: $lastReview, due: $due, interval: $interval, ease: $ease, reviews: $reviews, '
         'lapses: $lapses, averageTimeMinute: $averageTimeMinute, totalTimeMinute: $totalTimeMinute, '
         'cardType: $cardType, noteType: $noteType, deck: $deck}';
@@ -81,7 +81,7 @@ class OfflineWordRecord {
       'word': word,
       'reading': reading,
       'senses': json.encode(senses.map((x) => x.toJson()).toList()),
-      'vietnamese_definition': vietnameseDefinition,
+      'localized_definition': localizedGloss,
       'added': added,
       'firstReview': firstReview,
       'lastReview': lastReview,
@@ -99,33 +99,56 @@ class OfflineWordRecord {
   }
 
   factory OfflineWordRecord.fromMap(Map<String, dynamic> map) {
+    List<String> parseTags(dynamic raw) {
+      if (raw == null) return [];
+      if (raw is List) return raw.map((e) => e.toString()).toList();
+      try {
+        final decoded = json.decode(raw.toString());
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {}
+      return [];
+    }
+
+    List<JishoWordSense> parseSenses(dynamic raw) {
+      if (raw == null) return [];
+      try {
+        final decoded = raw is String ? json.decode(raw) : raw;
+        if (decoded is List) {
+          return decoded
+              .map((x) => JishoWordSense.fromJson(x as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (_) {}
+      return [];
+    }
+
     return OfflineWordRecord(
-      slug: map['slug'] as String,
-      isCommon: map['is_common'] as int,
-      tags: List<String>.from((json.decode(map['tags']))),
-      jlpt: List<String>.from((json.decode(map['jlpt']))),
-      word: map['word'] as String,
-      reading: map['reading'] as String,
-      senses: List<JishoWordSense>.from(
-        (json.decode(map['senses']) as List<dynamic>).map<JishoWordSense>(
-          (x) => JishoWordSense.fromJson(x as Map<String, dynamic>),
-        ),
-      ),
-      vietnameseDefinition: map['vietnamese_definition'] as String,
-      added: map['added'] as int,
+      slug: map['slug']?.toString() ?? '',
+      isCommon: (map['is_common'] as num?)?.toInt() ?? -1,
+      tags: parseTags(map['tags']),
+      jlpt: parseTags(map['jlpt']),
+      word: map['word']?.toString() ?? '',
+      reading: map['reading']?.toString() ?? '',
+      senses: parseSenses(map['senses']),
+      // New asset uses `localized_definition`; fall back to the legacy
+      // column name for on-device copies made before the rename.
+      localizedGloss: (map['localized_definition'] ?? map['vietnamese_definition'])?.toString() ?? '',
+      added: (map['added'] as num?)?.toInt() ?? -1,
       firstReview:
-          map['firstReview'] != null ? map['firstReview'] as int : null,
-      lastReview: map['lastReview'] != null ? map['lastReview'] as int : null,
-      due: map['due'] as int,
-      interval: map['interval'] as int,
-      ease: map['ease'] as double,
-      reviews: map['reviews'] as int,
-      lapses: map['lapses'] as int,
-      averageTimeMinute: map['averageTimeMinute'] as double,
-      totalTimeMinute: map['totalTimeMinute'] as double,
-      cardType: map['cardType'] as String,
-      noteType: map['noteType'] as String,
-      deck: map['deck'] as String,
+          map['firstReview'] != null ? (map['firstReview'] as num).toInt() : null,
+      lastReview:
+          map['lastReview'] != null ? (map['lastReview'] as num).toInt() : null,
+      due: (map['due'] as num?)?.toInt() ?? -1,
+      interval: (map['interval'] as num?)?.toInt() ?? -1,
+      ease: (map['ease'] as num?)?.toDouble() ?? -1,
+      reviews: (map['reviews'] as num?)?.toInt() ?? -1,
+      lapses: (map['lapses'] as num?)?.toInt() ?? -1,
+      averageTimeMinute:
+          (map['averageTimeMinute'] as num?)?.toDouble() ?? -1,
+      totalTimeMinute: (map['totalTimeMinute'] as num?)?.toDouble() ?? -1,
+      cardType: map['cardType']?.toString() ?? '',
+      noteType: map['noteType']?.toString() ?? '',
+      deck: map['deck']?.toString() ?? '',
     );
   }
 
@@ -142,7 +165,7 @@ class OfflineWordRecord {
     String? word,
     String? reading,
     List<JishoWordSense>? senses,
-    String? vietnameseDefinition,
+    String? localizedGloss,
     int? added,
     int? firstReview,
     int? lastReview,
@@ -165,7 +188,7 @@ class OfflineWordRecord {
       word: word ?? this.word,
       reading: reading ?? this.reading,
       senses: senses ?? this.senses,
-      vietnameseDefinition: vietnameseDefinition ?? this.vietnameseDefinition,
+      localizedGloss: localizedGloss ?? this.localizedGloss,
       added: added ?? this.added,
       firstReview: firstReview ?? this.firstReview,
       lastReview: lastReview ?? this.lastReview,

@@ -12,7 +12,7 @@ import '../models/offline_word_record.dart';
 import '../models/pitch_accent.dart';
 import '../core/data/datasources/shared_pref.dart';
 import '../models/kanji.dart';
-import '../models/vietnamese_definition.dart';
+import '../models/localized_gloss.dart';
 import '../models/example_sentence.dart';
 
 class DbManager {
@@ -80,10 +80,10 @@ class DbManager {
   }
 
   Future<void> batchInsertJpvnDictionary(
-      List<VietnameseDefinition> vietnameseDict) async {
+      List<LocalizedGloss> localizedGlossDict) async {
     Database db = await initDatabase();
     Batch batch = db.batch();
-    for (var element in vietnameseDict) {
+    for (var element in localizedGlossDict) {
       batch.insert('jpvnDictionary', element.toMap(),
           conflictAlgorithm: ConflictAlgorithm.replace);
     }
@@ -128,16 +128,16 @@ class DbManager {
     });
   }
 
-  Future<List<VietnameseDefinition>> retrieveJpvnDictionary() async {
+  Future<List<LocalizedGloss>> retrieveJpvnDictionary() async {
     Database db = await initDatabase();
     // Query the table for all The Dogs.
     final List<Map<String, dynamic>> maps = await db.query('jpvnDictionary');
 
     // Convert the List<Map<String, dynamic> into a List<Dog>.
     return List.generate(maps.length, (i) {
-      return VietnameseDefinition(
-        word: maps[i]['word'],
-        definition: maps[i]['definition'],
+      return LocalizedGloss(
+        headword: maps[i]['word'],
+        gloss: maps[i]['definition'],
       );
     });
   }
@@ -330,7 +330,7 @@ class DbManager {
     });
   }
 
-  Future<List<VietnameseDefinition>> searchForVnMeaning(
+  Future<List<LocalizedGloss>> searchForLocalizedGloss(
       {required String word}) async {
     Database db = await initDatabase();
     // Don't input limit parameter because this search function is using LIKE function
@@ -342,9 +342,9 @@ class DbManager {
       limit: 15,
     );
     return List.generate(maps.length, (i) {
-      return VietnameseDefinition(
-        word: maps[i]['word'],
-        definition: maps[i]['definition'],
+      return LocalizedGloss(
+        headword: maps[i]['word'],
+        gloss: maps[i]['definition'],
       );
     });
   }

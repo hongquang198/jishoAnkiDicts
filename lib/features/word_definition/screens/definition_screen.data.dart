@@ -8,8 +8,8 @@ part of 'definition_screen.dart';
 extension _DefinitionScreenDataExt on _DefinitionScreenState {
   void _resolveArgs() {
     jishoDefinition = widget.args.jishoDefinition ?? JishoDefinition(slug: '');
-    vnDefinition = widget.args.vnDefinition ?? VietnameseDefinition();
-    currentJapaneseWord = vnDefinition.word;
+    localizedGloss = widget.args.localizedGloss ?? LocalizedGloss();
+    currentJapaneseWord = localizedGloss.headword;
     if (currentJapaneseWord.isEmpty) {
       currentJapaneseWord = jishoDefinition.word ?? '';
     }
@@ -21,7 +21,7 @@ extension _DefinitionScreenDataExt on _DefinitionScreenState {
   void _loadLocalFutures() {
     // VN-DB words have no jisho entry (empty stub): fall back to the VN
     // headword so the pitch lookup still has an orthography key.
-    final vnWord = vnDefinition.word;
+    final vnWord = localizedGloss.headword;
     final lookupWord = jishoDefinition.word?.isNotEmpty == true
         ? jishoDefinition.word
         : (vnWord.isNotEmpty ? vnWord : null);

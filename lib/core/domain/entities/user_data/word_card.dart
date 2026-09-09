@@ -30,8 +30,11 @@ class WordCard extends Equatable {
   /// Definitions and senses from Jisho.
   final List<JishoWordSense> senses;
 
-  /// Vietnamese definition text, if available.
-  final String vietnameseDefinition;
+  /// Localized gloss text in [glossLang], if available.
+  final String localizedGloss;
+
+  /// Language code of [localizedGloss] (e.g. 'vi', 'en').
+  final String glossLang;
 
   /// Bookmark status.
   final bool isFavorite;
@@ -66,7 +69,8 @@ class WordCard extends Equatable {
     this.tags = const [],
     this.jlpt = const [],
     this.senses = const [],
-    this.vietnameseDefinition = '',
+    this.localizedGloss = '',
+    this.glossLang = '',
     this.isFavorite = false,
     this.srsData,
     required this.addedAt,
@@ -78,7 +82,7 @@ class WordCard extends Equatable {
   });
 
   /// Primary display term for the word.
-  String get japaneseWord {
+  String get headword {
     if (word.isNotEmpty) return word;
     if (slug.isNotEmpty) return slug;
     return reading;
@@ -96,7 +100,8 @@ class WordCard extends Equatable {
     List<String>? tags,
     List<String>? jlpt,
     List<JishoWordSense>? senses,
-    String? vietnameseDefinition,
+    String? localizedGloss,
+    String? glossLang,
     bool? isFavorite,
     SrsData? srsData,
     bool clearSrsData = false,
@@ -116,8 +121,8 @@ class WordCard extends Equatable {
       tags: tags ?? this.tags,
       jlpt: jlpt ?? this.jlpt,
       senses: senses ?? this.senses,
-      vietnameseDefinition:
-          vietnameseDefinition ?? this.vietnameseDefinition,
+      localizedGloss: localizedGloss ?? this.localizedGloss,
+      glossLang: glossLang ?? this.glossLang,
       isFavorite: isFavorite ?? this.isFavorite,
       srsData: clearSrsData ? null : (srsData ?? this.srsData),
       addedAt: addedAt ?? this.addedAt,
@@ -143,7 +148,8 @@ class WordCard extends Equatable {
   /// Factory to construct from a [JishoDefinition].
   factory WordCard.fromJishoDefinition({
     required JishoDefinition jisho,
-    String vietnameseDefinition = '',
+    String localizedGloss = '',
+    String glossLang = '',
     bool isFavorite = false,
     SrsData? srsData,
     int? timestamp,
@@ -162,7 +168,8 @@ class WordCard extends Equatable {
       tags: jisho.tags,
       jlpt: jisho.jlpt,
       senses: jisho.senses,
-      vietnameseDefinition: vietnameseDefinition,
+      localizedGloss: localizedGloss,
+      glossLang: glossLang,
       isFavorite: isFavorite,
       srsData: srsData,
       addedAt: now,
@@ -183,7 +190,8 @@ class WordCard extends Equatable {
       'tags': json.encode(tags),
       'jlpt': json.encode(jlpt),
       'senses': json.encode(senses.map((x) => x.toJson()).toList()),
-      'vietnamese_definition': vietnameseDefinition,
+      'localized_definition': localizedGloss,
+      'gloss_lang': glossLang,
       'is_favorite': isFavorite ? 1 : 0,
       'srs_data': srsData != null ? json.encode(srsData!.toMap()) : null,
       'added_at': addedAt,
@@ -239,7 +247,10 @@ class WordCard extends Equatable {
       tags: parseList(map['tags']),
       jlpt: parseList(map['jlpt']),
       senses: parseSenses(map['senses']),
-      vietnameseDefinition: map['vietnamese_definition'] as String? ?? '',
+      // New code writes `localized_definition`; fall back to the legacy
+      // key so pre-rename Firestore docs self-heal on next pull.
+      localizedGloss: (map['localized_definition'] ?? map['vietnamese_definition']) as String? ?? '',
+      glossLang: map['gloss_lang'] as String? ?? '',
       isFavorite: map['is_favorite'] == 1 || map['is_favorite'] == true,
       srsData: parseSrsData(map['srs_data']),
       addedAt: (map['added_at'] as num?)?.toInt() ?? 0,
@@ -261,7 +272,8 @@ class WordCard extends Equatable {
         tags,
         jlpt,
         senses,
-        vietnameseDefinition,
+        localizedGloss,
+        glossLang,
         isFavorite,
         srsData,
         addedAt,

@@ -21,9 +21,9 @@ final definitionCardItem = CatalogItem(
   name: 'DefinitionCard',
   dataSchema: S.object(
     properties: {
-      'vietnameseDefinition': S.string(
+      'localizedGloss': S.string(
           description:
-              'Definition gloss in the app language when it is Vietnamese '
+              'Definition gloss in the active app language '
               '(1-gloss fallback otherwise). Start with the CLOSEST meaning '
               'in plain words, then 1-3 secondary glosses each with one '
               'short nuance note (register, context, or common collocation). '
@@ -61,7 +61,7 @@ final definitionCardItem = CatalogItem(
   ),
   widgetBuilder: (itemContext) {
     final data = itemContext.data as Map<String, dynamic>;
-    final vnDef = data['vietnameseDefinition'] as String?;
+    final vnDef = data['localizedGloss'] as String?;
     final sensesData = data['senses'] as List<dynamic>?;
     final List<JishoWordSense>? senses = sensesData?.map((e) {
       final map = e as Map<String, dynamic>;
@@ -73,7 +73,7 @@ final definitionCardItem = CatalogItem(
       );
     }).toList();
     return DefinitionWidget(
-      vietnameseDefinition: vnDef,
+      localizedGloss: vnDef,
       senses: senses,
     );
   },

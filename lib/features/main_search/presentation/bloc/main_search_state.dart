@@ -2,7 +2,7 @@ part of 'main_search_bloc.dart';
 
 class MainSearchStateData {
   final List<GrammarPoint> grammarPointList;
-  final List<VietnameseDefinition> vnDictQuery;
+  final List<LocalizedGloss> vnDictQuery;
   final List<JishoDefinition> jishoDefinitionList;
   final bool isAppInVietnamese;
   final Map<String, List<String>> wordToHanVietMap;
@@ -18,13 +18,13 @@ class MainSearchStateData {
     this.llmTileExpanded = false,
   });
 
-  JishoDefinition? getSpecificJishoDefinition({required String japaneseWord}) =>
+  JishoDefinition? getSpecificJishoDefinition({required String headword}) =>
       jishoDefinitionList
-          .firstWhereOrNull((element) => element.japaneseWord == japaneseWord);
+          .firstWhereOrNull((element) => element.headword == headword);
 
   MainSearchStateData copyWith({
     List<GrammarPoint>? grammarPointList,
-    List<VietnameseDefinition>? vnDictQuery,
+    List<LocalizedGloss>? vnDictQuery,
     List<JishoDefinition>? jishoDefinitionList,
     bool? isAppInVietnamese,
     Map<String, List<String>>? wordToHanVietMap,

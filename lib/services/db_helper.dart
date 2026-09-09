@@ -25,7 +25,7 @@ class DbHelper {
     else if (offlineListType == OfflineListType.review) {
       table = getIt<Dictionary>().review;
     }
-    return table.any((offlineWordRecord) => offlineWordRecord.japaneseWord == word);
+    return table.any((offlineWordRecord) => offlineWordRecord.headword == word);
   }
 
   // Remove from history or favorite
@@ -34,19 +34,19 @@ class DbHelper {
     List<OfflineWordRecord> table;
     if (offlineListType == OfflineListType.favorite) {
       table = getIt<Dictionary>().favorite;
-      table.removeWhere((element) => element.japaneseWord == word);
+      table.removeWhere((element) => element.headword == word);
       getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'favorite');
     } else if (offlineListType == OfflineListType.history) {
       table = getIt<Dictionary>().history;
-      table.removeWhere((element) => element.japaneseWord == word);
+      table.removeWhere((element) => element.headword == word);
       getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'history');
     } else if (offlineListType == OfflineListType.review) {
       table = getIt<Dictionary>().review;
-      table.removeWhere((element) => element.japaneseWord == word);
+      table.removeWhere((element) => element.headword == word);
       getIt<Dictionary>()
           .offlineDatabase
           .delete(word: word, tableName: 'review');
@@ -61,7 +61,7 @@ class DbHelper {
     if (offlineListType == OfflineListType.history) {
       if (!checkDatabaseExist(  
               offlineListType: OfflineListType.history,
-              word: offlineWordRecord.japaneseWord,
+              word: offlineWordRecord.headword,
               context: context)) {
         getIt<Dictionary>()
             .history
@@ -74,13 +74,13 @@ class DbHelper {
         OfflineWordRecord found =
             getIt<Dictionary>().history.firstWhere(
                 (element) =>
-                    element.japaneseWord ==
-                    offlineWordRecord.japaneseWord,
+                    element.headword ==
+                    offlineWordRecord.headword,
                 orElse: () => offlineWordRecord);
         getIt<Dictionary>().history.remove(found);
         getIt<Dictionary>()
             .offlineDatabase
-            .delete(word: found.japaneseWord, tableName: 'history');
+            .delete(word: found.headword, tableName: 'history');
         found = found.copyWith(reviews: found.reviews+1);
         getIt<Dictionary>().history.add(found);
         getIt<Dictionary>()
@@ -90,7 +90,7 @@ class DbHelper {
     } else if (offlineListType == OfflineListType.favorite) {
       if (!checkDatabaseExist(
               offlineListType: OfflineListType.favorite,
-              word: offlineWordRecord.japaneseWord,
+              word: offlineWordRecord.headword,
               context: context)) {
         getIt<Dictionary>()
             .favorite
@@ -104,7 +104,7 @@ class DbHelper {
     } else if (offlineListType == OfflineListType.review) {
       if (!checkDatabaseExist(
               offlineListType: OfflineListType.review,
-              word: offlineWordRecord.japaneseWord,
+              word: offlineWordRecord.headword,
               context: context)) {
         getIt<Dictionary>()
             .review

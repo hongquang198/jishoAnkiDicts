@@ -17,9 +17,9 @@ class SearchForGrammarPointEvent extends MainSearchEvent {
   const SearchForGrammarPointEvent(this.phrase);
 }
 
-class SearchForVnDefinitionEvent extends MainSearchEvent {
+class SearchForLocalizedGlossEvent extends MainSearchEvent {
   final String phrase;
-  const SearchForVnDefinitionEvent(this.phrase);
+  const SearchForLocalizedGlossEvent(this.phrase);
 }
 
 class SearchForHanVietEvent extends MainSearchEvent {

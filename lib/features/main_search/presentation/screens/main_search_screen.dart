@@ -16,7 +16,7 @@ import 'package:jisho_anki/theme_manager.dart';
 import 'package:jisho_anki/utils/constants.dart';
 import 'package:jisho_anki/services/recognizer.dart';
 import 'package:jisho_anki/services/share_intent_service.dart';
-import 'package:jisho_anki/features/main_search/presentation/screens/mixins/get_vietnamese_definition_mixin.dart';
+import 'package:jisho_anki/features/main_search/presentation/screens/mixins/get_localized_gloss_mixin.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/widgets/draw_screen.dart';
 import 'package:jisho_anki/features/main_search/presentation/screens/widgets/en_search_result_list_view.dart';
 
@@ -43,7 +43,7 @@ class MainSearchScreen extends StatefulWidget {
 }
 
 class _MainSearchScreenState extends State<MainSearchScreen>
-    with GetVietnameseDefinitionMixin, SingleTickerProviderStateMixin {
+    with GetLocalizedGlossMixin, SingleTickerProviderStateMixin {
   late TextEditingController textEditingController;
   late TabController tabController;
   late FocusNode focusNode;

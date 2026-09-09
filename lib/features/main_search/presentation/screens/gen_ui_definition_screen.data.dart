@@ -97,8 +97,8 @@ extension _GenUiDefinitionDataExt on _GenUiDefinitionScreenState {
       final llmWord = _llmString('word');
       if (llmWord.isNotEmpty) return llmWord;
     }
-    final jishoWord = _jishoDefinition.japaneseWord.trim();
-    if (jishoWord.isNotEmpty) return jishoWord;
+    final headword = _jishoDefinition.headword.trim();
+    if (headword.isNotEmpty) return headword;
     return currentJapaneseWord;
   }
 

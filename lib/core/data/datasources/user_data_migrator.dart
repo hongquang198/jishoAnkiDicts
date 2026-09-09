@@ -80,7 +80,7 @@ class UserDataMigrator {
         final viewCount = legacy.reviews > 0 ? legacy.reviews : 1;
         final timestamp = legacy.added > 0 ? legacy.added : DateTime.now().millisecondsSinceEpoch;
         for (int i = 0; i < viewCount; i++) {
-          await localDataSource.recordView(card.japaneseWord, timestamp: timestamp);
+          await localDataSource.recordView(card.headword, timestamp: timestamp);
         }
       }
 
@@ -91,7 +91,7 @@ class UserDataMigrator {
   }
 
   WordCard _convertLegacyFavorite(OfflineWordRecord legacy) {
-    final word = legacy.japaneseWord;
+    final word = legacy.headword;
     final now = legacy.added > 0 ? legacy.added : DateTime.now().millisecondsSinceEpoch;
     return WordCard(
       id: word,
@@ -102,7 +102,7 @@ class UserDataMigrator {
       tags: legacy.tags,
       jlpt: legacy.jlpt,
       senses: legacy.senses,
-      vietnameseDefinition: legacy.vietnameseDefinition,
+      localizedGloss: legacy.localizedGloss,
       isFavorite: true,
       srsData: null,
       addedAt: now,
@@ -112,7 +112,7 @@ class UserDataMigrator {
   }
 
   WordCard _convertLegacyReview(OfflineWordRecord legacy) {
-    final word = legacy.japaneseWord;
+    final word = legacy.headword;
     final now = legacy.added > 0 ? legacy.added : DateTime.now().millisecondsSinceEpoch;
     final stage = legacy.reviews == 0
         ? SrsStage.newCard
@@ -129,7 +129,7 @@ class UserDataMigrator {
       tags: legacy.tags,
       jlpt: legacy.jlpt,
       senses: legacy.senses,
-      vietnameseDefinition: legacy.vietnameseDefinition,
+      localizedGloss: legacy.localizedGloss,
       isFavorite: false,
       srsData: SrsData(
         stage: stage,
@@ -150,7 +150,7 @@ class UserDataMigrator {
   }
 
   WordCard _convertLegacyHistory(OfflineWordRecord legacy) {
-    final word = legacy.japaneseWord;
+    final word = legacy.headword;
     final now = legacy.added > 0 ? legacy.added : DateTime.now().millisecondsSinceEpoch;
     return WordCard(
       id: word,
@@ -161,7 +161,7 @@ class UserDataMigrator {
       tags: legacy.tags,
       jlpt: legacy.jlpt,
       senses: legacy.senses,
-      vietnameseDefinition: legacy.vietnameseDefinition,
+      localizedGloss: legacy.localizedGloss,
       isFavorite: false,
       srsData: null,
       addedAt: now,

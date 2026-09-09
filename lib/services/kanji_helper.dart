@@ -6,7 +6,7 @@ import '../injection.dart';
 import '../models/example_sentence.dart';
 import '../models/kanji.dart';
 import '../models/pitch_accent.dart';
-import '../models/vietnamese_definition.dart';
+import '../models/localized_gloss.dart';
 import '../core/data/datasources/shared_pref.dart';
 import '../core/domain/entities/dictionary.dart';
 
@@ -208,17 +208,17 @@ class KanjiHelper {
     return widgetList;
   }
 
-  static Future<List<VietnameseDefinition>> getVnDefinition(
+  static Future<List<LocalizedGloss>> getLocalizedGloss(
       {required String word}) async {
-    late List<VietnameseDefinition> vietnameseDefinition;
+    late List<LocalizedGloss> localizedGloss;
     try {
-      vietnameseDefinition = await getIt<Dictionary>()
+      localizedGloss = await getIt<Dictionary>()
           .offlineDatabase
-          .searchForVnMeaning(word: word);
+          .searchForLocalizedGloss(word: word);
     } catch (e) {
-      log('Error searching for vn definition $e');
+      log('Error searching for localized gloss $e');
     }
-    return vietnameseDefinition;
+    return localizedGloss;
   }
 
   static Future<List<ExampleSentence>> getExampleSentence(

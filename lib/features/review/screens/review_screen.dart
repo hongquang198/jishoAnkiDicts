@@ -19,7 +19,7 @@ import 'package:jisho_anki/injection.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:jisho_anki/models/example_sentence.dart';
 import 'package:jisho_anki/models/kanji.dart';
-import 'package:jisho_anki/models/vietnamese_definition.dart';
+import 'package:jisho_anki/models/localized_gloss.dart';
 import 'package:jisho_anki/services/kanji_helper.dart';
 import 'package:jisho_anki/services/llm_service.dart';
 import 'package:jisho_anki/services/srs_engine.dart';
@@ -115,9 +115,9 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
     });
   }
 
-  Future<VietnameseDefinition?> _getVietnameseDefinition(String word) async {
+  Future<LocalizedGloss?> _getLocalizedGloss(String word) async {
     try {
-      final vnList = await KanjiHelper.getVnDefinition(word: word);
+      final vnList = await KanjiHelper.getLocalizedGloss(word: word);
       if (vnList.isNotEmpty) return vnList.first;
     } catch (e) {
       log('No VN definition found $e');
@@ -190,7 +190,7 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                     showDialog(
                       context: context,
                       builder: (ctx) => CustomDialog(
-                        word: card.japaneseWord,
+                        word: card.headword,
                         message: 'Remove this card from review deck?',
                       ),
                     ).then((confirmed) {
@@ -253,7 +253,7 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         ),
                       Center(
                         child: Text(
-                          card.japaneseWord,
+                           card.headword,
                           style: const TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -321,7 +321,7 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                         ),
                       if (showAll)
                         ComponentWidget(
-                          kanjiComponent: KanjiHelper.getKanjiComponent(word: card.japaneseWord),
+                           kanjiComponent: KanjiHelper.getKanjiComponent(word: card.headword),
                         ),
                       if (showAll) ...[
                         divider,
@@ -349,7 +349,7 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
                               extra: AiChatScreenArgs(
                                 word: card.word,
                                 reading: card.reading,
-                                definition: card.vietnameseDefinition,
+                                 definition: card.localizedGloss,
                                 existingTutorComment: _aiTutorComment,
                                 existingMemoryTip: _aiMemoryTip,
                               ),
@@ -431,18 +431,18 @@ class _ReviewScreenViewState extends State<_ReviewScreenView> {
   }
 
   Widget _buildDefinitionWidget(WordCard card) {
-    if (card.vietnameseDefinition.isNotEmpty) {
+    if (card.localizedGloss.isNotEmpty) {
       return DefinitionWidget(
         senses: card.senses,
-        vietnameseDefinition: card.vietnameseDefinition,
+        localizedGloss: card.localizedGloss,
       );
     }
-    return FutureBuilder<VietnameseDefinition?>(
-      future: _getVietnameseDefinition(card.japaneseWord),
+    return FutureBuilder<LocalizedGloss?>(
+      future: _getLocalizedGloss(card.headword),
       builder: (context, snapshot) {
         return DefinitionWidget(
           senses: card.senses,
-          vietnameseDefinition: snapshot.data?.definition,
+          localizedGloss: snapshot.data?.gloss,
         );
       },
     );

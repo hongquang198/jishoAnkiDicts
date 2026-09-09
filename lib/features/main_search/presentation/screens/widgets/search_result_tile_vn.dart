@@ -12,7 +12,7 @@ import 'package:jisho_anki/features/word_definition/screens/widgets/word_view_co
 import '../../../../../config/app_routes.dart';
 import '../../../../../injection.dart';
 import '../../../../../models/offline_word_record.dart';
-import '../../../../../models/vietnamese_definition.dart';
+import '../../../../../models/localized_gloss.dart';
 import '../../../../../core/data/datasources/shared_pref.dart';
 import '../../../../../utils/offline_list_type.dart';
 import '../../../../../services/db_helper.dart';
@@ -22,14 +22,14 @@ import '../../bloc/main_search_bloc.dart';
 
 class SearchResultTileVn extends StatefulWidget {
   final JishoDefinition? jishoDefinition;
-  final VietnameseDefinition? vnDefinition;
+  final LocalizedGloss? localizedGloss;
   final List<String> hanViet;
   final Duration animationDuration;
 
   const SearchResultTileVn({
     super.key,
     this.hanViet = const [],
-    this.vnDefinition,
+    this.localizedGloss,
     this.jishoDefinition,
     this.animationDuration = const Duration(milliseconds: 300),
   });
@@ -53,8 +53,8 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
   }
 
   String get word {
-    if (widget.vnDefinition?.word.isNotEmpty == true) {
-      return widget.vnDefinition!.word;
+    if (widget.localizedGloss?.headword.isNotEmpty == true) {
+      return widget.localizedGloss!.headword;
     } else if (widget.jishoDefinition?.word?.isNotEmpty == true) {
       return widget.jishoDefinition!.word!;
     } else {
@@ -79,11 +79,11 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
     return SizedBox();
   }
 
-  getVnDefinitionSummary() {
-    if (widget.vnDefinition?.definition == null) {
+  getLocalizedGlossSummary() {
+    if (widget.localizedGloss?.gloss == null) {
       return SizedBox();
     } else {
-      return parseVnDefHtmlWidget(widget.vnDefinition?.definition ?? '');
+      return parseVnDefHtmlWidget(widget.localizedGloss?.gloss ?? '');
     }
   }
 
@@ -101,7 +101,7 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
               mainSearchBloc: context.read<MainSearchBloc>(),
               hanViet: widget.hanViet,
               jishoDefinition: widget.jishoDefinition,
-              vnDefinition: widget.vnDefinition,
+              localizedGloss: widget.localizedGloss,
               isInFavoriteList: DbHelper.checkDatabaseExist(
                   offlineListType: OfflineListType.favorite,
                   word: word,
@@ -148,7 +148,7 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
                           ],
                         ),
                         Wrap(
-                          children: [getVnDefinitionSummary()],
+                          children: [getLocalizedGlossSummary()],
                         )
                       ],
                     ),
@@ -189,8 +189,8 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
                                       widget.jishoDefinition?.reading ?? '',
                                   senses: widget.jishoDefinition?.senses ??
                                       const [],
-                                  vietnameseDefinition:
-                                      widget.vnDefinition?.definition ?? '',
+                                  localizedGloss:
+                                      widget.localizedGloss?.gloss ?? '',
                                   added: DateTime.now().millisecondsSinceEpoch,
                                   firstReview: null,
                                   lastReview: null,
@@ -216,7 +216,7 @@ class _SearchResultTileVnState extends State<SearchResultTileVn>
                                 offlineListType: OfflineListType.favorite,
                                 context: context,
                                 word:
-                                    widget.jishoDefinition?.japaneseWord ?? '');
+                                    widget.jishoDefinition?.headword ?? '');
                           });
                         }
                       },

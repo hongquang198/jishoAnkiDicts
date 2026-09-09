@@ -71,8 +71,8 @@ void main() {
     });
 
     test('FavoriteBloc loads and filters favorite words', () async {
-      final cardA = WordCard(id: '本', word: '本', vietnameseDefinition: 'sách', addedAt: 100, updatedAt: 100);
-      final cardB = WordCard(id: '水', word: '水', vietnameseDefinition: 'nước', addedAt: 200, updatedAt: 200);
+      final cardA = WordCard(id: '本', word: '本', localizedGloss: 'sách', addedAt: 100, updatedAt: 100);
+      final cardB = WordCard(id: '水', word: '水', localizedGloss: 'nước', addedAt: 200, updatedAt: 200);
 
       await repository.toggleFavorite(card: cardA);
       await repository.toggleFavorite(card: cardB);
