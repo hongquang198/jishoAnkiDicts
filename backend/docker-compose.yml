@@ -1,0 +1,31 @@
+# FILE: docker-compose.yml — one command runs api + Postgres + Redis together.
+# Run: docker compose up --build (Session 14). Data survives restarts (pgdata).
+# NOTE: inside compose the API reaches the DB at host "db", not localhost.
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://jisho:jisho@db:5432/jisho
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: jisho
+      POSTGRES_PASSWORD: jisho
+      POSTGRES_DB: jisho
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+volumes:
+  pgdata:
