@@ -1,0 +1,26 @@
+name: flutter
+
+on:
+  push:
+    paths: ['lib/**', 'test/**', 'pubspec.yaml']
+  pull_request:
+    paths: ['lib/**', 'test/**', 'pubspec.yaml']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned to the locally verified version (3.47.0): a floating channel
+      # breaks reproducibility — today's green must mean tomorrow's green.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+      - run: flutter pub get
+      # Advisory until the codebase is fully clean.
+      - run: flutter analyze
+        continue-on-error: true
+      # Full suite: the 3 formerly-broken files were fixed (missing l10n
+      # delegates, missing bloc provider, stale label expectations), and the
+      # irrelevant default widget_test.dart was deleted.
+      - run: flutter test

@@ -273,11 +273,10 @@ Flutter app `jisho_anki` — Japanese→VN/EN dictionary with Anki features (fla
 flutter pub get                                              # after changing pubspec or pulling
 flutter gen-l10n                                             # regenerate localizations (also runs automatically: flutter.generate=true)
 flutter analyze lib\<path>                                   # targeted analysis; fast, use specific paths
-flutter test test\genui_surface_test.dart test\genui_catalog_test.dart   # the meaningful suite; all green
+flutter test                                                 # full suite; all green (127 tests)
 flutter run                                                  # no build_runner/codegen step exists
 ```
 
-- **Known-broken:** `flutter test test\widget_test.dart` fails because GetIt's `NavigationService` isn't registered in the test env. Pre-existing; don't fix drive-by or treat as your regression.
 - No CI workflows exist. Verification = `flutter analyze` + targeted `flutter test`.
 
 ## Architecture

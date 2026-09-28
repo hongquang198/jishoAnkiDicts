@@ -3,8 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jisho_anki/common/widgets/ai/ai_grammar_breakdown_card.dart';
 import 'package:jisho_anki/common/widgets/ai/ai_memory_tip_card.dart';
 import 'package:jisho_anki/common/widgets/ai/ai_tutor_card.dart';
+import 'package:jisho_anki/l10n/app_localizations.dart';
 
-Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));
+// Widgets under test read AppLocalizations.of(context)!, so the host must
+// provide localization delegates — a bare MaterialApp leaves it null.
+Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: Scaffold(body: child),
+    );
 
 void main() {
   group('AiGrammarBreakdownCard', () {
