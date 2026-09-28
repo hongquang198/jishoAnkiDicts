@@ -5,11 +5,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/services/media_query_size.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jisho_anki/features/auth/bloc/auth_bloc.dart';
 import 'package:jisho_anki/l10n/app_localizations.dart';
 import 'package:jisho_anki/l10n/localization.dart';
 import 'dart:io';
 
 import 'config/app_routes.dart';
+import 'core/config/backend_config.dart';
 import 'injection.dart';
 import 'theme_manager.dart';
 import 'core/data/datasources/shared_pref.dart';
@@ -120,7 +123,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
           ChangeNotifierProvider<LocalizationNotifier>(
             create: (context) => LocalizationNotifier(),
-          )
+          ),
+          // Auth identity owner (REST mode only — Firebase behavior untouched):
+          // created once, kicked with CheckAuthStatus, mints the anon session.
+          // lazy: false is load-bearing: nothing reads AuthBloc, so a lazy
+          // provider would never create it and anon would never fire.
+          if (BackendConfig.useRest)
+            BlocProvider<AuthBloc>(
+              lazy: false,
+              create: (_) => getIt<AuthBloc>()..add(CheckAuthStatus()),
+            ),
         ],
         builder: (context, child) {
           return MaterialApp.router(

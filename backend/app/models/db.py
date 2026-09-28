@@ -1,19 +1,7 @@
-# FILE: app/models/db.py
-# WHAT: SQL tables mirroring Firestore users/{uid}/{cards,views,review_logs,settings}.
-# WHY: Every row carries user_id in its PK — that IS the ownership rule that
-#   firestore.rules enforced. updated_at/reviewed_at indexes power ?since= pulls.
-# NOTE: JSON-ish columns stay TEXT, exactly like Flutter's json.encode output.
-# TUTOR SESSION: 08 — see backend/plan/00-tutor-sessions.md.
-"""SQL translation of Firestore `users/{uid}/{cards,views,review_logs,settings}`.
-
-Ownership rule (was firestore.rules): every row carries user_id and all
-queries filter on it. Composite PKs enforce per-user uniqueness.
-"""
 from sqlalchemy import BigInteger, Boolean, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
-
 
 class User(Base):
     __tablename__ = 'users'
@@ -22,7 +10,6 @@ class User(Base):
     password_hash: Mapped[str | None] = mapped_column(String(255))
     google_sub: Mapped[str | None] = mapped_column(String(128), unique=True)
     is_anonymous: Mapped[bool] = mapped_column(Boolean, default=True)
-
 
 class Card(Base):
     __tablename__ = 'cards'

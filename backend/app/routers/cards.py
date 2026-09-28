@@ -1,76 +1,79 @@
-# FILE: app/routers/cards.py
-# WHAT: PUT /cards/bulk (LWW upsert) · GET /cards?since= (pull) ·
-#   DELETE /cards/{id} (hard delete; client tombstone blocks resurrection).
-# WHY: HTTP form of UserDataRepositoryImpl's push/pull/delete; batch upsert
-#   replaces Firestore batch.set(merge:true).
-# TUTOR SESSION: 12 — see backend/plan/00-tutor-sessions.md.
-"""Cards resource — replaces `users/{uid}/cards/{cardId}`.
-
-Sync protocol (mirrors UserDataRepositoryImpl):
-- PUT /cards/bulk = pushCards (upsert batch, last-write-wins by updated_at)
-- GET /cards?since= = pullCardsUpdatedSince
-- DELETE /cards/{id} = deleteCard (tombstone respected client-side)
-"""
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
-
 from app.core.deps import get_current_user_id
+from app.core.cache import cards_key, cards_pattern, get_redis
 from app.db.session import get_db
 from app.models import db as models
 from app.models.schemas import BulkCards
+from app.core.ratelimit import limiter
+import json
 
 router = APIRouter(prefix='/cards', tags=['cards'])
 
-
 @router.put('/bulk')
+@limiter.limit(limit_value='30/minute')
 def push_cards(
-    body: BulkCards,
-    user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-) -> dict:
+    request: Request,
+    body: BulkCards,  # Pydantic-validated JSON; bad shapes never reach this code (422 first)
+    user_id: str = Depends(get_current_user_id),  # guard: resolves identity or raises 401
+    db: Session = Depends(get_db)) -> dict:  # fresh session per request, auto-closed after
+    if (cache := get_redis()) is not None:
+        try:
+            for key in cache.scan_iter(cards_pattern(user_id)):
+                cache.delete(key)
+        except Exception:
+            pass
+    
     for card in body.cards:
+        # Composite-PK lookup: (user_id, card.id) — ownership enforced by the key itself.
         row = db.get(models.Card, (user_id, card.id))
-        data = card.model_dump()
         if row is None:
-            db.add(models.Card(user_id=user_id, **data))
+            # model_dump() = Pydantic object -> dict, unpacked into the ORM constructor.
+            db.add(models.Card(user_id=user_id, **card.model_dump()))
         elif card.updated_at >= (row.updated_at or 0):
-            for key, value in data.items():
+            # LWW: overwrite field-by-field only when remote is newer-or-equal.
+            for key, value in card.model_dump().items():
                 setattr(row, key, value)
-    db.commit()
+    db.commit()  # one transaction for the whole batch: all-or-nothing.
     return {'synced': len(body.cards)}
-
 
 @router.get('')
 def pull_cards(
+    # Query(0, ge=0) = validated query param: defaults to 0, negatives become 422.
     since: int = Query(0, ge=0),
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-) -> dict:
-    rows = (
-        db.query(models.Card)
-        .filter(models.Card.user_id == user_id, models.Card.updated_at >= since)
-        .order_by(models.Card.updated_at.desc())
-        .all()
-    )
-    return {
+    db: Session = Depends(get_db)) -> dict:
+    cache_key = cards_key(user_id, since)
+    cache = get_redis()
+    if cache is not None:
+        try:
+            if (hit := cache.get(cache_key)) is not None:
+                return json.loads(hit)
+        except Exception:
+            pass    # corrupt entry behaves like a miss
+                    # ... existing query builds `payload = {'cards': [...]}` ...
+    rows = (db.query(models.Card)
+            .filter(models.Card.user_id == user_id,
+                    models.Card.updated_at >= since)
+            .order_by(models.Card.updated_at.desc()).all())
+    payload = {
         'cards': [
-            {c: getattr(r, c) for c in (
-                'id', 'word', 'slug', 'reading', 'is_common', 'tags', 'jlpt',
-                'senses', 'localized_definition', 'gloss_lang', 'is_favorite',
-                'srs_data', 'added_at', 'updated_at', 'deck',
-                'ai_tutor_comment', 'ai_memory_tip',
-            )}
-            for r in rows
-        ]
+            {'id': r.id, 'word': r.word, 'updated_at': r.updated_at}
+                for r in rows]
     }
-
+    if cache is not None:
+        try:
+            cache.set(cache_key, json.dumps(payload), ex=120)
+        except Exception:
+            pass    # cache write failure must not fail the request
+    return payload
 
 @router.delete('/{card_id}')
 def delete_card(
-    card_id: str,
+    card_id: str,  # path param: /cards/abc puts 'abc' here (routing, S01).
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-) -> dict:
+    db: Session = Depends(get_db)) -> dict:
+    # Missing row is not an error: deletes must be idempotent (safe to retry).
     row = db.get(models.Card, (user_id, card_id))
     if row is not None:
         db.delete(row)

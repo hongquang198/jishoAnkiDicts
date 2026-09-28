@@ -1,37 +1,27 @@
-# FILE: app/main.py
-# WHAT: App factory — creates the FastAPI app, enables CORS, registers routers.
-# WHY: Kept thin on purpose: wiring only, zero business logic (SRP).
-# FLUTTER COUNTERPART: lib/injection.dart (your GetIt wiring does the same job).
-# RUN: uvicorn app.main:app --reload --port 8000 → docs at /docs.
-# TUTOR SESSION: 01 — see backend/plan/00-tutor-sessions.md.
-"""JishoAnki custom backend — FastAPI app factory.
-
-Keep this file thin: wiring only. Business logic lives in
-routers/* (HTTP) and services/* (pure domain logic).
-"""
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-from app.core.config import settings
-from app.routers import auth, cards, views, logs, settings as settings_router
-from app.routers import ai, health
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.core.ratelimit import limiter
+from app.routers import health
+from app.routers import auth
+from app.routers import cards
+from app.routers import logs
+from app.routers import settings
+from app.routers import views
+from app.routers import ai
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title='JishoAnki API', version='0.1.0')
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=['*'],
-        allow_headers=['*'],
-    )
+    app = FastAPI(title="JishoAnki API", version="0.1.0")
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
     app.include_router(health.router)
     app.include_router(auth.router)
     app.include_router(cards.router)
-    app.include_router(views.router)
     app.include_router(logs.router)
-    app.include_router(settings_router.router)
+    app.include_router(settings.router)
+    app.include_router(views.router)
     app.include_router(ai.router)
     return app
 

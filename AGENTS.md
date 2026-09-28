@@ -259,6 +259,14 @@ linter:
 ```
 Flutter app `jisho_anki` — Japanese→VN/EN dictionary with Anki features (flashcards, SRS, pitch accent, offline DBs) plus Gemini-powered LLM lookup. Developed on Windows (PowerShell).
 
+## User context (durable — keep updated)
+
+- Owner is a **mobile developer (4y Flutter) transitioning into a back-end engineer**. Prefers **Python/FastAPI** for the backend (knows Python from DSA); chose it over Node because the goal is pure-BE, not full-stack JS.
+- **Explain backend concepts from first principles** — Firestore/Auth/SQL/Docker are new territory. Map each new concept to what Firebase was hiding (see `backend/plan/01-junior-checklist.md`).
+- **Tutor mode (guided rebuild): explain strange syntax inline** — SQLAlchemy generics (`Mapped[...]`), `yield`-based dependencies, Pydantic `BaseSettings`, decorators. One-line gloss per unfamiliar token; never let new syntax pass unexplained.
+- **Glosses live in the code, not just the chat** — every non-obvious line gets a short `#` comment at write time (why it exists + which session taught it). Chat explains once; comments explain forever.
+- Monorepo: Flutter app in `lib/`, custom backend in `backend/`. Backend detail lives in `backend/plan/` — AGENTS.md keeps only pointers + commands, not duplicated roadmaps.
+
 ## Commands
 
 ```powershell
@@ -294,6 +302,23 @@ flutter run                                                  # no build_runner/c
 - Localization: two patterns coexist — generated `AppLocalizations` and runtime ternaries on `getIt<SharedPref>().isAppInVietnamese` with hardcoded VN/EN strings. Follow whichever the file you're editing already uses.
 - Vendored path dependency: `unofficial_jisho_api` lives in `dependencies/unofficial_jisho_api-3.0.0` (excluded from analyzer). Don't edit it casually.
 - Feature work follows TDD per `.agents/rules/architecture-principles.md` (always-on).
+
+```powershell
+cd backend
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+copy .env.example .env
+uvicorn app.main:app --reload --port 8000    # health: localhost:8000/health, docs: /docs
+pytest                                       # TDD gate; must stay green
+docker compose up --build                    # api + Postgres + Redis
+```
+
+## Backend (FastAPI, `backend/`)
+
+- Entry: `backend/app/main.py` (`create_app()` — wiring only). Routers in `app/routers/` (one file per resource: `auth`, `cards`, `views`, `logs`, `settings`, `ai`, `health`). Pure domain logic in `app/services/sync.py` (LWW merge, unit-tested, no I/O).
+- Contracts: `app/models/schemas.py` (Pydantic, field names mirror Dart `toMap()` keys 1:1) + `app/models/db.py` (SQLAlchemy tables mirroring `users/{uid}/{cards,views,review_logs,settings}`). Auth: `app/core/{config,security,deps}.py` (env config, bcrypt+JWT, Bearer middleware replacing `firestore.rules`).
+- Scope: side-by-side Firestore replacement — Firebase stays; `RestUserDataDataSource` toggles via flag (see `backend/plan/06-flutter-integration.md`). P1 = anon+email auth + CRUD + Postgres + Docker; P2 = Google link, Redis, AI proxy, CI/deploy; P3 optional (jobs, S3, FTS).
+- Learning roadmap entry point: `backend/plan/README.md` (00→06). Check phase exit criteria before advancing.
 
 ## Rule-file conflicts (trust the code)
 

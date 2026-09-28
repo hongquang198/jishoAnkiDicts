@@ -8,13 +8,14 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
+      # Inside compose the DB host is "db", not localhost — this overrides .env.
       DATABASE_URL: postgresql+psycopg://jisho:jisho@db:5432/jisho
-      REDIS_URL: redis://redis:6379/0
     depends_on:
       - db
-      - redis
   db:
-    image: postgres:16
+    # Alpine variant: same Postgres 16, smaller image. Plain :16 (Debian)
+    # fails here with "exec format error" — environment quirk, see S14 notes.
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: jisho
       POSTGRES_PASSWORD: jisho
@@ -23,6 +24,22 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+  # Database browser (dev only): pgAdmin web UI at http://localhost:5050
+  # login admin@example.com / admin, then Add Server with host "db" (compose
+  # network name — same reason the api container uses host "db", S14).
+  pgadmin:
+    image: dpage/pgadmin4:8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      # host:container — pgAdmin serves :80 inside; exposed as :5050 outside.
+      - "5050:80"
+    depends_on:
+      - db
+  # P2.2: shared memory for cache + quotas + rate-limit budgets.
+  # API reaches it at host "redis" (compose network); local dev uses localhost.
   redis:
     image: redis:7
     ports:

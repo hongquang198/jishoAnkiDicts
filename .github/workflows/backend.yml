@@ -1,0 +1,39 @@
+name: backend
+
+on:
+  push:
+    paths: ['backend/**']
+  pull_request:
+    paths: ['backend/**']
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jisho
+          POSTGRES_PASSWORD: jisho
+          POSTGRES_DB: jisho
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U jisho"
+          --health-interval 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    env:
+      DATABASE_URL: postgresql+psycopg://jisho:jisho@localhost:5432/jisho
+      REDIS_URL: redis://localhost:6379/0
+      JWT_SECRET: ci-secret-not-real
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements.txt
+      - run: alembic upgrade head
+        working-directory: backend
+      - run: pytest -q
+        working-directory: backend

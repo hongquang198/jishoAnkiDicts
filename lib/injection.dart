@@ -7,6 +7,10 @@ import 'package:jisho_anki/core/data/datasources/firebase_auth_data_source.dart'
 import 'package:jisho_anki/core/data/datasources/shared_pref.dart';
 import 'package:jisho_anki/core/data/datasources/user_data_migrator.dart';
 import 'package:jisho_anki/core/data/datasources/user_local_data_source_impl.dart';
+import 'package:jisho_anki/core/data/datasources/rest_auth_data_source.dart';
+import 'package:jisho_anki/core/data/datasources/rest_user_data_data_source.dart';
+import 'package:jisho_anki/core/config/backend_config.dart';
+import 'package:jisho_anki/features/auth/bloc/auth_bloc.dart';
 import 'package:jisho_anki/core/data/repositories/user_data_repository_impl.dart';
 import 'package:jisho_anki/core/domain/repositories/user_data_repository.dart';
 import 'package:jisho_anki/core/domain/use_cases/user_data/clear_history_use_case.dart';
@@ -111,11 +115,25 @@ Future<void> inject() async {
     return local;
   });
 
-  getIt.registerLazySingleton<RemoteUserDataDataSource>(
-      () => FirebaseUserDataDataSource());
+  // Backend selection lives in BackendConfig — no --dart-define flags needed.
+  // Always registered: cheap, inert until used. Lazily reads SharedPref on first use.
+  getIt.registerLazySingleton<RestAuthDataSource>(() => RestAuthDataSource(
+        baseUrl: BackendConfig.apiBaseUrl,
+        prefs: getIt<SharedPref>().prefs,
+      ));
 
-  getIt.registerLazySingleton<AuthRemoteDataSource>(
-      () => FirebaseAuthDataSource());
+  getIt.registerLazySingleton<RemoteUserDataDataSource>(
+      () => BackendConfig.useRest
+          ? RestUserDataDataSource(
+              auth: getIt<RestAuthDataSource>(),
+              baseUrl: BackendConfig.apiBaseUrl,
+            )
+          : FirebaseUserDataDataSource());
+
+  getIt.registerLazySingleton<AuthRemoteDataSource>(() => BackendConfig.useRest
+      // Same object behind both interfaces: one identity for data + auth.
+      ? getIt<RestAuthDataSource>()
+      : FirebaseAuthDataSource());
 
   getIt.registerSingletonAsync<UserDataRepository>(() async {
     final repo = UserDataRepositoryImpl(
@@ -154,6 +172,10 @@ Future<void> inject() async {
         () => ClearHistoryUseCase(getIt()));
 
   // BLoC
+  // Auth identity owner: provided once at the top of the widget tree (main.dart)
+  // with an initial CheckAuthStatus, so anon bootstrap flows through the bloc.
+  getIt.registerFactory<AuthBloc>(
+      () => AuthBloc(authDataSource: getIt<AuthRemoteDataSource>()));
   getIt.registerFactory<AiChatBloc>(
       () => AiChatBloc(llmService: getIt<LlmService>()));
   getIt.registerFactory<WordInteractionBloc>(
@@ -178,8 +200,7 @@ Future<void> inject() async {
   getIt
     ..registerLazySingleton<SearchJishoForPhrase>(
         () => SearchJishoForPhrase(getIt()))
-    ..registerLazySingleton<LookUpLocalizedGloss>(
-        () => LookUpLocalizedGloss())
+    ..registerLazySingleton<LookUpLocalizedGloss>(() => LookUpLocalizedGloss())
     ..registerLazySingleton<LookupHanVietReading>(() => LookupHanVietReading())
     ..registerLazySingleton<LookUpGrammarPoint>(() => LookUpGrammarPoint());
 

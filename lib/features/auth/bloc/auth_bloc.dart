@@ -180,7 +180,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   @override
   Future<void> close() {
-    _authDataSource.watchAuthState();
     _authSubscription?.cancel();
     return super.close();
   }

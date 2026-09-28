@@ -1,17 +1,27 @@
 # FILE: requirements.txt — every dependency, pinned. Install: pip install -r requirements.txt
-# fastapi/uvicorn: serve HTTP · sqlalchemy/alembic/psycopg: model/migrate/talk Postgres
-# pydantic(-settings): validate JSON + load .env · python-jose/passlib: JWT + bcrypt
-# redis: P2 caching/quotas · pytest/httpx: run the tests
+# fastapi/uvicorn: serve HTTP
+# slowapi: rate limit
 fastapi==0.115.0
+slowapi==0.1.9
 uvicorn[standard]==0.30.0
+# sqlalchemy/alembic/psycopg: model/migrate/talk Postgres
 sqlalchemy==2.0.32
 alembic==1.13.2
 psycopg[binary]==3.2.9
+# pydantic(-settings): validate JSON + load .env 
+# · python-jose/passlib: JWT + bcrypt
 pydantic==2.9.0
 pydantic-settings==2.5.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
+# redis: P2 caching/quotas 
+# · pytest/httpx: run the tests
 redis==5.0.8
 pytest==8.3.3
 httpx==0.27.2
+# google-auth/requests: verify Google id_tokens (P2.1; requests is its transport)
+google-auth==2.35.0
+requests==2.32.3
+# gemini
+google-generativeai==0.8.3

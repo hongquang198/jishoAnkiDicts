@@ -38,11 +38,20 @@ class UserDataRepositoryImpl implements UserDataRepository {
   });
 
   /// Initializes streams from local storage and begins background sync.
+  /// The opening sync waits for identity: inject() finishes before any widget
+  /// (and thus AuthBloc) exists, so syncing immediately could only 401.
   Future<void> init() async {
     await _refreshCardsStream();
     await _refreshViewsStream();
     await _refreshHistoryStream();
-    unawaited(syncWithRemote());
+    if (remoteDataSource.currentUserId != null) {
+      unawaited(syncWithRemote());
+    } else {
+      unawaited(remoteDataSource
+          .watchUserId()
+          .firstWhere((id) => id != null)
+          .then((_) => syncWithRemote()));
+    }
   }
 
   Future<void> _refreshCardsStream() async {
