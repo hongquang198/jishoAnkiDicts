@@ -34,9 +34,9 @@ def pull_views(
             .filter(models.WordView.user_id == user_id)
             .order_by(models.WordView.last_viewed_at.desc()).all())
     return {
-        'views': 
-            {'word': r.word, 
-             'view_count': r.view_count, 
-             'first_viewed_at': r.first_viewed_at, 
+        'views': [
+            {'word': r.word,
+             'view_count': r.view_count,
+             'first_viewed_at': r.first_viewed_at,
              'last_viewed_at': r.last_viewed_at}
-                for r in rows}
+                for r in rows]}

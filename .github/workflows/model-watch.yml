@@ -14,14 +14,20 @@ jobs:
     steps:
       - run: |
           python3 - <<'EOF'
-          import json, os, sys, urllib.request
+          import json, os, sys, urllib.request, urllib.error
           key = os.environ['GEMINI_API_KEY']
           want = 'models/gemini-3.5-flash-lite'
-          with urllib.request.urlopen(
-              'https://generativelanguage.googleapis.com/v1beta/models?key='
-              + key
-          ) as res:
-              data = json.load(res)
+          try:
+              with urllib.request.urlopen(
+                  'https://generativelanguage.googleapis.com/v1beta/models?key='
+                  + key
+              ) as res:
+                  data = json.load(res)
+          except urllib.error.HTTPError as e:
+              # Print Google's reason (API_KEY_INVALID vs SERVICE_DISABLED vs
+              # IP_REFERRER_BLOCKED) — a bare 403 explains nothing at 9am Monday.
+              print('Google refused:', e.code, e.read().decode()[:300])
+              sys.exit('models list unreachable — see reason above')
           usable = [
               m['name']
               for m in data.get('models', [])
