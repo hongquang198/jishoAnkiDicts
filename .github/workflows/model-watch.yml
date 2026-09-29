@@ -1,0 +1,37 @@
+name: model-watch
+
+# Google retires models yearly. This doesn't pick replacements (answer
+# quality/cost is a human call) — it's an alarm: fails loudly the week our
+# default stops being servable so the fallback never becomes the product.
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays 09:00 UTC
+  workflow_dispatch: # manual trigger anytime
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          python3 - <<'EOF'
+          import json, os, sys, urllib.request
+          key = os.environ['GEMINI_API_KEY']
+          want = 'models/gemini-3.5-flash-lite'
+          with urllib.request.urlopen(
+              'https://generativelanguage.googleapis.com/v1beta/models?key='
+              + key
+          ) as res:
+              data = json.load(res)
+          usable = [
+              m['name']
+              for m in data.get('models', [])
+              if 'generateContent' in (m.get('supportedGenerationMethods') or [])
+          ]
+          print('models listed:', len(usable))
+          if want not in usable:
+              print('WANTED MISSING:', want)
+              sys.exit('default model no longer servable — pick a successor')
+          print('OK: default servable')
+          EOF
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
