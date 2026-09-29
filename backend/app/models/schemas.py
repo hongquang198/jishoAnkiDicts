@@ -40,3 +40,7 @@ class AiExplainIn(BaseModel):
     word: str
     source_lang: str = 'Tiếng Việt'
     model: str = 'gemini-3.5-flash-lite'
+
+class AiGenerateIn(BaseModel):
+    prompt: str
+    model: str = 'gemini-3.5-flash-lite'

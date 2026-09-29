@@ -33,7 +33,7 @@ docker compose exec redis redis-cli ping
 ```powershell
 # env (S00): pip install -r requirements.txt
 # serve (S01): uvicorn app.main:app --reload --port 8000
-# tests (S02/S06/S11/S12): python -m pytest -q
+# tests: python -m pytest -q (all) | tests/unit (no Docker) | tests/api (needs pg+redis)
 # migrations (S14): alembic revision --autogenerate -m "<msg>"; alembic upgrade head
 # containers (S14): docker compose up -d db; exec; logs; ps; down
 ```
