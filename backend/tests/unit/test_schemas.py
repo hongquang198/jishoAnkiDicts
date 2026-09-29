@@ -7,7 +7,6 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.schemas import (
-    AiExplainIn,
     AuthLinkGoogle,
     BulkCards,
     CardIn,
@@ -41,7 +40,6 @@ def test_view_and_log_shapes():
 def test_settings_and_auth_shapes():
     assert UserSettingsIn().llm_model == 'gemini-3.5-flash-lite'
     assert AuthLinkGoogle(id_token='x').id_token == 'x'
-    assert AiExplainIn(word='猫').model == 'gemini-3.5-flash-lite'
 
 
 def test_extra_client_keys_ignored():

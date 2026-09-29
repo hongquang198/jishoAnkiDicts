@@ -145,7 +145,7 @@ class LlmService {
     }
 
     if (BackendConfig.useRest) {
-      yield await _proxyExplanation(query);
+      yield await _proxyGenerate(buildPrompt(query, useGenUi: useGenUi));
       return;
     }
 
@@ -172,17 +172,16 @@ class LlmService {
     }
   }
 
-  Future<String> _proxyExplanation(String query) async {
+  Future<String> _proxyGenerate(String prompt) async {
     final token = authTokenProvider?.call();
     final res = await http.post(
-      Uri.parse('${BackendConfig.apiBaseUrl}/ai/explain'),
+      Uri.parse('${BackendConfig.apiBaseUrl}/ai/generate'),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
-        'word': query,
-        'source_lang': sharedPref.appLanguageName,
+        'prompt': prompt,
         'model': sharedPref.llmModel,
       }),
     );
@@ -314,8 +313,6 @@ class LlmService {
 
   Future<Map<String, dynamic>?> fetchWordInfo(String query) async {
     if (!isLlmEnabled || query.trim().isEmpty) return null;
-    final apiKey = sharedPref.llmApiKey.trim();
-    if (apiKey.isEmpty) return null;
 
     final sourceLanguage = sharedPref.appLanguageName;
     final targetName = sharedPref.targetLanguage;
@@ -333,6 +330,21 @@ class LlmService {
               sourceLanguage,
               targetLanguageName: targetName,
             );
+
+    if (BackendConfig.useRest) {
+      try {
+        final text = await _proxyGenerate(prompt);
+        if (text.trim().isEmpty) return null;
+        final decoded = jsonDecode(text);
+        if (decoded is Map<String, dynamic>) return decoded;
+      } catch (_) {
+        return null;
+      }
+      return null;
+    }
+
+    final apiKey = sharedPref.llmApiKey.trim();
+    if (apiKey.isEmpty) return null;
 
     try {
       final model = GenerativeModel(

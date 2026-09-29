@@ -12,6 +12,7 @@ import '../../../models/example_sentence.dart';
 import '../../../models/kanji.dart';
 import '../../../models/localized_gloss.dart';
 import '../../../services/kanji_helper.dart';
+import '../../../services/llm_service.dart';
 import '../../../services/query_helpers.dart';
 import '../../../services/llm/gen_ui_data_prefetch.dart';
 import '../../../services/preloaded_image.dart';

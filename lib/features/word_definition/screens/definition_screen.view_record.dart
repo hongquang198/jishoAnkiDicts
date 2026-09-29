@@ -30,7 +30,7 @@ extension _DefinitionScreenViewRecordExt on _DefinitionScreenState {
     if (query.isEmpty || isSentenceQuery(query)) return;
     final sharedPref = getIt<SharedPref>();
     final llmActive =
-        sharedPref.llmEnable && sharedPref.llmApiKey.trim().isNotEmpty;
+        sharedPref.llmEnable && getIt<LlmService>().isApiKeyConfigured;
     if (!llmActive) {
       _dispatchBaseRecord(null);
       return;

@@ -110,7 +110,7 @@ GenUiDataPrefetch startDefaultDataPrefetch({
   return GenUiDataPrefetch.start(
     query: query,
     jishoDefinition: jishoDefinition,
-    llmEnabled: sharedPref.llmEnable && sharedPref.llmApiKey.trim().isNotEmpty,
+    llmEnabled: sharedPref.llmEnable && llmService.isApiKeyConfigured,
     fetchWordInfo: llmService.fetchWordInfo,
     searchThumbnailUrl: (term) => getIt<WikimediaImageService>()
         .fetchThumbnailUrl(term, width: kPrewarmThumbnailWidth),
