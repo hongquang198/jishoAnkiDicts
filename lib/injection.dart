@@ -60,7 +60,10 @@ Future<void> inject() async {
     return sharedPref;
   });
   getIt.registerSingletonWithDependencies<LlmService>(
-      () => LlmService(sharedPref: getIt<SharedPref>()),
+      () => LlmService(
+            sharedPref: getIt<SharedPref>(),
+            authTokenProvider: () => getIt<RestAuthDataSource>().accessToken,
+          ),
       dependsOn: [SharedPref]);
   getIt.registerLazySingleton<GenUiPrefetchCache>(() => GenUiPrefetchCache());
   getIt.registerLazySingleton<GenUiDataPrefetchCache>(

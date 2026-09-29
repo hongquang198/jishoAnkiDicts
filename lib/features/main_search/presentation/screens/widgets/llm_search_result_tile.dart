@@ -80,7 +80,7 @@ class _LlmSearchResultTileState extends State<LlmSearchResultTile> {
 
     if (!sharedPref.llmEnable) return;
 
-    if (sharedPref.llmApiKey.trim().isEmpty) {
+    if (!llmService.isApiKeyConfigured) {
       setState(() {
         _hasStartedStream = true;
         _errorMessage = 'missing_key';

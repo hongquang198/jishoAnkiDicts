@@ -131,3 +131,17 @@ Out of band (no runtime traffic):
   core/config.py + .env ── secrets per machine, never in code
   tests/ ── TestClient calls the app in-process (no server needed)
 ```
+## Deploy migrations (every deploy, not just the first)
+
+Schema changes ship as Alembic revisions (`alembic/versions/`). `alembic upgrade head`
+applies only pending scripts in order and records them in `alembic_version` —
+re-running it is a safe no-op, so it belongs in the deploy pipeline itself:
+
+- **Render free tier (this project):** no pre-deploy hooks, so the image migrates on
+  boot instead (`Dockerfile CMD` runs `alembic upgrade head` before uvicorn; no-op when
+  current). **Render paid:** Settings -> **Pre-Deploy Command** = `alembic upgrade head`.
+- **Local one-off** (first Neon setup, emergencies):
+  `$env:DATABASE_URL="<neon-string>"; .\.venv\Scripts\alembic upgrade head; Remove-Item Env:\DATABASE_URL`
+- **New schema change workflow:** edit `app/models/db.py` →
+  `alembic revision --autogenerate -m "<what>"` → review the script → commit → push.
+  CI proves it applies clean; deploy applies it to prod automatically.

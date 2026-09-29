@@ -212,7 +212,7 @@ class _LlmSettingsSectionState extends State<LlmSettingsSection> {
                           controller: _modelController,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            hintText: 'gemini-2.0-flash',
+                            hintText: 'gemini-3.5-flash-lite',
                           ),
                           onChanged: (val) {
                             context

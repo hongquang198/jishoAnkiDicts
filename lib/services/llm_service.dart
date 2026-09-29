@@ -6,12 +6,18 @@ import '../core/data/datasources/shared_pref.dart';
 import '../features/language/language_capability.dart';
 import 'package:jisho_anki/services/llm/genui_catalog.dart';
 
+import 'package:jisho_anki/core/config/backend_config.dart';
+
 class LlmService {
   final SharedPref sharedPref;
+  final String? Function()? authTokenProvider;
 
-  LlmService({required this.sharedPref});
+  LlmService({required this.sharedPref, this.authTokenProvider});
 
-  bool get isApiKeyConfigured => sharedPref.llmApiKey.trim().isNotEmpty;
+  // REST mode needs no client key: the server holds it (P2.3). One backend
+  // decision (useRest) owns both sync and AI routing — no second flag (YAGNI).
+  bool get isApiKeyConfigured =>
+      BackendConfig.useRest || sharedPref.llmApiKey.trim().isNotEmpty;
   bool get isLlmEnabled => sharedPref.llmEnable;
 
   /// Dynamically queries Gemini API to fetch all available models that support generateContent.
@@ -138,6 +144,11 @@ class LlmService {
       return;
     }
 
+    if (BackendConfig.useRest) {
+      yield await _proxyExplanation(query);
+      return;
+    }
+
     final apiKey = sharedPref.llmApiKey.trim();
     if (apiKey.isEmpty) {
       throw Exception(
@@ -159,6 +170,27 @@ class LlmService {
         yield chunk.text!;
       }
     }
+  }
+
+  Future<String> _proxyExplanation(String query) async {
+    final token = authTokenProvider?.call();
+    final res = await http.post(
+      Uri.parse('${BackendConfig.apiBaseUrl}/ai/explain'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'word': query,
+        'source_lang': sharedPref.appLanguageName,
+        'model': sharedPref.llmModel,
+      }),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('AI proxy error (${res.statusCode}): ${res.body}');
+    }
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    return data['answer'] as String? ?? '';
   }
 
   /// Adds `startChatSession({required String initialContext})` method in `LlmService`.

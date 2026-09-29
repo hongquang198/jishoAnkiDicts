@@ -30,7 +30,7 @@ class BulkLogs(BaseModel):
     logs: list[ReviewLogIn] = []
 
 class UserSettingsIn(BaseModel):
-    llm_model: str = 'gemini-2.0-flash'
+    llm_model: str = 'gemini-3.5-flash-lite'
     updated_at: int = 0
 
 class AuthLinkGoogle(BaseModel):

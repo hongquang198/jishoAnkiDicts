@@ -14,6 +14,15 @@ router = APIRouter(prefix='/ai', tags=['ai'])
 
 DAILY_QUOTA = 300
 
+# Current default model (verified live 2026-09; 2.x retired June 2026).
+# Google retires models yearly — this constant is the single place to move.
+DEFAULT_AI_MODEL = 'gemini-3.5-flash-lite'
+
+
+def _generate(model_name: str, prompt: str) -> str:
+    genai.configure(api_key=settings.gemini_api_key)
+    return genai.GenerativeModel(model_name).generate_content(prompt).text
+
 def _prompt(word: str, source_lang: str) -> str:
     # Server owns the prompt
     return (f'Explain the Japanese word "{word}" in {source_lang}:'
@@ -52,15 +61,28 @@ def ai_explain(body: AiExplainIn, user_id: str = Depends(get_current_user_id)) -
             raise
         except Exception:
             log.warning('Quota check skipped (Redis down)', exc_info=True)
+    model_used = body.model
+    prompt = _prompt(body.word, body.source_lang)
     try:
-        genai.configure(api_key=settings.gemini_api_key)
-        answer = genai.GenerativeModel(body.model).generate_content(_prompt(body.word, body.source_lang)).text
+        answer = _generate(body.model, prompt)
     except Exception as e:
-        log.warning('Gemini call failed', exc_info=True)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e}')
+        # Retired-model fallback: old clients still send last year's id.
+        # The 404 is matched on message text — the SDK surfaces HTTP status
+        # inside the message, not as a typed error.
+        if '404' in str(e) and body.model != DEFAULT_AI_MODEL:
+            log.warning(f'Model {body.model} retired, falling back to {DEFAULT_AI_MODEL}')
+            model_used = DEFAULT_AI_MODEL
+            try:
+                answer = _generate(model_used, prompt)
+            except Exception as e2:
+                log.warning('Gemini fallback call failed', exc_info=True)
+                raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e2}')
+        else:
+            log.warning('Gemini call failed', exc_info=True)
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e}')
     if cache is not None:
         try:
             cache.set(key, answer, ex=86400)
         except Exception:
             pass
-    return {'word': body.word, 'answer': answer, 'cache': False, 'model': body.model}
+    return {'word': body.word, 'answer': answer, 'cache': False, 'model': model_used}

@@ -68,7 +68,7 @@ class UserSettings(Base):
         String(64), ForeignKey('users.id', ondelete='CASCADE'), primary_key=True
     )
     llm_api_key: Mapped[str] = mapped_column(Text, default='')
-    llm_model: Mapped[str] = mapped_column(String(128), default='gemini-2.0-flash')
+    llm_model: Mapped[str] = mapped_column(String(128), default='gemini-3.5-flash-lite')
     llm_custom_prompt: Mapped[str] = mapped_column(Text, default='')
     llm_enabled: Mapped[int] = mapped_column(BigInteger, default=1)
     llm_gen_ui_enabled: Mapped[int] = mapped_column(BigInteger, default=1)

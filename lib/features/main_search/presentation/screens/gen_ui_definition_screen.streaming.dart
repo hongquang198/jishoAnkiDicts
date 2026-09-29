@@ -16,7 +16,7 @@ extension _GenUiDefinitionStreamingExt on _GenUiDefinitionScreenState {
     final llmService = getIt<LlmService>();
 
     if (!sharedPref.llmEnable) return;
-    if (sharedPref.llmApiKey.trim().isEmpty) {
+    if (!llmService.isApiKeyConfigured) {
       _update(() {
         _isStreaming = false;
         _errorMessage = 'missing_key';

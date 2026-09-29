@@ -77,7 +77,7 @@ class SharedPref {
     prefs.getString(_SharedPreferenceKeys.llmCustomPrompt) ??
         prefs.setString(_SharedPreferenceKeys.llmCustomPrompt, '');
     prefs.getString(_SharedPreferenceKeys.llmModel) ??
-        prefs.setString(_SharedPreferenceKeys.llmModel, 'gemini-2.0-flash');
+        prefs.setString(_SharedPreferenceKeys.llmModel, 'gemini-3.5-flash-lite');
     prefs.getString(_SharedPreferenceKeys.sourceLanguage) ??
         prefs.setString(_SharedPreferenceKeys.sourceLanguage, 'Tiếng Việt');
     prefs.getString(_SharedPreferenceKeys.targetLanguage) ??
@@ -127,7 +127,7 @@ class SharedPref {
     final model = prefs.getString(_SharedPreferenceKeys.llmModel);
     return (model != null && model.trim().isNotEmpty)
         ? model.trim()
-        : 'gemini-2.0-flash';
+        : 'gemini-3.5-flash-lite';
   }
 
   set llmModel(String value) =>

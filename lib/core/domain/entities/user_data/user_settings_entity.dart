@@ -14,7 +14,7 @@ class UserSettingsEntity extends Equatable {
 
   const UserSettingsEntity({
     this.llmApiKey = '',
-    this.llmModel = 'gemini-2.0-flash',
+    this.llmModel = 'gemini-3.5-flash-lite',
     this.llmCustomPrompt = '',
     this.llmEnabled = true,
     this.llmGenUiEnabled = true,
@@ -66,7 +66,7 @@ class UserSettingsEntity extends Equatable {
   factory UserSettingsEntity.fromMap(Map<String, dynamic> map) {
     return UserSettingsEntity(
       llmApiKey: map['llm_api_key'] as String? ?? '',
-      llmModel: map['llm_model'] as String? ?? 'gemini-2.0-flash',
+      llmModel: map['llm_model'] as String? ?? 'gemini-3.5-flash-lite',
       llmCustomPrompt: map['llm_custom_prompt'] as String? ?? '',
       llmEnabled: map['llm_enabled'] == 1 || map['llm_enabled'] == true,
       llmGenUiEnabled:

@@ -8,5 +8,6 @@ abstract final class BackendConfig {
   // - Android emulator: http://10.0.2.2:8000 (emulator's host loopback)
   // - Physical phone: PC's Wi-Fi IPv4 (ipconfig → Wireless LAN adapter Wi-Fi)
   // - iOS simulator / desktop: http://localhost:8000
-  static const String apiBaseUrl = 'http://192.168.0.104:8000';
+  // static const String apiBaseUrl = 'http://192.168.0.104:8000';
+  static const String apiBaseUrl = 'https://jishoankidicts.onrender.com';
 }

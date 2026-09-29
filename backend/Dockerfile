@@ -7,5 +7,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY alembic.ini ./alembic.ini
+# Migration scripts must ship too: Render's pre-deploy `alembic upgrade head`
+# runs inside this image (P2.4c lesson — ini without scripts migrates nothing).
+COPY alembic ./alembic
 ENV PORT=8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Free tier has no pre-deploy hooks: migrate on every boot instead.
+# `upgrade head` is a no-op when current, so this is safe per start.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
