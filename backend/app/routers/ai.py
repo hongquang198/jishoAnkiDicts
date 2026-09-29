@@ -65,7 +65,7 @@ def _call_with_fallback(model_name: str, prompt: str) -> tuple[str, str]:
                 log.warning('Gemini fallback call failed', exc_info=True)
                 raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e2}')
         log.warning('Gemini call failed', exc_info=True)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, 'AI provider error: {e}')
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e}')
 
 @router.post('/explain')
 def ai_explain(body: AiExplainIn, user_id: str = Depends(get_current_user_id)) -> dict:
@@ -80,9 +80,8 @@ def ai_explain(body: AiExplainIn, user_id: str = Depends(get_current_user_id)) -
         except Exception:
             pass   # corrupt entry behaves like a miss
     _ensure_quota(user_id, cache)
-    model_used = body.model
     prompt = _prompt(body.word, body.source_lang)
-    answer, _ = _call_with_fallback(body.model, prompt)
+    answer, model_used = _call_with_fallback(body.model, prompt)
     if cache is not None:
         try:
             cache.set(key, answer, ex=86400)
