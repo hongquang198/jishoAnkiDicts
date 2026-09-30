@@ -5,20 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "debug",
+            "name": "dev (local backend)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "debug"
+            "flutterMode": "debug",
+            "args": [
+                "--flavor",
+                "dev",
+                "--dart-define=FLAVOR=dev"
+            ]
         },
         {
-            "name": "debug no-buil",
+            "name": "prod (cloud backend)",
             "request": "launch",
             "type": "dart",
+            "flutterMode": "debug",
             "args": [
-                "--use-application-binary=build/app/outputs/apk/debug/app-debug.apk",
-            ],
-            "flutterMode": "debug"
+                "--flavor",
+                "prod",
+                "--dart-define=FLAVOR=prod"
+            ]
         },
+        // {
+        //     "name": "debug",
+        //     "request": "launch",
+        //     "type": "dart",
+        //     "flutterMode": "debug"
+        // },
+        // {
+        //     "name": "debug no-buil",
+        //     "request": "launch",
+        //     "type": "dart",
+        //     "args": [
+        //         "--use-application-binary=build/app/outputs/apk/debug/app-debug.apk",
+        //     ],
+        //     "flutterMode": "debug"
+        // },
         {
             "name": "profile",
             "request": "launch",

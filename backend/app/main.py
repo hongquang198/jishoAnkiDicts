@@ -9,10 +9,11 @@ from app.routers import logs
 from app.routers import settings
 from app.routers import views
 from app.routers import ai
+from app.version import __version__
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="JishoAnki API", version="0.1.0")
+    app = FastAPI(title="JishoAnki API", version=__version__)
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

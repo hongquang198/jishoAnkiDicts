@@ -51,6 +51,51 @@
       },
       "oauth_client": [
         {
+          "client_id": "922935793300-1upuuo5tqudpkft2cpr810p0q2n077l2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quangpham.JishoAnki.debug",
+            "certificate_hash": "768b51bd5d3f40545e80f1b78507e7fe74bd92a5"
+          }
+        },
+        {
+          "client_id": "922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR-_iS_fbtjZNGC6zBF4M60hSGGhtIcQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922935793300:android:74b6d612edd8791e13c681",
+        "android_client_info": {
+          "package_name": "com.quangpham.JishoAnki.dev.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "922935793300-32keaa3ca4h6n4eecjm71nv8qt88rj33.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quangpham.JishoAnki.dev.debug",
+            "certificate_hash": "768b51bd5d3f40545e80f1b78507e7fe74bd92a5"
+          }
+        },
+        {
           "client_id": "922935793300-hf8ffergn69q8sbegalnq7i26qg799vt.apps.googleusercontent.com",
           "client_type": 3
         }

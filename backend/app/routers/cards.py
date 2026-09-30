@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
-from app.core.deps import get_current_user_id
+from app.core.deps import get_current_user_id, provision_current_user
 from app.core.cache import cards_key, cards_pattern, get_redis
 from app.db.session import get_db
 from app.models import db as models
@@ -8,7 +8,13 @@ from app.models.schemas import BulkCards
 from app.core.ratelimit import limiter
 import json
 
-router = APIRouter(prefix='/cards', tags=['cards'])
+router = APIRouter(
+    prefix='/cards',
+    tags=['cards'],
+    # Every endpoint here is authenticated + parent-provisioned, including
+    # future ones added to this router: no per-endpoint lines needed.
+    dependencies=[Depends(provision_current_user)],
+)
 
 @router.put('/bulk')
 @limiter.limit(limit_value='30/minute')

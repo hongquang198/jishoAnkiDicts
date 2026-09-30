@@ -1,17 +1,21 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user_id
+from app.core.deps import get_current_user_id, provision_current_user
 from app.db.session import get_db
 from app.models import db as models
 from app.models.schemas import UserSettingsIn
 
-router = APIRouter(prefix='/settings', tags=['settings'])
+router = APIRouter(
+    prefix='/settings',
+    tags=['settings'],
+    dependencies=[Depends(provision_current_user)],
+)
 
 @router.put('')
 def push_settings(body: UserSettingsIn,
               user_id: str = Depends(get_current_user_id),
-              db: Session = Depends(get_db)) -> dict:
+               db: Session = Depends(get_db)) -> dict:
     row = db.get(models.UserSettings, user_id)
     if row is None:
         db.add(models.UserSettings(user_id=user_id, **body.model_dump()))

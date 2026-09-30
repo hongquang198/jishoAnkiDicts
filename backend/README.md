@@ -10,9 +10,10 @@ python -m venv .venv
 pip install -r requirements.txt
 copy .env.example .env
 uvicorn app.main:app --reload --port 8000
+# uvicorn app.main:app --host 0.0.0.0 --reload --port 8000
 # health: http://localhost:8000/health
 # docs:   http://localhost:8000/docs
-# LAN/physical phone: uvicorn app.main:app --host 0.0.0.0 --reload --port 8000
+
 # lib/core/config/backend_config.dart at the PC Wi-Fi IPv4.
 ```
 

@@ -55,6 +55,22 @@ android {
         versionName flutterVersionName
     }
 
+    flavorDimensions "env"
+    productFlavors {
+        // Separate app identity on-device (own storage, own tokens): local
+        // testing never touches prod data, no reinstall dance. Firebase
+        // google-services.json has no .dev client, so Firebase calls fail
+        // soft in dev (main.dart already try/catches init) — REST needs none.
+        dev {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
+        prod {
+            dimension "env"
+        }
+    }
+
     signingConfigs {
         release {
             storeFile file(System.getenv("KEYSTORE_PATH") ?: "missing.jks")

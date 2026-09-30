@@ -1,13 +1,17 @@
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user_id
+from app.core.deps import get_current_user_id, provision_current_user
 from app.db.session import get_db
 from app.models import db as models
 from app.models.schemas import BulkViews
 from app.core.ratelimit import limiter
 
-router = APIRouter(prefix='/views', tags=['views'])
+router = APIRouter(
+    prefix='/views',
+    tags=['views'],
+    dependencies=[Depends(provision_current_user)],
+)
 
 @router.put('/bulk')
 @limiter.limit(limit_value='30/minute')

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,7 @@ class RestAuthDataSource implements AuthRemoteDataSource {
   static const _kToken = 'rest_access_token';
   static const _kEmail = 'rest_email';
   static const _kIsAnon = 'rest_is_anonymous';
+  static const _kBaseUrl = 'rest_base_url';
 
   final Dio _dio;
   final SharedPreferences _prefs;
@@ -32,14 +34,30 @@ class RestAuthDataSource implements AuthRemoteDataSource {
     Dio? dio,
   })  : _prefs = prefs,
         _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl)) {
-    // Restore last session (if any) so restarts don't log the user out.
-    final uid = _prefs.getString(_kUserId);
-    if (uid != null) {
-      _current = UserEntity(
-        uid: uid,
-        email: _prefs.getString(_kEmail),
-        isAnonymous: _prefs.getBool(_kIsAnon) ?? true,
-      );
+    // Sessions are bound to the backend that minted them: a token verified
+    // by one environment is meaningless (or belongs to different rows) in
+    // another. On backend switch, drop the session; the bloc mints a fresh
+    // anon. Prefs clears are fire-and-forget; _current is nulled synchronously
+    // so reads are correct immediately.
+    if (_prefs.getString(_kBaseUrl) case final lastBase?
+        when lastBase != baseUrl) {
+      _prefs.remove(_kUserId);
+      _prefs.remove(_kToken);
+      _prefs.remove(_kEmail);
+      _prefs.setBool(_kIsAnon, true);
+      _prefs.setString(_kBaseUrl, baseUrl);
+      _current = null;
+    } else {
+      _prefs.setString(_kBaseUrl, baseUrl);
+      // Restore last session (if any) so restarts don't log the user out.
+      final uid = _prefs.getString(_kUserId);
+      if (uid != null) {
+        _current = UserEntity(
+          uid: uid,
+          email: _prefs.getString(_kEmail),
+          isAnonymous: _prefs.getBool(_kIsAnon) ?? true,
+        );
+      }
     }
   }
 
@@ -115,13 +133,30 @@ class RestAuthDataSource implements AuthRemoteDataSource {
   }
 
   // Google arrives with P2's /auth/link-google (currently 501 server-side).
-  @override
-  Future<UserEntity> signInWithGoogle() =>
-      throw UnimplementedError('REST Google sign-in needs P2');
+  Future<String> _googleIdToken() async {
+    final idToken =
+        (await GoogleSignIn.instance.authenticate()).authentication.idToken;
+    if (idToken == null || idToken.isEmpty) {
+      throw StateError('Google did not return an id token');
+    }
+    return idToken;
+  }
 
   @override
-  Future<UserEntity> linkAccountWithGoogle() =>
-      throw UnimplementedError('REST Google link needs P2');
+  Future<UserEntity> signInWithGoogle() async {
+    final res = await _dio.post('/auth/google',
+        data: {'id_token': await _googleIdToken()},
+        options: Options(headers: authHeader));
+    return _saveSession(res.data as Map<String, dynamic>, isAnonymous: false);
+  }
+
+  @override
+  Future<UserEntity> linkAccountWithGoogle() async {
+    final res = await _dio.post('/auth/link-google',
+        data: {'id_token': await _googleIdToken()},
+        options: Options(headers: authHeader));
+    return _saveSession(res.data as Map<String, dynamic>, isAnonymous: false);
+  }
 
   @override
   Future<void> signOut() async {
