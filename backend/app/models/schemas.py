@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 # Why does this class only have 3 fields?
@@ -38,4 +40,16 @@ class AuthLinkGoogle(BaseModel):
 
 class AiGenerateIn(BaseModel):
     prompt: str
+    model: str = 'gemini-3.5-flash-lite'
+
+
+class ChatMessageIn(BaseModel):
+    role: Literal['user', 'model']
+    text: str
+
+
+class AiChatIn(BaseModel):
+    # Full transcript every call: the server holds no session state.
+    # Client prepends its system context as the first user message.
+    messages: list[ChatMessageIn]
     model: str = 'gemini-3.5-flash-lite'

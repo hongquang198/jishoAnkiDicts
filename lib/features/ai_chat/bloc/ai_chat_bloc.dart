@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../services/llm_service.dart';
 import 'ai_chat_event.dart';
 import 'ai_chat_state.dart';
 
 class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
   final LlmService llmService;
-  ChatSession? _chatSession;
+  String _initialContext = '';
 
   AiChatBloc({required this.llmService}) : super(const AiChatState()) {
     on<InitializeAiChat>(_onInitializeAiChat);
@@ -21,8 +20,7 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
   ) async {
     emit(state.copyWith(isLoading: true, initialContext: event.initialContext));
     try {
-      _chatSession =
-          llmService.startChatSession(initialContext: event.initialContext);
+      _initialContext = event.initialContext;
       emit(state.copyWith(
         isLoading: false,
         messages: [
@@ -46,7 +44,7 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
     SendChatMessage event,
     Emitter<AiChatState> emit,
   ) async {
-    if (event.text.trim().isEmpty || _chatSession == null) return;
+    if (event.text.trim().isEmpty) return;
 
     final userMessage = AiChatMessage(
       text: event.text,
@@ -69,23 +67,21 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
       updatedMessages.add(assistantPlaceholder);
       emit(state.copyWith(messages: List.from(updatedMessages)));
 
-      final responseStream =
-          _chatSession!.sendMessageStream(Content.text(event.text));
-      String accumulated = '';
-
-      await for (final chunk in responseStream) {
-        if (chunk.text != null) {
-          accumulated += chunk.text!;
-          updatedMessages[assistantMessageIndex] = AiChatMessage(
-            text: accumulated,
-            isUser: false,
-            timestamp: DateTime.now(),
-          );
-          emit(state.copyWith(messages: List.from(updatedMessages)));
-        }
-      }
-
-      emit(state.copyWith(isStreaming: false));
+      final answer = await llmService.sendChatMessage(
+        initialContext: _initialContext,
+        history: [
+          for (final m in updatedMessages)
+            (isUser: m.isUser, text: m.text),
+        ],
+        text: event.text,
+      );
+      updatedMessages[assistantMessageIndex] = AiChatMessage(
+        text: answer,
+        isUser: false,
+        timestamp: DateTime.now(),
+      );
+      emit(state.copyWith(
+          messages: List.from(updatedMessages), isStreaming: false));
     } catch (e) {
       emit(state.copyWith(
         isStreaming: false,

@@ -145,7 +145,10 @@ class LlmService {
     }
 
     if (BackendConfig.useRest) {
-      yield await _proxyGenerate(buildPrompt(query, useGenUi: useGenUi));
+      yield await _proxyCall('/ai/generate', {
+        'prompt': buildPrompt(query, useGenUi: useGenUi),
+        'model': sharedPref.llmModel,
+      });
       return;
     }
 
@@ -172,18 +175,15 @@ class LlmService {
     }
   }
 
-  Future<String> _proxyGenerate(String prompt) async {
+  Future<String> _proxyCall(String path, Map<String, dynamic> body) async {
     final token = authTokenProvider?.call();
     final res = await http.post(
-      Uri.parse('${BackendConfig.apiBaseUrl}/ai/generate'),
+      Uri.parse('${BackendConfig.apiBaseUrl}$path'),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({
-        'prompt': prompt,
-        'model': sharedPref.llmModel,
-      }),
+      body: jsonEncode(body),
     );
     if (res.statusCode != 200) {
       throw Exception('AI proxy error (${res.statusCode}): ${res.body}');
@@ -192,7 +192,34 @@ class LlmService {
     return data['answer'] as String? ?? '';
   }
 
-  /// Adds `startChatSession({required String initialContext})` method in `LlmService`.
+  ChatSession? _directSession;
+  String? _directContext;
+
+  Future<String> sendChatMessage({
+    required String initialContext,
+    required List<({bool isUser, String text})> history,
+    required String text,
+  }) async {
+    if (BackendConfig.useRest) {
+      final messages = [
+        {'role': 'user', 'text': initialContext},
+        for (final m in history)
+          if (m.text.trim().isNotEmpty)
+            {'role': m.isUser ? 'user' : 'model', 'text': m.text},
+        {'role': 'user', 'text': text},
+      ];
+      return _proxyCall('/ai/chat', {
+        'messages': messages,
+        'model': sharedPref.llmModel,
+      });
+    }
+    if (_directSession == null || _directContext != initialContext) {
+      _directSession = startChatSession(initialContext: initialContext);
+      _directContext = initialContext;
+    }
+    final res = await _directSession!.sendMessage(Content.text(text));
+    return res.text ?? '';
+  }
   ChatSession startChatSession({required String initialContext}) {
     final apiKey = sharedPref.llmApiKey.trim();
     if (apiKey.isEmpty) {
@@ -333,7 +360,10 @@ class LlmService {
 
     if (BackendConfig.useRest) {
       try {
-        final text = await _proxyGenerate(prompt);
+        final text = await _proxyCall('/ai/generate', {
+          'prompt': prompt,
+          'model': sharedPref.llmModel,
+        });
         if (text.trim().isEmpty) return null;
         final decoded = jsonDecode(text);
         if (decoded is Map<String, dynamic>) return decoded;

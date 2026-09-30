@@ -4,10 +4,11 @@ from datetime import date
 
 import google.generativeai as genai
 from fastapi import APIRouter, Depends, HTTPException, status
+from google.ai import generativelanguage as glm
 from app.core.cache import get_redis
 from app.core.config import settings
 from app.core.deps import get_current_user_id
-from app.models.schemas import AiGenerateIn
+from app.models.schemas import AiChatIn, AiGenerateIn
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix='/ai', tags=['ai'])
@@ -76,3 +77,40 @@ def ai_generate(body: AiGenerateIn, user_id: str = Depends(get_current_user_id))
         except Exception:
             pass
     return {'answer': answer, 'cached': False, 'model': model_used}
+
+
+@router.post('/chat')
+def ai_chat(body: AiChatIn, user_id: str = Depends(get_current_user_id)) -> dict:
+    # Stateless turns: the client resends the transcript every call, so the
+    # server holds no session. History replays, only the last message is new.
+    # Deliberately uncached: identical transcripts across users are rare and
+    # branchy conversations make hits a staleness risk.
+    if not settings.gemini_api_key:
+        raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, 'Gemini API key not set')
+    if not body.messages or not body.messages[-1].text.strip():
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, 'Empty transcript')
+    _ensure_quota(user_id, get_redis())
+    history = [
+        glm.Content(parts=[glm.Part(text=m.text)], role=m.role)
+        for m in body.messages[:-1]
+    ]
+    last = body.messages[-1].text
+    model_used = body.model
+    try:
+        genai.configure(api_key=settings.gemini_api_key)
+        chat = genai.GenerativeModel(body.model).start_chat(history=history)
+        answer = chat.send_message(last).text
+    except Exception as e:
+        if '404' in str(e) and body.model != DEFAULT_AI_MODEL:
+            log.warning(f'Model {body.model} retired, falling back to {DEFAULT_AI_MODEL}')
+            model_used = DEFAULT_AI_MODEL
+            try:
+                chat = genai.GenerativeModel(model_used).start_chat(history=history)
+                answer = chat.send_message(last).text
+            except Exception as e2:
+                log.warning('Gemini chat fallback failed', exc_info=True)
+                raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e2}')
+        else:
+            log.warning('Gemini chat failed', exc_info=True)
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, f'AI provider error: {e}')
+    return {'answer': answer, 'model': model_used}
