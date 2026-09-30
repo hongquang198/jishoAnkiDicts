@@ -145,3 +145,14 @@ re-running it is a safe no-op, so it belongs in the deploy pipeline itself:
 - **New schema change workflow:** edit `app/models/db.py` →
   `alembic revision --autogenerate -m "<what>"` → review the script → commit → push.
   CI proves it applies clean; deploy applies it to prod automatically.
+## Ship a release (tag-driven)
+
+```powershell
+git tag v1.4.0
+git push --tags
+```
+
+That tag push runs `.github/workflows/release.yml`: full `flutter test` ->
+signed release APK + AAB (upload keystore from secrets) -> published GitHub
+Release with auto-generated notes. Debug artifacts from plain pushes stay
+in Actions run artifacts; only tags reach the Releases page.
