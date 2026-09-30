@@ -2,6 +2,7 @@ name: backend
 
 on:
   push:
+    branches: ['main'] # tags (v*) are release.yml's alone — without this,
     paths: ['backend/**']
   pull_request:
     paths: ['backend/**']

@@ -2,6 +2,7 @@ name: flutter
 
 on:
   push:
+    branches: ['main'] # tags (v*) are release.yml's alone — without this,
     paths: ['lib/**', 'test/**', 'pubspec.yaml', '.github/workflows/flutter.yml']
   pull_request:
     paths: ['lib/**', 'test/**', 'pubspec.yaml', '.github/workflows/flutter.yml']
