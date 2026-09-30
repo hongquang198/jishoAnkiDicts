@@ -55,11 +55,22 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("KEYSTORE_PATH") ?: "missing.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            // CI provides a real upload keystore via env; local builds without
+            // it fall back to debug keys so `flutter run --release` keeps working.
+            signingConfig System.getenv("KEYSTORE_PATH")
+                ? signingConfigs.release
+                : signingConfigs.debug
         }
         debug {
             applicationIdSuffix ".debug"
