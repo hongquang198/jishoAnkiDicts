@@ -1,10 +1,10 @@
 name: release
 
-# Ship flow: git tag vX.Y.Z && git push --tags.
+# Ship flow: merge main into `release` (or push to it directly).
 # Test -> signed APK + AAB -> published Release with auto-notes.
 on:
   push:
-    tags: ['v*']
+    branches: ['release']
 
 permissions:
   contents: write # gh-release needs it to publish the Release
@@ -65,5 +65,6 @@ jobs:
           path: dist
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: release-${{ github.run_number }}
           files: dist/*
           generate_release_notes: true

@@ -68,9 +68,10 @@ to peek at when stuck. Each session: 1 concept → type → run proof →
   full suite green against Postgres; pg1 survived `restart db` with same token.
 
 ## Rebuild complete — 15/15 (2026-09-16). Adapter complete — A1/A2/A3 (2026-09-17).
-## P2 COMPLETE (2026-09-18): Google link, Redis cache + rate limits, AI proxy
-## (+retired-model fallback), dual CI green, Render+Neon live with boot migrations.
-## Next: P3 options or the structured-proxy phase (fetchWordInfo gap-fill).
+## P2 COMPLETE (2026-09-18): real-account Google link, Redis cache + rate
+## limits, AI gateway (+chat) with retired-model fallback, dual CI green,
+## Render+Neon live, model watchdog alarming. Versions: app 1.4.0, backend
+## 0.2.0 (`app/version.py` single source + `/version` as deploy proof).
 
 ## Rules
 
