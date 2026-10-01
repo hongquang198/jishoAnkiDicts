@@ -11,6 +11,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 import app.routers.auth as auth_router
+from app.core.config import settings
 from app.main import create_app
 
 
@@ -39,7 +40,10 @@ def test_google_forgery_rejected_without_mock():
     assert res.status_code in (401, 501)
 
 
-def test_google_register_then_reinstall_adopts_owner():
+def test_google_register_then_reinstall_adopts_owner(monkeypatch):
+    # Hermetic: the id only needs to be non-empty — verification itself is
+    # mocked, so CI (no GOOGLE_CLIENT_ID) behaves like local (configured).
+    monkeypatch.setattr(settings, 'google_client_id', 'test-client-id')
     verify_path = 'app.routers.auth.google_id_token.verify_oauth2_token'
     with patch(verify_path, return_value=_fake_info()):
         client = TestClient(create_app())
@@ -79,7 +83,8 @@ def test_google_register_then_reinstall_adopts_owner():
         assert any(c['id'] == card_id for c in cards)
 
 
-def test_link_google_strict_conflict():
+def test_link_google_strict_conflict(monkeypatch):
+    monkeypatch.setattr(settings, 'google_client_id', 'test-client-id')
     verify_path = 'app.routers.auth.google_id_token.verify_oauth2_token'
     with patch(verify_path, return_value=_fake_info()):
         client = TestClient(create_app())

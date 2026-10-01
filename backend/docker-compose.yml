@@ -16,6 +16,7 @@ services:
     # Alpine variant: same Postgres 16, smaller image. Plain :16 (Debian)
     # fails here with "exec format error" — environment quirk, see S14 notes.
     image: postgres:16-alpine
+    restart: unless-stopped # survive reboots: Docker was asleep, not the DB
     environment:
       POSTGRES_USER: jisho
       POSTGRES_PASSWORD: jisho
@@ -29,6 +30,7 @@ services:
   # network name — same reason the api container uses host "db", S14).
   pgadmin:
     image: dpage/pgadmin4:8
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -42,6 +44,7 @@ services:
   # API reaches it at host "redis" (compose network); local dev uses localhost.
   redis:
     image: redis:7
+    restart: unless-stopped
     ports:
       - "6379:6379"
 volumes:
