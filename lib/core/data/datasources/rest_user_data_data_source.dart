@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/rest_auth_data_source.dart';
+import 'package:jisho_anki/core/network/rest_log_interceptor.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/word_card.dart';
@@ -25,7 +26,10 @@ class RestUserDataDataSource implements RemoteUserDataDataSource {
       defaultValue: 'http://10.0.2.2:8000',
     ),
   })  : _auth = auth,
-        _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl));
+        // Injected Dio (tests) stays silent; the real one logs every call.
+        _dio = dio ??
+            (Dio(BaseOptions(baseUrl: baseUrl))
+              ..interceptors.add(RestLogInterceptor()));
 
   Options get _authed => Options(headers: _auth.authHeader);
 

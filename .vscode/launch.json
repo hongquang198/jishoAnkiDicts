@@ -26,21 +26,6 @@
                 "--dart-define=FLAVOR=prod"
             ]
         },
-        // {
-        //     "name": "debug",
-        //     "request": "launch",
-        //     "type": "dart",
-        //     "flutterMode": "debug"
-        // },
-        // {
-        //     "name": "debug no-buil",
-        //     "request": "launch",
-        //     "type": "dart",
-        //     "args": [
-        //         "--use-application-binary=build/app/outputs/apk/debug/app-debug.apk",
-        //     ],
-        //     "flutterMode": "debug"
-        // },
         {
             "name": "profile",
             "request": "launch",

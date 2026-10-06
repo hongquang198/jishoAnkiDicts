@@ -1,24 +1,82 @@
+import time
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.deps import get_current_user_id
-from app.core.security import issue_access_token
+from app.core.security import (
+    hash_refresh_token,
+    issue_access_token,
+    new_refresh_token,
+)
 from app.db.session import get_db
 from app.models import db as models
 from app.core.config import settings
 import google.auth.transport.requests as google_requests
 import google.oauth2.id_token as google_id_token
 
-from app.models.schemas import AuthLinkGoogle
+from app.models.schemas import AuthLinkGoogle, AuthRefreshIn
 
 router = APIRouter(prefix='/auth', tags=['auth'])
+
+# Server clock in epoch millis (matches the int-timestamp convention):
+# refresh expiry is the first timestamp the server itself must mint.
+def _now_ms() -> int:
+    return int(time.time() * 1000)
+
+
+def _mint_pair(db: Session, user_id: str, email: str | None = None) -> dict:
+    # One login = one access token + one refresh row. The raw refresh value
+    # leaves the server exactly once (here); everything after uses its hash.
+    raw, digest = new_refresh_token()
+    db.add(models.RefreshToken(
+        id=uuid.uuid4().hex,
+        user_id=user_id,
+        token_hash=digest,
+        expires_at=_now_ms() + settings.refresh_token_days * 86400_000,
+        created_at=_now_ms(),
+    ))
+    db.commit()
+    pair = {
+        'user_id': user_id,
+        'access_token': issue_access_token(user_id),
+        'refresh_token': raw,
+    }
+    if email is not None:
+        pair['email'] = email
+    return pair
+
+
+@router.post('/refresh')
+def refresh_session(body: AuthRefreshIn, db: Session = Depends(get_db)) -> dict:
+    row = db.query(models.RefreshToken).filter(
+        models.RefreshToken.token_hash == hash_refresh_token(body.refresh_token)
+    ).first()
+    if row is None:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, 'Invalid refresh token')
+    if row.revoked:
+        # Spent token replayed: possible theft — wipe the whole family so
+        # neither the attacker's copy nor the legitimate child works.
+        db.query(models.RefreshToken).filter(
+            models.RefreshToken.user_id == row.user_id).delete()
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, 'Refresh token reused')
+    if row.expires_at <= _now_ms():
+        db.delete(row)
+        db.commit()
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, 'Refresh token expired')
+    # Rotation: the presented token dies, its replacement lives. A stolen
+    # parent is therefore useful exactly once — and using it burns the child.
+    row.revoked = True
+    db.commit()
+    return _mint_pair(db, row.user_id)
+
 
 @router.post('/anon', status_code=201)
 def sign_in_anonymously(db: Session = Depends(get_db)) -> dict:
     user = models.User(id=f'anon_{uuid.uuid4().hex[:12]}', is_anonymous=True)
     db.add(user)
     db.commit()
-    return {'user_id': user.id, 'access_token': issue_access_token(user.id)}
+    return _mint_pair(db, user.id)
 
 @router.get('/me')
 def me(user_id: str = Depends(get_current_user_id)) -> dict:
@@ -44,11 +102,8 @@ def _verify_google(body: AuthLinkGoogle) -> dict:
         )
 
 
-def _token_pair(user_id: str, email: str | None = None) -> dict:
-    pair = {'user_id': user_id, 'access_token': issue_access_token(user_id)}
-    if email is not None:
-        pair['email'] = email
-    return pair
+def _token_pair(db: Session, user_id: str, email: str | None = None) -> dict:
+    return _mint_pair(db, user_id, email)
 
 
 def _google_owner(db: Session, google_sub: str):
@@ -100,7 +155,7 @@ def link_google(
             status.HTTP_409_CONFLICT,
             'Google account already linked elsewhere')
     user = _attach_google(db, user_id, google_sub, info.get('email'))
-    return _token_pair(user.id, user.email)
+    return _token_pair(db, user.id, user.email)
 
 
 @router.post('/google')
@@ -115,6 +170,6 @@ def google_auth(
     info = _verify_google(body)
     owner = _google_owner(db, info['sub'])
     if owner is not None:
-        return _token_pair(owner.id, owner.email)
+        return _token_pair(db, owner.id, owner.email)
     user = _attach_google(db, user_id, info['sub'], info.get('email'))
-    return _token_pair(user.id, user.email)
+    return _token_pair(db, user.id, user.email)

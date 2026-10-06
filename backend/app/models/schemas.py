@@ -38,6 +38,10 @@ class UserSettingsIn(BaseModel):
 class AuthLinkGoogle(BaseModel):
     id_token: str
 
+
+class AuthRefreshIn(BaseModel):
+    refresh_token: str
+
 class AiGenerateIn(BaseModel):
     prompt: str
     model: str = 'gemini-3.5-flash-lite'

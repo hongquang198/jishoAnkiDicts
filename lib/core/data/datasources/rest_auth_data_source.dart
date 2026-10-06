@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_entity.dart';
+import 'package:jisho_anki/core/network/rest_log_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // REST implementation of [AuthRemoteDataSource] against the custom backend.
@@ -33,7 +34,9 @@ class RestAuthDataSource implements AuthRemoteDataSource {
     required SharedPreferences prefs,
     Dio? dio,
   })  : _prefs = prefs,
-        _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl)) {
+        _dio = dio ??
+            (Dio(BaseOptions(baseUrl: baseUrl))
+              ..interceptors.add(RestLogInterceptor())) {
     // Sessions are bound to the backend that minted them: a token verified
     // by one environment is meaningless (or belongs to different rows) in
     // another. On backend switch, drop the session; the bloc mints a fresh

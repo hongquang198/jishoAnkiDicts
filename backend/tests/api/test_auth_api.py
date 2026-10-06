@@ -14,7 +14,7 @@ def _anon(client: TestClient) -> dict:
     res = client.post('/auth/anon')
     assert res.status_code == 201
     body = res.json()
-    assert set(body) == {'user_id', 'access_token'}
+    assert set(body) == {'user_id', 'access_token', 'refresh_token'}
     return body
 
 

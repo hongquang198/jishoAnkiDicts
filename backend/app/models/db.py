@@ -76,3 +76,20 @@ class UserSettings(Base):
     target_language: Mapped[str] = mapped_column(String(64), default='Japanese')
     has_completed_language_setup: Mapped[int] = mapped_column(BigInteger, default=0)
     updated_at: Mapped[int] = mapped_column(BigInteger, default=0)
+
+
+class RefreshToken(Base):
+    # Server-side half of a rotation pair: only the SHA-256 hash is stored,
+    # so a database leak alone mints nothing (same rule as password_hash).
+    # Rotation = mark spent, mint child; replaying a spent token wipes the
+    # whole user family (theft detection). Expiry is epoch millis, matching
+    # the codebase's int-timestamp convention (no tz-aware datetimes).
+    __tablename__ = 'refresh_tokens'
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey('users.id', ondelete='CASCADE'), index=True
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[int] = mapped_column(BigInteger, default=0)
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[int] = mapped_column(BigInteger, default=0)

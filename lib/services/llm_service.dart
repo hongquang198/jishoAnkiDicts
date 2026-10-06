@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../core/data/datasources/shared_pref.dart';
@@ -29,7 +30,10 @@ class LlmService {
 
     final url = Uri.parse(
         'https://generativelanguage.googleapis.com/v1beta/models?key=$key');
+    // Query (the API key) is never logged — host + status only.
+    log('→ GET generativelanguage.googleapis.com/v1beta/models', name: 'REST');
     final response = await http.get(url);
+    log('← ${response.statusCode} GET .../v1beta/models', name: 'REST');
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -175,8 +179,16 @@ class LlmService {
     }
   }
 
+  // Caps logged payloads so long AI answers don't flood the terminal.
+  static String _logPreview(String text) => text.length <= 4000
+      ? text
+      : '${text.substring(0, 4000)}…(truncated)';
+
   Future<String> _proxyCall(String path, Map<String, dynamic> body) async {
     final token = authTokenProvider?.call();
+    final started = DateTime.now();
+    log('→ POST $path', name: 'REST');
+    log('  body: ${_logPreview(jsonEncode(body))}', name: 'REST');
     final res = await http.post(
       Uri.parse('${BackendConfig.apiBaseUrl}$path'),
       headers: {
@@ -185,6 +197,9 @@ class LlmService {
       },
       body: jsonEncode(body),
     );
+    final ms = DateTime.now().difference(started).inMilliseconds;
+    log('← ${res.statusCode} POST $path (${ms}ms)', name: 'REST');
+    log('  body: ${_logPreview(res.body)}', name: 'REST');
     if (res.statusCode != 200) {
       throw Exception('AI proxy error (${res.statusCode}): ${res.body}');
     }
