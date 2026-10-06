@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:jisho_anki/core/data/datasources/auth_remote_data_source.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_entity.dart';
+import 'package:jisho_anki/core/network/auth_retry_interceptor.dart';
 import 'package:jisho_anki/core/network/rest_log_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,9 +18,13 @@ class RestAuthDataSource implements AuthRemoteDataSource {
   static const _kEmail = 'rest_email';
   static const _kIsAnon = 'rest_is_anonymous';
   static const _kBaseUrl = 'rest_base_url';
+  static const _kRefresh = 'rest_refresh_token';
 
   final Dio _dio;
   final SharedPreferences _prefs;
+  // Long-lived credential: encrypted storage, never SharedPreferences
+  // (plaintext XML on Android). Survives app restarts; dies on sign-out.
+  final FlutterSecureStorage _secure;
   final StreamController<UserEntity?> _authController =
       StreamController<UserEntity?>.broadcast();
 
@@ -33,10 +39,18 @@ class RestAuthDataSource implements AuthRemoteDataSource {
     ),
     required SharedPreferences prefs,
     Dio? dio,
+    FlutterSecureStorage secure = const FlutterSecureStorage(),
   })  : _prefs = prefs,
+        _secure = secure,
         _dio = dio ??
             (Dio(BaseOptions(baseUrl: baseUrl))
               ..interceptors.add(RestLogInterceptor())) {
+    // 401s renew-and-retry transparently (minute-61 calls survive).
+    _dio.interceptors.add(AuthRetryInterceptor(
+      dio: _dio,
+      renewSession: refreshSession,
+      freshHeaders: () => authHeader,
+    ));
     // Sessions are bound to the backend that minted them: a token verified
     // by one environment is meaningless (or belongs to different rows) in
     // another. On backend switch, drop the session; the bloc mints a fresh
@@ -49,6 +63,8 @@ class RestAuthDataSource implements AuthRemoteDataSource {
       _prefs.remove(_kEmail);
       _prefs.setBool(_kIsAnon, true);
       _prefs.setString(_kBaseUrl, baseUrl);
+      // A refresh token is bound to its backend's rows — same rule as above.
+      unawaited(_secure.delete(key: _kRefresh));
       _current = null;
     } else {
       _prefs.setString(_kBaseUrl, baseUrl);
@@ -99,6 +115,10 @@ class RestAuthDataSource implements AuthRemoteDataSource {
     );
     await _prefs.setString(_kUserId, user.uid);
     await _prefs.setString(_kToken, json['access_token'] as String);
+    // Rotation replaces the stored token every renewal; a missing key keeps
+    // the old one (server always sends it — this is belt-and-suspenders).
+    final refresh = json['refresh_token'] as String?;
+    if (refresh != null) await _secure.write(key: _kRefresh, value: refresh);
     if (user.email != null) await _prefs.setString(_kEmail, user.email!);
     await _prefs.setBool(_kIsAnon, isAnonymous);
     _current = user;
@@ -166,8 +186,32 @@ class RestAuthDataSource implements AuthRemoteDataSource {
     await _prefs.remove(_kUserId);
     await _prefs.remove(_kToken);
     await _prefs.remove(_kEmail);
+    await _secure.delete(key: _kRefresh);
     await _prefs.setBool(_kIsAnon, true);
     _current = null;
     _authController.add(null);
+  }
+
+  // Renews the session from the stored refresh token (rotation: the server
+  // revokes the presented token and returns its child). Returns false when
+  // the session is unrecoverable — caller signs the user out to login.
+  Future<bool> refreshSession() async {
+    final stored = await _secure.read(key: _kRefresh);
+    if (stored == null || stored.isEmpty) return false;
+    try {
+      final res = await _dio.post('/auth/refresh', data: {
+        'refresh_token': stored,
+      });
+      await _saveSession(
+        res.data as Map<String, dynamic>,
+        isAnonymous: _current?.isAnonymous ?? true,
+      );
+      return true;
+    } on DioException catch (e) {
+      // 401 = spent/expired/stolen family: the server wiped it, drop local
+      // state so AuthBloc falls back to login instead of retrying forever.
+      if (e.response?.statusCode == 401) await signOut();
+      return false;
+    }
   }
 }

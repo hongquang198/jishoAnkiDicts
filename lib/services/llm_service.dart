@@ -12,8 +12,11 @@ import 'package:jisho_anki/core/config/backend_config.dart';
 class LlmService {
   final SharedPref sharedPref;
   final String? Function()? authTokenProvider;
+  // Renews the session (refresh-token rotation); _proxyCall retries once
+  // after a renewal so AI calls survive token expiry like sync calls do.
+  final Future<bool> Function()? sessionRenewal;
 
-  LlmService({required this.sharedPref, this.authTokenProvider});
+  LlmService({required this.sharedPref, this.authTokenProvider, this.sessionRenewal});
 
   // REST mode needs no client key: the server holds it (P2.3). One backend
   // decision (useRest) owns both sync and AI routing — no second flag (YAGNI).
@@ -184,12 +187,9 @@ class LlmService {
       ? text
       : '${text.substring(0, 4000)}…(truncated)';
 
-  Future<String> _proxyCall(String path, Map<String, dynamic> body) async {
+  Future<http.Response> _postProxy(String path, Map<String, dynamic> body) {
     final token = authTokenProvider?.call();
-    final started = DateTime.now();
-    log('→ POST $path', name: 'REST');
-    log('  body: ${_logPreview(jsonEncode(body))}', name: 'REST');
-    final res = await http.post(
+    return http.post(
       Uri.parse('${BackendConfig.apiBaseUrl}$path'),
       headers: {
         'Content-Type': 'application/json',
@@ -197,6 +197,18 @@ class LlmService {
       },
       body: jsonEncode(body),
     );
+  }
+
+  Future<String> _proxyCall(String path, Map<String, dynamic> body) async {
+    final started = DateTime.now();
+    log('→ POST $path', name: 'REST');
+    log('  body: ${_logPreview(jsonEncode(body))}', name: 'REST');
+    var res = await _postProxy(path, body);
+    // One expired-token failure per hour becomes a silent retry, not an error.
+    if (res.statusCode == 401 &&
+        await (sessionRenewal?.call() ?? Future.value(false))) {
+      res = await _postProxy(path, body);
+    }
     final ms = DateTime.now().difference(started).inMilliseconds;
     log('← ${res.statusCode} POST $path (${ms}ms)', name: 'REST');
     log('  body: ${_logPreview(res.body)}', name: 'REST');

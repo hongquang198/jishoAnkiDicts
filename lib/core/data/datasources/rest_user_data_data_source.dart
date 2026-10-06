@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:jisho_anki/core/data/datasources/remote_user_data_data_source.dart';
 import 'package:jisho_anki/core/data/datasources/rest_auth_data_source.dart';
+import 'package:jisho_anki/core/network/auth_retry_interceptor.dart';
 import 'package:jisho_anki/core/network/rest_log_interceptor.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/review_log.dart';
 import 'package:jisho_anki/core/domain/entities/user_data/user_settings_entity.dart';
@@ -29,7 +30,15 @@ class RestUserDataDataSource implements RemoteUserDataDataSource {
         // Injected Dio (tests) stays silent; the real one logs every call.
         _dio = dio ??
             (Dio(BaseOptions(baseUrl: baseUrl))
-              ..interceptors.add(RestLogInterceptor()));
+              ..interceptors.add(RestLogInterceptor())) {
+    // Same renewal as the auth Dio: sync calls survive token expiry.
+    // Fresh headers matter — the retried call must not resend the dead token.
+    _dio.interceptors.add(AuthRetryInterceptor(
+      dio: _dio,
+      renewSession: _auth.refreshSession,
+      freshHeaders: () => _auth.authHeader,
+    ));
+  }
 
   Options get _authed => Options(headers: _auth.authHeader);
 

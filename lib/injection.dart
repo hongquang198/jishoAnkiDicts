@@ -63,6 +63,7 @@ Future<void> inject() async {
       () => LlmService(
             sharedPref: getIt<SharedPref>(),
             authTokenProvider: () => getIt<RestAuthDataSource>().accessToken,
+            sessionRenewal: () => getIt<RestAuthDataSource>().refreshSession(),
           ),
       dependsOn: [SharedPref]);
   getIt.registerLazySingleton<GenUiPrefetchCache>(() => GenUiPrefetchCache());
