@@ -10,8 +10,8 @@ def issue_access_token(user_id: str, minutes: int | None = None) -> str:
     # values (e.g. -1 for an already-dead token), production uses the env.
     lifetime = minutes if minutes is not None else settings.access_token_minutes
     exp = datetime.now(timezone.utc) + timedelta(minutes=lifetime)
-    return jwt.encode({'sub': user_id, 'exp': exp}, settings.jwt_secret, algorithm=settings.jwt_alg)
 
+    return jwt.encode({'sub': user_id, 'exp': exp}, settings.jwt_secret, algorithm=settings.jwt_alg)
 
 def parse_user_id(token: str) -> str | None:
     try:
